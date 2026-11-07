@@ -24,7 +24,11 @@ export const configSchema = z
     IDEMPOTENCY_RETENTION_HOURS: z.coerce.number().int().min(1).default(168),
     MAX_POSTS_PER_DAY: z.coerce.number().int().min(1).default(10),
     TRUST_PROXY_HOPS: z.coerce.number().int().min(0).default(0),
-    OTP_PROVIDER: z.enum(['fake', 'twilio']).default('fake'),
+    OTP_PROVIDER: z.enum(['fake', 'twilio', 'firebase']).default('fake'),
+    FIREBASE_PROJECT_ID: z
+      .string()
+      .regex(/^[a-z0-9-]{6,30}$/, 'debe ser el ID de un proyecto de Firebase')
+      .optional(),
     OTP_HASH_SECRET: z.string().min(32),
     REFRESH_TOKEN_SECRET: z.string().min(32),
     REFRESH_TOKEN_DAYS: z.coerce.number().int().min(1).max(365).default(30),
@@ -86,6 +90,13 @@ export const configSchema = z
         code: 'custom',
         path: ['OTP_PROVIDER'],
         message: 'el proveedor OTP falso no puede usarse en producción',
+      });
+    }
+    if (config.OTP_PROVIDER === 'firebase' && !config.FIREBASE_PROJECT_ID) {
+      ctx.addIssue({
+        code: 'custom',
+        path: ['FIREBASE_PROJECT_ID'],
+        message: 'es obligatoria cuando OTP_PROVIDER=firebase',
       });
     }
     if (config.OTP_PROVIDER === 'twilio') {

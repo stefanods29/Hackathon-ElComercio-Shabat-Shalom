@@ -40,6 +40,20 @@ export interface OtpProvider {
 
 export const OTP_PROVIDER = Symbol('OTP_PROVIDER');
 
+/** A phone proved outside the API: Firebase Authentication sent and checked the SMS code. */
+export interface VerifiedPhone {
+  readonly phone: string;
+  /** When the neighbor proved the phone; old tokens are rejected. */
+  readonly verifiedAt: Date;
+}
+
+export interface PhoneTokenVerifier {
+  /** Null when the token is invalid, expired, from another project or not a phone sign-in. */
+  verify(token: string): Promise<VerifiedPhone | null>;
+}
+
+export const PHONE_TOKEN_VERIFIER = Symbol('PHONE_TOKEN_VERIFIER');
+
 export interface OtpCodeRecord {
   readonly id: string;
   readonly phone: string;

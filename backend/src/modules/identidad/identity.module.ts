@@ -16,12 +16,19 @@ import { ListZones } from './application/list-zones.js';
 import {
   OTP_CODE_REPOSITORY,
   OTP_PROVIDER,
+  PHONE_TOKEN_VERIFIER,
   USER_REPOSITORY,
   ZONE_REPOSITORY,
 } from './application/ports.js';
 import { RequestOtp } from './application/request-otp.js';
+import { SignInWithFirebase } from './application/sign-in-with-firebase.js';
 import { VerifyOtp } from './application/verify-otp.js';
+import { DisabledOtpProvider } from './infrastructure/disabled-otp.provider.js';
 import { FakeOtpProvider } from './infrastructure/fake-otp.provider.js';
+import {
+  DisabledPhoneTokenVerifier,
+  FirebasePhoneTokenVerifier,
+} from './infrastructure/firebase-phone-token.verifier.js';
 import { KyselyOtpCodeRepository } from './infrastructure/otp-code.repository.kysely.js';
 import { TwilioOtpProvider } from './infrastructure/twilio-otp.provider.js';
 import { KyselyUserRepository } from './infrastructure/user.repository.kysely.js';
@@ -37,6 +44,7 @@ import { KyselyZoneRepository } from './infrastructure/zone.repository.kysely.js
     RevokeAllSessions,
     RequestOtp,
     VerifyOtp,
+    SignInWithFirebase,
     ListZones,
     ChooseZone,
     { provide: USER_REPOSITORY, useClass: KyselyUserRepository },
@@ -46,10 +54,20 @@ import { KyselyZoneRepository } from './infrastructure/zone.repository.kysely.js
     {
       provide: OTP_PROVIDER,
       inject: [APP_CONFIG],
-      useFactory: (config: AppConfig) =>
-        config.OTP_PROVIDER === 'twilio'
+      useFactory: (config: AppConfig) => {
+        if (config.OTP_PROVIDER === 'firebase') return new DisabledOtpProvider();
+        return config.OTP_PROVIDER === 'twilio'
           ? new TwilioOtpProvider(config)
-          : new FakeOtpProvider(config),
+          : new FakeOtpProvider(config);
+      },
+    },
+    {
+      provide: PHONE_TOKEN_VERIFIER,
+      inject: [APP_CONFIG],
+      useFactory: (config: AppConfig) =>
+        config.FIREBASE_PROJECT_ID
+          ? new FirebasePhoneTokenVerifier(config.FIREBASE_PROJECT_ID)
+          : new DisabledPhoneTokenVerifier(),
     },
   ],
 })

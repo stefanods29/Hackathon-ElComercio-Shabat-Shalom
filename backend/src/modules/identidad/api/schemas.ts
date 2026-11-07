@@ -19,6 +19,12 @@ export const verifyOtpSchema = z.object({
 });
 export type VerifyOtpDto = z.infer<typeof verifyOtpSchema>;
 
+export const firebaseSignInSchema = z.object({
+  tokenFirebase: z.string().min(1).max(4096),
+  dispositivo: z.string().max(80).optional(),
+});
+export type FirebaseSignInDto = z.infer<typeof firebaseSignInSchema>;
+
 export const refreshSessionSchema = z.object({
   refreshToken: z.string().min(1).max(512),
 });

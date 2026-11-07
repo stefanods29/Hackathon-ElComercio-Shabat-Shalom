@@ -135,6 +135,11 @@ paths:
             application/json:
               schema: { $ref: '#/components/schemas/OtpEnviado' }
         '400': { $ref: '#/components/responses/SolicitudInvalida' }
+        '409':
+          description: Este servidor verifica el teléfono con Firebase desde la app (`codigo` = metodo_no_disponible).
+          content:
+            application/problem+json:
+              schema: { $ref: '#/components/schemas/Problema' }
         '429': { $ref: '#/components/responses/DemasiadasSolicitudes' }
         '503':
           description: El proveedor de mensajes no está disponible (`codigo` = servicio_no_disponible).
@@ -172,7 +177,52 @@ paths:
           content:
             application/problem+json:
               schema: { $ref: '#/components/schemas/Problema' }
+        '409':
+          description: Este servidor verifica el teléfono con Firebase desde la app (`codigo` = metodo_no_disponible).
+          content:
+            application/problem+json:
+              schema: { $ref: '#/components/schemas/Problema' }
         '429': { $ref: '#/components/responses/DemasiadasSolicitudes' }
+
+  /v1/auth/firebase:
+    post:
+      tags: [identidad]
+      operationId: ingresarConFirebase
+      summary: Iniciar sesión con un teléfono verificado por Firebase
+      description: |
+        Firebase Authentication envía el SMS y verifica el código en la app. La app manda aquí el
+        ID token de ese ingreso y la API, después de validarlo con las claves públicas de Google,
+        abre la misma sesión que `POST /v1/auth/otp/verificar`. Solo acepta ingresos por teléfono
+        de hace diez minutos o menos. Requiere `FIREBASE_PROJECT_ID` en el servidor.
+        Esta ruta es en línea y no usa Idempotency-Key.
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/IngresoConFirebase' }
+      responses:
+        '200':
+          description: Teléfono confirmado y sesión iniciada.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/SesionRenovable' }
+        '400': { $ref: '#/components/responses/SolicitudInvalida' }
+        '401':
+          description: Token inválido, vencido, de otro proyecto o que no es de un teléfono (`codigo` = token_firebase_invalido).
+          content:
+            application/problem+json:
+              schema: { $ref: '#/components/schemas/Problema' }
+        '409':
+          description: Este servidor no tiene habilitado el ingreso con Firebase (`codigo` = metodo_no_disponible).
+          content:
+            application/problem+json:
+              schema: { $ref: '#/components/schemas/Problema' }
+        '503':
+          description: No se pudieron consultar las claves públicas de Google (`codigo` = servicio_no_disponible).
+          content:
+            application/problem+json:
+              schema: { $ref: '#/components/schemas/Problema' }
 
   /v1/auth/refrescar:
     post:
@@ -784,6 +834,12 @@ components:
         reintentarEnSegundos: { type: integer, minimum: 1, examples: [60] }
         expiraEnSegundos: { type: integer, minimum: 1, examples: [300] }
 
+    IngresoConFirebase:
+      type: object
+      required: [tokenFirebase]
+      properties:
+        tokenFirebase: { type: string, minLength: 1, maxLength: 4096, description: ID token que Firebase entrega a la app tras verificar el SMS. }
+        dispositivo: { type: string, maxLength: 80 }
     VerificacionOtp:
       type: object
       required: [telefono, codigo]

@@ -75,6 +75,17 @@ describe('loadConfig', () => {
     }
   });
 
+  it('exige el ID del proyecto cuando el teléfono se verifica con Firebase', () => {
+    expect(() => loadConfig({ ...base, OTP_PROVIDER: 'firebase' })).toThrow(/FIREBASE_PROJECT_ID/);
+    expect(() =>
+      loadConfig({ ...base, OTP_PROVIDER: 'firebase', FIREBASE_PROJECT_ID: 'No Valido' }),
+    ).toThrow(/FIREBASE_PROJECT_ID/);
+    expect(
+      loadConfig({ ...base, OTP_PROVIDER: 'firebase', FIREBASE_PROJECT_ID: 'vecinal-ba5a2' })
+        .FIREBASE_PROJECT_ID,
+    ).toBe('vecinal-ba5a2');
+  });
+
   it('exige FCM real en producción y valida las credenciales sin exponerlas', () => {
     expect(() => loadConfig({ ...base, NODE_ENV: 'production' })).toThrow(/NOTIFICATION_DRIVER/);
     expect(() =>
