@@ -32,6 +32,8 @@ tags:
     description: Muro de favores.
   - name: operacion
     description: Métricas operativas reservadas a administradores.
+  - name: notificaciones
+    description: Registro y baja de dispositivos para avisos personales.
 security:
   - tokenDeAcceso: []
 
@@ -502,6 +504,66 @@ paths:
         '409': { $ref: '#/components/responses/Conflicto' }
         '422': { $ref: '#/components/responses/NoProcesable' }
 
+  /v1/dispositivos:
+    post:
+      tags: [notificaciones]
+      operationId: registrarDispositivo
+      summary: Registrar o reactivar un dispositivo del vecino autenticado
+      parameters:
+        - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              required: [token, plataforma]
+              properties:
+                token: { $ref: '#/components/schemas/TokenDeDispositivo' }
+                plataforma: { type: string, enum: [android, ios] }
+      responses:
+        '200':
+          description: Registro vigente del dispositivo.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [id, plataforma, registradoEn]
+                properties:
+                  id: { type: string, format: uuid }
+                  plataforma: { type: string, enum: [android, ios] }
+                  registradoEn: { type: string, format: date-time }
+        '400': { $ref: '#/components/responses/SolicitudInvalida' }
+        '401': { $ref: '#/components/responses/NoAutenticado' }
+        '409': { $ref: '#/components/responses/Conflicto' }
+        '422': { $ref: '#/components/responses/NoProcesable' }
+
+  /v1/dispositivos/baja:
+    post:
+      tags: [notificaciones]
+      operationId: darDeBajaDispositivo
+      summary: Dar de baja el token del vecino antes de cerrar su sesión
+      parameters:
+        - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              required: [token]
+              properties:
+                token: { $ref: '#/components/schemas/TokenDeDispositivo' }
+      responses:
+        '204': { description: 'Baja procesada, incluso si el vecino ya no tenía ese token activo.' }
+        '200': { description: Reintento de una baja ya procesada. }
+        '400': { $ref: '#/components/responses/SolicitudInvalida' }
+        '401': { $ref: '#/components/responses/NoAutenticado' }
+        '409': { $ref: '#/components/responses/Conflicto' }
+        '422': { $ref: '#/components/responses/NoProcesable' }
+
 components:
   securitySchemes:
     tokenDeAcceso:
@@ -619,6 +681,12 @@ components:
                 type: [number, 'null']
                 minimum: 0
                 description: Edad del trabajo crítico elegible más antiguo; nulo si no hay ninguno listo.
+    TokenDeDispositivo:
+      type: string
+      minLength: 1
+      maxLength: 4096
+      pattern: '^[!-~]+$'
+      writeOnly: true
     Problema:
       type: object
       description: Problem Details (RFC 9457) con un código estable para el celular.

@@ -74,4 +74,39 @@ describe('loadConfig', () => {
       );
     }
   });
+
+  it('exige FCM real en producción y valida las credenciales sin exponerlas', () => {
+    expect(() => loadConfig({ ...base, NODE_ENV: 'production' })).toThrow(/NOTIFICATION_DRIVER/);
+    expect(() =>
+      loadConfig({
+        ...base,
+        NOTIFICATION_DRIVER: 'fcm',
+        FIREBASE_SERVICE_ACCOUNT_BASE64: 'privado',
+      }),
+    ).toThrow(/FIREBASE_SERVICE_ACCOUNT_BASE64/);
+    const account = Buffer.from(
+      JSON.stringify({
+        project_id: 'prueba',
+        client_email: 'prueba@example.com',
+        private_key: pem,
+      }),
+    ).toString('base64');
+    // Production also requires a real OTP provider (Lot B, part 1).
+    const productionOtp = {
+      OTP_PROVIDER: 'twilio',
+      TWILIO_ACCOUNT_SID: 'AC-prueba',
+      TWILIO_AUTH_TOKEN: 'token-de-prueba',
+      TWILIO_FROM_SMS: '+15550000000',
+      TWILIO_FROM_WHATSAPP: '+15550000001',
+    };
+    expect(
+      loadConfig({
+        ...base,
+        ...productionOtp,
+        NODE_ENV: 'production',
+        NOTIFICATION_DRIVER: 'fcm',
+        FIREBASE_SERVICE_ACCOUNT_BASE64: account,
+      }).NOTIFICATION_DRIVER,
+    ).toBe('fcm');
+  });
 });

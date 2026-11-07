@@ -1,0 +1,27 @@
+{
+  "name": "@vecinal/mapas",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=22.0.0"
+  },
+  "scripts": {
+    "build": "npm run build:style && npm run build:assets && npm run build:tiles",
+    "build:style": "node scripts/build-style.mjs",
+    "build:assets": "node scripts/build-assets.mjs",
+    "build:tiles": "node scripts/build-district-tiles.mjs",
+    "test": "node --test test/*.test.mjs",
+    "verify": "node scripts/verify.mjs",
+    "format:check": "prettier --check scripts test publico/visor.html publico/visor.js package.json district.config.json"
+  },
+  "dependencies": {
+    "@protomaps/basemaps": "5.7.2",
+    "maplibre-gl": "6.16.0"
+  },
+  "devDependencies": {
+    "@maplibre/maplibre-gl-style-spec": "26.5.1",
+    "fflate": "0.8.2",
+    "prettier": "3.9.10"
+  }
+}

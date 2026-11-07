@@ -1,13 +1,17 @@
 {
   "@@locale": "es",
   "appName": "Vecinal",
-  "@appName": { "description": "Nombre de la app en la barra y el selector de tareas." },
+  "@appName": {
+    "description": "Nombre de la app en la barra y el selector de tareas."
+  },
   "wallTitle": "Muro de favores",
   "wallEmpty": "Todavía no hay publicaciones en tu zona.",
   "publishAction": "Publicar",
   "takeFavorAction": "Tomar favor",
   "statusSavedOnPhone": "Guardado en tu celular",
-  "@statusSavedOnPhone": { "description": "Estado de envío: está en la cola local y nadie más lo recibió." },
+  "@statusSavedOnPhone": {
+    "description": "Estado de envío: está en la cola local y nadie más lo recibió."
+  },
   "statusSavedOnPhoneDetail": "Todavía no se envió. Nadie más lo ha recibido.",
   "statusSent": "Enviado",
   "statusCouldNotComplete": "No se pudo completar",
@@ -15,11 +19,19 @@
   "dataFrom": "Estás viendo datos de {ago}; algunos pueden haber cambiado.",
   "@dataFrom": {
     "description": "Aviso de frescura sin conexión. {ago} es, por ejemplo, 'hace 5 minutos'.",
-    "placeholders": { "ago": { "type": "String" } }
+    "placeholders": {
+      "ago": {
+        "type": "String"
+      }
+    }
   },
   "updatedAgo": "Actualizado {ago}",
   "@updatedAgo": {
-    "placeholders": { "ago": { "type": "String" } }
+    "placeholders": {
+      "ago": {
+        "type": "String"
+      }
+    }
   },
   "actionsToReview": "Acciones por revisar",
   "demoWelcome": "Cuenta de prueba",
@@ -31,7 +43,11 @@
   "retryAction": "Reintentar",
   "underConstruction": "Esta pantalla la construye el {lot}.",
   "@underConstruction": {
-    "placeholders": { "lot": { "type": "String" } }
+    "placeholders": {
+      "lot": {
+        "type": "String"
+      }
+    }
   },
   "emergencyLifeRisk": "Si hay riesgo para la vida, llama al 116, 105 o 106.",
   "connectsNeighbors": "Esta app conecta vecinos; no reemplaza a los servicios de emergencia.",
@@ -297,5 +313,72 @@
   "confirm": "Confirmar",
   "@confirm": {
     "description": "Botón confirmar"
-  }
+  },
+  "mapTitle": "Mapa sin conexión",
+  "mapDistrictName": "Lince y alrededores",
+  "mapDemoBoundary": "Zona de demostración. El mapa no representa los límites oficiales del distrito.",
+  "downloadDistrictMap": "Descargar mapa de mi distrito",
+  "downloadOnlyOnWifi": "La descarga empieza solo con Wi-Fi, salvo que permitas usar datos móviles.",
+  "allowMobileData": "Permitir con datos móviles",
+  "mapMobileDataCost": "Puede consumir tu plan de datos. Puedes desactivarlo cuando quieras.",
+  "downloadProgress": "{percent} % · {megabytes} MB descargados",
+  "@downloadProgress": {
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      },
+      "megabytes": {
+        "type": "String"
+      }
+    }
+  },
+  "mapDownloadSize": "{megabytes} MB guardados en el celular",
+  "@mapDownloadSize": {
+    "placeholders": {
+      "megabytes": {
+        "type": "String"
+      }
+    }
+  },
+  "cancelDownload": "Cancelar descarga",
+  "deleteDownloadedMap": "Borrar mapa descargado",
+  "mapReadyOffline": "Mapa listo para usar sin conexión.",
+  "mapAttribution": "© OpenStreetMap contributors · ESA WorldCover (CC BY 4.0)",
+  "mapCheckingDownload": "Comprobando el mapa guardado…",
+  "mapNotDownloaded": "Descarga el mapa para ver sus calles cuando no tengas internet.",
+  "mapDownloading": "Descargando mapa…",
+  "mapCancelling": "Cancelando descarga…",
+  "mapDownloadIncomplete": "El mapa todavía no está listo para usar sin conexión.",
+  "mapWifiRequired": "Conéctate a Wi-Fi o permite usar datos móviles y vuelve a descargar.",
+  "mapNoConnection": "No hay una conexión disponible para descargar. El mapa que ya guardaste sigue disponible.",
+  "mapOfflineUnsupported": "La descarga sin conexión está disponible en la app para Android y iPhone.",
+  "mapStorageUnavailable": "No se pudo comprobar el mapa guardado. Vuelve a intentarlo.",
+  "mapDownloadFailed": "No se pudo descargar el mapa. Comprueba la conexión y el espacio disponible y vuelve a intentarlo.",
+  "mapTileLimitExceeded": "La región supera el límite de descarga. Inténtalo con una versión actualizada de la app.",
+  "mapDownloadInterrupted": "La descarga anterior quedó incompleta. Vuelve a descargar el mapa.",
+  "mapCheckAgain": "Volver a comprobar",
+  "mapDeleteWarning": "Dejarás de tener este mapa disponible sin conexión hasta que lo vuelvas a descargar.",
+  "mapKeepDownload": "Conservar mapa",
+  "mapConfirmDelete": "Borrar mapa",
+  "pushDeniedHelp": "Puedes seguir usando Vecinal. Para recibir avisos, abre Ajustes de tu teléfono, busca Vecinal y activa Notificaciones. Después vuelve aquí y comprueba el permiso.",
+  "pushEnable": "Activar avisos",
+  "mapOfflineHeading": "Lleva tu barrio contigo",
+  "pushPending": "Guardado en tu celular. Volveremos a intentarlo cuando haya conexión.",
+  "pushHeading": "Mantente al tanto de tu barrio",
+  "postDetailTitle": "Publicación",
+  "postDetailBack": "Volver al muro",
+  "pushDisabled": "Los avisos no están habilitados en esta versión.",
+  "pushCheckAgain": "Comprobar de nuevo",
+  "pushLoading": "Preparando avisos…",
+  "pushPermissionExplanation": "Permite los avisos para enterarte cuando alguien tome tu favor y recibir novedades públicas de tu zona.",
+  "pushPrivacy": "La pantalla bloqueada solo mostrará un texto general. El detalle se consulta dentro de Vecinal.",
+  "pushDismiss": "Cerrar aviso",
+  "postDetailUnavailable": "Esta publicación todavía no está disponible en tu celular. Comprueba la conexión y vuelve a intentarlo.",
+  "pushFailed": "No se pudo completar. Comprueba tu conexión y vuelve a intentarlo.",
+  "pushWaitingSession": "Inicia sesión para vincular los avisos a tu cuenta.",
+  "pushOpen": "Ver",
+  "pushTitle": "Avisos",
+  "pushGenericUpdate": "Tienes una actualización en Vecinal",
+  "mapAreaLabel": "TU ZONA",
+  "pushReady": "Avisos activados para tu cuenta y tu zona."
 }

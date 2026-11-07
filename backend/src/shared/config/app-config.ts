@@ -19,6 +19,8 @@ export const configSchema = z
     JWT_SYNC_MINUTES: z.coerce.number().int().min(1).max(60).default(10),
     POWERSYNC_URL: z.url(),
     ENABLE_DEV_SESSION: z.stringbool().default(false),
+    NOTIFICATION_DRIVER: z.enum(['fake', 'fcm']).default('fake'),
+    FIREBASE_SERVICE_ACCOUNT_BASE64: z.string().optional(),
     IDEMPOTENCY_RETENTION_HOURS: z.coerce.number().int().min(1).default(168),
     MAX_POSTS_PER_DAY: z.coerce.number().int().min(1).default(10),
     TRUST_PROXY_HOPS: z.coerce.number().int().min(0).default(0),
@@ -46,6 +48,31 @@ export const configSchema = z
         path: ['JOB_QUEUE_DRIVER'],
         message: 'la cola en memoria solo puede usarse en pruebas',
       });
+    }
+    if (config.NODE_ENV === 'production' && config.NOTIFICATION_DRIVER === 'fake') {
+      ctx.addIssue({
+        code: 'custom',
+        path: ['NOTIFICATION_DRIVER'],
+        message: 'fake no puede usarse en producción',
+      });
+    }
+    if (config.NOTIFICATION_DRIVER === 'fcm') {
+      try {
+        const account: unknown = JSON.parse(
+          Buffer.from(config.FIREBASE_SERVICE_ACCOUNT_BASE64 ?? '', 'base64').toString('utf8'),
+        );
+        z.object({
+          project_id: z.string().min(1),
+          client_email: z.email(),
+          private_key: pemKey,
+        }).parse(account);
+      } catch {
+        ctx.addIssue({
+          code: 'custom',
+          path: ['FIREBASE_SERVICE_ACCOUNT_BASE64'],
+          message: 'se requiere una cuenta de servicio válida para fcm',
+        });
+      }
     }
     if (config.NODE_ENV === 'production' && config.ENABLE_DEV_SESSION) {
       ctx.addIssue({

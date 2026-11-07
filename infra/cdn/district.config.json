@@ -1,0 +1,13 @@
+{
+  "id": "lince-demo",
+  "name": "Lince y alrededores (demostración)",
+  "bounds": [-77.07, -12.1, -77.01, -12.06],
+  "center": [-77.035, -12.085],
+  "minZoom": 10,
+  "maxZoom": 15,
+  "sourceUrl": "https://build.protomaps.com/20261107.pmtiles",
+  "sourceVersion": "4.15.2",
+  "sourceBlake3": "e240cd798334494f95e502866e09a2e1ef2d3cd52338b716fb531ff2711ee8fc",
+  "assetsCommit": "028c18f713baecad011301ff7a69acc39bcc2ae7",
+  "pmtilesVersion": "1.31.2"
+}

@@ -12,4 +12,6 @@ abstract final class Routes {
   static const signInCode = '/ingresar/codigo';
   static const chooseZone = '/elegir-zona';
   static const account = '/cuenta';
+  static const pushSettings = '/avisos';
+  static const postDetail = '/publicaciones/:id';
 }

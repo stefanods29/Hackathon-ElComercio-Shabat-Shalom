@@ -3,17 +3,20 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:vecinal/core/router/routes.dart';
 import 'package:vecinal/core/ui/under_construction_screen.dart';
+import 'package:vecinal/features/avisos/presentation/push_settings_page.dart';
 import 'package:vecinal/features/cuenta/data/providers.dart';
 import 'package:vecinal/features/cuenta/domain/auth_state.dart';
 import 'package:vecinal/features/cuenta/presentation/account_page.dart';
 import 'package:vecinal/features/cuenta/presentation/choose_zone_page.dart';
 import 'package:vecinal/features/cuenta/presentation/code_page.dart';
 import 'package:vecinal/features/cuenta/presentation/phone_page.dart';
+import 'package:vecinal/features/mapa/presentation/map_page.dart';
 import 'package:vecinal/features/onboarding/tutorial_screen.dart';
 import 'package:vecinal/features/publicar/presentation/choose_type_page.dart';
 import 'package:vecinal/features/publicar/presentation/publish_form_page.dart';
 import 'package:vecinal/features/solidaridad/domain/post.dart';
 import 'package:vecinal/features/solidaridad/presentation/actions_to_review_page.dart';
+import 'package:vecinal/features/solidaridad/presentation/post_detail_page.dart';
 import 'package:vecinal/features/solidaridad/presentation/wall_page.dart';
 
 final routerProvider = Provider<GoRouter>((ref) {
@@ -69,10 +72,11 @@ final routerProvider = Provider<GoRouter>((ref) {
         },
       ),
       GoRoute(path: Routes.toReview, builder: (context, state) => const ActionsToReviewPage()),
+      GoRoute(path: Routes.map, builder: (context, state) => const MapPage()),
+      GoRoute(path: Routes.pushSettings, builder: (context, state) => const PushSettingsPage()),
       GoRoute(
-        path: Routes.map,
-        builder: (context, state) =>
-            const UnderConstructionScreen(title: 'Mapa sin conexión', lot: 'Lote C'),
+        path: Routes.postDetail,
+        builder: (context, state) => PostDetailPage(postId: state.pathParameters['id']!),
       ),
       GoRoute(
         path: Routes.emergency,

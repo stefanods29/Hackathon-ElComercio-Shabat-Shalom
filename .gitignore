@@ -21,3 +21,12 @@ coverage/
 .DS_Store
 Thumbs.db
 *.swp
+
+# Mapas del Lote C: se regeneran con infra/cdn/scripts/ (no subir binarios pesados).
+infra/cdn/.tools/
+infra/cdn/.cache/
+infra/cdn/publico/*.pmtiles
+infra/cdn/publico/distrito.manifest.json
+infra/cdn/publico/fuentes/
+infra/cdn/publico/sprites/
+infra/cdn/publico/vendor/

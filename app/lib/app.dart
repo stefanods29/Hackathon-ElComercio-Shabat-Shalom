@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:vecinal/core/router/router.dart';
 import 'package:vecinal/core/theme/accessible_theme.dart';
+import 'package:vecinal/features/avisos/presentation/push_listener.dart';
 import 'package:vecinal/l10n/app_localizations.dart';
 
 class VecinalApp extends ConsumerWidget {
@@ -17,6 +18,7 @@ class VecinalApp extends ConsumerWidget {
       supportedLocales: AppLocalizations.supportedLocales,
       localizationsDelegates: AppLocalizations.localizationsDelegates,
       routerConfig: ref.watch(routerProvider),
+      builder: (context, child) => PushListener(child: child!),
     );
   }
 }
