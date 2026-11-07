@@ -27,5 +27,33 @@
     "placeholders": { "lot": { "type": "String" } }
   },
   "emergencyLifeRisk": "Si hay riesgo para la vida, llama al 116, 105 o 106.",
-  "connectsNeighbors": "Esta app conecta vecinos; no reemplaza a los servicios de emergencia."
+  "connectsNeighbors": "Esta app conecta vecinos; no reemplaza a los servicios de emergencia.",
+  "chooseTypeTitle": "Elige qué quieres publicar",
+  "@chooseTypeTitle": {
+    "description": "Título de la pantalla de elección de tipo de publicación"
+  },
+  "publishFormTitle": "Publicar",
+  "@publishFormTitle": {
+    "description": "Título del formulario de publicación"
+  },
+  "titleLabel": "Título",
+  "@titleLabel": {
+    "description": "Etiqueta del campo de título del formulario"
+  },
+  "categoryLabel": "Categoría",
+  "@categoryLabel": {
+    "description": "Etiqueta del campo de categoría del formulario"
+  },
+  "descriptionLabel": "Descripción",
+  "@descriptionLabel": {
+    "description": "Etiqueta del campo de descripción opcional"
+  },
+  "descriptionHint": "Más detalles (opcional)",
+  "@descriptionHint": {
+    "description": "Placeholder del campo de descripción opcional"
+  },
+  "publishButton": "Publicar",
+  "@publishButton": {
+    "description": "Botón para guardar la publicación"
+  }
 }
