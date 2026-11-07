@@ -56,6 +56,8 @@ export interface NewPostData {
 /** Event names and payload keys are a contract with the workers and stay in Spanish. */
 export const POST_CREATED_EVENT = 'solidaridad.publicacion_creada';
 export const FAVOR_TAKEN_EVENT = 'solidaridad.favor_tomado';
+export const POST_CANCELLED_EVENT = 'solidaridad.publicacion_cancelada';
+export const FAVOR_RESOLVED_EVENT = 'solidaridad.favor_resuelto';
 
 /** ≈100 m: enough for "near you" without exposing where someone lives. */
 export function approximate(coordinates: Coordinates): Coordinates {
@@ -189,6 +191,58 @@ export class Post {
       zonaId: current.zoneId,
     });
     return 'taken';
+  }
+
+  cancel(actorId: string, seenVersion: number, now: Date): 'cancelled' | 'already_cancelled' {
+    const current = this.props;
+    if (current.authorId !== actorId) {
+      throw new BusinessRuleViolation(
+        'no_eres_el_autor',
+        'Solo el autor puede cancelar esta publicación.',
+        'forbidden',
+      );
+    }
+    if (current.status === 'cancelada') return 'already_cancelled';
+    if (current.status !== 'abierta') {
+      throw new BusinessRuleViolation(
+        'no_se_puede_cancelar',
+        'Solo puedes cancelar una publicación abierta.',
+        'conflict',
+        { estadoActual: current.status },
+      );
+    }
+    if (current.version !== seenVersion) throw new VersionConflict(seenVersion, current.version);
+    this.props = { ...current, status: 'cancelada', version: current.version + 1, updatedAt: now };
+    this.record(POST_CANCELLED_EVENT, now, { autorId: current.authorId, zonaId: current.zoneId });
+    return 'cancelled';
+  }
+
+  resolve(actorId: string, seenVersion: number, now: Date): 'resolved' | 'already_resolved' {
+    const current = this.props;
+    if (current.authorId !== actorId && current.takenById !== actorId) {
+      throw new BusinessRuleViolation(
+        'no_participas_en_este_favor',
+        'Solo el autor o quien tomó el favor puede resolverlo.',
+        'forbidden',
+      );
+    }
+    if (current.status === 'resuelta') return 'already_resolved';
+    if (current.status !== 'en_curso') {
+      throw new BusinessRuleViolation(
+        'favor_no_en_curso',
+        'Solo puedes resolver un favor en curso.',
+        'conflict',
+        { estadoActual: current.status },
+      );
+    }
+    if (current.version !== seenVersion) throw new VersionConflict(seenVersion, current.version);
+    this.props = { ...current, status: 'resuelta', version: current.version + 1, updatedAt: now };
+    this.record(FAVOR_RESOLVED_EVENT, now, {
+      autorId: current.authorId,
+      tomadaPorId: current.takenById,
+      zonaId: current.zoneId,
+    });
+    return 'resolved';
   }
 
   private record(type: string, occurredAt: Date, payload: Record<string, unknown>): void {

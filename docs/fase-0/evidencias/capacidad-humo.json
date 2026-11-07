@@ -1,0 +1,392 @@
+{
+  "fecha": "2026-11-07T16:03:17.460Z",
+  "commit": "bb220e52f494292dd241fc6500c2f0214d921ac2",
+  "arbolLimpio": true,
+  "entorno": {
+    "sistema": "darwin",
+    "arquitectura": "arm64",
+    "cpu": "Apple M1",
+    "nucleosLogicos": 8,
+    "memoriaGiB": 8,
+    "node": "v26.13.0",
+    "k6": "k6 v2.3.0 (commit/devel, go1.27.1, darwin/arm64)",
+    "postgres": "18.6 (Homebrew)",
+    "postgis": "3.7.0"
+  },
+  "duracionSegundos": 30,
+  "usuariosSinteticos": 100,
+  "apiYWorkersSeparados": true,
+  "sesionDeDesarrollo": false,
+  "resumen": {
+    "perfil": "smoke",
+    "duracionConfiguradaSegundos": 30,
+    "objetivo": {
+      "vus": 10
+    },
+    "escenarios": {
+      "lecturas": {
+        "solicitudes": 1834,
+        "p95Ms": 4.878599999999999,
+        "tasaError": 0
+      },
+      "escrituras": {
+        "solicitudes": 520,
+        "p95Ms": 7.38535,
+        "tasaError": 0
+      },
+      "reconexion": {
+        "solicitudes": 260,
+        "p95Ms": 5.036899999999999,
+        "tasaError": 0
+      }
+    },
+    "criticas": {
+      "maxPendientes": 1,
+      "maxEdadSegundos": 0.447654,
+      "muestras": 30
+    },
+    "idempotencia": {
+      "reintentosProgramados": 52,
+      "repetidas": 35,
+      "enCurso": 17
+    },
+    "iteracionesNoIniciadas": 0,
+    "umbrales": {
+      "reconexion_duracion_ms": {
+        "p(95)<300": {
+          "ok": true
+        }
+      },
+      "escrituras_errores": {
+        "rate<0.01": {
+          "ok": true
+        }
+      },
+      "lecturas_duracion_ms": {
+        "p(95)<300": {
+          "ok": true
+        }
+      },
+      "http_req_failed": {
+        "rate<0.01": {
+          "ok": true
+        }
+      },
+      "monitoreo_muestras": {
+        "count>0": {
+          "ok": true
+        }
+      },
+      "lecturas_errores": {
+        "rate<0.01": {
+          "ok": true
+        }
+      },
+      "escrituras_duracion_ms": {
+        "p(95)<500": {
+          "ok": true
+        }
+      },
+      "lecturas_solicitudes": {
+        "count>0": {
+          "ok": true
+        }
+      },
+      "reconexion_errores": {
+        "rate<0.01": {
+          "ok": true
+        }
+      },
+      "cola_critica_pendientes": {
+        "max<=100": {
+          "ok": true
+        }
+      },
+      "cola_critica_edad_segundos": {
+        "max<30": {
+          "ok": true
+        }
+      },
+      "monitoreo_errores": {
+        "rate==0": {
+          "ok": true
+        }
+      },
+      "reconexion_solicitudes": {
+        "count>0": {
+          "ok": true
+        }
+      },
+      "escrituras_solicitudes": {
+        "count>0": {
+          "ok": true
+        }
+      }
+    }
+  },
+  "muestras": [
+    {
+      "segundos": 0.013,
+      "criticasPendientes": 1,
+      "edadCriticaSegundos": 0.178617,
+      "outboxPendientes": 0
+    },
+    {
+      "segundos": 0.051,
+      "criticasPendientes": 1,
+      "edadCriticaSegundos": 0.219617,
+      "outboxPendientes": 0
+    },
+    {
+      "segundos": 1.227,
+      "criticasPendientes": 1,
+      "edadCriticaSegundos": 0.395202,
+      "outboxPendientes": 7
+    },
+    {
+      "segundos": 2.28,
+      "criticasPendientes": 1,
+      "edadCriticaSegundos": 0.447654,
+      "outboxPendientes": 8
+    },
+    {
+      "segundos": 3.333,
+      "criticasPendientes": 0,
+      "edadCriticaSegundos": 0,
+      "outboxPendientes": 7
+    },
+    {
+      "segundos": 4.383,
+      "criticasPendientes": 0,
+      "edadCriticaSegundos": 0,
+      "outboxPendientes": 11
+    },
+    {
+      "segundos": 5.459,
+      "criticasPendientes": 0,
+      "edadCriticaSegundos": 0,
+      "outboxPendientes": 11
+    },
+    {
+      "segundos": 6.544,
+      "criticasPendientes": 0,
+      "edadCriticaSegundos": 0,
+      "outboxPendientes": 12
+    },
+    {
+      "segundos": 7.591,
+      "criticasPendientes": 0,
+      "edadCriticaSegundos": 0,
+      "outboxPendientes": 13
+    },
+    {
+      "segundos": 8.65,
+      "criticasPendientes": 0,
+      "edadCriticaSegundos": 0,
+      "outboxPendientes": 12
+    },
+    {
+      "segundos": 9.697,
+      "criticasPendientes": 0,
+      "edadCriticaSegundos": 0,
+      "outboxPendientes": 15
+    },
+    {
+      "segundos": 10.744,
+      "criticasPendientes": 0,
+      "edadCriticaSegundos": 0,
+      "outboxPendientes": 16
+    },
+    {
+      "segundos": 11.793,
+      "criticasPendientes": 0,
+      "edadCriticaSegundos": 0,
+      "outboxPendientes": 14
+    },
+    {
+      "segundos": 12.831,
+      "criticasPendientes": 0,
+      "edadCriticaSegundos": 0,
+      "outboxPendientes": 17
+    },
+    {
+      "segundos": 13.878,
+      "criticasPendientes": 0,
+      "edadCriticaSegundos": 0,
+      "outboxPendientes": 0
+    },
+    {
+      "segundos": 14.976,
+      "criticasPendientes": 0,
+      "edadCriticaSegundos": 0,
+      "outboxPendientes": 3
+    },
+    {
+      "segundos": 16.074,
+      "criticasPendientes": 0,
+      "edadCriticaSegundos": 0,
+      "outboxPendientes": 7
+    },
+    {
+      "segundos": 17.115,
+      "criticasPendientes": 0,
+      "edadCriticaSegundos": 0,
+      "outboxPendientes": 4
+    },
+    {
+      "segundos": 18.319,
+      "criticasPendientes": 0,
+      "edadCriticaSegundos": 0,
+      "outboxPendientes": 9
+    },
+    {
+      "segundos": 19.369,
+      "criticasPendientes": 0,
+      "edadCriticaSegundos": 0,
+      "outboxPendientes": 7
+    },
+    {
+      "segundos": 20.577,
+      "criticasPendientes": 0,
+      "edadCriticaSegundos": 0,
+      "outboxPendientes": 11
+    },
+    {
+      "segundos": 21.706,
+      "criticasPendientes": 0,
+      "edadCriticaSegundos": 0,
+      "outboxPendientes": 15
+    },
+    {
+      "segundos": 22.805,
+      "criticasPendientes": 0,
+      "edadCriticaSegundos": 0,
+      "outboxPendientes": 15
+    },
+    {
+      "segundos": 23.862,
+      "criticasPendientes": 1,
+      "edadCriticaSegundos": 0.018473,
+      "outboxPendientes": 3
+    },
+    {
+      "segundos": 24.885,
+      "criticasPendientes": 0,
+      "edadCriticaSegundos": 0,
+      "outboxPendientes": 0
+    },
+    {
+      "segundos": 26.094,
+      "criticasPendientes": 0,
+      "edadCriticaSegundos": 0,
+      "outboxPendientes": 3
+    },
+    {
+      "segundos": 27.157,
+      "criticasPendientes": 0,
+      "edadCriticaSegundos": 0,
+      "outboxPendientes": 7
+    },
+    {
+      "segundos": 28.213,
+      "criticasPendientes": 0,
+      "edadCriticaSegundos": 0,
+      "outboxPendientes": 4
+    },
+    {
+      "segundos": 29.26,
+      "criticasPendientes": 0,
+      "edadCriticaSegundos": 0,
+      "outboxPendientes": 8
+    },
+    {
+      "segundos": 30.133,
+      "criticasPendientes": 0,
+      "edadCriticaSegundos": 0,
+      "outboxPendientes": 0
+    }
+  ],
+  "instantaneaFinal": {
+    "instanciaId": "01a1b6bf-6ff9-73c9-a41a-cae727e058ac",
+    "desde": "2026-11-07T16:02:41.786Z",
+    "generadoEn": "2026-11-07T16:03:12.791Z",
+    "idempotencia": {
+      "nueva": 468,
+      "repetida": 35,
+      "enCurso": 17,
+      "huellaDistinta": 0
+    },
+    "outbox": {
+      "pendientes": 0,
+      "edadMasAntiguoSegundos": null
+    },
+    "colasMotor": "pgboss",
+    "colas": [
+      {
+        "nombre": "__pgboss__send-it",
+        "pendientes": 0,
+        "activas": 0,
+        "fallidas": 0,
+        "criticasPendientes": 0,
+        "edadCriticaMasAntiguaSegundos": null
+      },
+      {
+        "nombre": "capacidad.sonda_critica",
+        "pendientes": 0,
+        "activas": 0,
+        "fallidas": 0,
+        "criticasPendientes": 0,
+        "edadCriticaMasAntiguaSegundos": null
+      },
+      {
+        "nombre": "capacidad.sonda_critica.fallidos",
+        "pendientes": 0,
+        "activas": 0,
+        "fallidas": 0,
+        "criticasPendientes": 0,
+        "edadCriticaMasAntiguaSegundos": null
+      },
+      {
+        "nombre": "plataforma.limpieza_diaria",
+        "pendientes": 0,
+        "activas": 0,
+        "fallidas": 0,
+        "criticasPendientes": 0,
+        "edadCriticaMasAntiguaSegundos": null
+      },
+      {
+        "nombre": "plataforma.limpieza_diaria.fallidos",
+        "pendientes": 0,
+        "activas": 0,
+        "fallidas": 0,
+        "criticasPendientes": 0,
+        "edadCriticaMasAntiguaSegundos": null
+      },
+      {
+        "nombre": "solidaridad.publicacion_creada",
+        "pendientes": 468,
+        "activas": 0,
+        "fallidas": 0,
+        "criticasPendientes": 0,
+        "edadCriticaMasAntiguaSegundos": null
+      },
+      {
+        "nombre": "solidaridad.publicacion_creada.fallidos",
+        "pendientes": 0,
+        "activas": 0,
+        "fallidas": 0,
+        "criticasPendientes": 0,
+        "edadCriticaMasAntiguaSegundos": null
+      }
+    ]
+  },
+  "logsCorrelacionados": 3020,
+  "sondasCriticasProcesadas": 33,
+  "controlNegativo": {
+    "salida": 99,
+    "latenciaRechazada": true,
+    "salidaCola": 99,
+    "colaRechazada": true
+  },
+  "alcance": "Humo local; no certifica 2500 solicitudes/s ni sustituye la prueba completa en staging."
+}

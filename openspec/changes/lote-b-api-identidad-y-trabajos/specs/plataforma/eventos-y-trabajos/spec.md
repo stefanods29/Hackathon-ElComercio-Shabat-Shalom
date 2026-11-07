@@ -24,7 +24,7 @@ Los manejadores de trabajos SHALL ser idempotentes, porque un trabajo puede entr
 Un trabajo que falla SHALL reintentarse con espera exponencial un número acotado de veces y luego MUST pasar a una cola de fallidos visible para el equipo.
 
 #### Scenario: Proveedor de avisos caído
-- **WHEN** el envío de un aviso falla cinco veces seguidas
+- **WHEN** el envío de un aviso agota los cinco reintentos configurados después del intento inicial
 - **THEN** el trabajo queda en la cola de fallidos con el error registrado
 
 ### Requirement: Prioridad crítica

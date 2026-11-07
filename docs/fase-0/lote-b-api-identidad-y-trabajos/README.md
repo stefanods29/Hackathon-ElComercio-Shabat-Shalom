@@ -17,10 +17,10 @@
 |---|---|---|---|---|
 | 1 | Inicio de sesión con OTP y elección de zona | En curso (`lote-b/parte-1-otp`; pendiente de revisión) | JDiazD33 | — |
 | 2 | Sesiones revocables | En curso (`lote-b/parte-2-sesiones`; pendiente de revisión) | JDiazD33 | — |
-| 3 | Roles y niveles de confianza | Pendiente | Por asignar | — |
-| 4 | Eventos y trabajos (pg-boss, outbox y workers) | Pendiente | Por asignar | — |
-| 5 | Muro completo | Pendiente | Por asignar | — |
-| 6 | Capacidad (k6) | Pendiente | Por asignar | — |
+| 3 | Roles y niveles de confianza | En curso (`lote-b/parte-3-roles`; pendiente de revisión) | JDiazD33 (con Kimi como asistente) | — |
+| 4 | Eventos y trabajos (pg-boss, outbox y workers) | En curso (`lote-b/parte-4-trabajos`; pendiente de revisión) | JDiazD33 | — |
+| 5 | Muro completo | En curso (`lote-b/parte-5-muro`; pendiente de revisión) | JDiazD33 | — |
+| 6 | Capacidad (k6) | En curso (`lote-b/parte-6-capacidad`; pendiente de revisión) | JDiazD33 | — |
 
 Estados posibles: **Pendiente**, **En curso** o **Hecha** (integrada en `main`). Quien toma una
 parte la marca **En curso** con su nombre (en el issue del lote o en un PR pequeño) para que
@@ -459,15 +459,19 @@ Rama: `lote-b/parte-3-roles` · Tareas 3.1–3.3 · Spec: `specs/identidad/roles
    `reflector.getAllAndOverride`; si la ruta es `@Public()` o no tiene metadata, deja pasar. Si
    falta nivel: `BusinessRuleViolation('nivel_de_confianza_insuficiente', 'Para hacer esto
    necesitas nivel N de confianza.', 'forbidden', { nivelActual, nivelRequerido })`. Si falta
-   rol: `BusinessRuleViolation('rol_requerido', …, 'forbidden', { rolesRequeridos })`. El rol
-   `administrador` **no** reemplaza a otros roles de forma implícita.
+   rol: `BusinessRuleViolation('rol_requerido', …, 'forbidden', { rolesRequeridos })`. Con varios
+   roles basta tener uno; si también se exige nivel, deben cumplirse ambas condiciones. La
+   metadata del método sobrescribe la de su clase. El rol `administrador` **no** reemplaza a otros
+   roles de forma implícita.
 3. Regístralo en `shared.module.ts` como un segundo `APP_GUARD`, **después** de `AuthGuard`: Nest
    ejecuta los guards globales en el orden en que se registran.
 4. Aplícalo: `POST /v1/publicaciones` y `POST /v1/publicaciones/{id}/tomar` con
    `@RequireTrustLevel(1)`. La regla del dominio de publicar se mantiene como segunda defensa.
    Documenta el nivel en el contrato con `x-nivel-minimo: 1` y en la descripción de cada ruta.
-5. Los cambios de nivel, rol o zona entran en el siguiente token: ya ocurre porque
-   `RefreshSession` y `forSync` leen al usuario desde la base. Agrega una prueba que lo demuestre.
+5. Los cambios de nivel, rol o zona entran en el siguiente token o en las siguientes credenciales
+   de sincronización. Esta entrega lo verifica con `IssueCredentials.forSync`, que relee al usuario
+   desde la base. `RefreshSession` pertenece a la Parte 2 y todavía no existe en esta rama: deberá
+   reutilizar esa lectura al implementarse; aquí no se implementa ni se prueba el refresh.
 6. Pruebas: unitarias del guard con un controlador de prueba, como en
    `idempotency.interceptor.spec.ts` (sin metadata, nivel suficiente o insuficiente, rol presente
    o ausente, ambos a la vez). De punta a punta: `dario` (nivel 0) intenta tomar un favor y recibe
@@ -580,6 +584,16 @@ Integración con pg-boss en la base de pruebas (esquema `colas_pruebas` propio):
 
 Rama: `lote-b/parte-5-muro` · Tareas 5.1–5.4 · Spec: `specs/solidaridad/muro-de-favores/spec.md`
 
+Base de la rama: `41b7f6ae0d8bb796f695cd3d0f14a1629421e4fc` de la Parte 2, para reutilizar
+OTP y sesiones en las pruebas de esta parte. Las Partes 3 y 4 se conservan en sus propias
+ramas; sus casillas no representan integraciones en esta rama. Por indicación del equipo,
+la entrega se limita a commits y push, sin merges, rebases, cherry-picks ni PR.
+
+Implementación: `5597e15`. Tareas 5.1–5.4 verificadas: 112 pruebas unitarias, 81 de
+integración y CI remoto en verde. Evidencia y puntos de contacto:
+[`../evidencias/muro.md`](../evidencias/muro.md). El estado sigue **En curso** porque
+falta la revisión; la rama se conserva sin integrar.
+
 ### 5.1 Contrato
 
 - `GET /v1/publicaciones` con los parámetros `lat`, `lng` (obligatorios), `radio` (metros, de 100
@@ -648,6 +662,17 @@ por OTP (súbele el nivel a 1 con SQL en la prueba) y `MAX_POSTS_PER_DAY=3` en
 ## Parte 6 · Capacidad
 
 Rama: `lote-b/parte-6-capacidad` · Tareas 6.1–6.4 · Spec: `specs/plataforma/capacidad/spec.md`
+
+La rama parte de `af7bcd8` (Parte 5) e integra `5c4d18b` (Partes 3 y 4) mediante `c1c7a0c`,
+con autorización explícita del equipo **solo para esta rama**. Las demás ramas y `main`
+se conservan; no se abre PR. No hay staging disponible: se ejecuta el humo local y se
+entrega el escenario completo sin declarar capacidad de 2500 solicitudes/s validada.
+
+Implementación verificada: `bb220e5`. Tareas 6.1–6.4 completas: 144 unitarias, 102 de
+integración, humo local de 10 VUs/30 s y controles negativos, más CI remoto en verde.
+[`../evidencias/capacidad.md`](../evidencias/capacidad.md) incluye p95, errores, serie de cola
+crítica y alcance. OpenSpec queda en 24/25; falta la prueba manual real de Twilio (1.4).
+La rama queda **En curso**, pendiente de revisión y visto bueno; `main` no se modifica.
 
 1. **Escenario k6** en `backend/test/load/emergency-peak.js` (actualiza la ruta en la tarea 6.1).
    Unas 2 500 peticiones por segundo durante 10 minutos con `constant-arrival-rate`:

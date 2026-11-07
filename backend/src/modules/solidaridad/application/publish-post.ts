@@ -1,7 +1,12 @@
 import { Inject, Injectable } from '@nestjs/common';
+import { APP_CONFIG, type AppConfig } from '../../../shared/config/app-config.js';
 import { UNIT_OF_WORK, type UnitOfWork } from '../../../shared/db/unit-of-work.js';
 import { CLOCK, type Clock } from '../../../shared/domain/clock.js';
-import { BusinessRuleViolation, ResourceNotFound } from '../../../shared/domain/errors.js';
+import {
+  BusinessRuleViolation,
+  RateLimitExceeded,
+  ResourceNotFound,
+} from '../../../shared/domain/errors.js';
 import { OUTBOX_WRITER, type OutboxWriter } from '../../../shared/outbox/outbox.js';
 import {
   type Coordinates,
@@ -36,6 +41,7 @@ export class PublishPost {
     @Inject(POST_REPOSITORY) private readonly posts: PostRepository,
     @Inject(OUTBOX_WRITER) private readonly outbox: OutboxWriter,
     @Inject(CLOCK) private readonly clock: Clock,
+    @Inject(APP_CONFIG) private readonly config: AppConfig,
   ) {}
 
   async execute(command: PublishPostCommand, actor: NeighborActor): Promise<PublishPostResult> {
@@ -55,40 +61,66 @@ export class PublishPost {
       );
     }
     const zoneId = actor.zoneId;
-    const post = Post.create(
-      {
-        id: command.id,
-        authorId: actor.id,
-        zoneId,
-        type: command.type,
-        category: command.category,
-        title: command.title,
-        description: command.description ?? null,
-        location: command.location ?? null,
-        expiresAt: command.expiresAt ?? null,
-      },
-      this.clock.now(),
-    );
-
     return this.unitOfWork.run(async (transaction) => {
+      await this.posts.lockAuthor(transaction, actor.id);
+      const existing = await this.posts.findById(transaction, command.id);
+      if (existing) return this.existingResult(existing, actor);
+      const now = this.clock.now();
+      const dayMilliseconds = 24 * 60 * 60_000;
+      const usage = await this.posts.countByAuthorSince(
+        transaction,
+        actor.id,
+        new Date(now.getTime() - dayMilliseconds),
+      );
+      if (usage.count >= this.config.MAX_POSTS_PER_DAY) {
+        const retryAfter = Math.max(
+          1,
+          Math.ceil(
+            ((usage.oldest?.getTime() ?? now.getTime()) + dayMilliseconds - now.getTime()) / 1000,
+          ),
+        );
+        throw new RateLimitExceeded(
+          'limite_diario_alcanzado',
+          'Llegaste al límite de publicaciones de hoy. Podrás publicar de nuevo más tarde.',
+          retryAfter,
+        );
+      }
+      const post = Post.create(
+        {
+          id: command.id,
+          authorId: actor.id,
+          zoneId,
+          type: command.type,
+          category: command.category,
+          title: command.title,
+          description: command.description ?? null,
+          location: command.location ?? null,
+          expiresAt: command.expiresAt ?? null,
+        },
+        now,
+      );
       const created = await this.posts.insertIfAbsent(transaction, post);
       if (created) {
         await this.outbox.record(transaction, 'solidaridad', post.pullEvents());
         return { post: post.snapshot(), created: true };
       }
-      const existing = await this.posts.findById(transaction, command.id);
-      if (!existing) {
+      const concurrent = await this.posts.findById(transaction, command.id);
+      if (!concurrent) {
         throw new ResourceNotFound('la publicación', command.id);
       }
-      if (existing.snapshot().authorId !== actor.id) {
-        // Someone else already uses the id: we do not reveal its content.
-        throw new BusinessRuleViolation(
-          'id_en_uso',
-          'Ese id ya está en uso. Genera uno nuevo en el celular.',
-          'conflict',
-        );
-      }
-      return { post: existing.snapshot(), created: false };
+      return this.existingResult(concurrent, actor);
     });
+  }
+
+  private existingResult(existing: Post, actor: NeighborActor): PublishPostResult {
+    if (existing.snapshot().authorId !== actor.id) {
+      // Someone else already uses the id: we do not reveal its content.
+      throw new BusinessRuleViolation(
+        'id_en_uso',
+        'Ese id ya está en uso. Genera uno nuevo en el celular.',
+        'conflict',
+      );
+    }
+    return { post: existing.snapshot(), created: false };
   }
 }

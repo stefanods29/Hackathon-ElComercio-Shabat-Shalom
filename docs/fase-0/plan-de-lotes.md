@@ -22,7 +22,7 @@ El **estado de cada lote** (lo hecho y lo que falta) y su **guía paso a paso** 
 | Lote | Tema | Dificultad | Dueño | Change de OpenSpec | Partes |
 |---|---|---|---|---|---|
 | **A** | Núcleo offline: PowerSync de punta a punta, cifrado y purga, cola de subida con rechazos, datos sensibles bajo demanda, pruebas de campo e **integración y revisión** | ★★★★ Muy alta | Stefano | `lote-a-nucleo-offline` | 6 |
-| **B** | API: OTP, sesiones revocables, roles y niveles, pg-boss + relay del outbox + workers, muro completo y prueba de capacidad con k6 | ★★★ Alta | Por asignar | `lote-b-api-identidad-y-trabajos` | 6 |
+| **B** | API: OTP, sesiones revocables, roles y niveles, pg-boss + relay del outbox + workers, muro completo y prueba de capacidad con k6 | ★★★ Alta | JDiazD33 | `lote-b-api-identidad-y-trabajos` | 6 |
 | **C** | Mapas sin conexión (PMTiles + MapLibre) y avisos (FCM por token y por tópico) | ★★ Media | Por asignar | `lote-c-mapas-y-avisos` | 4 |
 | **D** | Experiencia accesible: sistema de diseño, publicar en 3 toques, estados visibles y "acciones por revisar", tutorial y modo práctica, inicio de sesión, zona y cuenta | ★ Media-baja | Por asignar | `lote-d-experiencia-accesible` | 5 |
 

@@ -8,7 +8,7 @@ loadEnvFile();
 const config = loadConfig();
 
 const app = await NestFactory.create<NestExpressApplication>(AppModule, {
-  logger: new ConsoleLogger({ json: config.NODE_ENV === 'production', prefix: 'vecinal' }),
+  logger: new ConsoleLogger({ json: true, prefix: 'vecinal' }),
 });
 app.disable('x-powered-by');
 app.set('trust proxy', config.TRUST_PROXY_HOPS);
@@ -16,4 +16,4 @@ app.useBodyParser('json', { limit: '256kb' });
 app.enableShutdownHooks();
 
 await app.listen(config.PORT);
-new ConsoleLogger('Bootstrap').log(`API escuchando en el puerto ${config.PORT}`);
+new ConsoleLogger('Bootstrap', { json: true }).log({ evento: 'api.iniciada', puerto: config.PORT });

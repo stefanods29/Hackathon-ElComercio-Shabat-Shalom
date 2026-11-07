@@ -21,6 +21,24 @@ export const takeFavorSchema = z.object({
 });
 export type TakeFavorDto = z.infer<typeof takeFavorSchema>;
 
+export const changePostStatusSchema = takeFavorSchema;
+export type ChangePostStatusDto = z.infer<typeof changePostStatusSchema>;
+
+const queryNumber = z.string().trim().min(1).pipe(z.coerce.number());
+export const nearbyPostsSchema = z.object({
+  lat: queryNumber.pipe(z.number().min(-90).max(90)),
+  lng: queryNumber.pipe(z.number().min(-180).max(180)),
+  radio: queryNumber.pipe(z.number().int().min(100).max(5000)).default(2000),
+  limite: queryNumber.pipe(z.number().int().min(1).max(50)).default(20),
+  cursor: z.string().min(1).max(512).optional(),
+});
+export type NearbyPostsDto = z.infer<typeof nearbyPostsSchema>;
+
+export interface NearbyPostsResponse {
+  datos: Array<PostDto & { distanciaMetros: number }>;
+  siguienteCursor: string | null;
+}
+
 export const postIdSchema = z.uuid({ message: 'id de publicación inválido' });
 
 /** Contract: `contracts/openapi.yaml` → `Publicacion`. */
