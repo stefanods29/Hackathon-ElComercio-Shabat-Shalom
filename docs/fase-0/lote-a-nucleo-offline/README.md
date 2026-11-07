@@ -16,9 +16,9 @@
 | Parte | Qué entrega | Estado | Responsable | PR |
 |---|---|---|---|---|
 | 1 | PowerSync de punta a punta | En curso | Stefano | — |
-| 2 | Cifrado local, purga e inicio de sesión real | Pendiente | Stefano | — |
-| 3 | Cola de subida con estados, reintentos y rechazos | Pendiente | Stefano | — |
-| 4 | Datos sensibles bajo demanda | Pendiente | Stefano | — |
+| 2 | Cifrado local, purga e inicio de sesión real | En curso | Stefano | — |
+| 3 | Cola de subida con estados, reintentos y rechazos | En curso | Stefano | — |
+| 4 | Datos sensibles bajo demanda | En curso | Stefano | — |
 | 5 | Pruebas de campo (sección 13.1) | Pendiente | Stefano | — |
 | 6 | Integración de la Fase 0 | Pendiente | Stefano | — |
 
@@ -78,8 +78,12 @@ En otra terminal, desde la raíz del repositorio:
 
 ```bash
 cd app && flutter pub get && flutter gen-l10n
-flutter run --dart-define=API_BASE_URL=http://10.0.2.2:3000 --dart-define=POWERSYNC_URL=http://10.0.2.2:8080
+flutter run --debug --dart-define=DEV_SYNC=true --dart-define=API_BASE_URL=http://10.0.2.2:3000 --dart-define=POWERSYNC_URL=http://10.0.2.2:8080
 ```
+
+`DEV_SYNC` activa la conexión real en depuración con la cuenta de prueba de Beto. Las
+direcciones `10.0.2.2` son para el emulador Android. Para un celular físico, usa la
+dirección de la PC en la red local en ambas opciones y conecta ambos equipos a esa red.
 
 Necesitas Docker Desktop, Node 26, Flutter 3.47.9, Android SDK 36 con el NDK 28.2.13676358, un
 Android real de gama baja y un iPhone (o los builds de iOS de la CI con TestFlight).
@@ -118,6 +122,12 @@ El 7 de noviembre de 2026 se verificó la tarea 1.1 en Windows. La API y el serv
 archivos respondieron con HTTP 200. Una sesión de prueba de Beto recibió la zona piloto
 y una publicación creada por Ana a través de `POST /sync/stream`, con el punto de
 sincronización confirmado. Pasaron las 36 pruebas del backend y las 17 de integración.
+
+En el emulador con Android 36 se instaló el APK de depuración y se comprobó que una
+publicación descargada sigue visible al cerrar y reabrir la app en modo avión.
+En un Redmi Note 13 con Android 15 se verificó la descarga del muro por PowerSync mediante
+USB y se volvió a abrir la app en modo avión. El muro conservó la publicación de prueba
+y mostró «Sin conexión».
 
 1. **Infraestructura viva:** con `docker compose up -d`, la API y la semilla corriendo, revisa con
    `docker compose logs -f powersync` que el servicio replica `identidad.zonas` y
@@ -161,6 +171,19 @@ Rama: `lote-a/parte-2-cifrado-y-purga` · Tareas 2.1–2.6
 
 Rama: `lote-a/parte-3-cola-de-subida` · Tareas 3.1–3.6
 
+Con la infraestructura y la API levantadas en la PC, la prueba siguiente simula dos vecinos
+que toman el mismo favor sin conexión y comprueba que el rechazo del segundo no bloquea el
+envío de su siguiente publicación.
+
+```bash
+flutter test --dart-define=LIVE_POWERSYNC=true test/features/solidaridad/powersync_wall_live_test.dart
+```
+
+En el Redmi Note 13 se interrumpió el acceso de la app a la API y PowerSync por USB. Al
+tomar un favor se mostró «Guardado en tu celular». Ese estado sobrevivió al cierre
+forzado y PostgreSQL conservó el favor abierto hasta reconectar. Al restablecer el
+acceso, la app mostró «Enviado» y el servidor confirmó el favor en curso, versión 2.
+
 1. **`PowerSyncPostRepository implements PostRepository`**
    (`features/solidaridad/data/powersync_post_repository.dart`): `watchWall()` con consultas
    reactivas de SQLite (la zona del vecino, de la más nueva a la más antigua), combinando cada
@@ -182,6 +205,9 @@ Rama: `lote-a/parte-3-cola-de-subida` · Tareas 3.1–3.6
 ## Parte 4 · Datos sensibles bajo demanda
 
 Rama: `lote-a/parte-4-datos-sensibles` · Tareas 4.1–4.5
+
+El servicio exige una suscripción explícita al caso, una asignación activa y el rol de
+brigadista o coordinador. La prueba de acceso se ejecuta con `npm test` en el backend.
 
 1. **Migraciones mínimas** del módulo `emergencias`: `emergencias.pedidos_ayuda` y
    `emergencias.asignaciones`. Se agregan a la publicación `powersync` con `SELECT` solo para
