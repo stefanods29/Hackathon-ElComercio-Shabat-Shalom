@@ -19,7 +19,7 @@
 | 2 | Sesiones revocables | En curso (`lote-b/parte-2-sesiones`; pendiente de revisión) | JDiazD33 | — |
 | 3 | Roles y niveles de confianza | Pendiente | Por asignar | — |
 | 4 | Eventos y trabajos (pg-boss, outbox y workers) | Pendiente | Por asignar | — |
-| 5 | Muro completo | Pendiente | Por asignar | — |
+| 5 | Muro completo | En curso (`lote-b/parte-5-muro`; pendiente de revisión) | JDiazD33 | — |
 | 6 | Capacidad (k6) | Pendiente | Por asignar | — |
 
 Estados posibles: **Pendiente**, **En curso** o **Hecha** (integrada en `main`). Quien toma una
@@ -579,6 +579,11 @@ Integración con pg-boss en la base de pruebas (esquema `colas_pruebas` propio):
 ## Parte 5 · Muro completo
 
 Rama: `lote-b/parte-5-muro` · Tareas 5.1–5.4 · Spec: `specs/solidaridad/muro-de-favores/spec.md`
+
+Base de la rama: `41b7f6ae0d8bb796f695cd3d0f14a1629421e4fc` de la Parte 2, para reutilizar
+OTP y sesiones en las pruebas de esta parte. Las Partes 3 y 4 se conservan en sus propias
+ramas; sus casillas no representan integraciones en esta rama. Por indicación del equipo,
+la entrega se limita a commits y push, sin merges, rebases, cherry-picks ni PR.
 
 ### 5.1 Contrato
 

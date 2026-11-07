@@ -270,6 +270,43 @@ paths:
         '409': { $ref: '#/components/responses/Conflicto' }
 
   /v1/publicaciones:
+    get:
+      tags: [solidaridad]
+      operationId: buscarPublicacionesCercanas
+      summary: Buscar favores abiertos de tu zona por cercanía
+      description: |
+        Devuelve solo publicaciones abiertas, no eliminadas, con ubicación y sin vencer,
+        ordenadas por distancia y luego por id. La distancia se redondea a múltiplos de 50 m;
+        las ubicaciones publicadas ya son aproximadas. La posición de búsqueda no se guarda.
+        El cursor es opaco y se debe reutilizar con el mismo punto y radio. Es una lectura
+        en línea; el cursor no representa una instantánea del muro.
+      parameters:
+        - name: lat
+          in: query
+          required: true
+          schema: { type: number, minimum: -90, maximum: 90 }
+        - name: lng
+          in: query
+          required: true
+          schema: { type: number, minimum: -180, maximum: 180 }
+        - name: radio
+          in: query
+          schema: { type: integer, minimum: 100, maximum: 5000, default: 2000 }
+        - name: limite
+          in: query
+          schema: { type: integer, minimum: 1, maximum: 50, default: 20 }
+        - name: cursor
+          in: query
+          schema: { type: string, minLength: 1, maxLength: 512 }
+      responses:
+        '200':
+          description: Página de favores cercanos, posiblemente vacía.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/PaginaDePublicaciones' }
+        '400': { $ref: '#/components/responses/SolicitudInvalida' }
+        '401': { $ref: '#/components/responses/NoAutenticado' }
+        '403': { $ref: '#/components/responses/Prohibido' }
     post:
       tags: [solidaridad]
       operationId: publicarEnElMuro
@@ -277,6 +314,8 @@ paths:
       description: |
         El `id` lo genera el celular (UUIDv7). Si la publicación ya existía (reintento), responde
         200 con la existente: nunca se duplica. Requiere nivel de confianza 1 y una zona.
+        El límite por autor es una ventana móvil de 24 horas (10 por defecto), incluidas
+        publicaciones canceladas o eliminadas. Un reintento del mismo id no consume otra plaza.
       parameters:
         - $ref: '#/components/parameters/IdempotencyKey'
       requestBody:
@@ -300,6 +339,94 @@ paths:
         '400': { $ref: '#/components/responses/SolicitudInvalida' }
         '401': { $ref: '#/components/responses/NoAutenticado' }
         '403': { $ref: '#/components/responses/Prohibido' }
+        '409': { $ref: '#/components/responses/Conflicto' }
+        '422': { $ref: '#/components/responses/NoProcesable' }
+        '429':
+          description: Límite diario alcanzado (`codigo` = limite_diario_alcanzado).
+          headers:
+            Retry-After:
+              description: Segundos hasta que salga la publicación más antigua de la ventana.
+              required: true
+              schema: { type: integer, minimum: 1 }
+          content:
+            application/problem+json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Problema'
+                  - type: object
+                    required: [reintentarEnSegundos]
+                    properties:
+                      reintentarEnSegundos: { type: integer, minimum: 1 }
+
+  /v1/publicaciones/{id}/cancelar:
+    post:
+      tags: [solidaridad]
+      operationId: cancelarPublicacion
+      summary: Cancelar una publicación abierta propia
+      description: |
+        Solo el autor puede cancelar, dentro de su zona. Cambia a cancelada y sube la versión.
+        Repetir una cancelación propia ya aceptada no falla ni genera otro evento.
+        Devuelve 403 no_eres_el_autor o fuera_de_tu_zona; 409 no_se_puede_cancelar
+        (con estadoActual) o conflicto_de_version (con versionActual).
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+        - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/CambioDeEstadoPublicacion' }
+      responses:
+        '200':
+          description: Publicación cancelada o cancelación ya aceptada.
+          headers:
+            Idempotent-Replayed: { $ref: '#/components/headers/IdempotentReplayed' }
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Publicacion' }
+        '400': { $ref: '#/components/responses/SolicitudInvalida' }
+        '401': { $ref: '#/components/responses/NoAutenticado' }
+        '403': { $ref: '#/components/responses/Prohibido' }
+        '404': { $ref: '#/components/responses/NoEncontrado' }
+        '409': { $ref: '#/components/responses/Conflicto' }
+        '422': { $ref: '#/components/responses/NoProcesable' }
+
+  /v1/publicaciones/{id}/resolver:
+    post:
+      tags: [solidaridad]
+      operationId: resolverFavor
+      summary: Marcar como resuelto un favor en curso
+      description: |
+        Puede hacerlo el autor o quien tomó el favor, dentro de su zona. Cambia a resuelta
+        y sube la versión. Repetir una resolución propia ya aceptada no genera otro evento.
+        Devuelve 403 no_participas_en_este_favor o fuera_de_tu_zona; 409 favor_no_en_curso
+        (con estadoActual) o conflicto_de_version (con versionActual).
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+        - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/CambioDeEstadoPublicacion' }
+      responses:
+        '200':
+          description: Favor resuelto o resolución ya aceptada.
+          headers:
+            Idempotent-Replayed: { $ref: '#/components/headers/IdempotentReplayed' }
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Publicacion' }
+        '400': { $ref: '#/components/responses/SolicitudInvalida' }
+        '401': { $ref: '#/components/responses/NoAutenticado' }
+        '403': { $ref: '#/components/responses/Prohibido' }
+        '404': { $ref: '#/components/responses/NoEncontrado' }
         '409': { $ref: '#/components/responses/Conflicto' }
         '422': { $ref: '#/components/responses/NoProcesable' }
 
@@ -592,6 +719,30 @@ components:
           type: integer
           minimum: 1
           description: Versión de la publicación que el vecino veía cuando tocó "Tomar".
+
+    CambioDeEstadoPublicacion:
+      type: object
+      required: [versionVista]
+      properties:
+        versionVista: { type: integer, minimum: 1 }
+
+    PublicacionCercana:
+      allOf:
+        - $ref: '#/components/schemas/Publicacion'
+        - type: object
+          required: [distanciaMetros]
+          properties:
+            distanciaMetros: { type: integer, minimum: 0, multipleOf: 50 }
+
+    PaginaDePublicaciones:
+      type: object
+      required: [datos, siguienteCursor]
+      properties:
+        datos:
+          type: array
+          maxItems: 50
+          items: { $ref: '#/components/schemas/PublicacionCercana' }
+        siguienteCursor: { type: [string, 'null'] }
 
     Publicacion:
       type: object
