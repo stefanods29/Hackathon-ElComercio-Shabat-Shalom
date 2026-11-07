@@ -19,7 +19,7 @@ class ActionsToReviewPage extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final texts = AppLocalizations.of(context);
     final actionsAsync = ref.watch(actionsToReviewProvider);
-    final wallAsync = ref.watch(wallProvider);
+    final wall = ref.watch(wallProvider).value ?? const <Post>[];
 
     return actionsAsync.when(
       data: (actions) {
@@ -41,19 +41,14 @@ class ActionsToReviewPage extends ConsumerWidget {
 
         return Scaffold(
           appBar: AppBar(title: Text(texts.actionsToReview)),
-          body: wallAsync.when(
-            data: (wall) => ListView.builder(
-              itemCount: actions.length,
-              itemBuilder: (context, index) {
-                final action = actions[index];
-                final matching = wall.where((p) => p.id == action.resourceId);
-                if (matching.isEmpty) return const SizedBox.shrink();
-                final post = matching.first;
-                return _ReviewItem(action: action, post: post);
-              },
-            ),
-            loading: () => const Center(child: CircularProgressIndicator()),
-            error: (error, stack) => Center(child: Text('$error')),
+          body: ListView.builder(
+            itemCount: actions.length,
+            itemBuilder: (context, index) {
+              final action = actions[index];
+              final matching = wall.where((p) => p.id == action.resourceId);
+              final post = matching.firstOrNull;
+              return _ReviewItem(action: action, post: post);
+            },
           ),
         );
       },
@@ -67,7 +62,7 @@ class _ReviewItem extends ConsumerWidget {
   const _ReviewItem({required this.action, required this.post});
 
   final Submission action;
-  final Post post;
+  final Post? post;
 
   String _alternativeText(AppLocalizations texts, String code) {
     switch (code) {
@@ -97,14 +92,21 @@ class _ReviewItem extends ConsumerWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              '${post.type.apiValue.toUpperCase()} · ${post.category}',
-              style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                color: Theme.of(context).colorScheme.onSurfaceVariant,
+            if (post != null)
+              Text(
+                '${post!.type.apiValue.toUpperCase()} · ${post!.category}',
+                style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                ),
               ),
-            ),
             const SizedBox(height: 4),
-            Text(post.title, style: Theme.of(context).textTheme.titleMedium),
+            Text(
+              post?.title ??
+                  (action.kind == SubmissionKind.publish
+                      ? texts.publishAction
+                      : texts.takeFavorAction),
+              style: Theme.of(context).textTheme.titleMedium,
+            ),
             const SizedBox(height: 8),
             NoticeCard(
               icon: Icons.error_outline,

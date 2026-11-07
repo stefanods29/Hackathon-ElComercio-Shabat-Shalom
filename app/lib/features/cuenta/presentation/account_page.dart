@@ -89,8 +89,18 @@ class AccountPage extends ConsumerWidget {
       ),
     );
     if (confirmed == true && context.mounted) {
-      await ref.read(authRepositoryProvider).signOut();
-      if (context.mounted) context.go(Routes.signIn);
+      try {
+        await ref.read(authRepositoryProvider).signOut();
+        if (context.mounted) context.go(Routes.signIn);
+      } catch (_) {
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('No se pudo terminar el borrado local. Intenta de nuevo.'),
+            ),
+          );
+        }
+      }
     }
   }
 
@@ -113,8 +123,18 @@ class AccountPage extends ConsumerWidget {
       ),
     );
     if (confirmed == true && context.mounted) {
-      await ref.read(authRepositoryProvider).signOutEverywhere();
-      if (context.mounted) context.go(Routes.signIn);
+      try {
+        await ref.read(authRepositoryProvider).signOutEverywhere();
+        if (context.mounted) context.go(Routes.signIn);
+      } catch (_) {
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('No se pudieron cerrar las otras sesiones. Revisa tu conexión.'),
+            ),
+          );
+        }
+      }
     }
   }
 }

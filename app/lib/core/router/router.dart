@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:vecinal/core/router/routes.dart';
@@ -16,16 +17,19 @@ import 'package:vecinal/features/solidaridad/presentation/actions_to_review_page
 import 'package:vecinal/features/solidaridad/presentation/wall_page.dart';
 
 final routerProvider = Provider<GoRouter>((ref) {
+  final refresh = ValueNotifier<int>(0);
+  ref.listen(authStateProvider, (_, _) => refresh.value++);
   final router = GoRouter(
     initialLocation: Routes.home,
+    refreshListenable: refresh,
     redirect: (context, state) {
-      final authState = ref.watch(authStateProvider).value;
+      final authState = ref.read(authStateProvider).value;
       final current = state.matchedLocation;
       final isSignIn = current == Routes.signIn;
       final isSignInCode = current == Routes.signInCode;
       final isChooseZone = current == Routes.chooseZone;
 
-      if (authState is SignedOut) {
+      if (authState == null || authState is SignedOut) {
         if (!isSignIn && !isSignInCode) {
           return Routes.signIn;
         }
@@ -43,7 +47,16 @@ final routerProvider = Provider<GoRouter>((ref) {
     routes: [
       GoRoute(path: Routes.home, builder: (context, state) => const WallPage()),
       GoRoute(path: Routes.signIn, builder: (context, state) => const PhonePage()),
-      GoRoute(path: Routes.signInCode, builder: (context, state) => const CodePage()),
+      GoRoute(
+        path: Routes.signInCode,
+        builder: (context, state) {
+          final arguments = state.extra as CodeArguments?;
+          return CodePage(
+            phone: arguments?.phone ?? '',
+            retryAfterSeconds: arguments?.retryAfterSeconds ?? 30,
+          );
+        },
+      ),
       GoRoute(path: Routes.chooseZone, builder: (context, state) => const ChooseZonePage()),
       GoRoute(path: Routes.account, builder: (context, state) => const AccountPage()),
       GoRoute(path: Routes.publish, builder: (context, state) => const ChooseTypePage()),
@@ -69,6 +82,9 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(path: Routes.tutorial, builder: (context, state) => const TutorialScreen()),
     ],
   );
-  ref.onDispose(router.dispose);
+  ref.onDispose(() {
+    router.dispose();
+    refresh.dispose();
+  });
   return router;
 });

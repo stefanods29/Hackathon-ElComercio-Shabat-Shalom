@@ -10,8 +10,16 @@ import 'package:vecinal/features/cuenta/domain/auth_state.dart';
 import 'package:vecinal/l10n/app_localizations.dart';
 
 /// Pantalla de verificación de código de 6 dígitos (/ingresar/codigo).
+class CodeArguments {
+  const CodeArguments(this.phone, {required this.retryAfterSeconds});
+  final String phone;
+  final int retryAfterSeconds;
+}
+
 class CodePage extends ConsumerStatefulWidget {
-  const CodePage({super.key});
+  const CodePage({super.key, this.phone = '', this.retryAfterSeconds = 30});
+  final String phone;
+  final int retryAfterSeconds;
 
   @override
   ConsumerState<CodePage> createState() => _CodePageState();
@@ -22,19 +30,19 @@ class _CodePageState extends ConsumerState<CodePage> {
   final _resendController = ValueNotifier<int>(0);
   bool _isVerifying = false;
   String? _error;
-  String _phone = '';
+  Timer? _countdown;
 
   @override
   void initState() {
     super.initState();
-    _phone = ModalRoute.of(context)!.settings.arguments as String? ?? '';
-    _resendController.value = 30;
+    _startResendCountdown(widget.retryAfterSeconds);
   }
 
   @override
   void dispose() {
     _codeController.dispose();
     _resendController.dispose();
+    _countdown?.cancel();
     super.dispose();
   }
 
@@ -46,7 +54,7 @@ class _CodePageState extends ConsumerState<CodePage> {
     });
 
     try {
-      await ref.read(authRepositoryProvider).verifyCode(_phone, code);
+      await ref.read(authRepositoryProvider).verifyCode(widget.phone, code);
       if (!mounted) return;
       final authState = ref.read(authStateProvider).value;
       if (authState is NeedsZone) {
@@ -59,8 +67,7 @@ class _CodePageState extends ConsumerState<CodePage> {
       setState(() {
         _isVerifying = false;
         _error = 'Demasiados intentos. Prueba de nuevo en ${error.retryAfterSeconds ~/ 60} min.';
-        _resendController.value = error.retryAfterSeconds;
-        unawaited(_startResendCountdown(error.retryAfterSeconds));
+        _startResendCountdown(error.retryAfterSeconds);
       });
     } on InvalidCode {
       if (!mounted) return;
@@ -68,31 +75,42 @@ class _CodePageState extends ConsumerState<CodePage> {
         _isVerifying = false;
         _error = 'El código no es correcto o ya venció.';
       });
+    } catch (_) {
+      if (mounted) setState(() => _error = 'No se pudo verificar. Revisa tu conexión.');
+    } finally {
+      if (mounted) setState(() => _isVerifying = false);
     }
   }
 
-  Future<void> _startResendCountdown(int seconds) async {
-    for (int i = seconds; i > 0 && mounted; i--) {
-      await Future.delayed(const Duration(seconds: 1));
-      if (mounted) _resendController.value = i;
-    }
-    if (mounted) _resendController.value = 0;
+  void _startResendCountdown(int seconds) {
+    _countdown?.cancel();
+    _resendController.value = seconds;
+    if (seconds <= 0) return;
+    final deadline = DateTime.now().add(Duration(seconds: seconds));
+    _countdown = Timer.periodic(const Duration(seconds: 1), (timer) {
+      final left = deadline.difference(DateTime.now()).inMilliseconds;
+      _resendController.value = left <= 0 ? 0 : (left / 1000).ceil();
+      if (left <= 0) timer.cancel();
+    });
   }
 
   Future<void> _resendCode() async {
     if (_resendController.value > 0) return;
-    await ref.read(authRepositoryProvider).requestCode(_phone);
-    if (!mounted) return;
-    setState(() {
-      _resendController.value = 30;
-      _error = null;
-    });
+    try {
+      final request = await ref.read(authRepositoryProvider).requestCode(widget.phone);
+      if (!mounted) return;
+      setState(() => _error = null);
+      _startResendCountdown(request.retryAfterSeconds);
+    } on TooManyAttempts catch (error) {
+      if (mounted) _startResendCountdown(error.retryAfterSeconds);
+    } catch (_) {
+      if (mounted) setState(() => _error = 'No se pudo reenviar. Revisa tu conexión.');
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     final texts = AppLocalizations.of(context);
-    final canResend = _resendController.value == 0;
 
     return Scaffold(
       appBar: AppBar(title: Text(texts.verifyCodeTitle)),
@@ -102,7 +120,7 @@ class _CodePageState extends ConsumerState<CodePage> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              '${texts.verifyCodeWelcome} $_phone',
+              '${texts.verifyCodeWelcome} ${widget.phone}',
               style: Theme.of(context).textTheme.headlineSmall,
             ),
             const SizedBox(height: 8),
@@ -147,11 +165,14 @@ class _CodePageState extends ConsumerState<CodePage> {
             const SizedBox(height: 8),
             Align(
               alignment: Alignment.centerRight,
-              child: TextButton(
-                onPressed: canResend ? _resendCode : null,
-                child: canResend
-                    ? Text(texts.resendCode)
-                    : Text('${texts.resendCodeIn} ${_resendController.value} s'),
+              child: ValueListenableBuilder<int>(
+                valueListenable: _resendController,
+                builder: (context, remaining, child) => TextButton(
+                  onPressed: remaining == 0 ? _resendCode : null,
+                  child: remaining == 0
+                      ? Text(texts.resendCode)
+                      : Text('${texts.resendCodeIn} $remaining s'),
+                ),
               ),
             ),
           ],

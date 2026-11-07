@@ -3,6 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:vecinal/core/router/routes.dart';
 import 'package:vecinal/features/cuenta/data/providers.dart';
+import 'package:vecinal/features/cuenta/domain/auth_repository.dart';
+import 'package:vecinal/features/cuenta/presentation/code_page.dart';
 import 'package:vecinal/l10n/app_localizations.dart';
 
 /// Pantalla de ingreso con teléfono y código (toque: /ingresar).
@@ -14,7 +16,7 @@ class PhonePage extends ConsumerStatefulWidget {
 }
 
 class _PhonePageState extends ConsumerState<PhonePage> {
-  final _phoneController = TextEditingController(text: '+51 ');
+  final _phoneController = TextEditingController();
   bool _isSending = false;
   String? _error;
 
@@ -25,7 +27,9 @@ class _PhonePageState extends ConsumerState<PhonePage> {
   }
 
   Future<void> _sendCode() async {
-    final phone = _phoneController.text.trim();
+    var phone = _phoneController.text.replaceAll(RegExp(r'[^0-9]'), '');
+    if (phone.length == 9) phone = '51$phone';
+    phone = '+$phone';
     if (!_isValidPeruvianPhone(phone)) {
       setState(() => _error = 'Ingresa un número celular válido.');
       return;
@@ -37,21 +41,32 @@ class _PhonePageState extends ConsumerState<PhonePage> {
     });
 
     try {
-      await ref.read(authRepositoryProvider).requestCode(phone);
+      final request = await ref.read(authRepositoryProvider).requestCode(phone);
       if (!mounted) return;
-      await context.push<void>('${Routes.signIn}/codigo', extra: phone);
+      await context.push<void>(
+        Routes.signInCode,
+        extra: CodeArguments(phone, retryAfterSeconds: request.retryAfterSeconds),
+      );
+    } on TooManyAttempts catch (error) {
+      if (mounted) {
+        setState(
+          () => _error = 'Espera ${error.retryAfterSeconds} segundos antes de pedir otro código.',
+        );
+      }
     } catch (error) {
       if (!mounted) return;
       setState(() {
         _isSending = false;
         _error = 'No se pudo enviar el código. Intenta de nuevo.';
       });
+    } finally {
+      if (mounted) setState(() => _isSending = false);
     }
   }
 
   bool _isValidPeruvianPhone(String phone) {
     final digits = phone.replaceAll(RegExp(r'[^0-9]'), '');
-    return digits.startsWith('51') && digits.length >= 11;
+    return RegExp(r'^519[0-9]{8}$').hasMatch(digits);
   }
 
   @override
