@@ -29,10 +29,7 @@ class NoticeCard extends StatelessWidget {
       liveRegion: true,
       child: Container(
         padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: bg,
-          borderRadius: BorderRadius.circular(12),
-        ),
+        decoration: BoxDecoration(color: bg, borderRadius: BorderRadius.circular(12)),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -44,11 +41,7 @@ class NoticeCard extends StatelessWidget {
                 children: [
                   Text(
                     title,
-                    style: TextStyle(
-                      color: fg,
-                      fontWeight: FontWeight.w700,
-                      fontSize: 16,
-                    ),
+                    style: TextStyle(color: fg, fontWeight: FontWeight.w700, fontSize: 16),
                   ),
                   const SizedBox(height: 4),
                   Text(detail, style: TextStyle(color: fg, fontSize: 14)),

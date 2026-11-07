@@ -10,10 +10,7 @@ void main() {
     });
 
     test('el orden de los colores no importa', () {
-      expect(
-        contrastRatio(Colors.white, Colors.black),
-        contrastRatio(Colors.black, Colors.white),
-      );
+      expect(contrastRatio(Colors.white, Colors.black), contrastRatio(Colors.black, Colors.white));
     });
   });
 

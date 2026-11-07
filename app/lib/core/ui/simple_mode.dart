@@ -5,9 +5,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 /// destacadas. Persistido en `shared_preferences`.
 ///
 /// Se activa desde el menú de la barra superior del muro.
-final simpleModeProvider = AsyncNotifierProvider<SimpleModeNotifier, bool>(
-  SimpleModeNotifier.new,
-);
+final simpleModeProvider = AsyncNotifierProvider<SimpleModeNotifier, bool>(SimpleModeNotifier.new);
 
 class SimpleModeNotifier extends AsyncNotifier<bool> {
   @override
