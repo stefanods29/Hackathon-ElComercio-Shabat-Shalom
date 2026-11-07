@@ -11,7 +11,7 @@
 ## 2. Parte 2 · Cifrado local y purga
 
 - [x] 2.1 Generar la clave aleatoria en `SecureStore` y abrir la base con `EncryptionOptions` (hooks `sqlite3mc`); verificar que la base no abre con una clave distinta
-- [ ] 2.2 Cerrar sesión: `disconnectAndClear`, borrar la clave y volver al inicio; verificar con una prueba que no queda ningún dato
+- [x] 2.2 Cerrar sesión: `disconnectAndClear`, borrar la clave y volver al inicio; verificar con una prueba que no queda ningún dato
 - [x] 2.3 Caducidad local de datos sensibles con reloj inyectable; verificar con una prueba sin conexión
 - [x] 2.4 Sesión revocada (respuesta 401 de credenciales tras revocar) → borrar base local; verificar con una prueba
 - [ ] 2.5 Conectar el `AuthRepository` real a las pantallas del Lote D: tokens en `SecureStore`, `getToken` con renovación serializada (`/v1/auth/refrescar`) y cierre de sesión (API, `disconnectAndWipeLocalData` y baja del token de avisos); verificar con pruebas con HTTP falso

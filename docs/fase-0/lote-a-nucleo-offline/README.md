@@ -11,14 +11,14 @@
 
 ## Estado del lote
 
-**16 de 28 tareas verificadas en la rama `fase0-a`.** Las fracciones de la tabla corresponden
+**17 de 28 tareas verificadas en la rama `fase0-a`.** Las fracciones de la tabla corresponden
 a las casillas del [checklist de OpenSpec](../../../openspec/changes/lote-a-nucleo-offline/tasks.md).
 La verificación en la rama y la integración en `main` son hitos separados.
 
 | Parte | Tareas | Terminado y comprobado | Pendiente para cerrar |
 | --- | --- | --- | --- |
 | 1 · PowerSync | 4/5 | La API entrega credenciales renovables y el muro sincroniza y se puede abrir sin señal. Verificado en un Redmi Note 13. | CI de la entrega. |
-| 2 · Cifrado y sesión | 3/6 | SQLite cifrado, borrado local ante revocación de prueba y caducidad de casos sin red. [Prueba de purga](../evidencias/purga.md). | Cierre de sesión, conexión con la cuenta real de los Lotes B y D, compilación en iOS y CI. |
+| 2 · Cifrado y sesión | 4/6 | SQLite cifrado, caducidad de casos, purga por revocación y cierre local de la sesión de prueba. [Pruebas de purga](../evidencias/purga.md). | Conexión con la cuenta real de los Lotes B y D, compilación en iOS y CI. |
 | 3 · Cola de subida | 4/6 | Publicar y tomar quedan en la cola cifrada. En la prueba de conflicto se conservó el motivo del rechazo y se envió la siguiente acción. | Verificar las pantallas del Lote D con el repositorio real y pasar CI. |
 | 4 · Casos sensibles | 4/5 | Solo se descarga el caso solicitado por el personal asignado. El Redmi borró el caso al reasignarlo. [Prueba de purga](../evidencias/purga.md). | CI de la entrega. |
 | 5 · Pruebas de campo | 1/4 | Purga comprobada en Android. En una prueba parcial de carga, 500 publicaciones sintéticas llegaron desde el Redmi sin pérdidas ni duplicados. [Prueba de carga](../evidencias/cola-offline.md). | Completar la matriz de campo en Android e iOS, medir segundo plano y probar el conflicto con dos celulares y la pantalla del Lote D. |
@@ -32,7 +32,7 @@ La verificación en la rama y la integración en `main` son hitos separados.
 
 Si la cola offline pierde o duplica acciones, o si un dato sensible llega al celular equivocado,
 el producto falla justo cuando más se necesita. Este lote cambia los dobles en memoria de la app
-por **PowerSync** con una base local **cifrada**, sin tocar ninguna pantalla, y demuestra con
+por **PowerSync** con una base local **cifrada** mediante proveedores de la app y demuestra con
 dispositivos reales los criterios de la sección 13.1.
 
 ### 0.2 Lo que ya está hecho (cimientos en `main`)
@@ -56,7 +56,8 @@ Las 6 partes de abajo. Cada una termina con la app y el backend compilados y dep
 
 ### 0.4 Reglas
 
-1. **Ninguna pantalla cambia.** La versión real entra sobreescribiendo proveedores de Riverpod.
+1. **Integración mediante proveedores.** La versión real entra sobreescribiendo proveedores de
+   Riverpod. El modo de depuración incluye un botón para probar el cierre local.
 2. **Toda acción del vecino es un comando con su `Idempotency-Key`**, que se reintenta sin duplicar.
 3. **Un rechazo definitivo nunca bloquea la cola:** se completa y va a "acciones por revisar".
 4. **Datos sensibles nunca en streams automáticos**, solo bajo demanda y para quien está asignado.
