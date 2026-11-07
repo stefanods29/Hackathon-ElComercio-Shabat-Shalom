@@ -1,4 +1,5 @@
 import type { INestApplication } from '@nestjs/common';
+import type { NestExpressApplication } from '@nestjs/platform-express';
 import { Test } from '@nestjs/testing';
 import { AppModule } from '../../src/app.module.js';
 import { APP_CONFIG, type AppConfig } from '../../src/shared/config/app-config.js';
@@ -19,7 +20,8 @@ export async function createTestApp(
     .overrideProvider(APP_CONFIG)
     .useValue(config)
     .compile();
-  const app = moduleRef.createNestApplication({ logger: false });
+  const app = moduleRef.createNestApplication<NestExpressApplication>({ logger: false });
+  app.set('trust proxy', config.TRUST_PROXY_HOPS);
   await app.init();
   return { app, config };
 }

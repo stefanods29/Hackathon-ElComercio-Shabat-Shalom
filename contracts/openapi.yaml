@@ -95,7 +95,8 @@ paths:
       description: |
         Lo llama `fetchCredentials()` del conector de PowerSync. El token (audiencia `powersync`)
         lleva `sub` (vecino) y `zona`, que usan los Sync Streams; zona y nivel se releen de la
-        base en cada emisión.
+        base en cada emisión. Una familia de sesión revocada o vencida recibe 401
+        (`codigo` = sesion_revocada), aunque su token de acceso aún no haya vencido.
       responses:
         '200':
           description: Credenciales vigentes.
@@ -104,6 +105,169 @@ paths:
               schema: { $ref: '#/components/schemas/CredencialesSincronizacion' }
         '401': { $ref: '#/components/responses/NoAutenticado' }
         '403': { $ref: '#/components/responses/Prohibido' }
+
+  /v1/auth/otp:
+    post:
+      tags: [identidad]
+      operationId: solicitarCodigo
+      summary: Solicitar un código de un solo uso
+      description: |
+        Responde igual exista o no la cuenta para no revelar qué teléfonos están registrados.
+        Un teléfono o una IP bloqueados por verificaciones fallidas reciben 429 hasta que termine
+        el bloqueo, aunque el código anterior haya caducado.
+        Esta ruta es en línea y no usa Idempotency-Key.
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/SolicitudOtp' }
+      responses:
+        '202':
+          description: Código aceptado para su envío.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/OtpEnviado' }
+        '400': { $ref: '#/components/responses/SolicitudInvalida' }
+        '429': { $ref: '#/components/responses/DemasiadasSolicitudes' }
+        '503':
+          description: El proveedor de mensajes no está disponible (`codigo` = servicio_no_disponible).
+          content:
+            application/problem+json:
+              schema: { $ref: '#/components/schemas/Problema' }
+
+  /v1/auth/otp/verificar:
+    post:
+      tags: [identidad]
+      operationId: verificarCodigo
+      summary: Verificar un código e iniciar sesión
+      description: |
+        Devuelve acceso con claim `sid` (familia de sesión), refresh token opaco y usuario.
+        Un código incorrecto, vencido o ya utilizado recibe la misma respuesta 401.
+        Los fallos se acumulan por teléfono y por IP entre códigos distintos. Por defecto, cinco
+        fallos por teléfono o veinte por IP en quince minutos bloquean durante quince minutos
+        desde el fallo que alcanza el límite; los siguientes intentos reciben 429 y Retry-After.
+        Esta ruta es en línea y no usa Idempotency-Key.
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/VerificacionOtp' }
+      responses:
+        '200':
+          description: Código verificado y sesión iniciada.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/SesionRenovable' }
+        '400': { $ref: '#/components/responses/SolicitudInvalida' }
+        '401':
+          description: Código incorrecto, vencido o ya utilizado (`codigo` = codigo_invalido).
+          content:
+            application/problem+json:
+              schema: { $ref: '#/components/schemas/Problema' }
+        '429': { $ref: '#/components/responses/DemasiadasSolicitudes' }
+
+  /v1/auth/refrescar:
+    post:
+      tags: [identidad]
+      operationId: refrescarSesion
+      summary: Renovar el par de tokens y consumir el refresh anterior
+      description: |
+        Cada refresh token se usa una sola vez. Reutilizar uno ya rotado revoca toda su familia
+        y responde 401 sesion_revocada. No hay ventana de gracia: el cliente debe serializar
+        las renovaciones y guardar el refresh nuevo antes de usarlo. Si pierde la respuesta,
+        debe iniciar sesión otra vez. Ruta en línea, sin Idempotency-Key ni reintento automático.
+        Zona, nivel y roles se releen de la base al emitir el par nuevo.
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/RenovacionSesion' }
+      responses:
+        '200':
+          description: Par de tokens nuevo; el refresh presentado queda consumido.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/SesionRenovable' }
+        '400': { $ref: '#/components/responses/SolicitudInvalida' }
+        '401':
+          description: Refresh desconocido o vencido (sesion_invalida), revocado o reutilizado (sesion_revocada).
+          content:
+            application/problem+json:
+              schema: { $ref: '#/components/schemas/Problema' }
+
+  /v1/auth/cerrar-sesion:
+    post:
+      tags: [identidad]
+      operationId: cerrarSesion
+      summary: Revocar la familia de sesión del dispositivo actual
+      description: |
+        Impide renovar tokens y obtener credenciales nuevas de PowerSync. El acceso ya emitido
+        conserva su vigencia hasta expirar; las credenciales de PowerSync ya emitidas también.
+        Operación en línea e idempotente. Una sesión de desarrollo sin sid no tiene familia.
+      responses:
+        '204': { description: Familia revocada o ya cerrada. }
+        '401': { $ref: '#/components/responses/NoAutenticado' }
+
+  /v1/auth/sesiones/revocar:
+    post:
+      tags: [identidad]
+      operationId: revocarTodasLasSesiones
+      summary: Revocar todas las familias de sesión del vecino
+      description: |
+        Incluye el dispositivo actual. Impide renovar tokens y obtener credenciales nuevas
+        de PowerSync en todos los dispositivos. Los tokens ya emitidos conservan su vigencia
+        hasta expirar. Operación en línea e idempotente.
+      responses:
+        '204': { description: Todas las familias revocadas. }
+        '401': { $ref: '#/components/responses/NoAutenticado' }
+
+  /v1/zonas:
+    get:
+      tags: [identidad]
+      operationId: listarZonas
+      summary: Listar las zonas disponibles
+      description: La lista pública no incluye los polígonos de las zonas.
+      security: []
+      responses:
+        '200':
+          description: Zonas disponibles.
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/Zona' }
+
+  /v1/yo/zona:
+    put:
+      tags: [identidad]
+      operationId: elegirZona
+      summary: Elegir la zona del vecino una sola vez
+      description: |
+        Devuelve una sesión con un token de acceso que ya incluye la zona elegida.
+        Conserva su familia `sid`; una familia revocada o vencida recibe 401 sesion_revocada.
+        Cambiar de zona llega en la Fase 1. No rota el refresh token.
+      parameters:
+        - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/EleccionZona' }
+      responses:
+        '200':
+          description: Zona elegida y token actualizado.
+          headers:
+            Idempotent-Replayed: { $ref: '#/components/headers/IdempotentReplayed' }
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Sesion' }
+        '400': { $ref: '#/components/responses/SolicitudInvalida' }
+        '401': { $ref: '#/components/responses/NoAutenticado' }
+        '404': { $ref: '#/components/responses/NoEncontrado' }
+        '409': { $ref: '#/components/responses/Conflicto' }
 
   /v1/publicaciones:
     post:
@@ -205,6 +369,25 @@ components:
       content:
         application/problem+json:
           schema: { $ref: '#/components/schemas/Problema' }
+    DemasiadasSolicitudes:
+      description: Se superó un límite de solicitudes (`codigo` = demasiados_intentos).
+      headers:
+        Retry-After:
+          description: Segundos que deben transcurrir antes de reintentar.
+          required: true
+          schema: { type: integer, minimum: 1 }
+      content:
+        application/problem+json:
+          schema:
+            allOf:
+              - $ref: '#/components/schemas/Problema'
+              - type: object
+                required: [reintentarEnSegundos]
+                properties:
+                  reintentarEnSegundos:
+                    type: integer
+                    minimum: 1
+                    description: Segundos que deben transcurrir antes de reintentar.
     Prohibido:
       description: El vecino no puede hacer esto (p. ej., nivel_de_confianza_insuficiente, fuera_de_tu_zona).
       content:
@@ -289,12 +472,59 @@ components:
       properties:
         telefono: { type: string, pattern: '^\+[1-9][0-9]{7,14}$', examples: ['+51900000002'] }
 
+    SolicitudOtp:
+      type: object
+      required: [telefono]
+      properties:
+        telefono:
+          type: string
+          pattern: '^\+[1-9][0-9]{7,14}$'
+          examples: ['+51987654321']
+        canal:
+          type: string
+          enum: [sms, whatsapp]
+          default: sms
+
+    OtpEnviado:
+      type: object
+      required: [reintentarEnSegundos, expiraEnSegundos]
+      properties:
+        reintentarEnSegundos: { type: integer, minimum: 1, examples: [60] }
+        expiraEnSegundos: { type: integer, minimum: 1, examples: [300] }
+
+    VerificacionOtp:
+      type: object
+      required: [telefono, codigo]
+      properties:
+        telefono:
+          type: string
+          pattern: '^\+[1-9][0-9]{7,14}$'
+          examples: ['+51987654321']
+        codigo: { type: string, pattern: '^[0-9]{6}$', examples: ['123456'] }
+        dispositivo: { type: string, maxLength: 80 }
+
+    Zona:
+      type: object
+      required: [id, nombre, distrito]
+      properties:
+        id: { type: string, format: uuid }
+        nombre: { type: string }
+        distrito: { type: string }
+
+    EleccionZona:
+      type: object
+      required: [zonaId]
+      properties:
+        zonaId: { type: string, format: uuid }
+
     Sesion:
       type: object
       required: [tokenDeAcceso, expiraEn, usuario]
       properties:
         tokenDeAcceso: { type: string }
         expiraEn: { type: string, format: date-time }
+        refreshToken: { type: string, description: Token opaco; solo presente al verificar OTP o renovar. }
+        refreshExpiraEn: { type: string, format: date-time }
         usuario:
           type: object
           required: [id, nombreVisible, zonaId, nivel, roles]
@@ -306,6 +536,18 @@ components:
             roles:
               type: array
               items: { type: string, enum: [proveedor, moderador, coordinador, brigadista, administrador] }
+
+    SesionRenovable:
+      allOf:
+        - $ref: '#/components/schemas/Sesion'
+        - type: object
+          required: [refreshToken, refreshExpiraEn]
+
+    RenovacionSesion:
+      type: object
+      required: [refreshToken]
+      properties:
+        refreshToken: { type: string, minLength: 1, maxLength: 512 }
 
     CredencialesSincronizacion:
       type: object

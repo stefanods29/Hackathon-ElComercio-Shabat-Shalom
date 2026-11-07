@@ -2,19 +2,19 @@
 
 ## 1. Parte 1 · Inicio de sesión con OTP
 
-- [ ] 1.1 Agregar `/v1/auth/otp` y `/v1/auth/otp/verificar` a `contracts/openapi.yaml`; verificar con `redocly lint`
-- [ ] 1.2 Migración `identidad.codigos_otp` (hash del código, vigencia, intentos) y puerto `OtpProvider` con adaptador falso; verificar con pruebas unitarias
-- [ ] 1.3 Casos de uso solicitar y verificar (registro con nivel 0) y límites por teléfono e IP (429 + `Retry-After`); verificar con pruebas de integración
+- [x] 1.1 Agregar `/v1/auth/otp` y `/v1/auth/otp/verificar` a `contracts/openapi.yaml`; verificar con `redocly lint`
+- [x] 1.2 Migración `identidad.codigos_otp` (hash del código, vigencia, intentos) y puerto `OtpProvider` con adaptador falso; verificar con pruebas unitarias
+- [x] 1.3 Casos de uso solicitar y verificar (registro con nivel 0) y límites por teléfono e IP (429 + `Retry-After`); verificar con pruebas de integración
 - [ ] 1.4 Adaptador real (Twilio Verify o Firebase) detrás de configuración; verificar con una prueba manual documentada
-- [ ] 1.5 Zonas: `GET /v1/zonas` (pública, sin polígono) y `PUT /v1/yo/zona` (una sola vez; devuelve un token de acceso con la zona nueva; 409 `zona_ya_elegida` si ya tenía); verificar con pruebas de integración
-- [ ] 1.6 Compilar y depurar: `npm run verify` y `npm run test:integration` en verde
+- [x] 1.5 Zonas: `GET /v1/zonas` (pública, sin polígono) y `PUT /v1/yo/zona` (una sola vez; devuelve un token de acceso con la zona nueva; 409 `zona_ya_elegida` si ya tenía); verificar con pruebas de integración
+- [x] 1.6 Compilar y depurar: `npm run verify` y `npm run test:integration` en verde
 
 ## 2. Parte 2 · Sesiones revocables
 
-- [ ] 2.1 Migración `identidad.sesiones` (familia, hash del refresh, dispositivo, revocada_en); verificar con pruebas de integración
-- [ ] 2.2 `POST /v1/auth/refrescar` con rotación y detección de reutilización; verificar con una prueba de token robado
-- [ ] 2.3 `POST /v1/auth/cerrar-sesion` y `POST /v1/auth/sesiones/revocar`; verificar que `GET /v1/sync/credenciales` responde 401 después
-- [ ] 2.4 Compilar y depurar (CI en verde)
+- [x] 2.1 Migración `identidad.sesiones` (familia, hash del refresh, dispositivo, revocada_en); verificar con pruebas de integración
+- [x] 2.2 `POST /v1/auth/refrescar` con rotación y detección de reutilización; verificar con una prueba de token robado
+- [x] 2.3 `POST /v1/auth/cerrar-sesion` y `POST /v1/auth/sesiones/revocar`; verificar que `GET /v1/sync/credenciales` responde 401 después
+- [x] 2.4 Compilar y depurar (CI en verde)
 
 ## 3. Parte 3 · Roles y niveles de confianza
 

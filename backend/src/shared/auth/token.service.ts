@@ -1,6 +1,7 @@
 import { type KeyObject, createPrivateKey, createPublicKey } from 'node:crypto';
 import { Inject, Injectable } from '@nestjs/common';
 import { type JWK, type JWTPayload, SignJWT, jwtVerify } from 'jose';
+import { validate as isUuid } from 'uuid';
 import { APP_CONFIG, type AppConfig } from '../config/app-config.js';
 import { CLOCK, type Clock } from '../domain/clock.js';
 import { newId } from '../domain/ids.js';
@@ -24,12 +25,16 @@ export class InvalidToken extends Error {
 }
 
 function actorFromClaims(claims: JWTPayload): Actor {
-  const { sub, zona, nivel, roles } = claims as JWTPayload & {
+  const { sub, zona, nivel, roles, sid } = claims as JWTPayload & {
     zona?: unknown;
     nivel?: unknown;
     roles?: unknown;
+    sid?: unknown;
   };
   if (typeof sub !== 'string' || sub.length === 0) throw new InvalidToken('Falta el sujeto (sub)');
+  if (sid !== undefined && (typeof sid !== 'string' || !isUuid(sid))) {
+    throw new InvalidToken('Familia de sesión inválida (sid)');
+  }
   if (typeof nivel !== 'number' || !Number.isInteger(nivel) || nivel < 0 || nivel > 3) {
     throw new InvalidToken('Nivel de confianza inválido');
   }
@@ -41,6 +46,7 @@ function actorFromClaims(claims: JWTPayload): Actor {
     zoneId: typeof zona === 'string' ? zona : null,
     trustLevel: nivel,
     roles: validRoles,
+    ...(typeof sid === 'string' ? { sessionId: sid } : {}),
   };
 }
 
@@ -113,6 +119,7 @@ export class TokenService {
       zona: actor.zoneId,
       nivel: actor.trustLevel,
       roles: actor.roles,
+      ...(actor.sessionId ? { sid: actor.sessionId } : {}),
     })
       .setProtectedHeader({ alg: 'ES256', kid: this.config.JWT_KID, typ: 'JWT' })
       .setIssuer(this.config.JWT_ISSUER)

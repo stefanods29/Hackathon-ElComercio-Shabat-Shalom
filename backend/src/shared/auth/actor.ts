@@ -17,6 +17,8 @@ export interface Actor {
   /** Trust level 0–3 (section 5.5). */
   readonly trustLevel: number;
   readonly roles: readonly Role[];
+  /** Refresh-token family (`sid`); absent on development or legacy tokens. */
+  readonly sessionId?: string;
 }
 
 export type AuthenticatedRequest = Request & { actor?: Actor };
