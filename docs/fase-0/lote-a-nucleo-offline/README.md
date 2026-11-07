@@ -11,18 +11,25 @@
 
 ## Estado del lote
 
-**17 de 28 tareas verificadas en la rama `fase0-a`.** Las fracciones de la tabla corresponden
+**21 de 28 tareas verificadas en la rama `fase0-a`.** Las fracciones de la tabla corresponden
 a las casillas del [checklist de OpenSpec](../../../openspec/changes/lote-a-nucleo-offline/tasks.md).
 La verificación en la rama y la integración en `main` son hitos separados.
 
 | Parte | Tareas | Terminado y comprobado | Pendiente para cerrar |
 | --- | --- | --- | --- |
-| 1 · PowerSync | 4/5 | La API entrega credenciales renovables y el muro sincroniza y se puede abrir sin señal. Verificado en un Redmi Note 13. | CI de la entrega. |
-| 2 · Cifrado y sesión | 4/6 | SQLite cifrado, caducidad de casos, purga por revocación y cierre local de la sesión de prueba. [Pruebas de purga](../evidencias/purga.md). | Conexión con la cuenta real de los Lotes B y D, compilación en iOS y CI. |
-| 3 · Cola de subida | 4/6 | Publicar y tomar quedan en la cola cifrada. En la prueba de conflicto se conservó el motivo del rechazo y se envió la siguiente acción. | Verificar las pantallas del Lote D con el repositorio real y pasar CI. |
-| 4 · Casos sensibles | 4/5 | Solo se descarga el caso solicitado por el personal asignado. El Redmi borró el caso al reasignarlo. [Prueba de purga](../evidencias/purga.md). | CI de la entrega. |
+| 1 · PowerSync | 5/5 | La API entrega credenciales renovables y el muro sincroniza y se puede abrir sin señal. Verificado en un Redmi Note 13 y con CI aprobada. | Tareas de esta parte verificadas. |
+| 2 · Cifrado y sesión | 5/6 | SQLite cifrado, caducidad de casos, purga por revocación y cierre local de la sesión de prueba. [Pruebas de purga](../evidencias/purga.md). Compilaciones Android e iOS aprobadas en CI. | Conexión con la cuenta real de los Lotes B y D. |
+| 3 · Cola de subida | 5/6 | Publicar y tomar quedan en la cola cifrada. En la prueba de conflicto se conservó el motivo del rechazo y se envió la siguiente acción. CI aprobada. | Verificar las pantallas del Lote D con el repositorio real. |
+| 4 · Casos sensibles | 5/5 | Solo se descarga el caso solicitado por el personal asignado. El Redmi borró el caso al reasignarlo. [Prueba de purga](../evidencias/purga.md). CI aprobada. | Tareas de esta parte verificadas. |
 | 5 · Pruebas de campo | 1/4 | Purga comprobada en Android. En una prueba parcial de carga, 500 publicaciones sintéticas llegaron desde el Redmi sin pérdidas ni duplicados. [Prueba de carga](../evidencias/cola-offline.md). | Completar la matriz de campo en Android e iOS, medir segundo plano y probar el conflicto con dos celulares y la pantalla del Lote D. |
 | 6 · Integración | 0/2 | El entorno local y los resultados de los componentes ya están disponibles para la integración. | Entregas aprobadas de B, C y D, flujo completo y CI en `main`. |
+
+La entrega se integra con el diseño accesible que ya contiene `main` mediante el
+[PR 13](https://github.com/stefanods29/Hackathon-ElComercio-Shabat-Shalom/pull/13).
+El 7 de noviembre de 2026 pasaron las comprobaciones de
+[Android e iOS](https://github.com/stefanods29/Hackathon-ElComercio-Shabat-Shalom/actions/runs/42378742817),
+[backend y PostgreSQL](https://github.com/stefanods29/Hackathon-ElComercio-Shabat-Shalom/actions/runs/42378743130)
+y [OpenSpec y contrato](https://github.com/stefanods29/Hackathon-ElComercio-Shabat-Shalom/actions/runs/42378743163).
 
 ---
 

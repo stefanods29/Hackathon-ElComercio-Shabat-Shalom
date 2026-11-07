@@ -6,7 +6,7 @@
 - [x] 1.2 Agregar `powersync` 2.x a la app y definir el esquema local (zonas, publicaciones, comandos insert-only, envíos local-only); verificar con una prueba que el esquema abre
 - [x] 1.3 Implementar el conector (`fetchCredentials` con `GET /v1/sync/credenciales`, renovación antes de vencer); verificar con una prueba con HTTP falso
 - [x] 1.4 Implementar `SyncService` sobre PowerSync (conectado, última sincronización, pendientes) y sobreescribir su proveedor; verificar en un Android real que llegan las publicaciones de la zona
-- [ ] 1.5 Compilar y depurar: `flutter analyze`, `flutter test` y CI en verde
+- [x] 1.5 Compilar y depurar: `flutter analyze`, `flutter test` y CI en verde
 
 ## 2. Parte 2 · Cifrado local y purga
 
@@ -15,7 +15,7 @@
 - [x] 2.3 Caducidad local de datos sensibles con reloj inyectable; verificar con una prueba sin conexión
 - [x] 2.4 Sesión revocada (respuesta 401 de credenciales tras revocar) → borrar base local; verificar con una prueba
 - [ ] 2.5 Conectar el `AuthRepository` real a las pantallas del Lote D: tokens en `SecureStore`, `getToken` con renovación serializada (`/v1/auth/refrescar`) y cierre de sesión (API, `disconnectAndWipeLocalData` y baja del token de avisos); verificar con pruebas con HTTP falso
-- [ ] 2.6 Compilar y depurar en Android e iOS (CI en verde)
+- [x] 2.6 Compilar y depurar en Android e iOS (CI en verde)
 
 ## 3. Parte 3 · Cola de subida con estados, reintentos y rechazos
 
@@ -24,7 +24,7 @@
 - [x] 3.3 `uploadData`: comando → endpoint con su `Idempotency-Key`, clasificación con `classifyResponse`, rechazo definitivo con `complete()` y reversión; verificar con pruebas contra la API local
 - [x] 3.4 "Acciones por revisar" (`watchActionsToReview`) con el motivo del servidor; verificar con una prueba de conflicto entre dos vecinos
 - [ ] 3.5 Sobreescribir `postRepositoryProvider` con la implementación real; verificar que las pantallas del Lote D funcionan sin cambios
-- [ ] 3.6 Compilar y depurar (CI en verde)
+- [x] 3.6 Compilar y depurar (CI en verde)
 
 ## 4. Parte 4 · Datos sensibles bajo demanda
 
@@ -32,7 +32,7 @@
 - [x] 4.2 Stream bajo demanda `caso_asignado` en `sync-config.yaml`; verificar con `npm run sync:validate`
 - [x] 4.3 Pruebas automatizadas de acceso (no asignado = 0 filas; asignado = solo su caso); verificar que fallan si se agrega un stream automático sensible
 - [x] 4.4 Revocación: al reasignar, el detalle se borra del celular anterior; verificar en dispositivo real
-- [ ] 4.5 Compilar y depurar (CI en verde)
+- [x] 4.5 Compilar y depurar (CI en verde)
 
 ## 5. Parte 5 · Pruebas de campo (sección 13.1)
 
