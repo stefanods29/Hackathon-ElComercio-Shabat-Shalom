@@ -4,10 +4,8 @@ import 'package:go_router/go_router.dart';
 import 'package:vecinal/core/di/providers.dart';
 import 'package:vecinal/core/router/routes.dart';
 import 'package:vecinal/core/ui/connection_banner.dart';
-import 'package:vecinal/core/ui/submission_status_chip.dart';
 import 'package:vecinal/features/solidaridad/data/providers.dart';
-import 'package:vecinal/features/solidaridad/domain/post.dart';
-import 'package:vecinal/features/solidaridad/domain/use_cases.dart';
+import 'package:vecinal/features/solidaridad/presentation/widgets/post_card.dart';
 import 'package:vecinal/l10n/app_localizations.dart';
 
 /// Favor wall of the zone. Phase 0 reference screen: it reads from the local database
@@ -81,62 +79,5 @@ class WallPage extends ConsumerWidget {
         label: Text(texts.publishAction),
       ),
     );
-  }
-}
-
-class PostCard extends ConsumerWidget {
-  const PostCard({super.key, required this.post});
-
-  final Post post;
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final texts = AppLocalizations.of(context);
-    final theme = Theme.of(context);
-    final session = ref.watch(sessionProvider);
-    final canTake = post.isAvailable && post.authorId != session.neighborId;
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              '${post.type.apiValue.toUpperCase()} · ${post.category}',
-              style: theme.textTheme.labelLarge,
-            ),
-            const SizedBox(height: 4),
-            Text(post.title, style: theme.textTheme.titleLarge),
-            const SizedBox(height: 8),
-            Wrap(
-              spacing: 8,
-              runSpacing: 8,
-              crossAxisAlignment: WrapCrossAlignment.center,
-              children: [
-                SubmissionStatusChip(status: post.submissionStatus),
-                if (canTake)
-                  FilledButton(
-                    onPressed: () => _take(context, ref),
-                    child: Text(texts.takeFavorAction),
-                  ),
-              ],
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Future<void> _take(BuildContext context, WidgetRef ref) async {
-    final messenger = ScaffoldMessenger.of(context);
-    final useCase = TakeFavor(
-      ref.read(postRepositoryProvider),
-      currentNeighborId: ref.read(sessionProvider).neighborId,
-    );
-    try {
-      await useCase.execute(post);
-    } on LocalValidationError catch (error) {
-      messenger.showSnackBar(SnackBar(content: Text(error.message)));
-    }
   }
 }
