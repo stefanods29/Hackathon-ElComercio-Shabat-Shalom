@@ -19,7 +19,7 @@
 | 2 | Cifrado local, purga e inicio de sesión real | En curso | Stefano | — |
 | 3 | Cola de subida con estados, reintentos y rechazos | En curso | Stefano | — |
 | 4 | Datos sensibles bajo demanda | En curso | Stefano | — |
-| 5 | Pruebas de campo (sección 13.1) | Pendiente | Stefano | — |
+| 5 | Pruebas de campo (sección 13.1) | En curso | Stefano | — |
 | 6 | Integración de la Fase 0 | Pendiente | Stefano | — |
 
 Estados posibles: **Pendiente**, **En curso** o **Hecha** (integrada en `main`). Quien toma una
@@ -159,6 +159,8 @@ Rama: `lote-a/parte-2-cifrado-y-purga` · Tareas 2.1–2.6
    versión instalada), borra la clave y vuelve al inicio. Prueba: no queda ningún dato.
 3. **Caducidad local** de los datos sensibles con el reloj inyectable (`clockProvider`): se borran
    al vencer su plazo (24 h propuestas, decisión abierta 6) aunque el celular siga sin conexión.
+   El caso abierto se guarda en una base cifrada con su propia clave y vence en `vence_en`.
+   Se revisa al iniciar, al volver a la app y mientras la app está activa.
 4. **Sesión revocada:** si `GET /v1/sync/credenciales` responde 401 `sesion_revocada`, se borra la
    base local.
 5. **Inicio de sesión real:** implementa el `AuthRepository` del Lote D (Parte 5) contra la API del
@@ -208,6 +210,7 @@ Rama: `lote-a/parte-4-datos-sensibles` · Tareas 4.1–4.5
 
 El servicio exige una suscripción explícita al caso, una asignación activa y el rol de
 brigadista o coordinador. La prueba de acceso se ejecuta con `npm test` en el backend.
+La [evidencia en Android](../evidencias/purga.md) muestra la caducidad y el borrado tras reasignar.
 
 1. **Migraciones mínimas** del módulo `emergencias`: `emergencias.pedidos_ayuda` y
    `emergencias.asignaciones`. Se agregan a la publicación `powersync` con `SELECT` solo para
@@ -225,6 +228,10 @@ brigadista o coordinador. La prueba de acceso se ejecuta con `npm test` en el ba
 
 Rama: `lote-a/parte-5-pruebas-de-campo` · Tareas 5.1–5.4. Cada prueba deja su evidencia en
 `docs/fase-0/evidencias/` con el formato de su `README.md`.
+
+La [prueba de carga en Android](../evidencias/cola-offline.md) confirmó 500 publicaciones
+únicas con una cuenta y una zona sintéticas. La tarea 5.1 requiere completar la matriz de
+campo en Android y repetirla en iPhone.
 
 1. **500 operaciones** con modo avión, señal débil, cierre forzado, reinicio y batería baja en un
    Android de gama baja y un iPhone: 0 pérdidas y 0 duplicados, con conteos en el servidor
