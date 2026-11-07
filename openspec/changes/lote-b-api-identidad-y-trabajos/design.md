@@ -31,6 +31,33 @@ Las tablas de códigos mantienen sus intentos para diagnóstico, pero ya no deci
 
 ### Sesiones con refresh token rotativo
 
+La Parte 2 guarda solo `HMAC-SHA256(REFRESH_TOKEN_SECRET, refresh)` en `identidad.sesiones`.
+El secreto es independiente del OTP; `dev:keys` genera ambos. Cada refresh contiene 32 bytes
+aleatorios codificados en base64url. La vigencia se renueva desde cada rotación (30 días por
+defecto); las filas rotadas se conservan para detectar reutilización.
+
+El acceso lleva `sid = familia_id`. La emisión inicial comparte transacción con el consumo OTP;
+la rotación marca la fila anterior e inserta la nueva en una sola transacción. Ambas firman el
+acceso antes del commit, de modo que un fallo de firma revierte todo. El resultado de reutilización
+se convierte en 401 **después del commit** para conservar la revocación de toda la familia.
+
+Todas las mutaciones de sesiones toman un bloqueo transaccional por usuario antes de bloquear
+filas. Para renovar se identifica primero al dueño sin bloqueo de fila, se bloquea al usuario
+y se relee el hash con `FOR UPDATE`. Esto ordena creación, rotación, cierre y revocación total,
+e impide que una revocación omita un refresh insertado concurrentemente. Sync y elección de zona
+comprueban bajo el mismo bloqueo que exista una fila de esa familia y usuario sin rotar, sin
+revocar y no vencida. La elección de zona conserva `sid` y firma dentro de su transacción.
+
+El acceso ya emitido conserva su vigencia, limitada por configuración a 1–15 minutos. Las
+credenciales PowerSync ya emitidas también valen hasta su vencimiento; revocar impide obtener
+credenciales nuevas, sin prometer una desconexión instantánea. Las sesiones de desarrollo sin
+`sid` siguen disponibles únicamente bajo su configuración actual y no tienen refresh.
+
+No hay ventana de gracia: el Lote A debe serializar las renovaciones, guardar de forma segura
+el par nuevo y evitar reintentos automáticos con el refresh anterior. Si la respuesta se pierde,
+se requiere un nuevo inicio por OTP. Estas rutas son en línea y no entran en la cola offline;
+cierre y revocación total son idempotentes por su propia operación, sin almacenar respuestas.
+
 ```mermaid
 sequenceDiagram
   autonumber
@@ -62,7 +89,7 @@ flowchart LR
 2. **Relay con `FOR UPDATE SKIP LOCKED`** para que varias réplicas no publiquen dos veces el mismo
    evento; marcar `publicado_en` en la misma transacción que el `send` a la cola.
 3. **Workers en un proceso aparte** (`src/workers/main.ts`) con el mismo código del monolito.
-4. **Hash del refresh token** (SHA-256 con sal del servidor); nunca se guarda el token.
+4. **Hash del refresh token** (HMAC-SHA256 con secreto del servidor); nunca se guarda el token.
 5. **Proveedor OTP**: adaptador falso en desarrollo; el real (Twilio Verify o Firebase Auth) se
    elige con la decisión abierta 4 de la sección 13.3.
 

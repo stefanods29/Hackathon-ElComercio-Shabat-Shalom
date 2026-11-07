@@ -247,7 +247,8 @@ paths:
       summary: Elegir la zona del vecino una sola vez
       description: |
         Devuelve una sesión con un token de acceso que ya incluye la zona elegida.
-        Cambiar de zona llega en la Fase 1.
+        Conserva su familia `sid`; una familia revocada o vencida recibe 401 sesion_revocada.
+        Cambiar de zona llega en la Fase 1. No rota el refresh token.
       parameters:
         - $ref: '#/components/parameters/IdempotencyKey'
       requestBody:

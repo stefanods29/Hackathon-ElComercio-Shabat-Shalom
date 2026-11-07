@@ -1,4 +1,5 @@
 import type { NullableTimestamp, Timestamp, WithDefault } from '../../../shared/db/types.js';
+import type { SessionRevocationReason } from '../application/session-ports.js';
 
 /** Table and column names follow the database schema (Spanish), as the architecture sets. */
 export interface ZonesTable {
@@ -44,10 +45,24 @@ export interface OtpLimitsTable {
   bloqueado_hasta: NullableTimestamp;
 }
 
+export interface SessionsTable {
+  id: WithDefault<string>;
+  usuario_id: string;
+  familia_id: string;
+  refresh_hash: string;
+  dispositivo: string | null;
+  creada_en: WithDefault<Date>;
+  expira_en: Timestamp;
+  rotada_en: NullableTimestamp;
+  revocada_en: NullableTimestamp;
+  motivo: SessionRevocationReason | null;
+}
+
 /** Tables of the `identidad` schema. Only the Identity module queries them. */
 export interface IdentityTables {
   'identidad.zonas': ZonesTable;
   'identidad.usuarios': UsersTable;
   'identidad.codigos_otp': OtpCodesTable;
   'identidad.limites_otp': OtpLimitsTable;
+  'identidad.sesiones': SessionsTable;
 }

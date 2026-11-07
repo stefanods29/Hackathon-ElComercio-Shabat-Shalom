@@ -1,17 +1,15 @@
 import { createHmac, timingSafeEqual } from 'node:crypto';
 import { Inject, Injectable } from '@nestjs/common';
-import { TokenService } from '../../../shared/auth/token.service.js';
 import { APP_CONFIG, type AppConfig } from '../../../shared/config/app-config.js';
 import { UNIT_OF_WORK, type UnitOfWork } from '../../../shared/db/unit-of-work.js';
 import { CLOCK, type Clock } from '../../../shared/domain/clock.js';
 import { AuthenticationFailure, RateLimitExceeded } from '../../../shared/domain/errors.js';
-import type { IssuedSession } from './issue-credentials.js';
+import { CreateSession, type IssuedRefreshSession } from './create-session.js';
 import { failureRetryAfter, nextFailureState } from './otp-failure-policy.js';
 import {
   OTP_CODE_REPOSITORY,
   USER_REPOSITORY,
   type OtpCodeRepository,
-  type RegisteredUser,
   type UserRepository,
 } from './ports.js';
 
@@ -25,7 +23,7 @@ export interface VerifyOtpCommand {
 type Verification =
   | { readonly kind: 'invalid' }
   | { readonly kind: 'locked'; readonly retryAfterSeconds: number }
-  | { readonly kind: 'ok'; readonly user: RegisteredUser };
+  | { readonly kind: 'ok'; readonly session: IssuedRefreshSession };
 
 @Injectable()
 export class VerifyOtp {
@@ -33,12 +31,12 @@ export class VerifyOtp {
     @Inject(UNIT_OF_WORK) private readonly unitOfWork: UnitOfWork,
     @Inject(OTP_CODE_REPOSITORY) private readonly codes: OtpCodeRepository,
     @Inject(USER_REPOSITORY) private readonly users: UserRepository,
-    private readonly tokens: TokenService,
+    private readonly createSession: CreateSession,
     @Inject(APP_CONFIG) private readonly config: AppConfig,
     @Inject(CLOCK) private readonly clock: Clock,
   ) {}
 
-  async execute(command: VerifyOtpCommand): Promise<IssuedSession> {
+  async execute(command: VerifyOtpCommand): Promise<IssuedRefreshSession> {
     const verification = await this.unitOfWork.run(async (transaction): Promise<Verification> => {
       const ip = await this.codes.lockPhoneAndIp(transaction, command.phone, command.ip);
       const now = this.clock.now();
@@ -65,7 +63,12 @@ export class VerifyOtp {
         const user = await this.users.findOrCreateByPhone(transaction, command.phone);
         await this.codes.clearFailureState(transaction, 'telefono', command.phone);
         // A successful login must not erase failures made from this IP against other phones.
-        return { kind: 'ok', user };
+        const session = await this.createSession.inTransaction(
+          transaction,
+          user,
+          command.device ?? null,
+        );
+        return { kind: 'ok', session };
       }
       if (record) await this.codes.incrementAttempts(transaction, record.id);
       await this.codes.saveFailureState(
@@ -108,7 +111,6 @@ export class VerifyOtp {
       );
     }
 
-    const { token, expiresAt } = await this.tokens.issueAccess(verification.user);
-    return { accessToken: token, expiresAt, user: verification.user };
+    return verification.session;
   }
 }

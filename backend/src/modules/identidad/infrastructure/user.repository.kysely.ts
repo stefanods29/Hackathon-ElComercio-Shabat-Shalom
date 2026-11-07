@@ -32,8 +32,9 @@ export class KyselyUserRepository implements UserRepository {
     return row ? toUser(row) : null;
   }
 
-  async findById(id: string): Promise<RegisteredUser | null> {
-    const row = await this.db
+  async findById(id: string, transaction?: TransactionContext): Promise<RegisteredUser | null> {
+    const db = transaction ? asKysely<IdentityTables>(transaction) : this.db;
+    const row = await db
       .selectFrom('identidad.usuarios')
       .selectAll()
       .where('id', '=', id)

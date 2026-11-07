@@ -40,7 +40,7 @@ export class SessionsController {
   /** Called by `fetchCredentials()` of the PowerSync connector on the phone. */
   @Get('sync/credenciales')
   async syncCredentials(@CurrentActor() actor: Actor): Promise<SyncCredentialsResponse> {
-    const credentials = await this.credentials.forSync(actor.id);
+    const credentials = await this.credentials.forSync(actor);
     return {
       endpoint: credentials.endpoint,
       token: credentials.token,

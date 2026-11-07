@@ -7,6 +7,8 @@ import { newId } from '../../../shared/domain/ids.js';
 import { testConfig } from '../../../../test/support/config.js';
 import { FakeOtpProvider } from '../infrastructure/fake-otp.provider.js';
 import { InMemoryOtpCodeRepository } from '../infrastructure/otp-code.repository.memory.js';
+import { InMemorySessionRepository } from '../infrastructure/session.repository.memory.js';
+import { CreateSession } from './create-session.js';
 import type { RegisteredUser, UserRepository } from './ports.js';
 import { RequestOtp } from './request-otp.js';
 import { VerifyOtp, type VerifyOtpCommand } from './verify-otp.js';
@@ -59,12 +61,13 @@ describe('VerifyOtp', () => {
       assignZone: async () => null,
     };
     tokens = new TokenService(config, clock);
-    verifyOtp = new VerifyOtp(unitOfWork, codes, users, tokens, config, clock);
+    const createSession = new CreateSession(new InMemorySessionRepository(), tokens, config, clock);
+    verifyOtp = new VerifyOtp(unitOfWork, codes, users, createSession, config, clock);
     const requestOtp = new RequestOtp(unitOfWork, codes, provider, config, clock);
     await requestOtp.execute({ phone, channel: 'sms', ip: '192.0.2.10' });
   });
 
-  it('acepta el código correcto, registra nivel 0 y emite acceso sin refresh de la Parte 2', async () => {
+  it('acepta el código correcto, registra nivel 0 y emite acceso con refresh', async () => {
     const result = await verifyCode({
       phone,
       code: provider.lastCodeFor(phone)!,
@@ -72,11 +75,13 @@ describe('VerifyOtp', () => {
     });
 
     expect(result.user).toMatchObject({ phone, trustLevel: 0, zoneId: null });
-    expect(result).not.toHaveProperty('refreshToken');
+    expect(result.refreshToken).toMatch(/^[A-Za-z0-9_-]{43}$/);
+    expect(result.refreshExpiresAt.toISOString()).toBe('2026-12-07T15:00:00.000Z');
     await expect(tokens.verifyAccess(result.accessToken)).resolves.toMatchObject({
       id: result.user.id,
       trustLevel: 0,
       zoneId: null,
+      sessionId: expect.any(String),
     });
   });
 

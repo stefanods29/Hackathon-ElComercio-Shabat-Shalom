@@ -8,7 +8,7 @@ export interface RegisteredUser extends Actor {
 
 export interface UserRepository {
   findByPhone(phone: string): Promise<RegisteredUser | null>;
-  findById(id: string): Promise<RegisteredUser | null>;
+  findById(id: string, transaction?: TransactionContext): Promise<RegisteredUser | null>;
   findOrCreateByPhone(transaction: TransactionContext, phone: string): Promise<RegisteredUser>;
   assignZone(
     transaction: TransactionContext,

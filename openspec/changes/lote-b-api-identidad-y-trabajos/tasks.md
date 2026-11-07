@@ -11,9 +11,9 @@
 
 ## 2. Parte 2 · Sesiones revocables
 
-- [ ] 2.1 Migración `identidad.sesiones` (familia, hash del refresh, dispositivo, revocada_en); verificar con pruebas de integración
-- [ ] 2.2 `POST /v1/auth/refrescar` con rotación y detección de reutilización; verificar con una prueba de token robado
-- [ ] 2.3 `POST /v1/auth/cerrar-sesion` y `POST /v1/auth/sesiones/revocar`; verificar que `GET /v1/sync/credenciales` responde 401 después
+- [x] 2.1 Migración `identidad.sesiones` (familia, hash del refresh, dispositivo, revocada_en); verificar con pruebas de integración
+- [x] 2.2 `POST /v1/auth/refrescar` con rotación y detección de reutilización; verificar con una prueba de token robado
+- [x] 2.3 `POST /v1/auth/cerrar-sesion` y `POST /v1/auth/sesiones/revocar`; verificar que `GET /v1/sync/credenciales` responde 401 después
 - [ ] 2.4 Compilar y depurar (CI en verde)
 
 ## 3. Parte 3 · Roles y niveles de confianza

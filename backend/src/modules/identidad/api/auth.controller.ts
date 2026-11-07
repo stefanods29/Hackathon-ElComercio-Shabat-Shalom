@@ -6,10 +6,10 @@ import { RequestOtp } from '../application/request-otp.js';
 import { VerifyOtp } from '../application/verify-otp.js';
 import {
   type RequestOtpDto,
-  type SessionResponse,
+  type RenewableSessionResponse,
   type VerifyOtpDto,
   requestOtpSchema,
-  toSessionResponse,
+  toRenewableSessionResponse,
   verifyOtpSchema,
 } from './schemas.js';
 
@@ -43,13 +43,13 @@ export class AuthController {
   async verifyCode(
     @Body({ schema: verifyOtpSchema }) body: VerifyOtpDto,
     @Req() request: Request,
-  ): Promise<SessionResponse> {
+  ): Promise<RenewableSessionResponse> {
     const session = await this.verifyOtp.execute({
       phone: body.telefono,
       code: body.codigo,
       ip: request.ip ?? null,
       device: body.dispositivo,
     });
-    return toSessionResponse(session);
+    return toRenewableSessionResponse(session);
   }
 }

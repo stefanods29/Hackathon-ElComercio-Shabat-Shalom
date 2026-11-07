@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import type { IssuedSession } from '../application/issue-credentials.js';
+import type { IssuedRefreshSession } from '../application/create-session.js';
 
 const phoneSchema = z
   .string()
@@ -18,6 +19,11 @@ export const verifyOtpSchema = z.object({
 });
 export type VerifyOtpDto = z.infer<typeof verifyOtpSchema>;
 
+export const refreshSessionSchema = z.object({
+  refreshToken: z.string().min(1).max(512),
+});
+export type RefreshSessionDto = z.infer<typeof refreshSessionSchema>;
+
 export const chooseZoneSchema = z.object({
   zonaId: z.uuid({ message: 'debe ser el UUID de una zona' }),
 });
@@ -32,6 +38,21 @@ export interface SessionResponse {
     zonaId: string | null;
     nivel: number;
     roles: readonly string[];
+  };
+}
+
+export interface RenewableSessionResponse extends SessionResponse {
+  refreshToken: string;
+  refreshExpiraEn: string;
+}
+
+export function toRenewableSessionResponse(
+  session: IssuedRefreshSession,
+): RenewableSessionResponse {
+  return {
+    ...toSessionResponse(session),
+    refreshToken: session.refreshToken,
+    refreshExpiraEn: session.refreshExpiresAt.toISOString(),
   };
 }
 

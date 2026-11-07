@@ -10,6 +10,7 @@ const base = {
   JWT_PRIVATE_KEY_PEM: pem,
   POWERSYNC_URL: 'http://localhost:8080',
   OTP_HASH_SECRET: 'secreto-de-pruebas-de-32-caracteres-minimo',
+  REFRESH_TOKEN_SECRET: 'secreto-refresh-de-pruebas-de-32-caracteres',
 };
 
 describe('loadConfig', () => {
@@ -21,6 +22,7 @@ describe('loadConfig', () => {
     expect(config.TRUST_PROXY_HOPS).toBe(0);
     expect(config.OTP_PROVIDER).toBe('fake');
     expect(config.OTP_MAX_ATTEMPTS_PER_IP).toBe(20);
+    expect(config.REFRESH_TOKEN_DAYS).toBe(30);
   });
 
   it('acepta la clave PEM en una sola línea con \\n escritos', () => {
@@ -50,5 +52,11 @@ describe('loadConfig', () => {
     expect(() => loadConfig({ ...base, OTP_MAX_ATTEMPTS_PER_IP: '0' })).toThrow(
       /OTP_MAX_ATTEMPTS_PER_IP/,
     );
+    expect(() => loadConfig({ ...base, REFRESH_TOKEN_SECRET: '' })).toThrow(/REFRESH_TOKEN_SECRET/);
+    expect(() => loadConfig({ ...base, REFRESH_TOKEN_SECRET: 'corto' })).toThrow(
+      /REFRESH_TOKEN_SECRET/,
+    );
+    expect(() => loadConfig({ ...base, REFRESH_TOKEN_DAYS: '0' })).toThrow(/REFRESH_TOKEN_DAYS/);
+    expect(() => loadConfig({ ...base, JWT_ACCESS_MINUTES: '16' })).toThrow(/JWT_ACCESS_MINUTES/);
   });
 });

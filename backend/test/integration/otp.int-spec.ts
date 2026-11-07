@@ -42,13 +42,14 @@ describe('Autenticación OTP', () => {
     expect(provider.lastCodeFor('+51911000001')).toMatch(/^[0-9]{6}$/);
   });
 
-  it('verifica un vecino nuevo, lo crea una sola vez con nivel 0 y no inventa refresh tokens', async () => {
+  it('verifica un vecino nuevo, lo crea una sola vez con nivel 0 y emite refresh', async () => {
     const phone = '+51911000002';
     await requestCode(phone).expect(202);
     const response = await verifyCode(phone, provider.lastCodeFor(phone)!).expect(200);
 
     expect(response.body.usuario).toMatchObject({ zonaId: null, nivel: 0, roles: [] });
-    expect(response.body).not.toHaveProperty('refreshToken');
+    expect(response.body.refreshToken).toMatch(/^[A-Za-z0-9_-]{43}$/);
+    expect(Date.parse(response.body.refreshExpiraEn)).toBeGreaterThan(Date.now());
     const { rows } = await sql<{ nivel: number; nombre: string }>`
       SELECT nivel_confianza::int AS nivel, nombre_visible AS nombre
       FROM identidad.usuarios WHERE telefono = ${phone}
@@ -183,6 +184,7 @@ describe('Autenticación OTP', () => {
     try {
       ({ app: providerApp } = await createTestApp(inject('databaseUrl'), {
         OTP_PROVIDER: 'twilio',
+        OTP_MAX_REQUESTS_PER_IP: '1000',
         TWILIO_ACCOUNT_SID: 'AC_prueba',
         TWILIO_AUTH_TOKEN: 'token_de_prueba',
         TWILIO_FROM_SMS: '+15005550006',

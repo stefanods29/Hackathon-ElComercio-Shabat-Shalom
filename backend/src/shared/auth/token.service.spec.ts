@@ -37,6 +37,21 @@ describe('TokenService', () => {
     expect(payload).toMatchObject({ sub: actor.id, zona: actor.zoneId, nivel: 2 });
   });
 
+  it('conserva la familia sid en los tokens de acceso', async () => {
+    const sessionActor = { ...actor, sessionId: '01970000-0000-7000-8000-0000000000b1' };
+    const { token } = await tokens.issueAccess(sessionActor);
+    const { payload } = await jwtVerify(token, createLocalJWKSet(tokens.jwks()), {
+      currentDate: now,
+    });
+    expect(payload.sid).toBe(sessionActor.sessionId);
+    await expect(tokens.verifyAccess(token)).resolves.toEqual(sessionActor);
+  });
+
+  it('rechaza un sid presente que no es UUID, sin tratarlo como sesión de desarrollo', async () => {
+    const { token } = await tokens.issueAccess({ ...actor, sessionId: 'familia-invalida' });
+    await expect(tokens.verifyAccess(token)).rejects.toThrow(/sid/);
+  });
+
   it('un token de PowerSync no sirve para la API (audiencias separadas)', async () => {
     const { token } = await tokens.issueSync(actor);
     await expect(tokens.verifyAccess(token)).rejects.toBeInstanceOf(InvalidToken);
