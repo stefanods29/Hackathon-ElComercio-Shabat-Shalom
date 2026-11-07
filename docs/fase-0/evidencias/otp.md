@@ -27,11 +27,26 @@ Verificación del 7 de noviembre de 2026:
 - `npm run test:integration`: 114 pruebas en 14 archivos.
 - Redocly: válido, con las tres advertencias ya documentadas.
 
-### Prueba manual en Android
+### Prueba manual en Android (7 de noviembre de 2026)
 
-**Pendiente de registrar.** Se hará en un Redmi Note 13 con un número real de Perú, siguiendo
-`app/README.md` (sección «Ingresar con SMS reales») y el proyecto Firebase del equipo, que solo
-permite números de Perú. No se copian números, códigos ni tokens a este documento.
+Entorno:
+- Redmi Note 13, compilación de depuración instalada por USB con `probar-redmi.local.cmd`.
+- API y PowerSync locales.
+- Proyecto Firebase del equipo, que solo permite números de Perú.
+
+No se copian números, códigos ni tokens.
+
+| Paso | Resultado |
+| --- | --- |
+| API con `OTP_PROVIDER=firebase` | Inicia con `POST /v1/auth/firebase` y responde 409 en las rutas de código propio. |
+| Sesión anterior del celular | La API la rechazó (401), porque se firmó con otras claves, y la app volvió al ingreso. |
+| Verificación de la app con Play Integrity | Firebase responde «app not Recognized by Play Store»: la app no se instaló desde Google Play. |
+| Respaldo con reCAPTCHA | La página se abrió en Chrome, pero el resultado no volvía a la app («web operation canceled»). Causa: `android:taskAffinity=""` en `MainActivity`. Se corrigió (commit `d65fc8e`). |
+| Nuevos intentos | Firebase bloqueó temporalmente el celular por demasiados intentos. |
+
+**Pendiente:** cuando Firebase levante el bloqueo, confirmar con la versión corregida que llega el
+SMS real y que la app entra y elige la zona. Si se demora, se confirma al iniciar el piloto de la
+Fase 1. El usuario cerró la Fase 0 con este punto como riesgo aceptado.
 
 ## Prueba manual con Twilio (descartada)
 

@@ -4,12 +4,12 @@
 |---|---|
 | Dificultad | ★★★ Alta (el segundo más complejo de la Fase 0) |
 | Área | Solo `backend/` y `contracts/openapi.yaml` (más docs del lote) |
-| Change de OpenSpec | `openspec/changes/lote-b-api-identidad-y-trabajos/` (proposal, design, specs, tasks) |
+| Change de OpenSpec | `openspec/changes/archive/2026-11-07-lote-b-api-identidad-y-trabajos/` (proposal, design, specs, tasks) |
 | Issue de GitHub | #2 · Lote B · API, identidad y trabajos |
 | Partes | 6, en orden. Una rama y una entrega por parte |
 | Repositorio | https://github.com/stefanods29/Hackathon-ElComercio-Shabat-Shalom (rama `main`) |
 
-> Las tareas con casillas viven en `openspec/changes/lote-b-api-identidad-y-trabajos/tasks.md`; esta guía explica cómo hacerlas.
+> Las tareas con casillas (archivadas al cerrar la Fase 0) viven en `openspec/changes/archive/2026-11-07-lote-b-api-identidad-y-trabajos/tasks.md`; esta guía explica cómo hacerlas.
 
 ## Estado del lote
 

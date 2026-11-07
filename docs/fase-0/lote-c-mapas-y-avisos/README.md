@@ -4,12 +4,12 @@
 |---|---|
 | Dificultad | ★★ Media (el tercero de la Fase 0) |
 | Área | `infra/cdn/`, `app/lib/features/mapa/`, `app/lib/features/avisos/` (nuevo), `backend/src/modules/notificaciones/`, `contracts/openapi.yaml` y configuración nativa de `app/android` y `app/ios` |
-| Change de OpenSpec | `openspec/changes/lote-c-mapas-y-avisos/` (proposal, design, specs, tasks) |
+| Change de OpenSpec | `openspec/changes/archive/2026-11-07-lote-c-mapas-y-avisos/` (proposal, design, specs, tasks) |
 | Issue de GitHub | #3 · Lote C · Mapas y avisos |
 | Partes | 4. Las Partes 1–2 (mapas) y 3–4 (avisos) pueden avanzar en paralelo |
 | Repositorio | https://github.com/stefanods29/Hackathon-ElComercio-Shabat-Shalom (rama `main`) |
 
-> Las tareas con casillas viven en `openspec/changes/lote-c-mapas-y-avisos/tasks.md`; esta guía explica cómo hacerlas.
+> Las tareas con casillas (archivadas al cerrar la Fase 0) viven en `openspec/changes/archive/2026-11-07-lote-c-mapas-y-avisos/tasks.md`; esta guía explica cómo hacerlas.
 
 ## Estado del lote
 

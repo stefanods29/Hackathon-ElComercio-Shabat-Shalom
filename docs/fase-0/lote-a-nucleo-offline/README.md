@@ -5,15 +5,15 @@
 | Dificultad | ★★★★ Muy alta (el más complejo de la Fase 0) |
 | Responsable | Stefano (stefanods29). Además revisa e integra las entregas de B, C y D |
 | Área | `app/lib/core/sync/`, `app/lib/core/storage/`, `app/lib/features/solidaridad/data/`, `app/lib/features/emergencias/`, `app/pubspec.yaml`, `infra/powersync/`, `backend/src/modules/emergencias/` |
-| Change de OpenSpec | `openspec/changes/lote-a-nucleo-offline/` (proposal, design, specs, tasks) |
+| Change de OpenSpec | `openspec/changes/archive/2026-11-07-lote-a-nucleo-offline/` (proposal, design, specs, tasks) |
 | Issue de GitHub | #1 · Lote A · Núcleo offline, integración y revisión |
 | Partes | 6, en orden |
 
 ## Estado del lote
 
-**Cerrado el 7 de noviembre de 2026: 27 de 28 tareas.** La 6.2 se marca con la CI en verde del PR de cierre
-(`revision/cierre-fase-0`). Las fracciones de la tabla corresponden
-a las casillas del [checklist de OpenSpec](../../../openspec/changes/lote-a-nucleo-offline/tasks.md).
+**Cerrado el 7 de noviembre de 2026: 28 de 28 tareas.** El PR de cierre (`revision/cierre-fase-0`) se
+fusiona con la CI en verde. Las fracciones de la tabla corresponden
+a las casillas del [checklist de OpenSpec](../../../openspec/changes/archive/2026-11-07-lote-a-nucleo-offline/tasks.md).
 La verificación en la rama y la integración en `main` son hitos separados.
 
 | Parte | Tareas | Terminado y comprobado | Pendiente para cerrar |
@@ -23,7 +23,7 @@ La verificación en la rama y la integración en `main` son hitos separados.
 | 3 · Cola de subida | 6/6 | Pantallas del Lote D conectadas a PowerSync. Publicación offline desde el formulario real, modo práctica aislado y rechazos visibles con motivo y alternativa. [Integración de cuenta](../evidencias/integracion-cuenta.md). | Tareas de esta parte verificadas. |
 | 4 · Casos sensibles | 5/5 | Solo se descarga el caso solicitado por el personal asignado. El Redmi borró el caso al reasignarlo. [Prueba de purga](../evidencias/purga.md). CI aprobada. | Tareas de esta parte verificadas. |
 | 5 · Pruebas de campo | 4/4 con el alcance aprobado | 500 publicaciones sintéticas llegaron desde el Redmi sin pérdidas ni duplicados ([cola](../evidencias/cola-offline.md)). En un conflicto gana el primero que llega y el segundo ve el motivo ([conflicto](../evidencias/conflicto.md)). La purga se comprobó en Android. | La matriz adversa, el segundo plano y el conflicto con dos celulares pasan al piloto de la Fase 1 (Lote A, parte 5). Campo en iPhone omitido con autorización del usuario. |
-| 6 · Integración | 1/2 | B, C y D integrados en `revision/cierre-fase-0`, con el ingreso por SMS real de Firebase. Backend: 161 pruebas unitarias y 114 de integración. | CI en verde en `main` al fusionar el PR de cierre (6.2). |
+| 6 · Integración | 2/2 | B, C y D integrados en `revision/cierre-fase-0`, con el ingreso con Firebase. Backend: 161 pruebas unitarias y 114 de integración. App compilada e instalada en el Redmi. | Fusionar el PR de cierre con la CI en verde. |
 
 La entrega se integra con el diseño accesible que ya contiene `main` mediante el
 [PR 13](https://github.com/stefanods29/Hackathon-ElComercio-Shabat-Shalom/pull/13).

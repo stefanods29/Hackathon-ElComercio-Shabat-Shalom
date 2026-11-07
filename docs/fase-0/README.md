@@ -41,6 +41,5 @@ cuatro lotes se trabajan en simultáneo: ninguno espera a otro para empezar.
 | [`criterios-de-salida.md`](criterios-de-salida.md) | Cuándo termina la Fase 0 (sección 13.1 de la arquitectura) |
 | [`evidencias/`](evidencias/) | Resultados de las pruebas de campo y automatizadas |
 
-Las tareas con casillas de cada lote están en `openspec/changes/<lote>/tasks.md`. Cuando un lote
-termina, su change se archiva en `openspec/changes/archive/` y sus criterios pasan a
-`openspec/specs/`.
+Las tareas con casillas de cada lote están en `openspec/changes/archive/2026-11-07-<lote>/tasks.md`:
+los cuatro changes se archivaron al cerrar la fase y sus requisitos están en `openspec/specs/`.

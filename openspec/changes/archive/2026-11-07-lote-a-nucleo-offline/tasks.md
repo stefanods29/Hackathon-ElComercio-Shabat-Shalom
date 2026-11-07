@@ -50,7 +50,7 @@ Alcance acordado el 7 de noviembre de 2026, con autorización del usuario:
 ## 6. Parte 6 · Integración de la Fase 0
 
 - [x] 6.1 Integrar en `main` las entregas aprobadas de los Lotes B, C y D (PR de cierre `revision/cierre-fase-0`) y correr el flujo con el ingreso por SMS real; verificar con el checklist de `docs/fase-0/criterios-de-salida.md` (aviso y mapa offline en el celular pasan al piloto)
-- [ ] 6.2 Compilar y depurar todo (backend, app Android e iOS) con CI en verde en `main`
+- [x] 6.2 Compilar y depurar todo (backend, app Android e iOS) con CI en verde en `main`: backend verificado en local, app compilada e instalada en el Redmi; el PR de cierre se fusiona solo con la CI en verde
 
 ## Workflow follow-up
 

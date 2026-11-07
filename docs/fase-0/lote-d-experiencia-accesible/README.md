@@ -4,12 +4,12 @@
 |---|---|
 | Dificultad | ★ Media-baja (el más accesible de los cuatro) |
 | Área | Solo la app: `app/lib/core/theme/`, `app/lib/core/ui/`, `app/lib/features/publicar/`, `app/lib/features/onboarding/`, `app/lib/features/cuenta/` (nuevo), `app/lib/features/solidaridad/presentation/`, `app/lib/l10n/`, `app/test/` |
-| Change de OpenSpec | `openspec/changes/lote-d-experiencia-accesible/` (proposal, design, specs, tasks) |
+| Change de OpenSpec | `openspec/changes/archive/2026-11-07-lote-d-experiencia-accesible/` (proposal, design, specs, tasks) |
 | Issue de GitHub | #4 · Lote D · Experiencia accesible |
 | Partes | 5, en orden |
 | Repositorio | https://github.com/stefanods29/Hackathon-ElComercio-Shabat-Shalom (rama `main`) |
 
-> Las tareas con casillas viven en `openspec/changes/lote-d-experiencia-accesible/tasks.md`; esta guía explica cómo hacerlas.
+> Las tareas con casillas (archivadas al cerrar la Fase 0) viven en `openspec/changes/archive/2026-11-07-lote-d-experiencia-accesible/tasks.md`; esta guía explica cómo hacerlas.
 
 ## Estado del lote
 
