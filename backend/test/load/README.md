@@ -1,7 +1,7 @@
 # Capacidad · Lote B, Parte 6
 
-Requiere Node 26, PostgreSQL 18 con PostGIS y **k6 2.3.0**. No usa Grafana Cloud ni envía
-telemetría a un servicio externo; las peticiones van únicamente a la API elegida.
+Requiere Node 26, PostgreSQL 18 con PostGIS y **k6 2.3.0**. Los comandos incluidos desactivan
+el reporte anónimo de uso de k6. No usan Grafana Cloud; la carga va a la API elegida.
 
 ## Humo local reproducible
 
@@ -50,7 +50,7 @@ PROFILE=peak TOKENS_FILE=tokens.load-tokens.json \
 ```
 
 El archivo de tokens es 0600 y queda fuera de Git. Se rechaza sobrescribirlo; genera uno nuevo
-si vence. El script crea identidades sintéticas con prefijo telefónico no operativo `+999`,
+si vence. El script crea identidades sintéticas con prefijo telefónico `+999`,
 no llama a OTP y descarta los refresh secretos después de guardar sus hashes. Incluye un
 observador administrador únicamente para las métricas. No uses datos de vecinos ni la sesión
 de desarrollo. Destruye el entorno aislado de carga al acabar y elimina las credenciales locales.

@@ -28,7 +28,7 @@
     "db:seed": "tsx scripts/seed.ts",
     "dev:keys": "tsx scripts/generate-keys.ts",
     "load:tokens": "tsx scripts/generate-load-tokens.ts",
-    "test:load": "k6 run test/load/emergency-peak.js",
+    "test:load": "k6 run --no-usage-report test/load/emergency-peak.js",
     "test:load:smoke": "tsx scripts/run-load-smoke.ts --verify-threshold-failure",
     "sync:validate": "tsx scripts/validate-sync-config.ts ../infra/powersync/sync-config.yaml",
     "verify": "npm run typecheck && npm run lint && npm run format:check && npm run boundaries && npm run sync:validate && npm run test && npm run build"

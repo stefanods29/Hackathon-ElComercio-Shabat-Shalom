@@ -77,7 +77,7 @@ function start(
   const descriptor = openSync(logPath, 'w', 0o600);
   const child = spawn(command, args, {
     cwd: backend,
-    env,
+    env: command === 'k6' ? { ...env, K6_NO_USAGE_REPORT: 'true' } : env,
     stdio: ['ignore', descriptor, descriptor],
   });
   let closed = false;
