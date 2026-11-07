@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:vecinal/core/di/providers.dart';
+import 'package:vecinal/core/submissions/submission.dart';
 import 'package:vecinal/features/solidaridad/data/in_memory_post_repository.dart';
 import 'package:vecinal/features/solidaridad/domain/post.dart';
 import 'package:vecinal/features/solidaridad/domain/post_repository.dart';
@@ -45,4 +46,9 @@ final postRepositoryProvider = Provider<PostRepository>((ref) {
 
 final wallProvider = StreamProvider<List<Post>>(
   (ref) => ref.watch(postRepositoryProvider).watchWall(),
+);
+
+/// Acciones que el servidor rechazó para siempre ("acciones por revisar").
+final actionsToReviewProvider = StreamProvider<List<Submission>>(
+  (ref) => ref.watch(postRepositoryProvider).watchActionsToReview(),
 );

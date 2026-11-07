@@ -4,10 +4,14 @@ import 'package:vecinal/features/solidaridad/domain/post_repository.dart';
 
 /// Validation done on the phone so we never queue something the server will reject.
 class LocalValidationError implements Exception {
-  const LocalValidationError(this.message);
+  const LocalValidationError(this.message, [this.field]);
 
   /// Spanish message shown to the neighbor.
   final String message;
+
+  /// Optional field name the error belongs to (`'title'`, `'category'`, `'description'`).
+  /// When null, the error is shown as a general message (e.g. a SnackBar).
+  final String? field;
 
   @override
   String toString() => message;
@@ -22,15 +26,21 @@ class PublishPost {
   Future<Submission> execute(NewPost newPost) {
     final title = newPost.title.trim();
     if (title.length < 3 || title.length > 120) {
-      throw const LocalValidationError('El título debe tener entre 3 y 120 caracteres.');
+      throw const LocalValidationError(
+        'El título debe tener entre 3 y 120 caracteres.',
+        'title',
+      );
     }
     final category = newPost.category.trim().toLowerCase();
     if (category.length < 2 || category.length > 40) {
-      throw const LocalValidationError('Elige una categoría.');
+      throw const LocalValidationError('Elige una categoría.', 'category');
     }
     final description = newPost.description?.trim();
     if (description != null && description.length > 2000) {
-      throw const LocalValidationError('La descripción no puede pasar de 2000 caracteres.');
+      throw const LocalValidationError(
+        'La descripción no puede pasar de 2000 caracteres.',
+        'description',
+      );
     }
     return _posts.publish(
       NewPost(
