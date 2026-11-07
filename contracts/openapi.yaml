@@ -629,7 +629,7 @@ components:
         status: { type: integer, examples: [409] }
         detail: { type: string, examples: ['Otro vecino ya tomó este favor o ya no está disponible.'] }
         instance: { type: string, examples: ['/v1/publicaciones#requestId=01970000-0000-7000-8000-000000000001'] }
-        requestId: { type: string, description: Identificador de esta solicitud, incluso al repetir un rechazo guardado. }
+        requestId: { type: string, description: 'Identificador de esta solicitud, incluso al repetir un rechazo guardado.' }
         codigo: { type: string, examples: ['favor_no_disponible'] }
         nivelActual:
           type: integer
