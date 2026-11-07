@@ -74,11 +74,26 @@ fallos de la IP contra otros teléfonos.
 - **THEN** alcanza el límite de tres fallos y su siguiente verificación recibe 429
 
 ### Requirement: Proveedor intercambiable
-El envío de códigos SHALL pasar por un puerto con un adaptador falso para desarrollo y pruebas, de modo que ningún entorno de prueba envíe mensajes reales.
+El envío de códigos SHALL pasar por un puerto con un adaptador falso para desarrollo y pruebas, de modo que ningún entorno de prueba envíe mensajes reales. El proveedor real MUST elegirse por configuración (`OTP_PROVIDER`: `twilio` o `firebase`), y el falso MUST NOT poder usarse en producción.
 
 #### Scenario: Pruebas automatizadas
 - **WHEN** corren las pruebas de integración
 - **THEN** usan el adaptador falso y ningún SMS sale del sistema
+
+### Requirement: Ingreso con Firebase Authentication
+Con `OTP_PROVIDER=firebase`, Firebase Authentication SHALL enviar y comprobar el código en el celular, y `POST /v1/auth/firebase` MUST aceptar solo un ID token del proyecto configurado (`FIREBASE_PROJECT_ID`), emitido por un ingreso con teléfono hace menos de 10 minutos. La respuesta es la misma sesión renovable del código propio y, si el teléfono no existía, crea el usuario con nivel 0. Con este proveedor, `/v1/auth/otp` y `/v1/auth/otp/verificar` MUST responder 409 `metodo_no_disponible`.
+
+#### Scenario: Teléfono confirmado por Firebase
+- **WHEN** la app envía el ID token de un ingreso con teléfono hecho hace dos minutos
+- **THEN** recibe `tokenDeAcceso`, `refreshToken` y el usuario, y un segundo ingreso con el mismo teléfono reutiliza la cuenta
+
+#### Scenario: Token no válido
+- **WHEN** el token es de otro proyecto, venció, tiene más de 10 minutos o no viene de un ingreso con teléfono
+- **THEN** la API responde 401 `token_firebase_invalido` y no crea ningún usuario ni sesión
+
+#### Scenario: Rutas de código con Firebase activo
+- **WHEN** alguien llama a `/v1/auth/otp` con `OTP_PROVIDER=firebase`
+- **THEN** la API responde 409 `metodo_no_disponible` y no envía ningún mensaje
 
 ### Requirement: Elegir la zona
 `GET /v1/zonas` SHALL listar las zonas disponibles sin su polígono, y `PUT /v1/yo/zona` MUST asignar la zona a un vecino que todavía no la tiene y devolver un token de acceso que ya la incluye.

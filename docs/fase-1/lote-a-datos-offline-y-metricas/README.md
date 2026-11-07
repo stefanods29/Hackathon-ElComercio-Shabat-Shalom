@@ -51,7 +51,7 @@ señal, sin exponer la ubicación exacta de nadie.
 
 Qué construir:
 
-- **ADR 0008 · Precisión de la ubicación en los datos públicos.** Propuesta: redondear a 3
+- **ADR 0010 · Precisión de la ubicación en los datos públicos.** Propuesta: redondear a 3
   decimales (unos 110 m) la ubicación de publicaciones y servicios. Un proveedor con local a la
   calle puede elegir mostrar su dirección exacta, con un consentimiento explícito. La API guarda la
   copia pública (lo implementa B) y los streams solo publican esa copia. También se aplica al muro
@@ -150,11 +150,21 @@ Qué hacer:
   consentimiento, instalación por las betas del Lote C (parte 4) y un canal de soporte.
 - Durante al menos 4 semanas, revisar cada semana las métricas (parte 3 y tablero de C), la cola
   de moderación (B parte 5) y los incidentes.
-- Si la matriz adversa de la Fase 0 (tarea 5.1) sigue pendiente, completarla con los celulares del
-  piloto.
+- Completar con los celulares del piloto lo que la Fase 0 dejó pendiente al cerrarse
+  ([criterios de salida](../../fase-0/criterios-de-salida.md)):
+  - La matriz adversa de la cola: señal débil, cierre forzado, reinicio y batería baja (A 5.1).
+  - La sincronización en segundo plano, medida y documentada (A 5.2).
+  - El conflicto con dos celulares sin conexión (A 5.3).
+  - El mapa sin conexión: tamaño de la región en un Android de gama baja y prueba en modo avión
+    (C 2.1–2.3).
+  - Avisos por token y por tópico recibidos en el celular, con la cuenta de servicio de FCM
+    (C 4.1–4.4).
 
-**Terminado cuando:** `evidencias/piloto.md`, `sincronizacion.md`, `datos-publicos.md` y
-`directorio-emergencia.md` están completos y sin datos personales.
+**Terminado cuando:**
+- `evidencias/piloto.md`, `sincronizacion.md`, `datos-publicos.md` y `directorio-emergencia.md`
+  están completos y sin datos personales.
+- `../fase-0/evidencias/cola-offline.md`, `conflicto.md`, `mapas.md` y `avisos.md` registran las
+  pruebas de campo pendientes.
 
 ## Parte 6 · Integración de la Fase 1
 

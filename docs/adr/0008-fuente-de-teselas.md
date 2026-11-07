@@ -1,6 +1,6 @@
 # 0008 · PMTiles propio y salida XYZ para el mapa offline
 
-**Estado:** propuesto; pendiente de aprobación del equipo en el PR de C1.
+**Estado:** aprobado el 7 de noviembre de 2026, al cerrar la Fase 0 (PR de cierre).
 **Dueño:** Lote C · Parte 1. **Consulta de fuentes:** 7 de noviembre de 2026.
 **Alcance:** sección 3.4 de la arquitectura y `mapas/region-offline` de OpenSpec.
 

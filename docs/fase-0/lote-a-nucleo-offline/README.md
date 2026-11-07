@@ -11,18 +11,19 @@
 
 ## Estado del lote
 
-**22 de 28 tareas verificadas e integradas en `main` (PR 13 y 14).** Las fracciones de la tabla corresponden
+**Cerrado el 7 de noviembre de 2026: 27 de 28 tareas.** La 6.2 se marca con la CI en verde del PR de cierre
+(`revision/cierre-fase-0`). Las fracciones de la tabla corresponden
 a las casillas del [checklist de OpenSpec](../../../openspec/changes/lote-a-nucleo-offline/tasks.md).
 La verificación en la rama y la integración en `main` son hitos separados.
 
 | Parte | Tareas | Terminado y comprobado | Pendiente para cerrar |
 | --- | --- | --- | --- |
 | 1 · PowerSync | 5/5 | La API entrega credenciales renovables y el muro sincroniza y se puede abrir sin señal. Verificado en un Redmi Note 13 y con CI aprobada. | Tareas de esta parte verificadas. |
-| 2 · Cifrado y sesión | 5/6 | Cuenta real conectada a las pantallas, tokens en SecureStore, renovación serializada y purga desde Mi cuenta. Prueba en Redmi: 1 de 1 aprobada. [Integración de cuenta](../evidencias/integracion-cuenta.md). | Baja del token de notificaciones, dependiente del Lote C. |
+| 2 · Cifrado y sesión | 6/6 | Cuenta real conectada a las pantallas, tokens en SecureStore, renovación serializada y purga desde Mi cuenta. Prueba en Redmi: 1 de 1 aprobada. [Integración de cuenta](../evidencias/integracion-cuenta.md). Los avisos usan la sesión real y se dan de baja al cerrar sesión (límite de 5 s sin señal). | Tareas de esta parte verificadas. |
 | 3 · Cola de subida | 6/6 | Pantallas del Lote D conectadas a PowerSync. Publicación offline desde el formulario real, modo práctica aislado y rechazos visibles con motivo y alternativa. [Integración de cuenta](../evidencias/integracion-cuenta.md). | Tareas de esta parte verificadas. |
 | 4 · Casos sensibles | 5/5 | Solo se descarga el caso solicitado por el personal asignado. El Redmi borró el caso al reasignarlo. [Prueba de purga](../evidencias/purga.md). CI aprobada. | Tareas de esta parte verificadas. |
-| 5 · Pruebas de campo | 1/4 | Purga comprobada en Android. En una prueba parcial de carga, 500 publicaciones sintéticas llegaron desde el Redmi sin pérdidas ni duplicados. [Prueba de carga](../evidencias/cola-offline.md). | Completar la matriz adversa de Android, medir segundo plano y probar el conflicto con dos celulares. Campo en iPhone omitido con autorización del usuario. |
-| 6 · Integración | 0/2 | Partes 1–2 de B y pantallas de la parte 5 de D incorporadas en `fase0-a`; ingreso real, muro offline y cierre comprobados en Redmi. | Restantes entregas aprobadas de B, mapas y avisos de C, flujo completo y CI final en `main`. |
+| 5 · Pruebas de campo | 4/4 con el alcance aprobado | 500 publicaciones sintéticas llegaron desde el Redmi sin pérdidas ni duplicados ([cola](../evidencias/cola-offline.md)). En un conflicto gana el primero que llega y el segundo ve el motivo ([conflicto](../evidencias/conflicto.md)). La purga se comprobó en Android. | La matriz adversa, el segundo plano y el conflicto con dos celulares pasan al piloto de la Fase 1 (Lote A, parte 5). Campo en iPhone omitido con autorización del usuario. |
+| 6 · Integración | 1/2 | B, C y D integrados en `revision/cierre-fase-0`, con el ingreso por SMS real de Firebase. Backend: 161 pruebas unitarias y 114 de integración. | CI en verde en `main` al fusionar el PR de cierre (6.2). |
 
 La entrega se integra con el diseño accesible que ya contiene `main` mediante el
 [PR 13](https://github.com/stefanods29/Hackathon-ElComercio-Shabat-Shalom/pull/13).

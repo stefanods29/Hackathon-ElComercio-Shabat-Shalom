@@ -15,7 +15,7 @@
 
 | Parte | Qué entrega | Estado | Responsable | PR |
 |---|---|---|---|---|
-| 1 | Inicio de sesión con OTP y elección de zona | En curso: integrada en `main`; falta la tarea 1.4 (adaptador real de OTP) | JDiazD33 | Con `fase0-a` (PR 14) |
+| 1 | Inicio de sesión con OTP y elección de zona | Hecha. Adaptador real: Firebase Authentication ([ADR 0009](../../adr/0009-proveedor-de-codigos-firebase.md), [evidencia](../evidencias/otp.md)) | JDiazD33 y Stefano (1.4) | Con `fase0-a` (PR 14) y el PR de cierre |
 | 2 | Sesiones revocables | Hecha | JDiazD33 | Con `fase0-a` (PR 14) |
 | 3 | Roles y niveles de confianza | Hecha | JDiazD33 | Desde `lote-b/parte-6-capacidad` |
 | 4 | Eventos y trabajos (pg-boss, outbox y workers) | Hecha | JDiazD33 | Desde `lote-b/parte-6-capacidad` |
@@ -274,7 +274,8 @@ Adaptadores en `infrastructure/`:
   `whatsapp:` a `To` y `From`. Texto: "Tu código de Vecinal es 123456. Vence en 5 minutos. No lo
   compartas." No registra el código. Si Twilio falla, lanza un error que termine en 503.
   Si el equipo elige Twilio Verify o Firebase Auth (decisión abierta 4 de la sección 13.3),
-  adapta el puerto y registra la decisión en `docs/adr/0008-proveedor-otp.md`.
+  adapta el puerto y registra la decisión en un ADR. Resuelto: Firebase Authentication
+  (`docs/adr/0009-proveedor-de-codigos-firebase.md`).
 - En `identity.module.ts`, el proveedor `OTP_PROVIDER` se elige con `useFactory` según
   `OTP_PROVIDER`.
 

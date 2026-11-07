@@ -1,18 +1,49 @@
 # Evidencia de OTP
 
-Fecha: 2026-11-07 · Rama: `lote-b/parte-1-otp` · Estado de entrega: **En curso, pendiente de revisión**.
+Fecha: 2026-11-07 · Ramas: `lote-b/parte-1-otp` y `revision/cierre-fase-0`.
 
-## Prueba manual con Twilio
+## Proveedor real: Firebase Authentication (tarea 1.4)
 
-**Pendiente.** No se dispone en este entorno de credenciales Twilio ni de un teléfono autorizado para
-recibir el mensaje. No se realizó ni se simuló una prueba manual y la tarea 1.4 permanece sin marcar.
+El 7 de noviembre de 2026 el equipo eligió Firebase Authentication como proveedor real
+([ADR 0009](../../adr/0009-proveedor-de-codigos-firebase.md)). Con `OTP_PROVIDER=firebase`:
 
-Cuando el equipo disponga de acceso, la prueba debe configurar las credenciales únicamente en `.env`,
+- Firebase envía y comprueba el SMS en el celular.
+- La API valida el ID token en `POST /v1/auth/firebase` y entrega la sesión de siempre.
+
+El adaptador falso sigue siendo el de desarrollo y pruebas. El de Twilio queda disponible si el
+equipo cambia de proveedor.
+
+### Cobertura automatizada
+
+| Prueba | Qué demuestra |
+| --- | --- |
+| `src/modules/identidad/application/sign-in-with-firebase.spec.ts` (4) | Sesión para el teléfono confirmado. Reutiliza al vecino existente. Un token inválido o de hace más de 10 minutos no crea cuentas. |
+| `src/modules/identidad/infrastructure/firebase-phone-token.verifier.spec.ts` (6) | Solo acepta ingresos por teléfono con número internacional. Un token vencido o de otro proyecto es inválido. Si no se pueden consultar las claves de Google responde 503, y sin proyecto, `metodo_no_disponible`. |
+| `test/integration/firebase-auth.int-spec.ts` (5) | Con PostgreSQL: crea la sesión con `refreshToken` y la cuenta una sola vez, responde 401 `token_firebase_invalido` y 409 en las rutas de código con Firebase activo o sin `FIREBASE_PROJECT_ID`. |
+| `app/test/features/cuenta/http_auth_repository_test.dart` (3 nuevas) | La API solo recibe el token. Un token rechazado se muestra como código vencido. La verificación automática y el código escrito abren una sola sesión. |
+
+Verificación del 7 de noviembre de 2026:
+- `npm run verify`: 161 pruebas unitarias.
+- `npm run test:integration`: 114 pruebas en 14 archivos.
+- Redocly: válido, con las tres advertencias ya documentadas.
+
+### Prueba manual en Android
+
+**Pendiente de registrar.** Se hará en un Redmi Note 13 con un número real de Perú, siguiendo
+`app/README.md` (sección «Ingresar con SMS reales») y el proyecto Firebase del equipo, que solo
+permite números de Perú. No se copian números, códigos ni tokens a este documento.
+
+## Prueba manual con Twilio (descartada)
+
+No se dispone de credenciales Twilio de pago. Con la elección de Firebase, esta prueba ya no es
+necesaria para cerrar la tarea 1.4.
+
+Si el equipo vuelve a Twilio, la prueba debe configurar las credenciales únicamente en `.env`,
 elegir `OTP_PROVIDER=twilio`, solicitar un OTP por SMS y otro por WhatsApp, verificar el código recibido
 y comprobar que un fallo del proveedor responde 503. No se deben copiar códigos, tokens ni credenciales
 a este documento ni a los logs.
 
-## Cobertura automatizada
+## Cobertura automatizada de Twilio
 
 `twilio-otp.provider.spec.ts` sustituye `fetch` por un doble y comprueba la URL, autenticación básica,
 cuerpo formulario, prefijos de WhatsApp, texto del mensaje y conversión de errores HTTP y de red a 503.

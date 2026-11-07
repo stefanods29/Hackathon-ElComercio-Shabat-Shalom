@@ -15,24 +15,25 @@
 
 | Parte | Qué entrega | Estado | Responsable | PR |
 |---|---|---|---|---|
-| 1 | Fuente de teselas | En curso | — | — |
-| 2 | Mapa sin conexión en la app | En curso | — | — |
-| 3 | Avisos en el backend | Pendiente | Por asignar | — |
-| 4 | Avisos en la app | Pendiente | Por asignar | — |
+| 1 | Fuente de teselas | Hecha ([ADR 0008](../../adr/0008-fuente-de-teselas.md) aprobado) | Sebastian Pelaez Lopez | PR de cierre |
+| 2 | Mapa sin conexión en la app | Hecha en código; prueba en el celular en el piloto | Sebastian Pelaez Lopez | PR de cierre |
+| 3 | Avisos en el backend | Hecha | Sebastian Pelaez Lopez | PR de cierre |
+| 4 | Avisos en la app | Hecha en código; conectada a la sesión real por el Lote A; recepción en el celular en el piloto | Sebastian Pelaez Lopez | PR de cierre |
 
 Estados posibles: **Pendiente**, **En curso** o **Hecha** (integrada en `main`). Quien toma una
 parte la marca **En curso** con su nombre (en el issue del lote o en un PR pequeño) para que
 nadie la duplique, y la marca **Hecha** en el PR que la entrega. Lo que ya está hecho está en
 la sección 0.2; lo que falta son las partes pendientes de esta tabla.
 
-La Parte 1 tiene implementación y verificación local en `lote-c/parte-1-teselas`.
-Ver `infra/cdn/README.md` y `docs/fase-0/evidencias/fuente-de-teselas.md`.
-Continúa **En curso** hasta completar la aprobación del ADR 0008, CI y la revisión del PR.
+Las cuatro partes llegaron en `lote-c/parte-3-avisos-backend` y se integraron en el PR de cierre
+de la Fase 0 (`revision/cierre-fase-0`). La CI de ese PR verifica los mapas, el backend y la app.
+Ver `infra/cdn/README.md`, `app/lib/features/mapa/README.md` y `app/lib/features/avisos/README.md`.
 
-La Parte 2 se implementa en `lote-c/parte-2-mapa-offline`, a partir del commit local de C1
-`1e1d3a4`. C1 sigue sin considerarse integrada: al preparar los PR, revisar primero C1 y
-comparar C2 contra esa base para no mezclar entregas. Ver `app/lib/features/mapa/README.md`.
-La validación en dispositivos está pendiente; no hay un Android real disponible en esta sesión.
+Al cerrar la Fase 0, el usuario aprobó trasladar al piloto de la Fase 1 (Lote A, parte 5) las
+pruebas en un celular:
+- Tamaño de la región en gama baja y modo avión (2.1–2.3).
+- Recepción de avisos por token y por tópico (4.1–4.4). Necesita la cuenta de servicio de FCM y
+  `google-services.json` en el entorno privado.
 
 ---
 

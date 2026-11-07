@@ -45,7 +45,7 @@ Toda escritura que el celular reintenta lleva `@Idempotent()`. Primero el contra
 
 Tablas en el esquema `directorio` (sección 5.3): `categorias` (con `util_en_emergencia`),
 `proveedores` (perfil de un vecino que ofrece servicios) y `servicios`. Esta última lleva la
-ubicación exacta, la copia pública (ADR 0008), `radio_cobertura_m`, `disponible_en_emergencia`,
+ubicación exacta, la copia pública (ADR 0010), `radio_cobertura_m`, `disponible_en_emergencia`,
 `atributos` (`jsonb`), los agregados que calcula la parte 3, `version` y `eliminado_en`.
 
 Rutas:

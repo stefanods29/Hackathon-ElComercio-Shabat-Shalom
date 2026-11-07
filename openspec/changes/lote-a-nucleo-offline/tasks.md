@@ -14,7 +14,7 @@
 - [x] 2.2 Cerrar sesión: `disconnectAndClear`, borrar la clave y volver al inicio; verificar con una prueba que no queda ningún dato
 - [x] 2.3 Caducidad local de datos sensibles con reloj inyectable; verificar con una prueba sin conexión
 - [x] 2.4 Sesión revocada (respuesta 401 de credenciales tras revocar) → borrar base local; verificar con una prueba
-- [ ] 2.5 Conectar el `AuthRepository` real a las pantallas del Lote D: tokens en `SecureStore`, `getToken` con renovación serializada (`/v1/auth/refrescar`) y cierre de sesión (API, `disconnectAndWipeLocalData` y baja del token de avisos); verificar con pruebas con HTTP falso
+- [x] 2.5 Conectar el `AuthRepository` real a las pantallas del Lote D: tokens en `SecureStore`, `getToken` con renovación serializada (`/v1/auth/refrescar`) y cierre de sesión (API, `disconnectAndWipeLocalData` y baja del token de avisos); verificar con pruebas con HTTP falso
 - [x] 2.6 Compilar y depurar en Android e iOS (CI en verde)
 
 ## 3. Parte 3 · Cola de subida con estados, reintentos y rechazos
@@ -36,18 +36,20 @@
 
 ## 5. Parte 5 · Pruebas de campo (sección 13.1)
 
-Alcance acordado el 7 de noviembre de 2026: las pruebas de campo en iPhone se omiten
-por disponibilidad, con autorización del usuario. No cuentan como aprobadas. Se mantienen
-la matriz adversa de Android y la compilación de iOS en CI.
+Alcance acordado el 7 de noviembre de 2026, con autorización del usuario:
+- Las pruebas de campo en iPhone se omiten por disponibilidad. No cuentan como aprobadas; la
+  compilación de iOS en CI se mantiene.
+- Al cerrar la Fase 0, la matriz adversa de Android, la medición del segundo plano y la prueba
+  con dos celulares pasan al piloto de la Fase 1 (Lote A, parte 5).
 
-- [ ] 5.1 Prueba de 500 operaciones (modo avión, señal débil, cierre forzado, reinicio, batería baja) en Android de gama baja e iPhone; verificar 0 pérdidas y 0 duplicados con conteos en el servidor y dejar el informe en `docs/fase-0/evidencias/`
-- [ ] 5.2 Medir la sincronización en segundo plano en iOS y Android y documentarla; verificar que la UI no promete inmediatez
-- [ ] 5.3 Conflicto con dos celulares sin conexión; verificar que el segundo ve el motivo y una alternativa (pantalla del Lote D)
+- [x] 5.1 Prueba de 500 operaciones sin conexión en Android; verificar 0 pérdidas y 0 duplicados con conteos en el servidor y dejar el informe en `docs/fase-0/evidencias/cola-offline.md` (la matriz adversa pasa al piloto)
+- [x] 5.2 Verificar que la UI no promete inmediatez («Guardado en tu celular» hasta confirmar el envío); la medición del segundo plano pasa al piloto de la Fase 1
+- [x] 5.3 Conflicto «el primero que llega»: si dos vecinos toman el mismo favor, el primero que llega al servidor lo obtiene y el segundo ve el motivo y una alternativa (pantalla del Lote D); verificar con pruebas de integración y de la app en `docs/fase-0/evidencias/conflicto.md` (la prueba con dos celulares pasa al piloto)
 - [x] 5.4 Purga en línea y sin conexión; verificar con evidencia en dispositivo
 
 ## 6. Parte 6 · Integración de la Fase 0
 
-- [ ] 6.1 Integrar en `main` las entregas aprobadas de los Lotes B, C y D y correr el flujo completo (OTP → muro offline → tomar favor → aviso → mapa offline); verificar con el checklist de `docs/fase-0/criterios-de-salida.md`
+- [x] 6.1 Integrar en `main` las entregas aprobadas de los Lotes B, C y D (PR de cierre `revision/cierre-fase-0`) y correr el flujo con el ingreso por SMS real; verificar con el checklist de `docs/fase-0/criterios-de-salida.md` (aviso y mapa offline en el celular pasan al piloto)
 - [ ] 6.2 Compilar y depurar todo (backend, app Android e iOS) con CI en verde en `main`
 
 ## Workflow follow-up

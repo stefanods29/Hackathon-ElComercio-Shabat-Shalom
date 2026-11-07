@@ -17,6 +17,10 @@ La app SHALL permitir ingresar en dos pantallas, el número de teléfono y el c�
 - **WHEN** la API responde 429 `demasiados_intentos`
 - **THEN** la app dice cuántos minutos esperar y desactiva el botón hasta entonces
 
+#### Scenario: Android confirma el número por su cuenta
+- **WHEN** con el ingreso por Firebase, Android lee el SMS o confirma el número sin enviarlo
+- **THEN** la app entra sin que el vecino escriba el código, y si también lo escribe no se abre una segunda sesión
+
 ### Requirement: Elegir la zona
 Si el vecino no tiene zona, la app SHALL pedirle que la elija de una lista antes de mostrarle el muro.
 

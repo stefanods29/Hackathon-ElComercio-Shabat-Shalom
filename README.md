@@ -24,6 +24,8 @@ Cada lote tiene su issue en GitHub y su change en `openspec/changes/`.
 
 El arranque normal de la app usa el ingreso real por teléfono y código. En el entorno
 local, `OTP_PROVIDER=fake` escribe el código en la consola del backend y no envía SMS.
+Para recibir un SMS real se usa Firebase Authentication (`OTP_PROVIDER=firebase`); los pasos
+están en `app/README.md`.
 La sesión anterior de demostración sigue disponible con `--dart-define=DEV_SYNC=true`.
 Los resultados y límites de la conexión con las pantallas están en
 [la evidencia de integración de cuenta](docs/fase-0/evidencias/integracion-cuenta.md).

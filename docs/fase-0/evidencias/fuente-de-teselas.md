@@ -51,6 +51,7 @@ Docker y Flutter no estaban disponibles en el PATH del entorno de trabajo; se us
 binarios oficiales de nginx y PMTiles para la comprobación HTTP y visual. No se instalaron
 herramientas globales. El CI preparado usa Node 26 y comprueba Docker al ejecutarse manualmente.
 
-Pendiente: aprobación del ADR 0008, ejecución de CI en GitHub y revisión de C1.
+El ADR 0008 se aprobó el 7 de noviembre de 2026, al cerrar la Fase 0. La CI del PR de cierre
+verifica los mapas (`mapas.yml`) junto con el resto del repositorio.
 No se ha probado una descarga móvil, modo avión, tamaño de la caché offline ni compatibilidad
 en dispositivos Android/iOS: corresponden a C2. Esta evidencia no cierra esos criterios.

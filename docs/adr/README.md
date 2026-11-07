@@ -13,4 +13,7 @@ Consecuencias.
 | [0005](0005-idempotencia-y-outbox-propios.md) | Idempotencia y outbox propios en PostgreSQL |
 | [0006](0006-app-sin-generacion-de-codigo.md) | App sin generación de código y versiones fijadas |
 | [0007](0007-convencion-de-nombres.md) | Código en inglés; contrato, datos y textos en español |
-| [0008](0008-fuente-de-teselas.md) | Propuesto: PMTiles propio y salida XYZ para el mapa offline (Lote C) |
+| [0008](0008-fuente-de-teselas.md) | PMTiles propio y salida XYZ para el mapa offline (Lote C) |
+| [0009](0009-proveedor-de-codigos-firebase.md) | Firebase Authentication envía y comprueba los códigos por SMS (Lote B 1.4) |
+
+La Fase 1 reserva el 0010 para la precisión de la ubicación en los datos públicos (Lote A, parte 1).
