@@ -15,7 +15,7 @@
 
 | Parte | Qué entrega | Estado | Responsable | PR |
 |---|---|---|---|---|
-| 1 | Fuente de teselas | Pendiente | Por asignar | — |
+| 1 | Fuente de teselas | En curso | — | — |
 | 2 | Mapa sin conexión en la app | Pendiente | Por asignar | — |
 | 3 | Avisos en el backend | Pendiente | Por asignar | — |
 | 4 | Avisos en la app | Pendiente | Por asignar | — |
@@ -24,6 +24,10 @@ Estados posibles: **Pendiente**, **En curso** o **Hecha** (integrada en `main`).
 parte la marca **En curso** con su nombre (en el issue del lote o en un PR pequeño) para que
 nadie la duplique, y la marca **Hecha** en el PR que la entrega. Lo que ya está hecho está en
 la sección 0.2; lo que falta son las partes pendientes de esta tabla.
+
+La Parte 1 tiene implementación y verificación local en `lote-c/parte-1-teselas`.
+Ver `infra/cdn/README.md` y `docs/fase-0/evidencias/fuente-de-teselas.md`.
+Continúa **En curso** hasta completar la aprobación del ADR 0008, CI y la revisión del PR.
 
 ---
 

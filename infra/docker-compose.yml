@@ -63,9 +63,17 @@ services:
       timeout: 2s
       retries: 20
 
+  teselas:
+    image: protomaps/go-pmtiles:v1.31.2
+    command: ["serve", "/datos", "--port=8080"]
+    volumes:
+      - ./cdn/publico:/datos:ro
+
   cdn:
     # Sirve archivos estáticos con soporte de Range (necesario para PMTiles). Lote C.
     image: nginx:1.29-alpine
+    depends_on:
+      - teselas
     volumes:
       - ./cdn/publico:/usr/share/nginx/html:ro
       - ./cdn/nginx.conf:/etc/nginx/conf.d/default.conf:ro

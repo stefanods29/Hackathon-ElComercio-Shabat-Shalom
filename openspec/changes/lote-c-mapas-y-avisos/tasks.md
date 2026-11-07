@@ -3,9 +3,12 @@
 ## 1. Parte 1 · Fuente de teselas
 
 - [ ] 1.1 ADR de la fuente de teselas (PMTiles propio vs proveedor) con los términos revisados; verificar que el equipo lo aprueba en el PR
-- [ ] 1.2 Generar `distrito.pmtiles` del distrito piloto y publicarlo en `infra/cdn/publico/` (sin subir binarios pesados a git: script reproducible); verificar con `curl -r 0-1023` que la CDN responde con Range
-- [ ] 1.3 Estilo MapLibre propio con atribución OSM; verificar que carga en un visor web
+- [x] 1.2 Generar `distrito.pmtiles` del distrito piloto y publicarlo en `infra/cdn/publico/` (sin subir binarios pesados a git: script reproducible); verificar con `curl -r 0-1023` que la CDN responde con Range
+- [x] 1.3 Estilo MapLibre propio con atribución OSM; verificar que carga en un visor web
 - [ ] 1.4 Compilar y depurar (CI en verde)
+
+Avance local de C1: ADR 0008 redactado (1.1 pendiente de aprobación); pruebas y comprobación
+HTTP/visual realizadas (1.4 pendiente de CI). Evidencia: `docs/fase-0/evidencias/fuente-de-teselas.md`.
 
 ## 2. Parte 2 · Mapa sin conexión en la app
 

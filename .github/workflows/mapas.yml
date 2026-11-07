@@ -1,0 +1,81 @@
+name: Mapas del lote C
+
+on:
+  push:
+    branches: [main]
+    paths:
+      [
+        "infra/cdn/**",
+        "infra/docker-compose.yml",
+        ".github/workflows/mapas.yml",
+      ]
+  pull_request:
+    paths:
+      [
+        "infra/cdn/**",
+        "infra/docker-compose.yml",
+        ".github/workflows/mapas.yml",
+      ]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verificar:
+    name: Estilo, recursos, pruebas y formato
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: infra/cdn
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: "26"
+          cache: npm
+          cache-dependency-path: infra/cdn/package-lock.json
+      - run: npm ci
+      - run: npm run build:style
+      - run: npm run build:assets
+      - run: npm test
+      - run: npm run format:check
+      - run: npm run verify -- --assets-only
+      - name: El estilo versionado no cambia al regenerarlo
+        run: git diff --exit-code -- publico/estilos/vecinal.json
+
+  integracion:
+    name: Mapa real, nginx y teselas XYZ
+    # La fuente diaria tiene retención limitada. Se verifica expresamente al entregar
+    # o actualizar el recorte; las pruebas de cada PR usan recursos con versión fija.
+    if: github.event_name == 'workflow_dispatch'
+    needs: verificar
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: infra/cdn
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: "26"
+          cache: npm
+          cache-dependency-path: infra/cdn/package-lock.json
+      - run: npm ci
+      - name: Preparar PMTiles con versión fija
+        run: |
+          mkdir -p .tools
+          curl --fail --location --retry 3 https://github.com/protomaps/go-pmtiles/releases/download/v1.31.2/go-pmtiles_1.31.2_Linux_x86_64.tar.gz --output .tools/pmtiles.tar.gz
+          tar -xzf .tools/pmtiles.tar.gz -C .tools
+      - run: npm run build
+      - name: Iniciar solo los servicios del lote C
+        run: docker compose -f ../docker-compose.yml up -d cdn
+      - name: Esperar al servidor web
+        run: curl --fail --retry 20 --retry-connrefused --retry-delay 1 http://localhost:8090/visor.html --output /dev/null
+      - run: npm run verify -- --url http://localhost:8090
+      - name: Logs de los servicios
+        if: always()
+        run: docker compose -f ../docker-compose.yml logs cdn teselas
+      - name: Detener los servicios de prueba
+        if: always()
+        run: docker compose -f ../docker-compose.yml stop cdn teselas

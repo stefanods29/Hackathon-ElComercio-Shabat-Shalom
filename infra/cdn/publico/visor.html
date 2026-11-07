@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Mapa de demostración · Vecinal</title>
+    <link rel="stylesheet" href="/vendor/maplibre-gl.css" />
+    <style>
+      body {
+        margin: 0;
+        color: #172b3a;
+        font:
+          1rem/1.5 system-ui,
+          sans-serif;
+      }
+      main {
+        display: flex;
+        flex-direction: column;
+        height: 100dvh;
+      }
+      header {
+        padding: 0.75rem 1rem;
+        background: #fff;
+        border-bottom: 1px solid #cad5df;
+      }
+      h1 {
+        margin: 0;
+        font-size: 1.2rem;
+      }
+      p {
+        margin: 0.25rem 0 0;
+      }
+      #map {
+        flex: 1;
+        min-height: 220px;
+      }
+      #status[data-error] {
+        color: #a11717;
+      }
+      .maplibregl-ctrl-attrib {
+        font-size: 14px;
+      }
+      .maplibregl-ctrl-group button {
+        width: 48px;
+        height: 48px;
+      }
+    </style>
+    <script src="/visor.js?v=2" type="module"></script>
+  </head>
+  <body>
+    <main>
+      <header>
+        <h1>Mapa de Lince y alrededores</h1>
+        <p>
+          Zona de demostración; no representa los límites oficiales del
+          distrito.
+        </p>
+        <p id="status" role="status" aria-live="polite">Cargando mapa…</p>
+      </header>
+      <div
+        id="map"
+        role="region"
+        aria-label="Mapa de demostración de Lince"
+      ></div>
+    </main>
+  </body>
+</html>
