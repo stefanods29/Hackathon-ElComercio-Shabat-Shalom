@@ -8,6 +8,8 @@ info:
     aquí en el mismo PR que lo implementa, y CI lo valida.
 
     Reglas que toda ruta cumple (sección 4.5 de la arquitectura):
+    - `x-request-id` correlaciona respuesta y logs; cada problema incluye `requestId` y lo
+      referencia en `instance`. Un problema repetido conserva su rechazo con una correlación nueva.
     - Errores en formato **Problem Details (RFC 9457)** con un `codigo` estable.
     - Toda escritura que el celular envía desde su cola offline exige `Idempotency-Key`.
       Un reintento con la misma clave y el mismo cuerpo devuelve la respuesta guardada
@@ -28,6 +30,8 @@ tags:
     description: Sesión y credenciales de sincronización.
   - name: solidaridad
     description: Muro de favores.
+  - name: operacion
+    description: Métricas operativas reservadas a administradores.
 security:
   - tokenDeAcceso: []
 
@@ -269,6 +273,33 @@ paths:
         '404': { $ref: '#/components/responses/NoEncontrado' }
         '409': { $ref: '#/components/responses/Conflicto' }
 
+  /v1/operacion/metricas:
+    get:
+      tags: [operacion]
+      operationId: consultarMetricasOperativas
+      summary: Métricas de idempotencia, outbox y colas para administradores
+      description: |
+        Exige el rol administrador. Los contadores de idempotencia corresponden a esta
+        instancia desde su arranque; outbox y colas son lecturas actuales de PostgreSQL.
+        No devuelve cargas de trabajos, cuerpos, claves de idempotencia ni tokens.
+        Todas las rutas aceptan x-request-id de 1–128 caracteres ASCII seguros; si falta
+        o es inválido se genera un UUIDv7. La respuesta lo devuelve y los problemas incluyen
+        requestId y un instance que lo identifica. Los reintentos tienen su propio requestId.
+      parameters:
+        - name: x-request-id
+          in: header
+          schema: { type: string, minLength: 1, maxLength: 128, pattern: '^[A-Za-z0-9._:-]+$' }
+      responses:
+        '200':
+          description: Instantánea operativa sin datos personales ni cargas de trabajos.
+          headers:
+            x-request-id: { $ref: '#/components/headers/RequestId' }
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/MetricasOperativas' }
+        '401': { $ref: '#/components/responses/NoAutenticado' }
+        '403': { $ref: '#/components/responses/Prohibido' }
+
   /v1/publicaciones:
     get:
       tags: [solidaridad]
@@ -487,6 +518,9 @@ components:
       schema: { type: string, minLength: 8, maxLength: 255 }
 
   headers:
+    RequestId:
+      description: Identificador de la solicitud, también presente en errores y logs JSON.
+      schema: { type: string }
     IdempotentReplayed:
       description: '`true` cuando la respuesta es la guardada de un intento anterior.'
       schema: { type: string, enum: ['true'] }
@@ -548,6 +582,43 @@ components:
           schema: { $ref: '#/components/schemas/Problema' }
 
   schemas:
+    MetricasOperativas:
+      type: object
+      required: [instanciaId, desde, generadoEn, idempotencia, outbox, colasMotor, colas]
+      properties:
+        instanciaId: { type: string, format: uuid }
+        desde: { type: string, format: date-time }
+        generadoEn: { type: string, format: date-time }
+        idempotencia:
+          type: object
+          required: [nueva, repetida, enCurso, huellaDistinta]
+          properties:
+            nueva: { type: integer, minimum: 0 }
+            repetida: { type: integer, minimum: 0 }
+            enCurso: { type: integer, minimum: 0 }
+            huellaDistinta: { type: integer, minimum: 0 }
+        outbox:
+          type: object
+          required: [pendientes, edadMasAntiguoSegundos]
+          properties:
+            pendientes: { type: integer, minimum: 0 }
+            edadMasAntiguoSegundos: { type: [number, 'null'], minimum: 0 }
+        colasMotor: { type: string, enum: [pgboss, memory], description: memory solo existe en pruebas. }
+        colas:
+          type: array
+          items:
+            type: object
+            required: [nombre, pendientes, activas, fallidas, criticasPendientes, edadCriticaMasAntiguaSegundos]
+            properties:
+              nombre: { type: string }
+              pendientes: { type: integer, minimum: 0, description: Incluye trabajos diferidos y en reintento; excluye activos. }
+              activas: { type: integer, minimum: 0 }
+              fallidas: { type: integer, minimum: 0 }
+              criticasPendientes: { type: integer, minimum: 0 }
+              edadCriticaMasAntiguaSegundos:
+                type: [number, 'null']
+                minimum: 0
+                description: Edad del trabajo crítico elegible más antiguo; nulo si no hay ninguno listo.
     Problema:
       type: object
       description: Problem Details (RFC 9457) con un código estable para el celular.
@@ -557,7 +628,8 @@ components:
         title: { type: string, examples: ['Conflicto'] }
         status: { type: integer, examples: [409] }
         detail: { type: string, examples: ['Otro vecino ya tomó este favor o ya no está disponible.'] }
-        instance: { type: string, examples: ['/v1/publicaciones/0193.../tomar'] }
+        instance: { type: string, examples: ['/v1/publicaciones#requestId=01970000-0000-7000-8000-000000000001'] }
+        requestId: { type: string, description: Identificador de esta solicitud, incluso al repetir un rechazo guardado. }
         codigo: { type: string, examples: ['favor_no_disponible'] }
         nivelActual:
           type: integer

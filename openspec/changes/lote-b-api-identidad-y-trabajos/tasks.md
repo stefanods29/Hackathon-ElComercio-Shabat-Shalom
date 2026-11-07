@@ -38,7 +38,7 @@
 
 ## 6. Parte 6 · Capacidad
 
-- [ ] 6.1 Escenario k6 en `backend/test/carga/` (pico de emergencia + reconexión con jitter); verificar con una corrida de humo local
+- [ ] 6.1 Escenario k6 en `backend/test/load/emergency-peak.js` (pico de emergencia + reconexión con jitter); verificar con una corrida de humo local
 - [ ] 6.2 Logs estructurados con `requestId` y métricas de idempotencia y outbox; verificar en una corrida de k6
 - [ ] 6.3 Informe en `docs/fase-0/evidencias/capacidad.md` con p95, errores y cola crítica
 - [ ] 6.4 Compilar y depurar (CI en verde)

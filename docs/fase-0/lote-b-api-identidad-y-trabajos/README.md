@@ -20,7 +20,7 @@
 | 3 | Roles y niveles de confianza | En curso (`lote-b/parte-3-roles`; pendiente de revisión) | JDiazD33 (con Kimi como asistente) | — |
 | 4 | Eventos y trabajos (pg-boss, outbox y workers) | En curso (`lote-b/parte-4-trabajos`; pendiente de revisión) | JDiazD33 | — |
 | 5 | Muro completo | En curso (`lote-b/parte-5-muro`; pendiente de revisión) | JDiazD33 | — |
-| 6 | Capacidad (k6) | Pendiente | Por asignar | — |
+| 6 | Capacidad (k6) | En curso (`lote-b/parte-6-capacidad`; pendiente de revisión) | JDiazD33 | — |
 
 Estados posibles: **Pendiente**, **En curso** o **Hecha** (integrada en `main`). Quien toma una
 parte la marca **En curso** con su nombre (en el issue del lote o en un PR pequeño) para que
@@ -662,6 +662,11 @@ por OTP (súbele el nivel a 1 con SQL en la prueba) y `MAX_POSTS_PER_DAY=3` en
 ## Parte 6 · Capacidad
 
 Rama: `lote-b/parte-6-capacidad` · Tareas 6.1–6.4 · Spec: `specs/plataforma/capacidad/spec.md`
+
+La rama parte de `af7bcd8` (Parte 5) e integra `5c4d18b` (Partes 3 y 4) mediante `c1c7a0c`,
+con autorización explícita del equipo **solo para esta rama**. Las demás ramas y `main`
+se conservan; no se abre PR. No hay staging disponible: se ejecuta el humo local y se
+entrega el escenario completo sin declarar capacidad de 2500 solicitudes/s validada.
 
 1. **Escenario k6** en `backend/test/load/emergency-peak.js` (actualiza la ruta en la tarea 6.1).
    Unas 2 500 peticiones por segundo durante 10 minutos con `constant-arrival-rate`:
