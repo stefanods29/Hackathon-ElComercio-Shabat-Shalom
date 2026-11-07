@@ -8,4 +8,8 @@ abstract final class Routes {
   static const emergency = '/emergencia';
   static const map = '/mapa';
   static const tutorial = '/tutorial';
+  static const signIn = '/ingresar';
+  static const signInCode = '/ingresar/codigo';
+  static const chooseZone = '/elegir-zona';
+  static const account = '/cuenta';
 }

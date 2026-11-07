@@ -158,5 +158,137 @@
   "tutorialEmergencyNote": "Esta app conecta vecinos; no reemplaza a los servicios de emergencia.",
   "@tutorialEmergencyNote": {
     "description": "Texto del paso del tutorial sobre emergencia (parte 2)"
+  },
+  "signInTitle": "Ingresar a Vecinal",
+  "@signInTitle": {
+    "description": "Título de la pantalla de ingreso"
+  },
+  "signInWelcome": "Bienvenido de vuelta",
+  "@signInWelcome": {
+    "description": "Mensaje de bienvenida en la pantalla de ingreso"
+  },
+  "signInSubtitle": "Ingresa tu número celular para recibir un código de verificación.",
+  "@signInSubtitle": {
+    "description": "Subtítulo de la pantalla de ingreso"
+  },
+  "phoneLabel": "Número celular",
+  "@phoneLabel": {
+    "description": "Etiqueta del campo de teléfono"
+  },
+  "sendCode": "Enviar código",
+  "@sendCode": {
+    "description": "Botón para solicitar el código de verificación"
+  },
+  "privacyNotice": "Usaremos tu número solo para que entres a la app.",
+  "@privacyNotice": {
+    "description": "Aviso de privacidad en la pantalla de ingreso"
+  },
+  "verifyCodeTitle": "Código de verificación",
+  "@verifyCodeTitle": {
+    "description": "Título de la pantalla de código"
+  },
+  "verifyCodeWelcome": "Te enviamos un código a",
+  "@verifyCodeWelcome": {
+    "description": "Mensaje de bienvenida en la pantalla de código"
+  },
+  "verifyCodeSubtitle": "Ingresa los 6 dígitos que recibiste por SMS.",
+  "@verifyCodeSubtitle": {
+    "description": "Subtítulo de la pantalla de código"
+  },
+  "codeLabel": "Código",
+  "@codeLabel": {
+    "description": "Etiqueta del campo de código"
+  },
+  "verifyCodeButton": "Verificar código",
+  "@verifyCodeButton": {
+    "description": "Botón para verificar el código"
+  },
+  "resendCode": "Reenviar código",
+  "@resendCode": {
+    "description": "Botón para reenviar el código"
+  },
+  "resendCodeIn": "Reenviar código en",
+  "@resendCodeIn": {
+    "description": "Texto de cuenta regresiva para reenviar código"
+  },
+  "chooseZoneTitle": "Elige tu zona",
+  "@chooseZoneTitle": {
+    "description": "Título de la pantalla de elección de zona"
+  },
+  "chooseZoneSubtitle": "Selecciona tu zona para ver los favores de tu vecindario.",
+  "@chooseZoneSubtitle": {
+    "description": "Subtítulo de la pantalla de elección de zona"
+  },
+  "chooseZoneDetail": "Esto nos ayuda a mostrarte publicaciones de tu zona.",
+  "@chooseZoneDetail": {
+    "description": "Detalle de la pantalla de elección de zona"
+  },
+  "noZonesAvailable": "No hay zonas disponibles.",
+  "@noZonesAvailable": {
+    "description": "Estado vacío de zonas"
+  },
+  "chooseZoneError": "No se pudo elegir la zona. Intenta de nuevo.",
+  "@chooseZoneError": {
+    "description": "Error al elegir zona"
+  },
+  "accountTitle": "Mi cuenta",
+  "@accountTitle": {
+    "description": "Título de la pantalla de cuenta"
+  },
+  "accountSignedIn": "Sesión iniciada",
+  "@accountSignedIn": {
+    "description": "Subtítulo indicando que hay sesión iniciada"
+  },
+  "unknownUser": "Usuario",
+  "@unknownUser": {
+    "description": "Nombre predeterminado cuando no se conoce el usuario"
+  },
+  "simpleModeTitle": "Modo sencillo",
+  "@simpleModeTitle": {
+    "description": "Título del modo sencillo"
+  },
+  "simpleModeSubtitle": "Menos opciones, textos más grandes.",
+  "@simpleModeSubtitle": {
+    "description": "Subtítulo del modo sencillo"
+  },
+  "signOut": "Cerrar sesión",
+  "@signOut": {
+    "description": "Botón para cerrar sesión"
+  },
+  "signOutWarning": "Se borrarán los datos guardados en este celular.",
+  "@signOutWarning": {
+    "description": "Advertencia al cerrar sesión"
+  },
+  "signOutConfirmTitle": "¿Cerrar sesión?",
+  "@signOutConfirmTitle": {
+    "description": "Título del diálogo de cerrar sesión"
+  },
+  "signOutConfirmBody": "Se borrarán los datos guardados en este celular.",
+  "@signOutConfirmBody": {
+    "description": "Cuerpo del diálogo de cerrar sesión"
+  },
+  "lostPhone": "Perdí mi teléfono",
+  "@lostPhone": {
+    "description": "Opción para cerrar sesión en todos los dispositivos"
+  },
+  "lostPhoneSubtitle": "Cerrar sesión en todos mis dispositivos.",
+  "@lostPhoneSubtitle": {
+    "description": "Subtítulo de perdido mi teléfono"
+  },
+  "lostPhoneConfirmTitle": "¿Cerrar sesión en todos los dispositivos?",
+  "@lostPhoneConfirmTitle": {
+    "description": "Título del diálogo de perdido mi teléfono"
+  },
+  "lostPhoneConfirmBody": "Se cerrará la sesión en todos los dispositivos donde hayas iniciado sesión.",
+  "@lostPhoneConfirmBody": {
+    "description": "Cuerpo del diálogo de perdido mi teléfono"
+  },
+  "cancel": "Cancelar",
+  "@cancel": {
+    "description": "Botón cancelar"
+  },
+  "confirm": "Confirmar",
+  "@confirm": {
+    "description": "Botón confirmar"
   }
 }
