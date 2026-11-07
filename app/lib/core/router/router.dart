@@ -2,6 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:vecinal/core/router/routes.dart';
 import 'package:vecinal/core/ui/under_construction_screen.dart';
+import 'package:vecinal/features/mapa/presentation/map_page.dart';
 import 'package:vecinal/features/solidaridad/presentation/wall_page.dart';
 
 final routerProvider = Provider<GoRouter>((ref) {
@@ -19,11 +20,7 @@ final routerProvider = Provider<GoRouter>((ref) {
         builder: (context, state) =>
             const UnderConstructionScreen(title: 'Acciones por revisar', lot: 'Lote D'),
       ),
-      GoRoute(
-        path: Routes.map,
-        builder: (context, state) =>
-            const UnderConstructionScreen(title: 'Mapa sin conexión', lot: 'Lote C'),
-      ),
+      GoRoute(path: Routes.map, builder: (context, state) => const MapPage()),
       GoRoute(
         path: Routes.emergency,
         builder: (context, state) =>

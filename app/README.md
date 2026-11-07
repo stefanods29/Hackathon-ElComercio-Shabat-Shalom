@@ -14,3 +14,12 @@ tool\verify.cmd          # Windows: análisis, pruebas y formato con logs en too
 Los textos que ve el vecino están en `lib/l10n/app_es.arb` (claves en inglés, textos en español).
 Las carpetas `android/` e `ios/` se generan con `flutter create` la primera vez (lo hace
 `tool/verify`).
+
+## Mapas del Lote C
+
+El botón de mapa del muro abre `/mapa`. La región del piloto se puede descargar por Wi-Fi,
+cancelar y borrar. La configuración del servidor es `--dart-define=MAP_STYLE_URL=...`;
+ver `lib/features/mapa/README.md` y `../infra/cdn/README.md` antes de probar en un teléfono.
+
+La integración `maplibre_gl` 0.28 requiere JDK 21, Android API 24+ e iOS 15.5+. El CI verifica
+Android e iOS en las solicitudes de revisión. No se necesita habilitar la ubicación del vecino.

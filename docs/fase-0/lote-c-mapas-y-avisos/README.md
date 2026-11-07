@@ -16,7 +16,7 @@
 | Parte | Qué entrega | Estado | Responsable | PR |
 |---|---|---|---|---|
 | 1 | Fuente de teselas | En curso | — | — |
-| 2 | Mapa sin conexión en la app | Pendiente | Por asignar | — |
+| 2 | Mapa sin conexión en la app | En curso | — | — |
 | 3 | Avisos en el backend | Pendiente | Por asignar | — |
 | 4 | Avisos en la app | Pendiente | Por asignar | — |
 
@@ -28,6 +28,11 @@ la sección 0.2; lo que falta son las partes pendientes de esta tabla.
 La Parte 1 tiene implementación y verificación local en `lote-c/parte-1-teselas`.
 Ver `infra/cdn/README.md` y `docs/fase-0/evidencias/fuente-de-teselas.md`.
 Continúa **En curso** hasta completar la aprobación del ADR 0008, CI y la revisión del PR.
+
+La Parte 2 se implementa en `lote-c/parte-2-mapa-offline`, a partir del commit local de C1
+`1e1d3a4`. C1 sigue sin considerarse integrada: al preparar los PR, revisar primero C1 y
+comparar C2 contra esa base para no mezclar entregas. Ver `app/lib/features/mapa/README.md`.
+La validación en dispositivos está pendiente; no hay un Android real disponible en esta sesión.
 
 ---
 

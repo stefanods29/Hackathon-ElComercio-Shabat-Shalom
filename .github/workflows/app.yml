@@ -30,7 +30,7 @@ jobs:
       - uses: actions/setup-java@v6
         with:
           distribution: temurin
-          java-version: '17'
+          java-version: '21'
       - uses: subosito/flutter-action@v2
         with:
           channel: stable
@@ -59,10 +59,15 @@ jobs:
           path: ${{ runner.temp }}/formato.patch
           if-no-files-found: ignore
       - run: flutter build apk --debug
+      - name: APK para la revisión en dispositivo
+        uses: actions/upload-artifact@v7
+        with:
+          name: app-android-debug
+          path: app/build/app/outputs/flutter-apk/app-debug.apk
+          retention-days: 7
 
   ios:
     name: Build de iOS (sin firma)
-    if: github.event_name != 'pull_request'
     runs-on: macos-latest
     defaults:
       run:

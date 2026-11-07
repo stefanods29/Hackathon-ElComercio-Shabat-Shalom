@@ -17,6 +17,10 @@ HTTP/visual realizadas (1.4 pendiente de CI). Evidencia: `docs/fase-0/evidencias
 - [ ] 2.3 Prueba en modo avión dentro del distrito; dejar evidencia en `docs/fase-0/evidencias/mapas.md`
 - [ ] 2.4 Compilar y depurar en Android e iOS (CI en verde)
 
+Avance local de C2: interfaz, adaptador MapLibre, política de conexión y pruebas automatizadas
+implementados. Las tareas siguen abiertas porque exigen dispositivo real, evidencia de modo
+avión y validación Android/iOS. Detalle: `docs/fase-0/evidencias/mapas.md`.
+
 ## 3. Parte 3 · Avisos en el backend
 
 - [ ] 3.1 Agregar `POST /v1/dispositivos` al contrato; verificar con `redocly lint`
