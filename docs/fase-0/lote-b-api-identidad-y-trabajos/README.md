@@ -668,6 +668,12 @@ con autorización explícita del equipo **solo para esta rama**. Las demás rama
 se conservan; no se abre PR. No hay staging disponible: se ejecuta el humo local y se
 entrega el escenario completo sin declarar capacidad de 2500 solicitudes/s validada.
 
+Implementación verificada: `bb220e5`. Tareas 6.1–6.4 completas: 144 unitarias, 102 de
+integración, humo local de 10 VUs/30 s y controles negativos, más CI remoto en verde.
+[`../evidencias/capacidad.md`](../evidencias/capacidad.md) incluye p95, errores, serie de cola
+crítica y alcance. OpenSpec queda en 24/25; falta la prueba manual real de Twilio (1.4).
+La rama queda **En curso**, pendiente de revisión y visto bueno; `main` no se modifica.
+
 1. **Escenario k6** en `backend/test/load/emergency-peak.js` (actualiza la ruta en la tarea 6.1).
    Unas 2 500 peticiones por segundo durante 10 minutos con `constant-arrival-rate`:
    - `lecturas`, unas 1 750 por segundo: `GET /v1/publicaciones` por cercanía y `GET /v1/salud`;
