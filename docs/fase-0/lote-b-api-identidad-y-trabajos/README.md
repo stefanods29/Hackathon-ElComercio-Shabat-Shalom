@@ -15,12 +15,12 @@
 
 | Parte | Qué entrega | Estado | Responsable | PR |
 |---|---|---|---|---|
-| 1 | Inicio de sesión con OTP y elección de zona | En curso (`lote-b/parte-1-otp`; pendiente de revisión) | JDiazD33 | — |
-| 2 | Sesiones revocables | En curso (`lote-b/parte-2-sesiones`; pendiente de revisión) | JDiazD33 | — |
-| 3 | Roles y niveles de confianza | En curso (`lote-b/parte-3-roles`; pendiente de revisión) | JDiazD33 (con Kimi como asistente) | — |
-| 4 | Eventos y trabajos (pg-boss, outbox y workers) | En curso (`lote-b/parte-4-trabajos`; pendiente de revisión) | JDiazD33 | — |
-| 5 | Muro completo | En curso (`lote-b/parte-5-muro`; pendiente de revisión) | JDiazD33 | — |
-| 6 | Capacidad (k6) | En curso (`lote-b/parte-6-capacidad`; pendiente de revisión) | JDiazD33 | — |
+| 1 | Inicio de sesión con OTP y elección de zona | En curso: integrada en `main`; falta la tarea 1.4 (adaptador real de OTP) | JDiazD33 | Con `fase0-a` (PR 14) |
+| 2 | Sesiones revocables | Hecha | JDiazD33 | Con `fase0-a` (PR 14) |
+| 3 | Roles y niveles de confianza | Hecha | JDiazD33 | Desde `lote-b/parte-6-capacidad` |
+| 4 | Eventos y trabajos (pg-boss, outbox y workers) | Hecha | JDiazD33 | Desde `lote-b/parte-6-capacidad` |
+| 5 | Muro completo | Hecha | JDiazD33 | Desde `lote-b/parte-6-capacidad` |
+| 6 | Capacidad (k6) | Hecha (humo local; la corrida en staging queda para la Fase 1) | JDiazD33 | Desde `lote-b/parte-6-capacidad` |
 
 Estados posibles: **Pendiente**, **En curso** o **Hecha** (integrada en `main`). Quien toma una
 parte la marca **En curso** con su nombre (en el issue del lote o en un PR pequeño) para que
