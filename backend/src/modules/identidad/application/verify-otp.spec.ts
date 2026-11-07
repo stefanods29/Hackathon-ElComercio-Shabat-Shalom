@@ -9,7 +9,7 @@ import { FakeOtpProvider } from '../infrastructure/fake-otp.provider.js';
 import { InMemoryOtpCodeRepository } from '../infrastructure/otp-code.repository.memory.js';
 import type { RegisteredUser, UserRepository } from './ports.js';
 import { RequestOtp } from './request-otp.js';
-import { VerifyOtp } from './verify-otp.js';
+import { VerifyOtp, type VerifyOtpCommand } from './verify-otp.js';
 
 const transaction = {} as TransactionContext;
 const unitOfWork: UnitOfWork = { run: (work) => work(transaction) };
@@ -25,6 +25,10 @@ describe('VerifyOtp', () => {
   let tokens: TokenService;
   let verifyOtp: VerifyOtp;
   let storedUsers: Map<string, RegisteredUser>;
+
+  function verifyCode(command: Omit<VerifyOtpCommand, 'ip'>) {
+    return verifyOtp.execute({ ...command, ip: '192.0.2.10' });
+  }
 
   beforeEach(async () => {
     now = new Date('2026-11-07T15:00:00Z');
@@ -61,7 +65,7 @@ describe('VerifyOtp', () => {
   });
 
   it('acepta el código correcto, registra nivel 0 y emite acceso sin refresh de la Parte 2', async () => {
-    const result = await verifyOtp.execute({
+    const result = await verifyCode({
       phone,
       code: provider.lastCodeFor(phone)!,
       device: 'prueba',
@@ -79,17 +83,17 @@ describe('VerifyOtp', () => {
   it('rechaza un código vencido con el mismo codigo_invalido', async () => {
     now = new Date(now.getTime() + 5 * 60_000 + 1);
 
-    await expect(
-      verifyOtp.execute({ phone, code: provider.lastCodeFor(phone)! }),
-    ).rejects.toMatchObject({ code: 'codigo_invalido' });
+    await expect(verifyCode({ phone, code: provider.lastCodeFor(phone)! })).rejects.toMatchObject({
+      code: 'codigo_invalido',
+    });
     expect(storedUsers.size).toBe(0);
   });
 
   it('rechaza la reutilización y no crea otra sesión', async () => {
     const code = provider.lastCodeFor(phone)!;
-    await verifyOtp.execute({ phone, code });
+    await verifyCode({ phone, code });
 
-    await expect(verifyOtp.execute({ phone, code })).rejects.toMatchObject({
+    await expect(verifyCode({ phone, code })).rejects.toMatchObject({
       code: 'codigo_invalido',
     });
     expect(storedUsers.size).toBe(1);
@@ -99,7 +103,7 @@ describe('VerifyOtp', () => {
     const wrongCode = provider.lastCodeFor(phone) === '000000' ? '000001' : '000000';
     for (let attempt = 1; attempt <= 5; attempt += 1) {
       const error = await verifyOtp
-        .execute({ phone, code: wrongCode })
+        .execute({ phone, code: wrongCode, ip: '192.0.2.10' })
         .catch((reason: unknown) => reason);
       expect(error).toBeInstanceOf(AuthenticationFailure);
       const record = await codes.findLatestActiveForUpdate(transaction, phone, now);
@@ -107,7 +111,7 @@ describe('VerifyOtp', () => {
     }
 
     const locked = await verifyOtp
-      .execute({ phone, code: provider.lastCodeFor(phone)! })
+      .execute({ phone, code: provider.lastCodeFor(phone)!, ip: '192.0.2.10' })
       .catch((reason: unknown) => reason);
     expect(locked).toBeInstanceOf(RateLimitExceeded);
     expect(locked).toMatchObject({ retryAfterSeconds: 15 * 60 });

@@ -112,6 +112,8 @@ paths:
       summary: Solicitar un código de un solo uso
       description: |
         Responde igual exista o no la cuenta para no revelar qué teléfonos están registrados.
+        Un teléfono o una IP bloqueados por verificaciones fallidas reciben 429 hasta que termine
+        el bloqueo, aunque el código anterior haya caducado.
         Esta ruta es en línea y no usa Idempotency-Key.
       security: []
       requestBody:
@@ -141,6 +143,9 @@ paths:
       description: |
         Devuelve acceso y usuario. El refresh token y las sesiones revocables se agregan en la Parte 2.
         Un código incorrecto, vencido o ya utilizado recibe la misma respuesta 401.
+        Los fallos se acumulan por teléfono y por IP entre códigos distintos. Por defecto, cinco
+        fallos por teléfono o veinte por IP en quince minutos bloquean durante quince minutos
+        desde el fallo que alcanza el límite; los siguientes intentos reciben 429 y Retry-After.
         Esta ruta es en línea y no usa Idempotency-Key.
       security: []
       requestBody:

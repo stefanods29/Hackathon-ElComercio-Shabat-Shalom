@@ -6,10 +6,10 @@ import { UNIT_OF_WORK, type UnitOfWork } from '../../../shared/db/unit-of-work.j
 import { CLOCK, type Clock } from '../../../shared/domain/clock.js';
 import { AuthenticationFailure, RateLimitExceeded } from '../../../shared/domain/errors.js';
 import type { IssuedSession } from './issue-credentials.js';
+import { failureRetryAfter, nextFailureState } from './otp-failure-policy.js';
 import {
   OTP_CODE_REPOSITORY,
   USER_REPOSITORY,
-  type OtpCodeRecord,
   type OtpCodeRepository,
   type RegisteredUser,
   type UserRepository,
@@ -18,6 +18,7 @@ import {
 export interface VerifyOtpCommand {
   readonly phone: string;
   readonly code: string;
+  readonly ip: string | null;
   readonly device?: string;
 }
 
@@ -38,31 +39,59 @@ export class VerifyOtp {
   ) {}
 
   async execute(command: VerifyOtpCommand): Promise<IssuedSession> {
-    const now = this.clock.now();
     const verification = await this.unitOfWork.run(async (transaction): Promise<Verification> => {
-      const record = await this.codes.findLatestActiveForUpdate(transaction, command.phone, now);
-      if (!record) return { kind: 'invalid' };
-      if (record.attempts >= this.config.OTP_MAX_ATTEMPTS) {
-        return this.locked(record, now);
-      }
+      const ip = await this.codes.lockPhoneAndIp(transaction, command.phone, command.ip);
+      const now = this.clock.now();
+      const phoneState = await this.codes.findFailureState(transaction, 'telefono', command.phone);
+      const ipState = ip ? await this.codes.findFailureState(transaction, 'ip', ip) : null;
+      const retryAfterSeconds = failureRetryAfter([phoneState, ipState], now);
+      if (retryAfterSeconds > 0) return { kind: 'locked', retryAfterSeconds };
 
-      const expected = Buffer.from(record.codeHash, 'hex');
+      const record = await this.codes.findLatestActiveForUpdate(transaction, command.phone, now);
+      const expected = record ? Buffer.from(record.codeHash, 'hex') : null;
       const received = Buffer.from(
         createHmac('sha256', this.config.OTP_HASH_SECRET)
           .update(`${command.phone}:${command.code}`)
           .digest('hex'),
         'hex',
       );
-      if (expected.length !== received.length || !timingSafeEqual(expected, received)) {
-        await this.codes.incrementAttempts(transaction, record.id);
-        return { kind: 'invalid' };
+      if (
+        record &&
+        expected &&
+        expected.length === received.length &&
+        timingSafeEqual(expected, received) &&
+        (await this.codes.markUsed(transaction, record.id, now))
+      ) {
+        const user = await this.users.findOrCreateByPhone(transaction, command.phone);
+        await this.codes.clearFailureState(transaction, 'telefono', command.phone);
+        // A successful login must not erase failures made from this IP against other phones.
+        return { kind: 'ok', user };
       }
-
-      if (!(await this.codes.markUsed(transaction, record.id, now))) {
-        return { kind: 'invalid' };
-      }
-      const user = await this.users.findOrCreateByPhone(transaction, command.phone);
-      return { kind: 'ok', user };
+      if (record) await this.codes.incrementAttempts(transaction, record.id);
+      await this.codes.saveFailureState(
+        transaction,
+        'telefono',
+        command.phone,
+        nextFailureState(
+          phoneState,
+          now,
+          this.config.OTP_MAX_ATTEMPTS,
+          this.config.OTP_LOCK_MINUTES,
+        ),
+      );
+      if (ip)
+        await this.codes.saveFailureState(
+          transaction,
+          'ip',
+          ip,
+          nextFailureState(
+            ipState,
+            now,
+            this.config.OTP_MAX_ATTEMPTS_PER_IP,
+            this.config.OTP_LOCK_MINUTES,
+          ),
+        );
+      return { kind: 'invalid' };
     });
 
     if (verification.kind === 'invalid') {
@@ -81,13 +110,5 @@ export class VerifyOtp {
 
     const { token, expiresAt } = await this.tokens.issueAccess(verification.user);
     return { accessToken: token, expiresAt, user: verification.user };
-  }
-
-  private locked(record: OtpCodeRecord, now: Date): Verification {
-    const lockedUntil = record.createdAt.getTime() + this.config.OTP_LOCK_MINUTES * 60_000;
-    return {
-      kind: 'locked',
-      retryAfterSeconds: Math.max(1, Math.ceil((lockedUntil - now.getTime()) / 1000)),
-    };
   }
 }

@@ -5,6 +5,7 @@ import { UNIT_OF_WORK, type UnitOfWork } from '../../../shared/db/unit-of-work.j
 import { CLOCK, type Clock } from '../../../shared/domain/clock.js';
 import { RateLimitExceeded } from '../../../shared/domain/errors.js';
 import { newId } from '../../../shared/domain/ids.js';
+import { failureRetryAfter } from './otp-failure-policy.js';
 import {
   OTP_CODE_REPOSITORY,
   OTP_PROVIDER,
@@ -47,9 +48,14 @@ export class RequestOtp {
   ) {}
 
   async execute(command: RequestOtpCommand): Promise<RequestOtpResult> {
-    const now = this.clock.now();
     const preparation = await this.unitOfWork.run(async (transaction) => {
-      await this.codes.lockRequestWindow(transaction, command.phone, command.ip);
+      const ip = await this.codes.lockPhoneAndIp(transaction, command.phone, command.ip);
+      const now = this.clock.now();
+      const phoneState = await this.codes.findFailureState(transaction, 'telefono', command.phone);
+      const ipState = ip ? await this.codes.findFailureState(transaction, 'ip', ip) : null;
+      const retryAfterSeconds = failureRetryAfter([phoneState, ipState], now);
+      if (retryAfterSeconds > 0)
+        return { kind: 'limited', retryAfterSeconds } satisfies Preparation;
 
       const phoneUsage = await this.codes.countByPhoneSince(
         command.phone,
@@ -63,9 +69,9 @@ export class RequestOtp {
         } satisfies Preparation;
       }
 
-      if (command.ip) {
+      if (ip) {
         const ipUsage = await this.codes.countByIpSince(
-          command.ip,
+          ip,
           new Date(now.getTime() - IP_WINDOW_MS),
           transaction,
         );
@@ -86,7 +92,7 @@ export class RequestOtp {
         phone: command.phone,
         codeHash,
         channel: command.channel,
-        ip: command.ip,
+        ip,
         attempts: 0,
         expiresAt: new Date(now.getTime() + this.config.OTP_TTL_MINUTES * 60_000),
         usedAt: null,

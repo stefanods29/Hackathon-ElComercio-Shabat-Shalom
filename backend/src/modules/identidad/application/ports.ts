@@ -52,11 +52,36 @@ export interface OtpCodeRecord {
   readonly createdAt: Date;
 }
 
+export type OtpFailureScope = 'telefono' | 'ip';
+
+export interface OtpFailureState {
+  readonly attempts: number;
+  readonly windowStartedAt: Date;
+  readonly blockedUntil: Date | null;
+}
+
 export interface OtpCodeRepository {
-  lockRequestWindow(
+  /** Serializes issuance and verification together; returns the canonical client IP. */
+  lockPhoneAndIp(
     transaction: TransactionContext,
     phone: string,
     ip: string | null,
+  ): Promise<string | null>;
+  findFailureState(
+    transaction: TransactionContext,
+    scope: OtpFailureScope,
+    key: string,
+  ): Promise<OtpFailureState | null>;
+  saveFailureState(
+    transaction: TransactionContext,
+    scope: OtpFailureScope,
+    key: string,
+    state: OtpFailureState,
+  ): Promise<void>;
+  clearFailureState(
+    transaction: TransactionContext,
+    scope: OtpFailureScope,
+    key: string,
   ): Promise<void>;
   create(transaction: TransactionContext, record: OtpCodeRecord): Promise<void>;
   findLatestActiveForUpdate(

@@ -35,9 +35,19 @@ export interface OtpCodesTable {
   creado_en: WithDefault<Date>;
 }
 
+/** Private failure counters and blocks, independent of issued OTP codes. */
+export interface OtpLimitsTable {
+  ambito: 'telefono' | 'ip';
+  identificador: string;
+  intentos: number;
+  ventana_desde: Timestamp;
+  bloqueado_hasta: NullableTimestamp;
+}
+
 /** Tables of the `identidad` schema. Only the Identity module queries them. */
 export interface IdentityTables {
   'identidad.zonas': ZonesTable;
   'identidad.usuarios': UsersTable;
   'identidad.codigos_otp': OtpCodesTable;
+  'identidad.limites_otp': OtpLimitsTable;
 }

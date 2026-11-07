@@ -42,10 +42,12 @@ export class AuthController {
   @HttpCode(200)
   async verifyCode(
     @Body({ schema: verifyOtpSchema }) body: VerifyOtpDto,
+    @Req() request: Request,
   ): Promise<SessionResponse> {
     const session = await this.verifyOtp.execute({
       phone: body.telefono,
       code: body.codigo,
+      ip: request.ip ?? null,
       device: body.dispositivo,
     });
     return toSessionResponse(session);

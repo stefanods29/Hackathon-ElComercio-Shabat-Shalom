@@ -223,6 +223,7 @@ En `app-config.ts` y `.env.example`:
 | `OTP_MAX_REQUESTS_PER_PHONE` | entero, 3 (por cada 15 min) | |
 | `OTP_MAX_REQUESTS_PER_IP` | entero, 20 (por hora) | |
 | `OTP_MAX_ATTEMPTS` | entero, 5 | |
+| `OTP_MAX_ATTEMPTS_PER_IP` | entero, 20 | fallos de verificación entre todos los teléfonos de la IP |
 | `OTP_LOCK_MINUTES` | entero, 15 | |
 | `TWILIO_ACCOUNT_SID`, `TWILIO_AUTH_TOKEN`, `TWILIO_FROM_SMS`, `TWILIO_FROM_WHATSAPP` | opcionales | obligatorios si `OTP_PROVIDER=twilio` |
 
@@ -243,6 +244,10 @@ export const OTP_PROVIDER = Symbol('OTP_PROVIDER');
 
 export interface OtpCodeRecord { id; phone; codeHash; channel; ip; attempts; expiresAt; usedAt; createdAt }
 export interface OtpCodeRepository {
+  lockPhoneAndIp(transaction, phone, ip): Promise<string | null>; // IP canónica; emisión y verificación
+  findFailureState(transaction, scope, key): Promise<OtpFailureState | null>;
+  saveFailureState(transaction, scope, key, state): Promise<void>;
+  clearFailureState(transaction, scope, key): Promise<void>;
   create(transaction, record): Promise<void>;
   findLatestActiveForUpdate(transaction, phone, now): Promise<OtpCodeRecord | null>; // FOR UPDATE
   countByPhoneSince(phone, since): Promise<{ count: number; oldest: Date | null }>;
@@ -277,7 +282,9 @@ Adaptadores en `infrastructure/`:
 
 `application/request-otp.ts` → `RequestOtp.execute({ phone, channel, ip })`:
 
-1. Límite por teléfono: si hay `OTP_MAX_REQUESTS_PER_PHONE` o más solicitudes en los últimos
+1. Serializa teléfono e IP y comprueba sus bloqueos de verificación en `identidad.limites_otp`.
+   Si alguno sigue activo, responde 429 sin emitir ni enviar otro código.
+   Límite por teléfono: si hay `OTP_MAX_REQUESTS_PER_PHONE` o más solicitudes en los últimos
    15 minutos, lanza `RateLimitExceeded('demasiados_intentos', …, segundos hasta que salga la
    más antigua de la ventana)`. Haz lo mismo por IP en la última hora.
 2. Código: `randomInt(0, 1_000_000).toString().padStart(6, '0')` de `node:crypto`.
@@ -285,21 +292,30 @@ Adaptadores en `infrastructure/`:
 4. Guarda el registro (vence en `OTP_TTL_MINUTES`) y envía con el proveedor.
 5. Devuelve `{ retryAfterSeconds: 60, expiresInSeconds }`: la misma respuesta exista o no la cuenta.
 
-`application/verify-otp.ts` → `VerifyOtp.execute({ phone, code, device })`:
+`application/verify-otp.ts` → `VerifyOtp.execute({ phone, code, device, ip })`:
 
-1. Dentro de `unitOfWork.run`: `findLatestActiveForUpdate`. Si no hay código vigente, el
-   resultado es `invalid`.
-2. Si `attempts >= OTP_MAX_ATTEMPTS`, el resultado es `locked` (con los segundos de bloqueo).
-3. Compara los hashes con `timingSafeEqual` (los dos `Buffer` del mismo largo). Si no coinciden:
-   `incrementAttempts` y el resultado es `mismatch`.
+1. Dentro de `unitOfWork.run`, serializa teléfono e IP y lee el reloj después de obtener los
+   bloqueos. Si alguno tiene `bloqueado_hasta` vigente, devuelve `locked` con el mayor tiempo
+   restante, sin prolongarlo.
+2. Busca el código con `findLatestActiveForUpdate`. Aunque no exista uno vigente, los intentos
+   inválidos cuentan para los límites persistentes de teléfono e IP.
+3. Compara los hashes con `timingSafeEqual` (los dos `Buffer` del mismo largo). Si no coinciden,
+   incrementa el intento del código si existe y ambos contadores de verificación. Los fallos se
+   acumulan entre reenvíos en una ventana de `OTP_LOCK_MINUTES`; el fallo que alcanza el límite
+   configura `bloqueado_hasta = ahora + OTP_LOCK_MINUTES`.
 4. Si coinciden: `markUsed` (si devuelve `false`, otro pedido lo usó primero y el resultado es
-   `invalid`), `findOrCreateByPhone` y el resultado es `ok` con el usuario.
+   `invalid`), `findOrCreateByPhone`, reinicia el contador del teléfono y el resultado es `ok`
+   con el usuario. Un acceso válido no reinicia el contador de la IP.
 5. **Fuera de la transacción**, según el resultado: lanza `AuthenticationFailure('codigo_invalido')`,
    `RateLimitExceeded('demasiados_intentos')` o emite el token de acceso.
 
 > **Trampa:** si lanzas el error dentro de `unitOfWork.run`, la transacción se deshace y el
 > incremento de intentos se pierde: la fuerza bruta quedaría sin límite. Devuelve un resultado y
 > lanza después del commit.
+
+La migración adicional `202611070110_identidad_limites_otp.ts` guarda este estado por
+`(ambito, identificador)`, sin replicarlo en PowerSync. `otp-abuse.int-spec.ts` verifica
+reenvíos, caducidad, reinicio, fin del bloqueo, concurrencia por IP y equivalencias IPv6.
 
 Controlador `api/auth.controller.ts`: `@Controller(\`${V1}/auth\`)` con `@Public()`.
 `@Post('otp') @HttpCode(202)` y `@Post('otp/verificar') @HttpCode(200)`. La IP sale de

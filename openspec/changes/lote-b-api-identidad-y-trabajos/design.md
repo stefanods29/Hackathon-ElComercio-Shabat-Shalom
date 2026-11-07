@@ -14,6 +14,21 @@ la emisión de tokens ES256 (`shared/auth/token.service.ts`), el outbox
 
 ## Decisions
 
+### Bloqueos OTP independientes del código (Parte 1)
+
+`identidad.limites_otp` guarda el contador, el inicio de ventana y `bloqueado_hasta` por
+teléfono e IP. Una migración adicional crea esta tabla privada sin modificar la migración
+original de códigos ni agregar datos a PowerSync. Solicitar y verificar comparten bloqueos
+transaccionales de PostgreSQL por teléfono e IP; las IP se normalizan antes de calcular sus
+claves para que las representaciones equivalentes no eludan el límite.
+
+La ventana y el bloqueo duran `OTP_LOCK_MINUTES`. Alcanzar `OTP_MAX_ATTEMPTS` por teléfono
+o `OTP_MAX_ATTEMPTS_PER_IP` por IP inicia el bloqueo desde ese fallo; las peticiones bloqueadas
+no lo prolongan. Los errores se lanzan después del commit para conservar los contadores.
+El bloqueo se consulta antes de emitir o buscar un código, por lo que sobrevive a reenvíos,
+caducidades y reinicios. Un acceso correcto reinicia únicamente los fallos del teléfono.
+Las tablas de códigos mantienen sus intentos para diagnóstico, pero ya no deciden el bloqueo.
+
 ### Sesiones con refresh token rotativo
 
 ```mermaid

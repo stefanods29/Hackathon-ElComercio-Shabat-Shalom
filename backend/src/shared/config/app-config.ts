@@ -27,6 +27,7 @@ export const configSchema = z
     OTP_MAX_REQUESTS_PER_PHONE: z.coerce.number().int().min(1).default(3),
     OTP_MAX_REQUESTS_PER_IP: z.coerce.number().int().min(1).default(20),
     OTP_MAX_ATTEMPTS: z.coerce.number().int().min(1).default(5),
+    OTP_MAX_ATTEMPTS_PER_IP: z.coerce.number().int().min(1).default(20),
     OTP_LOCK_MINUTES: z.coerce.number().int().min(1).default(15),
     TWILIO_ACCOUNT_SID: z.string().optional(),
     TWILIO_AUTH_TOKEN: z.string().optional(),

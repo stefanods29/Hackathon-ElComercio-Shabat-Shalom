@@ -3,7 +3,12 @@ import { type Kysely, type Selectable, sql } from 'kysely';
 import { KYSELY } from '../../../shared/db/connection.js';
 import type { TransactionContext } from '../../../shared/db/unit-of-work.js';
 import { asKysely } from '../../../shared/db/unit-of-work.kysely.js';
-import type { OtpCodeRecord, OtpCodeRepository } from '../application/ports.js';
+import type {
+  OtpCodeRecord,
+  OtpCodeRepository,
+  OtpFailureScope,
+  OtpFailureState,
+} from '../application/ports.js';
 import type { IdentityTables, OtpCodesTable } from './tables.js';
 
 function toRecord(row: Selectable<OtpCodesTable>): OtpCodeRecord {
@@ -24,16 +29,73 @@ function toRecord(row: Selectable<OtpCodesTable>): OtpCodeRecord {
 export class KyselyOtpCodeRepository implements OtpCodeRepository {
   constructor(@Inject(KYSELY) private readonly db: Kysely<IdentityTables>) {}
 
-  async lockRequestWindow(
+  async lockPhoneAndIp(
     transaction: TransactionContext,
     phone: string,
     ip: string | null,
-  ): Promise<void> {
+  ): Promise<string | null> {
     const db = asKysely<IdentityTables>(transaction);
-    const keys = [`otp:telefono:${phone}`, ...(ip ? [`otp:ip:${ip}`] : [])].sort();
+    const normalizedIp = ip
+      ? (await sql<{ ip: string }>`SELECT host(${ip}::inet) AS ip`.execute(db)).rows[0]!.ip
+      : null;
+    const keys = [
+      `otp:telefono:${phone}`,
+      ...(normalizedIp ? [`otp:ip:${normalizedIp}`] : []),
+    ].sort();
     for (const key of keys) {
       await sql`SELECT pg_advisory_xact_lock(hashtext(${key})::bigint)`.execute(db);
     }
+    return normalizedIp;
+  }
+
+  async findFailureState(
+    transaction: TransactionContext,
+    scope: OtpFailureScope,
+    key: string,
+  ): Promise<OtpFailureState | null> {
+    const row = await asKysely<IdentityTables>(transaction)
+      .selectFrom('identidad.limites_otp')
+      .selectAll()
+      .where('ambito', '=', scope)
+      .where('identificador', '=', key)
+      .executeTakeFirst();
+    return row
+      ? {
+          attempts: row.intentos,
+          windowStartedAt: row.ventana_desde,
+          blockedUntil: row.bloqueado_hasta,
+        }
+      : null;
+  }
+
+  async saveFailureState(
+    transaction: TransactionContext,
+    scope: OtpFailureScope,
+    key: string,
+    state: OtpFailureState,
+  ): Promise<void> {
+    const values = {
+      intentos: state.attempts,
+      ventana_desde: state.windowStartedAt,
+      bloqueado_hasta: state.blockedUntil,
+    };
+    await asKysely<IdentityTables>(transaction)
+      .insertInto('identidad.limites_otp')
+      .values({ ambito: scope, identificador: key, ...values })
+      .onConflict((conflict) => conflict.columns(['ambito', 'identificador']).doUpdateSet(values))
+      .execute();
+  }
+
+  async clearFailureState(
+    transaction: TransactionContext,
+    scope: OtpFailureScope,
+    key: string,
+  ): Promise<void> {
+    await asKysely<IdentityTables>(transaction)
+      .deleteFrom('identidad.limites_otp')
+      .where('ambito', '=', scope)
+      .where('identificador', '=', key)
+      .execute();
   }
 
   async create(transaction: TransactionContext, record: OtpCodeRecord): Promise<void> {

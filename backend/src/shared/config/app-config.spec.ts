@@ -20,6 +20,7 @@ describe('loadConfig', () => {
     expect(config.JWT_ACCESS_MINUTES).toBe(15);
     expect(config.TRUST_PROXY_HOPS).toBe(0);
     expect(config.OTP_PROVIDER).toBe('fake');
+    expect(config.OTP_MAX_ATTEMPTS_PER_IP).toBe(20);
   });
 
   it('acepta la clave PEM en una sola línea con \\n escritos', () => {
@@ -46,5 +47,8 @@ describe('loadConfig', () => {
   it('falla rápido y con el motivo si falta algo', () => {
     expect(() => loadConfig({ ...base, DATABASE_URL: 'mysql://x' })).toThrow(/DATABASE_URL/);
     expect(() => loadConfig({ ...base, JWT_PRIVATE_KEY_PEM: 'nada' })).toThrow(/PKCS#8/);
+    expect(() => loadConfig({ ...base, OTP_MAX_ATTEMPTS_PER_IP: '0' })).toThrow(
+      /OTP_MAX_ATTEMPTS_PER_IP/,
+    );
   });
 });
