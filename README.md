@@ -5,6 +5,7 @@ conexión**. Monorepo con el backend (NestJS), la app (Flutter), el contrato de 
 infraestructura local y las especificaciones (OpenSpec).
 
 - **Arquitectura:** `docs/arquitectura/` · correcciones en `docs/adr/`
+- **Estado de la Fase 0 y cómo contribuir (empieza aquí):** `docs/fase-0/README.md`
 - **Plan de trabajo en 4 lotes (A–D):** `docs/fase-0/plan-de-lotes.md`
 - **Cómo se entrega y revisa:** `docs/fase-0/revision-y-entregas.md`
 - **Reglas, stack y comandos:** `CONTRIBUTING.md`

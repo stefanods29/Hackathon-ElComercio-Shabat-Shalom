@@ -14,6 +14,9 @@ Todo lo que falta de la Fase 0 está repartido en **4 lotes que se trabajan en s
 mayor a menor dificultad. Cada lote es un change de OpenSpec con propuesta, diseño y tareas, y
 cada tarea dice cómo se verifica.
 
+El **estado de cada lote** (lo hecho y lo que falta) y su **guía paso a paso** están en
+`docs/fase-0/<lote>/README.md`; el resumen de todos, en `docs/fase-0/README.md`.
+
 ## Los 4 lotes
 
 | Lote | Tema | Dificultad | Dueño | Change de OpenSpec | Partes |

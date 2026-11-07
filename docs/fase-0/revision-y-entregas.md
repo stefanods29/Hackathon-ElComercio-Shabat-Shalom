@@ -11,7 +11,8 @@ Cómo se entrega cada parte de un lote y cómo se revisa antes de integrarla a `
 
 ## Entregar una parte
 
-1. Marca las tareas de la parte en `openspec/changes/<change>/tasks.md`.
+1. Marca las tareas de la parte en `openspec/changes/<change>/tasks.md` y cambia su estado a
+   **Hecha** en la tabla "Estado del lote" de `docs/fase-0/<lote>/README.md`.
 2. Compila y depura lo que tocaste:
    - backend: `npm run verify` y `npm run test:integration`;
    - app: `tool/verify.cmd` (Windows) o `tool/verify.sh`;
@@ -43,6 +44,8 @@ Lista de revisión:
 - [ ] **Convenciones:** código en inglés; textos, contrato JSON, tablas y docs en español.
 - [ ] **Seguridad:** sin secretos ni `.env`; variables nuevas documentadas en `.env.example`.
 - [ ] **Grafo:** si cambian dependencias, `npm run graph` actualizado en el mismo PR.
+- [ ] **Estado:** la parte figura como **Hecha** en `docs/fase-0/<lote>/README.md` y sus tareas
+      están marcadas en `tasks.md`.
 
 Resultados posibles: **aprobado** (el Lote A lo integra con *squash*), **cambios pedidos** (se
 corrige en la misma rama) o **dividir** (la parte era demasiado grande).

@@ -18,7 +18,7 @@
 
 - [x] 3.1 Núcleo (tema accesible, router, Riverpod, i18n, estados de envío, reintentos, modo de la app) y verificar con las pruebas de `test/core`
 - [x] 3.2 Muro de referencia sobre un doble en memoria y verificar con `test/features` y `test/widget_test.dart`
-- [ ] 3.3 Compilar y depurar en la PC del Lote A con `tool/verify.cmd` (Flutter 3.47.9) y en CI
+- [x] 3.3 Compilar y depurar en la PC del Lote A con `tool/verify.cmd` (Flutter 3.47.9) y en CI
 
 ## 4. Organización
 
