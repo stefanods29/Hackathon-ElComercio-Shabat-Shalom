@@ -11,6 +11,11 @@ class AppEnvironment {
     this.mapStyleUrl = 'http://10.0.2.2:8090/estilos/vecinal.json',
     this.mapBounds = pilotMapBounds,
     this.enablePush = false,
+    this.phoneAuth = 'api',
+    this.firebaseApiKey = '',
+    this.firebaseAppId = '',
+    this.firebaseSenderId = '',
+    this.firebaseProjectId = '',
   });
 
   // Same demonstration rectangle as infra/cdn/district.config.json; not an administrative boundary.
@@ -20,6 +25,11 @@ class AppEnvironment {
     apiBaseUrl: String.fromEnvironment('API_BASE_URL', defaultValue: 'http://10.0.2.2:3000'),
     powersyncUrl: String.fromEnvironment('POWERSYNC_URL'),
     enablePush: bool.fromEnvironment('ENABLE_PUSH'),
+    phoneAuth: String.fromEnvironment('PHONE_AUTH', defaultValue: 'api'),
+    firebaseApiKey: String.fromEnvironment('FIREBASE_API_KEY'),
+    firebaseAppId: String.fromEnvironment('FIREBASE_APP_ID'),
+    firebaseSenderId: String.fromEnvironment('FIREBASE_SENDER_ID'),
+    firebaseProjectId: String.fromEnvironment('FIREBASE_PROJECT_ID'),
     mapStyleUrl: String.fromEnvironment(
       'MAP_STYLE_URL',
       defaultValue: 'http://10.0.2.2:8090/estilos/vecinal.json',
@@ -33,4 +43,15 @@ class AppEnvironment {
   final String mapStyleUrl;
   final MapBounds mapBounds;
   final bool enablePush;
+
+  /// `firebase`: Firebase Authentication sends the SMS code; `api`: the API sends it.
+  final String phoneAuth;
+
+  /// Firebase options by `--dart-define`, so no project file is committed. Empty: Firebase off.
+  final String firebaseApiKey;
+  final String firebaseAppId;
+  final String firebaseSenderId;
+  final String firebaseProjectId;
+
+  bool get phoneAuthWithFirebase => phoneAuth == 'firebase';
 }

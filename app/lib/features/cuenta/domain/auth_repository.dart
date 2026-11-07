@@ -38,6 +38,15 @@ final class CodeRequest {
 }
 
 /// Errores tipados de autenticación.
+///
+/// [AuthFailure] lleva un mensaje listo para mostrar al vecino.
+final class AuthFailure implements Exception {
+  const AuthFailure(this.message);
+  final String message;
+  @override
+  String toString() => message;
+}
+
 final class InvalidCode implements Exception {
   const InvalidCode();
 }

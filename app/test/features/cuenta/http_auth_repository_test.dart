@@ -8,6 +8,7 @@ import 'package:vecinal/core/storage/secure_store.dart';
 import 'package:vecinal/features/cuenta/data/http_auth_repository.dart';
 import 'package:vecinal/features/cuenta/domain/auth_repository.dart';
 import 'package:vecinal/features/cuenta/domain/auth_state.dart';
+import 'package:vecinal/features/cuenta/domain/phone_verifier.dart';
 
 void main() {
   final now = DateTime.utc(2026, 11, 7, 12);
@@ -29,6 +30,19 @@ void main() {
 
   Response<Object?> answer(RequestOptions request, int status, Object? data) =>
       Response(requestOptions: request, statusCode: status, data: data);
+
+  HttpAuthRepository withVerifier(PhoneVerifier verifier) {
+    final repository = HttpAuthRepository(
+      api: api,
+      store: store,
+      clock: () => clock,
+      activate: (user) async => activated.add(user),
+      purge: (id) async => purged.add(id),
+      phoneVerifier: verifier,
+    );
+    addTearDown(repository.close);
+    return repository;
+  }
 
   setUp(() {
     clock = now;
@@ -234,4 +248,70 @@ void main() {
     expect(await store.read(HttpAuthRepository.sessionKey), isNull);
     expect(await auth.getToken(), isNull);
   });
+
+  test('con Firebase la API solo recibe el token del teléfono ya verificado', () async {
+    final verifier = _FakePhoneVerifier();
+    final firebase = withVerifier(verifier);
+    final paths = <String>[];
+    respond = (r) async {
+      paths.add(r.path);
+      expect(r.data, {'tokenFirebase': 'token-firebase'});
+      return answer(r, 200, session());
+    };
+    final request = await firebase.requestCode('+51 900 000 002');
+    expect(verifier.phones, ['+51900000002']);
+    expect(request.retryAfterSeconds, 60);
+    await expectLater(firebase.verifyCode('+51900000002', '111111'), throwsA(isA<InvalidCode>()));
+    expect(paths, isEmpty);
+    await firebase.verifyCode('+51900000002', '123456');
+    expect(paths, ['/v1/auth/firebase']);
+    expect(await firebase.watch().first, isA<SignedIn>());
+    expect(activated.single.zoneId, 'zone-1');
+  });
+
+  test('un token que la API rechaza se muestra como código vencido', () async {
+    final firebase = withVerifier(_FakePhoneVerifier());
+    respond = (r) async => answer(r, 401, {'codigo': 'token_firebase_invalido'});
+    await firebase.requestCode('+51900000002');
+    await expectLater(firebase.verifyCode('+51900000002', '123456'), throwsA(isA<InvalidCode>()));
+    expect(activated, isEmpty);
+    expect(await store.read(HttpAuthRepository.sessionKey), isNull);
+  });
+
+  test('la verificación automática y el código escrito abren una sola sesión', () async {
+    final verifier = _FakePhoneVerifier();
+    final firebase = withVerifier(verifier);
+    var requests = 0;
+    respond = (r) async {
+      requests++;
+      return answer(r, 200, session());
+    };
+    await firebase.requestCode('+51900000002');
+    verifier.verifiedAutomatically('token-firebase');
+    await firebase.verifyCode('+51900000002', '123456');
+    expect(requests, 1);
+    expect(await firebase.watch().first, isA<SignedIn>());
+    expect(activated, hasLength(1));
+  });
+}
+
+/// Firebase double: `123456` is the only right code.
+class _FakePhoneVerifier implements PhoneVerifier {
+  final phones = <String>[];
+  void Function(String token)? _onVerified;
+
+  void verifiedAutomatically(String token) => _onVerified?.call(token);
+
+  @override
+  Future<CodeRequest> sendCode(String phone, {void Function(String token)? onVerified}) async {
+    phones.add(phone);
+    _onVerified = onVerified;
+    return const CodeRequest(retryAfterSeconds: 60, expiresInSeconds: 300);
+  }
+
+  @override
+  Future<String> tokenFor(String code) async {
+    if (code != '123456') throw const InvalidCode();
+    return 'token-firebase';
+  }
 }

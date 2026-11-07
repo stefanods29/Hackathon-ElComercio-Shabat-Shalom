@@ -53,6 +53,8 @@ class _PhonePageState extends ConsumerState<PhonePage> {
           () => _error = 'Espera ${error.retryAfterSeconds} segundos antes de pedir otro código.',
         );
       }
+    } on AuthFailure catch (error) {
+      if (mounted) setState(() => _error = error.message);
     } catch (error) {
       if (!mounted) return;
       setState(() {

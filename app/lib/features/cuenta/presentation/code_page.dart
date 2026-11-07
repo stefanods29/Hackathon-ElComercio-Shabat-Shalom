@@ -75,6 +75,8 @@ class _CodePageState extends ConsumerState<CodePage> {
         _isVerifying = false;
         _error = 'El código no es correcto o ya venció.';
       });
+    } on AuthFailure catch (error) {
+      if (mounted) setState(() => _error = error.message);
     } catch (_) {
       if (mounted) setState(() => _error = 'No se pudo verificar. Revisa tu conexión.');
     } finally {
@@ -103,6 +105,8 @@ class _CodePageState extends ConsumerState<CodePage> {
       _startResendCountdown(request.retryAfterSeconds);
     } on TooManyAttempts catch (error) {
       if (mounted) _startResendCountdown(error.retryAfterSeconds);
+    } on AuthFailure catch (error) {
+      if (mounted) setState(() => _error = error.message);
     } catch (_) {
       if (mounted) setState(() => _error = 'No se pudo reenviar. Revisa tu conexión.');
     }

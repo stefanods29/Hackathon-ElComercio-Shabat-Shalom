@@ -24,6 +24,40 @@ ver `lib/features/mapa/README.md` y `../infra/cdn/README.md` antes de probar en 
 La integración `maplibre_gl` 0.28 requiere JDK 21, Android API 24+ e iOS 15.5+. El CI verifica
 Android e iOS en las solicitudes de revisión. No se necesita habilitar la ubicación del vecino.
 
+## Ingresar con SMS reales (Firebase Authentication)
+
+Por defecto la API envía el código; con `OTP_PROVIDER=fake` lo escribe en su consola. Para recibir
+un SMS real, Firebase envía y comprueba el código, y la API solo valida el token que entrega
+Firebase (`POST /v1/auth/firebase`). No se sube ningún archivo del proyecto Firebase:
+
+1. En la consola de Firebase, la app Android `pe.shabatshalom.vecinal` debe tener las huellas
+   SHA-1 y SHA-256 de la clave con la que firmas. En depuración es la de tu PC
+   (`cd android && gradlew signingReport`). Sin ellas, Firebase no envía el SMS.
+2. Crea `app/firebase.local.json`; no se sube porque `*.local.json` está en `.gitignore`.
+   Los valores están en Configuración del proyecto → Tus apps → Vecinal Android:
+
+   ```json
+   {
+     "PHONE_AUTH": "firebase",
+     "FIREBASE_API_KEY": "<clave de la app Android>",
+     "FIREBASE_APP_ID": "1:<número del proyecto>:android:<id>",
+     "FIREBASE_SENDER_ID": "<número del proyecto>",
+     "FIREBASE_PROJECT_ID": "<ID del proyecto>",
+     "API_BASE_URL": "http://127.0.0.1:3000",
+     "POWERSYNC_URL": "http://127.0.0.1:8080"
+   }
+   ```
+
+3. En `backend/.env`: `OTP_PROVIDER=firebase` y `FIREBASE_PROJECT_ID=<ID del proyecto>`.
+4. Con el celular por USB, `adb reverse tcp:3000 tcp:3000` y `adb reverse tcp:8080 tcp:8080`
+   le dan acceso a la API y a PowerSync de tu PC. Luego:
+   `flutter run --dart-define-from-file=firebase.local.json`.
+
+Android puede verificar el número sin que el vecino escriba el código (lee el SMS o no lo
+necesita); en ese caso la app entra sola. La política de regiones del proyecto solo permite
+números de Perú. Si existe `google-services.json` (avisos), pueden omitirse los `FIREBASE_*`:
+Firebase lee los archivos nativos.
+
 ## Configurar avisos (Lote C)
 
 La compilación normal mantiene `ENABLE_PUSH=false`; no necesita un proyecto Firebase.

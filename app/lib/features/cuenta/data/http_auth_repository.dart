@@ -6,14 +6,8 @@ import 'package:uuid/uuid.dart';
 import 'package:vecinal/core/storage/secure_store.dart';
 import 'package:vecinal/features/cuenta/domain/auth_repository.dart';
 import 'package:vecinal/features/cuenta/domain/auth_state.dart';
+import 'package:vecinal/features/cuenta/domain/phone_verifier.dart';
 import 'package:vecinal/features/cuenta/domain/zone.dart';
-
-class AuthFailure implements Exception {
-  const AuthFailure(this.message);
-  final String message;
-  @override
-  String toString() => message;
-}
 
 /// Owns the renewable session. Callers share a serialized rotation, including logout.
 /// The API client passed here must not use getToken as its interceptor (recursion).
@@ -23,6 +17,7 @@ class HttpAuthRepository implements AuthRepository {
     required this._store,
     required this._activate,
     required this._purge,
+    this._phoneVerifier,
     DateTime Function()? clock,
   }) : _clock = clock ?? DateTime.now;
 
@@ -33,6 +28,9 @@ class HttpAuthRepository implements AuthRepository {
   final SecureStore _store;
   final Future<void> Function(LocalUser) _activate;
   final Future<void> Function(String) _purge;
+
+  /// With Firebase the SMS code is sent and checked outside the API (`PHONE_AUTH=firebase`).
+  final PhoneVerifier? _phoneVerifier;
   final DateTime Function() _clock;
   final _changes = StreamController<AuthState>.broadcast();
   AuthState _state = const SignedOut();
@@ -85,6 +83,14 @@ class HttpAuthRepository implements AuthRepository {
 
   @override
   Future<CodeRequest> requestCode(String phone) async {
+    final verifier = _phoneVerifier;
+    if (verifier != null) {
+      // Android may verify the phone by itself; the router then leaves the code page.
+      return verifier.sendCode(
+        _phone(phone),
+        onVerified: (token) => unawaited(_signInWithFirebase(token).catchError((Object _) {})),
+      );
+    }
     final response = await _api.post<Object?>('/v1/auth/otp', data: {'telefono': _phone(phone)});
     _require(response, 202);
     final body = response.data as Map;
@@ -95,19 +101,32 @@ class HttpAuthRepository implements AuthRepository {
   }
 
   @override
-  Future<void> verifyCode(String phone, String code) => _serialize(() async {
-    if (_closed) throw const AuthFailure('La sesión ya está cerrada.');
-    final interrupted = await _store.read(purgeKey);
-    if (interrupted != null) await _clear(interrupted);
-    final response = await _api.post<Object?>(
-      '/v1/auth/otp/verificar',
-      data: {'telefono': _phone(phone), 'codigo': code},
-    );
-    if (response.statusCode == 401) throw const InvalidCode();
-    _require(response, 200);
-    await _save(response.data);
-    await _activateAndEmit(_session!);
-  });
+  Future<void> verifyCode(String phone, String code) async {
+    final verifier = _phoneVerifier;
+    if (verifier != null) return _signInWithFirebase(await verifier.tokenFor(code));
+    final body = {'telefono': _phone(phone), 'codigo': code};
+    return _signIn(() => _api.post<Object?>('/v1/auth/otp/verificar', data: body));
+  }
+
+  /// The automatic verification and the typed code may both arrive: only one opens a session.
+  Future<void> _signInWithFirebase(String token) {
+    final body = {'tokenFirebase': token};
+    return _signIn(() => _api.post<Object?>('/v1/auth/firebase', data: body), once: true);
+  }
+
+  Future<void> _signIn(Future<Response<Object?>> Function() request, {bool once = false}) {
+    return _serialize(() async {
+      if (_closed) throw const AuthFailure('La sesión ya está cerrada.');
+      if (once && _session != null) return;
+      final interrupted = await _store.read(purgeKey);
+      if (interrupted != null) await _clear(interrupted);
+      final response = await request();
+      if (response.statusCode == 401) throw const InvalidCode();
+      _require(response, 200);
+      await _save(response.data);
+      await _activateAndEmit(_session!);
+    });
+  }
 
   @override
   Future<List<Zone>> listZones() async {

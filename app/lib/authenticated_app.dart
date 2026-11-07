@@ -12,6 +12,7 @@ import 'package:vecinal/core/sync/authenticated_sync_session.dart';
 import 'package:vecinal/core/theme/accessible_theme.dart';
 import 'package:vecinal/features/avisos/data/providers.dart';
 import 'package:vecinal/features/avisos/domain/push_registration.dart';
+import 'package:vecinal/features/cuenta/data/firebase_phone_verifier.dart';
 import 'package:vecinal/features/cuenta/data/http_auth_repository.dart';
 import 'package:vecinal/features/cuenta/data/providers.dart';
 import 'package:vecinal/features/cuenta/domain/auth_state.dart';
@@ -50,6 +51,7 @@ class _AuthenticatedAppState extends State<AuthenticatedApp> {
       store: widget.store,
       activate: _activate,
       purge: _purge,
+      phoneVerifier: widget.environment.phoneAuthWithFirebase ? FirebasePhoneVerifier() : null,
     );
     _ready = _auth.initialize();
   }

@@ -13,9 +13,10 @@ coverage/
 *.load-tokens.json
 *.load-summary.json
 
-# Scripts locales de cada persona (rutas de su PC)
+# Scripts y ajustes locales de cada persona (rutas de su PC, datos de su proyecto Firebase)
 *.local.cmd
 *.local.sh
+*.local.json
 
 # Sistema operativo y editores
 .DS_Store
