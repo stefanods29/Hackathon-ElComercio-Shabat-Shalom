@@ -21,6 +21,10 @@ dependencies:
   uuid: ^4.6.0
   flutter_secure_storage: ^11.2.0
   connectivity_plus: ^7.3.2
+  powersync: 2.6.0
+  path: ^1.9.1
+  path_provider: ^2.1.6
+  sqlite_async: ^0.14.8
 
 dev_dependencies:
   flutter_test:
@@ -31,3 +35,8 @@ dev_dependencies:
 flutter:
   uses-material-design: true
   generate: true
+
+hooks:
+  user_defines:
+    sqlite3:
+      source: sqlite3mc
