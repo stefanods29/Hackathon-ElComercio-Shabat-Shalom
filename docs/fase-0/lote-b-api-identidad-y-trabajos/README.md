@@ -363,6 +363,11 @@ Base de esta rama: `9b5054073dea147dcf081a3ad529f6fbec1b16b6` de la Parte 1, con
 bloqueos OTP corregidos. La entrega se conserva en su rama para revisión, sin merge,
 rebase, cherry-pick ni PR, por indicación del equipo.
 
+Implementación: `e71337e`. Tareas 2.1–2.4 verificadas, con 66 pruebas unitarias, 59 de
+integración y CI remoto en verde. Evidencia y puntos de contacto para el Lote A:
+[`../evidencias/sesiones.md`](../evidencias/sesiones.md). El estado sigue **En curso**
+porque falta la revisión; la rama se conserva sin integrar.
+
 ### 2.1 Contrato
 
 - Al esquema `Sesion` agrega `refreshToken: string` y `refreshExpiraEn: date-time`. Es un cambio

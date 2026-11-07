@@ -52,6 +52,7 @@ una base temporal; no usan datos reales ni envían SMS.
 | `redocly lint` (2.76.0) | Sin errores; 3 advertencias preexistentes sobre respuestas 4xx (salud, JWKS, zonas) |
 | `openspec validate --all --strict` | 10 aprobados, 0 fallidos |
 | `git diff --check` | Correcto |
+| `dev:keys` en directorio temporal | Secreto refresh independiente, archivo 0600 y `.env` existente conservado |
 
 Las 8 unitarias de `RefreshSession` usan reloj fijo y repositorio en memoria con rollback.
 Las 19 pruebas HTTP nuevas cubren hashes y restricciones, rotación, token robado, concurrencia,
@@ -60,8 +61,17 @@ familia, zona, autenticación, validación, compatibilidad de desarrollo y fallo
 La migración también se revierte y aplica dentro de una transacción que se deshace al terminar.
 Se conservan las regresiones de límites y bloqueos OTP de la Parte 1.
 
-CI remoto pendiente de ejecución manual sobre esta rama; no se declara verde todavía.
-Las tareas 2.1–2.3 están verificadas; 2.4 permanece abierta hasta confirmar CI.
+## CI remoto
+
+Ejecuciones manuales sobre esta rama y el commit de implementación
+`e71337edb36518a5ab57a3e66e196d8a8291fa10`, ambas completadas en verde:
+
+- [Backend: tipos, lint, formato, fronteras, Sync Streams, unitarias, build e integración](https://github.com/stefanods29/Hackathon-ElComercio-Shabat-Shalom/actions/runs/42382684015).
+  La integración remota usa PostgreSQL 18 + PostGIS 3.6.
+- [Especificaciones: OpenSpec estricto y contrato OpenAPI](https://github.com/stefanods29/Hackathon-ElComercio-Shabat-Shalom/actions/runs/42382686154).
+
+Las tareas 2.1–2.4 están verificadas y marcadas. El commit posterior solo registra esta
+evidencia y el estado de las tareas; no cambia código. No se abrió PR ni se integró la rama.
 
 ## Puntos de contacto y límites
 
