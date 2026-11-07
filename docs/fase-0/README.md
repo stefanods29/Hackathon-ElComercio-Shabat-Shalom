@@ -9,7 +9,7 @@ lote. Si vas a contribuir, empieza por esta página.
 |---|---|---|---|---|
 | [`cimientos/`](cimientos/) | La base de todo: backend, app, contrato, infraestructura y CI | — | — | **Hecho** |
 | [`lote-a-nucleo-offline/`](lote-a-nucleo-offline/) | PowerSync, base cifrada y purga, cola de subida, datos sensibles, pruebas de campo e integración | ★★★★ | Stefano | Pendiente (0 de 6 partes) |
-| [`lote-b-api-identidad-y-trabajos/`](lote-b-api-identidad-y-trabajos/) | Inicio de sesión con código, sesiones, roles, trabajos en segundo plano, muro completo y carga | ★★★ | JDiazD33 | En curso (0 de 6 partes) |
+| [`lote-b-api-identidad-y-trabajos/`](lote-b-api-identidad-y-trabajos/) | Inicio de sesión con código, sesiones, roles, trabajos en segundo plano, muro completo y carga | ★★★ | JDiazD33 | En curso (1 de 6 partes) |
 | [`lote-c-mapas-y-avisos/`](lote-c-mapas-y-avisos/) | Mapa sin conexión y notificaciones push | ★★ | Por asignar | Pendiente (0 de 4 partes) |
 | [`lote-d-experiencia-accesible/`](lote-d-experiencia-accesible/) | Diseño accesible, publicar en 3 toques, estados visibles, tutorial, inicio de sesión y cuenta | ★ | Por asignar | Pendiente (0 de 5 partes) |
 

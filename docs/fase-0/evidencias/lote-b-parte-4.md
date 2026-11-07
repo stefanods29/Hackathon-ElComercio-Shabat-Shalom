@@ -47,6 +47,14 @@ base temporal vacía ya migrada, con claves de prueba generadas solo en memoria:
 
 ## CI y revisión
 
-CI usa PostgreSQL 18 + PostGIS 3.6, la combinación del proyecto; el entorno local tiene PostGIS
-3.7. Los resultados de CI se agregan al cerrar la tarea 4.4. La aprobación e integración
-corresponden al Lote A; esta evidencia no sustituye esa revisión.
+CI del código y del grafo en `fd15ae92dae7af414762687488365e4c90ac3520`, todo correcto:
+
+- [Tipos, lint, fronteras, Sync Streams, pruebas y build](https://github.com/stefanods29/Hackathon-ElComercio-Shabat-Shalom/actions/runs/42346473776/job/128325211473).
+- [Integración con PostgreSQL 18 + PostGIS 3.6](https://github.com/stefanods29/Hackathon-ElComercio-Shabat-Shalom/actions/runs/42346473776/job/128325211308).
+- [OpenSpec estricto y contrato OpenAPI](https://github.com/stefanods29/Hackathon-ElComercio-Shabat-Shalom/actions/runs/42346473778/job/128325211332).
+
+El entorno local tiene PostGIS 3.7; CI confirmó la combinación del proyecto con PostGIS 3.6.
+Los commits posteriores actualizan únicamente el estado y esta evidencia. Se marca la parte
+**Hecha** en la rama de entrega, como pide el protocolo del PR; ese estado llegará a `main`
+cuando se integre. La aprobación e integración corresponden al Lote A; esta evidencia no
+sustituye esa revisión.
