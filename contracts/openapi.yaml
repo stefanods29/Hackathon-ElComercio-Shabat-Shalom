@@ -105,6 +105,107 @@ paths:
         '401': { $ref: '#/components/responses/NoAutenticado' }
         '403': { $ref: '#/components/responses/Prohibido' }
 
+  /v1/auth/otp:
+    post:
+      tags: [identidad]
+      operationId: solicitarCodigo
+      summary: Solicitar un código de un solo uso
+      description: |
+        Responde igual exista o no la cuenta para no revelar qué teléfonos están registrados.
+        Esta ruta es en línea y no usa Idempotency-Key.
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/SolicitudOtp' }
+      responses:
+        '202':
+          description: Código aceptado para su envío.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/OtpEnviado' }
+        '400': { $ref: '#/components/responses/SolicitudInvalida' }
+        '429': { $ref: '#/components/responses/DemasiadasSolicitudes' }
+        '503':
+          description: El proveedor de mensajes no está disponible (`codigo` = servicio_no_disponible).
+          content:
+            application/problem+json:
+              schema: { $ref: '#/components/schemas/Problema' }
+
+  /v1/auth/otp/verificar:
+    post:
+      tags: [identidad]
+      operationId: verificarCodigo
+      summary: Verificar un código e iniciar sesión
+      description: |
+        Devuelve acceso y usuario. El refresh token y las sesiones revocables se agregan en la Parte 2.
+        Un código incorrecto, vencido o ya utilizado recibe la misma respuesta 401.
+        Esta ruta es en línea y no usa Idempotency-Key.
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/VerificacionOtp' }
+      responses:
+        '200':
+          description: Código verificado y sesión iniciada.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Sesion' }
+        '400': { $ref: '#/components/responses/SolicitudInvalida' }
+        '401':
+          description: Código incorrecto, vencido o ya utilizado (`codigo` = codigo_invalido).
+          content:
+            application/problem+json:
+              schema: { $ref: '#/components/schemas/Problema' }
+        '429': { $ref: '#/components/responses/DemasiadasSolicitudes' }
+
+  /v1/zonas:
+    get:
+      tags: [identidad]
+      operationId: listarZonas
+      summary: Listar las zonas disponibles
+      description: La lista pública no incluye los polígonos de las zonas.
+      security: []
+      responses:
+        '200':
+          description: Zonas disponibles.
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/Zona' }
+
+  /v1/yo/zona:
+    put:
+      tags: [identidad]
+      operationId: elegirZona
+      summary: Elegir la zona del vecino una sola vez
+      description: |
+        Devuelve una sesión con un token de acceso que ya incluye la zona elegida.
+        Cambiar de zona llega en la Fase 1.
+      parameters:
+        - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/EleccionZona' }
+      responses:
+        '200':
+          description: Zona elegida y token actualizado.
+          headers:
+            Idempotent-Replayed: { $ref: '#/components/headers/IdempotentReplayed' }
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Sesion' }
+        '400': { $ref: '#/components/responses/SolicitudInvalida' }
+        '401': { $ref: '#/components/responses/NoAutenticado' }
+        '404': { $ref: '#/components/responses/NoEncontrado' }
+        '409': { $ref: '#/components/responses/Conflicto' }
+
   /v1/publicaciones:
     post:
       tags: [solidaridad]
@@ -205,6 +306,25 @@ components:
       content:
         application/problem+json:
           schema: { $ref: '#/components/schemas/Problema' }
+    DemasiadasSolicitudes:
+      description: Se superó un límite de solicitudes (`codigo` = demasiados_intentos).
+      headers:
+        Retry-After:
+          description: Segundos que deben transcurrir antes de reintentar.
+          required: true
+          schema: { type: integer, minimum: 1 }
+      content:
+        application/problem+json:
+          schema:
+            allOf:
+              - $ref: '#/components/schemas/Problema'
+              - type: object
+                required: [reintentarEnSegundos]
+                properties:
+                  reintentarEnSegundos:
+                    type: integer
+                    minimum: 1
+                    description: Segundos que deben transcurrir antes de reintentar.
     Prohibido:
       description: El vecino no puede hacer esto (p. ej., nivel_de_confianza_insuficiente, fuera_de_tu_zona).
       content:
@@ -288,6 +408,51 @@ components:
       required: [telefono]
       properties:
         telefono: { type: string, pattern: '^\+[1-9][0-9]{7,14}$', examples: ['+51900000002'] }
+
+    SolicitudOtp:
+      type: object
+      required: [telefono]
+      properties:
+        telefono:
+          type: string
+          pattern: '^\+[1-9][0-9]{7,14}$'
+          examples: ['+51987654321']
+        canal:
+          type: string
+          enum: [sms, whatsapp]
+          default: sms
+
+    OtpEnviado:
+      type: object
+      required: [reintentarEnSegundos, expiraEnSegundos]
+      properties:
+        reintentarEnSegundos: { type: integer, minimum: 1, examples: [60] }
+        expiraEnSegundos: { type: integer, minimum: 1, examples: [300] }
+
+    VerificacionOtp:
+      type: object
+      required: [telefono, codigo]
+      properties:
+        telefono:
+          type: string
+          pattern: '^\+[1-9][0-9]{7,14}$'
+          examples: ['+51987654321']
+        codigo: { type: string, pattern: '^[0-9]{6}$', examples: ['123456'] }
+        dispositivo: { type: string, maxLength: 80 }
+
+    Zona:
+      type: object
+      required: [id, nombre, distrito]
+      properties:
+        id: { type: string, format: uuid }
+        nombre: { type: string }
+        distrito: { type: string }
+
+    EleccionZona:
+      type: object
+      required: [zonaId]
+      properties:
+        zonaId: { type: string, format: uuid }
 
     Sesion:
       type: object
