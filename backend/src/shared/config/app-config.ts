@@ -20,6 +20,7 @@ export const configSchema = z
     POWERSYNC_URL: z.url(),
     ENABLE_DEV_SESSION: z.stringbool().default(false),
     IDEMPOTENCY_RETENTION_HOURS: z.coerce.number().int().min(1).default(168),
+    MAX_POSTS_PER_DAY: z.coerce.number().int().min(1).default(10),
     TRUST_PROXY_HOPS: z.coerce.number().int().min(0).default(0),
     OTP_PROVIDER: z.enum(['fake', 'twilio']).default('fake'),
     OTP_HASH_SECRET: z.string().min(32),

@@ -93,6 +93,33 @@ flowchart LR
 5. **Proveedor OTP**: adaptador falso en desarrollo; el real (Twilio Verify o Firebase Auth) se
    elige con la decisión abierta 4 de la sección 13.3.
 
+### Muro completo (Parte 5)
+
+La búsqueda se limita a la zona del actor y usa `ST_DWithin` sobre `geography` con el índice
+GiST existente. Solo devuelve filas abiertas, con ubicación, no eliminadas y sin vencer.
+`ST_Distance` establece el orden por distancia/id, con `limite + 1` para detectar la página
+siguiente. La ubicación de búsqueda no se persiste y las distancias visibles se redondean
+a 50 m.
+
+El cursor conserva `base64url(JSON { d, id })`, pero `d` contiene la distancia redondeada;
+no se debe filtrar la distancia precisa a través de un JSON decodificable. Al continuar se
+recalcula en el servidor la distancia del id de anclaje y se usa esa clave precisa para
+paginar. El ancla sigue sirviendo tras cancelarse, vencer o borrarse lógicamente; si ya no
+existe físicamente o no corresponde a la búsqueda se devuelve 400 para reiniciarla. La
+ubicación de una publicación es inmutable en esta fase. El cliente mantiene punto y radio
+entre páginas; el cursor no fija una instantánea del muro.
+
+Cancelar y resolver comprueban primero al participante, luego el estado y la versión.
+La repetición válida no genera eventos. Si la actualización optimista pierde una carrera,
+se relee el agregado y se distingue una transición ya aceptada del conflicto real. Actualización
+y outbox comparten transacción y se revierten juntos ante un error.
+
+El límite es una ventana móvil de 24 horas por autor: se cuentan también publicaciones
+canceladas o eliminadas, y una creada exactamente hace 24 horas ya queda fuera. La búsqueda
+del id existente precede al límite y a la creación del agregado. Un bloqueo transaccional por
+autor serializa comprobación e inserción; los reintentos del mismo id con otras claves no
+consumen cupo ni generan eventos. `Retry-After` cuenta hasta que sale la fila más antigua.
+
 ### Puntos de contacto con otros lotes
 
 | Con | Qué | Regla |

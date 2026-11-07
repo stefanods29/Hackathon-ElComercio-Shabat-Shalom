@@ -58,6 +58,7 @@ src_modules_solidaridad-->src_shared_auth
 src_modules_solidaridad-->src_shared_idempotency
 src_modules_solidaridad-->src_shared_db
 src_modules_solidaridad-->src_shared_outbox
+src_modules_solidaridad-->src_shared_config
 src_shared_api-->src_shared_domain
 src_shared_auth-->src_shared_config
 src_shared_auth-->src_shared_domain

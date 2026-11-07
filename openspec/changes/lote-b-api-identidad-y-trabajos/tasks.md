@@ -31,9 +31,9 @@
 
 ## 5. Parte 5 · Muro completo
 
-- [ ] 5.1 Búsqueda por cercanía con `ST_DWithin` y cursor; verificar con pruebas de integración con PostGIS
-- [ ] 5.2 Cancelar y resolver con versión e idempotencia; verificar con pruebas
-- [ ] 5.3 Límites diarios (429 `limite_diario_alcanzado`); verificar con pruebas
+- [x] 5.1 Búsqueda por cercanía con `ST_DWithin` y cursor; verificar con pruebas de integración con PostGIS
+- [x] 5.2 Cancelar y resolver con versión e idempotencia; verificar con pruebas
+- [x] 5.3 Límites diarios (429 `limite_diario_alcanzado`); verificar con pruebas
 - [ ] 5.4 Compilar y depurar (CI en verde)
 
 ## 6. Parte 6 · Capacidad
