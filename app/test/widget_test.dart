@@ -48,7 +48,10 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Sin conexión'), findsOneWidget);
-    expect(find.textContaining('hace 5 minutos'), findsOneWidget);
+    expect(
+      find.text('Estás viendo datos de hace 5 minutos; algunos pueden haber cambiado.'),
+      findsOneWidget,
+    );
   });
 
   testWidgets('cada estado de envío tiene texto, no solo color', (tester) async {

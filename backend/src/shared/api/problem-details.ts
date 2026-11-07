@@ -1,7 +1,9 @@
 import { HttpException } from '@nestjs/common';
 import {
   ApplicationError,
+  AuthenticationFailure,
   BusinessRuleViolation,
+  RateLimitExceeded,
   ResourceNotFound,
   ValidationError,
   VersionConflict,
@@ -102,8 +104,14 @@ export function toProblemDetails(error: unknown, instance?: string): ProblemDeta
   if (error instanceof ValidationError) {
     return buildProblem(400, error.code, error.message, instance, error.extensions);
   }
+  if (error instanceof AuthenticationFailure) {
+    return buildProblem(401, error.code, error.message, instance, error.extensions);
+  }
   if (error instanceof ResourceNotFound) {
     return buildProblem(404, error.code, error.message, instance, error.extensions);
+  }
+  if (error instanceof RateLimitExceeded) {
+    return buildProblem(429, error.code, error.message, instance, error.extensions);
   }
   if (error instanceof VersionConflict) {
     return buildProblem(409, error.code, error.message, instance, error.extensions);

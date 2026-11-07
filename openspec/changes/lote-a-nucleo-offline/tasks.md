@@ -23,7 +23,7 @@
 - [x] 3.2 Publicar y tomar favor: cambio optimista + comando + envío en una sola transacción local; verificar con pruebas
 - [x] 3.3 `uploadData`: comando → endpoint con su `Idempotency-Key`, clasificación con `classifyResponse`, rechazo definitivo con `complete()` y reversión; verificar con pruebas contra la API local
 - [x] 3.4 "Acciones por revisar" (`watchActionsToReview`) con el motivo del servidor; verificar con una prueba de conflicto entre dos vecinos
-- [ ] 3.5 Sobreescribir `postRepositoryProvider` con la implementación real; verificar que las pantallas del Lote D funcionan sin cambios
+- [x] 3.5 Sobreescribir `postRepositoryProvider` con la implementación real; verificar que las pantallas del Lote D funcionan sin cambios
 - [x] 3.6 Compilar y depurar (CI en verde)
 
 ## 4. Parte 4 · Datos sensibles bajo demanda
@@ -35,6 +35,10 @@
 - [x] 4.5 Compilar y depurar (CI en verde)
 
 ## 5. Parte 5 · Pruebas de campo (sección 13.1)
+
+Alcance acordado el 7 de noviembre de 2026: las pruebas de campo en iPhone se omiten
+por disponibilidad, con autorización del usuario. No cuentan como aprobadas. Se mantienen
+la matriz adversa de Android y la compilación de iOS en CI.
 
 - [ ] 5.1 Prueba de 500 operaciones (modo avión, señal débil, cierre forzado, reinicio, batería baja) en Android de gama baja e iPhone; verificar 0 pérdidas y 0 duplicados con conteos en el servidor y dejar el informe en `docs/fase-0/evidencias/`
 - [ ] 5.2 Medir la sincronización en segundo plano en iOS y Android y documentarla; verificar que la UI no promete inmediatez

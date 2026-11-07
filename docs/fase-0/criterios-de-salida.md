@@ -3,6 +3,10 @@
 La Fase 0 termina cuando cada supuesto de la sección 13.1 tiene evidencia. Cada fila indica qué
 lote y qué tarea la produce, y dónde queda la evidencia.
 
+El 7 de noviembre de 2026 el usuario autorizó omitir las pruebas de campo en iPhone
+porque solo dispone de un Redmi. Se registran como omitidas; las comprobaciones de
+compilación de iOS en CI se mantienen. La matriz adversa de Android continúa pendiente.
+
 | Supuesto (13.1) | Criterio de aceptación | Lote · tarea | Evidencia | Estado |
 |---|---|---|---|---|
 | La cola offline no pierde ni duplica envíos | 0 pérdidas y 0 duplicados en 500 operaciones (modo avión, señal débil, cierre forzado, reinicio, batería baja) en Android de gama baja e iPhone | A · 5.1 | `evidencias/cola-offline.md` | ☐ |

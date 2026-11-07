@@ -1,5 +1,9 @@
 import { type Kysely, sql } from 'kysely';
 import { inject } from 'vitest';
+import {
+  up as createSessions,
+  down as dropSessions,
+} from '../../src/modules/identidad/infrastructure/migrations/202611070200_identidad_sesiones.js';
 import { createKysely } from '../../src/shared/db/connection.js';
 
 describe('Migraciones de todos los módulos', () => {
@@ -36,6 +40,25 @@ describe('Migraciones de todos los módulos', () => {
     expect(rows[0]?.id).toMatch(
       /^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/,
     );
+  });
+
+  it('la migración de sesiones se puede revertir y aplicar sin modificar los usuarios', async () => {
+    const rollback = new Error('revertir prueba de migración');
+    await expect(
+      db.transaction().execute(async (transaction) => {
+        await dropSessions(transaction);
+        const absent = await sql<{
+          name: string | null;
+        }>`SELECT to_regclass('identidad.sesiones')::text AS name`.execute(transaction);
+        expect(absent.rows).toEqual([{ name: null }]);
+        await createSessions(transaction);
+        const present = await sql<{
+          name: string;
+        }>`SELECT to_regclass('identidad.sesiones')::text AS name`.execute(transaction);
+        expect(present.rows).toEqual([{ name: 'identidad.sesiones' }]);
+        throw rollback; // Keep the suite's data: this entire round trip is rolled back.
+      }),
+    ).rejects.toBe(rollback);
   });
 
   it('la publicación de PowerSync incluye solo las tablas que deben llegar a los celulares', async () => {

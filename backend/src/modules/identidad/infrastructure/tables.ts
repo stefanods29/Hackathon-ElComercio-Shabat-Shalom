@@ -1,4 +1,5 @@
 import type { NullableTimestamp, Timestamp, WithDefault } from '../../../shared/db/types.js';
+import type { SessionRevocationReason } from '../application/session-ports.js';
 
 /** Table and column names follow the database schema (Spanish), as the architecture sets. */
 export interface ZonesTable {
@@ -23,8 +24,45 @@ export interface UsersTable {
   eliminado_en: NullableTimestamp;
 }
 
+export interface OtpCodesTable {
+  id: WithDefault<string>;
+  telefono: string;
+  codigo_hash: string;
+  canal: 'sms' | 'whatsapp';
+  ip: string | null;
+  intentos: WithDefault<number>;
+  expira_en: Timestamp;
+  usado_en: NullableTimestamp;
+  creado_en: WithDefault<Date>;
+}
+
+/** Private failure counters and blocks, independent of issued OTP codes. */
+export interface OtpLimitsTable {
+  ambito: 'telefono' | 'ip';
+  identificador: string;
+  intentos: number;
+  ventana_desde: Timestamp;
+  bloqueado_hasta: NullableTimestamp;
+}
+
+export interface SessionsTable {
+  id: WithDefault<string>;
+  usuario_id: string;
+  familia_id: string;
+  refresh_hash: string;
+  dispositivo: string | null;
+  creada_en: WithDefault<Date>;
+  expira_en: Timestamp;
+  rotada_en: NullableTimestamp;
+  revocada_en: NullableTimestamp;
+  motivo: SessionRevocationReason | null;
+}
+
 /** Tables of the `identidad` schema. Only the Identity module queries them. */
 export interface IdentityTables {
   'identidad.zonas': ZonesTable;
   'identidad.usuarios': UsersTable;
+  'identidad.codigos_otp': OtpCodesTable;
+  'identidad.limites_otp': OtpLimitsTable;
+  'identidad.sesiones': SessionsTable;
 }

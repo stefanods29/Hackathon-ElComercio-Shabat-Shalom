@@ -16,6 +16,9 @@ export function testConfig(overrides: Partial<Record<string, string>> = {}): App
     JWT_PRIVATE_KEY_PEM: testPrivateKey(),
     POWERSYNC_URL: 'http://localhost:8080',
     ENABLE_DEV_SESSION: 'true',
+    OTP_PROVIDER: 'fake',
+    OTP_HASH_SECRET: 'secreto-fijo-de-pruebas-para-hmac-otp',
+    REFRESH_TOKEN_SECRET: 'secreto-fijo-de-pruebas-para-hmac-refresh',
     ...overrides,
   });
 }

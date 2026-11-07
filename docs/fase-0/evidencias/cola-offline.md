@@ -25,4 +25,6 @@
 | Pérdidas y duplicados observados | 0 y 0 |
 
 La prueba se ejecutó con `integration_test/offline_queue_stress_test.dart`. Sigue pendiente
-la matriz de campo con señal débil, reinicio del dispositivo, batería baja y repetición en iPhone.
+la matriz de campo de Android con señal débil, reinicio del dispositivo y batería baja.
+La repetición de campo en iPhone se omitió por disponibilidad, con autorización del
+usuario el 7 de noviembre de 2026; no se cuenta como una prueba aprobada.

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:vecinal/core/di/providers.dart';
 import 'package:vecinal/core/submissions/submission_status.dart';
+import 'package:vecinal/core/ui/notice_card.dart';
 import 'package:vecinal/core/ui/submission_status_chip.dart';
 import 'package:vecinal/features/solidaridad/data/providers.dart';
 import 'package:vecinal/features/solidaridad/domain/post.dart';
@@ -42,6 +43,13 @@ class PostCard extends ConsumerWidget {
               ),
               const SizedBox(height: 4),
               Text(post.title, style: theme.textTheme.titleLarge),
+              const SizedBox(height: 8),
+              if (post.submissionStatus == SubmissionStatus.savedOnPhone)
+                NoticeCard(
+                  icon: Icons.cloud_off,
+                  title: texts.statusSavedOnPhone,
+                  detail: texts.statusSavedOnPhoneDetail,
+                ),
               const SizedBox(height: 8),
               Wrap(
                 spacing: 8,

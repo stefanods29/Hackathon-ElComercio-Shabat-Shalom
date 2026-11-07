@@ -27,6 +27,10 @@ export class ProblemDetailsFilter implements ExceptionFilter {
     if (response.headersSent) {
       return;
     }
+    const retryAfter = problem.reintentarEnSegundos;
+    if (typeof retryAfter === 'number' && Number.isFinite(retryAfter)) {
+      response.setHeader('Retry-After', String(Math.ceil(retryAfter)));
+    }
     response
       .status(problem.status)
       .setHeader('content-type', `${PROBLEM_CONTENT_TYPE}; charset=utf-8`)

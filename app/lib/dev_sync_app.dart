@@ -177,7 +177,7 @@ class _DevSyncAppState extends State<DevSyncApp> {
       overrides: [
         demoSignOutProvider.overrideWithValue(() => _signOut(wipe)),
         syncServiceProvider.overrideWithValue(sync),
-        postRepositoryProvider.overrideWithValue(
+        syncedPostRepositoryProvider.overrideWithValue(
           PowerSyncPostRepository(
             local.database,
             neighborId: _account.neighborId,

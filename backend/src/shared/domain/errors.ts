@@ -23,6 +23,25 @@ export class ResourceNotFound extends ApplicationError {
   }
 }
 
+export class RateLimitExceeded extends ApplicationError {
+  constructor(
+    override readonly code: string,
+    message: string,
+    readonly retryAfterSeconds: number,
+  ) {
+    super(message, { reintentarEnSegundos: retryAfterSeconds });
+  }
+}
+
+export class AuthenticationFailure extends ApplicationError {
+  constructor(
+    override readonly code: string,
+    message: string,
+  ) {
+    super(message);
+  }
+}
+
 /** Another neighbor changed the resource first: the version seen on the phone is stale. */
 export class VersionConflict extends ApplicationError {
   override readonly code = 'conflicto_de_version';

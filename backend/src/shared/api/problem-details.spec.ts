@@ -1,6 +1,8 @@
 import { NotFoundException, UnauthorizedException } from '@nestjs/common';
 import {
+  AuthenticationFailure,
   BusinessRuleViolation,
+  RateLimitExceeded,
   ResourceNotFound,
   ValidationError,
   VersionConflict,
@@ -21,6 +23,16 @@ describe('toProblemDetails (RFC 9457)', () => {
       [new BusinessRuleViolation('nivel', 'no', 'forbidden'), 403, 'nivel'],
       [new BusinessRuleViolation('titulo_invalido', 'no'), 422, 'titulo_invalido'],
       [new UnauthorizedException('sin token'), 401, 'no_autenticado'],
+      [
+        new AuthenticationFailure('codigo_invalido', 'El código no es válido.'),
+        401,
+        'codigo_invalido',
+      ],
+      [
+        new RateLimitExceeded('demasiados_intentos', 'Espera un momento.', 42),
+        429,
+        'demasiados_intentos',
+      ],
       [new NotFoundException(), 404, 'recurso_no_encontrado'],
     ];
     for (const [error, status, code] of cases) {
@@ -45,6 +57,14 @@ describe('toProblemDetails (RFC 9457)', () => {
       versionEsperada: 1,
       versionActual: 3,
     });
+  });
+
+  it('incluye los segundos de espera en 429 y lo mantiene transitorio', () => {
+    const problem = toProblemDetails(
+      new RateLimitExceeded('demasiados_intentos', 'Espera un momento.', 42),
+    );
+    expect(problem).toMatchObject({ status: 429, reintentarEnSegundos: 42 });
+    expect(isDefinitiveRejection(problem.status)).toBe(false);
   });
 
   it('nunca filtra detalles internos de errores inesperados', () => {
