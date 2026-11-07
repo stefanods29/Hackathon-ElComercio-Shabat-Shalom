@@ -9,21 +9,20 @@
 | Issue de GitHub | #1 · Lote A · Núcleo offline, integración y revisión |
 | Partes | 6, en orden |
 
-> Las tareas con casillas viven en `openspec/changes/lote-a-nucleo-offline/tasks.md`; esta guía explica cómo hacerlas.
-
 ## Estado del lote
 
-| Parte | Qué entrega | Estado | Responsable | PR |
-|---|---|---|---|---|
-| 1 | PowerSync de punta a punta | En curso | Stefano | — |
-| 2 | Cifrado local, purga e inicio de sesión real | En curso | Stefano | — |
-| 3 | Cola de subida con estados, reintentos y rechazos | En curso | Stefano | — |
-| 4 | Datos sensibles bajo demanda | En curso | Stefano | — |
-| 5 | Pruebas de campo (sección 13.1) | En curso | Stefano | — |
-| 6 | Integración de la Fase 0 | Pendiente | Stefano | — |
+**16 de 28 tareas verificadas en la rama `fase0-a`.** Las fracciones de la tabla corresponden
+a las casillas del [checklist de OpenSpec](../../../openspec/changes/lote-a-nucleo-offline/tasks.md).
+La verificación en la rama y la integración en `main` son hitos separados.
 
-Estados posibles: **Pendiente**, **En curso** o **Hecha** (integrada en `main`). Quien toma una
-parte cambia su estado en el mismo PR en que la entrega.
+| Parte | Tareas | Terminado y comprobado | Pendiente para cerrar |
+| --- | --- | --- | --- |
+| 1 · PowerSync | 4/5 | La API entrega credenciales renovables y el muro sincroniza y se puede abrir sin señal. Verificado en un Redmi Note 13. | CI de la entrega. |
+| 2 · Cifrado y sesión | 3/6 | SQLite cifrado, borrado local ante revocación de prueba y caducidad de casos sin red. [Prueba de purga](../evidencias/purga.md). | Cierre de sesión, conexión con la cuenta real de los Lotes B y D, compilación en iOS y CI. |
+| 3 · Cola de subida | 4/6 | Publicar y tomar quedan en la cola cifrada. En la prueba de conflicto se conservó el motivo del rechazo y se envió la siguiente acción. | Verificar las pantallas del Lote D con el repositorio real y pasar CI. |
+| 4 · Casos sensibles | 4/5 | Solo se descarga el caso solicitado por el personal asignado. El Redmi borró el caso al reasignarlo. [Prueba de purga](../evidencias/purga.md). | CI de la entrega. |
+| 5 · Pruebas de campo | 1/4 | Purga comprobada en Android. En una prueba parcial de carga, 500 publicaciones sintéticas llegaron desde el Redmi sin pérdidas ni duplicados. [Prueba de carga](../evidencias/cola-offline.md). | Completar la matriz de campo en Android e iOS, medir segundo plano y probar el conflicto con dos celulares y la pantalla del Lote D. |
+| 6 · Integración | 0/2 | El entorno local y los resultados de los componentes ya están disponibles para la integración. | Entregas aprobadas de B, C y D, flujo completo y CI en `main`. |
 
 ---
 
