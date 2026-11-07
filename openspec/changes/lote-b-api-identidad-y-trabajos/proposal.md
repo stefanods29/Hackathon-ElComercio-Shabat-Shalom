@@ -10,7 +10,8 @@ confiable de eventos en segundo plano y la prueba de capacidad del pico de emerg
 ## What Changes
 
 - **Inicio de sesión con OTP** por SMS o WhatsApp detrás de un puerto (`OtpProvider`) con un
-  adaptador falso para desarrollo y uno real; límites de intentos por teléfono y por IP.
+  adaptador falso para desarrollo y uno real; límites de intentos por teléfono y por IP; elección de la zona del vecino (`GET /v1/zonas`,
+  `PUT /v1/yo/zona`).
 - **Sesiones**: token de acceso corto + *refresh token* rotativo con detección de reutilización,
   cierre de sesión y revocación de todas las sesiones (teléfono perdido, sección 8.4).
 - **Roles y niveles de confianza** aplicados en la API (decoradores de autorización).

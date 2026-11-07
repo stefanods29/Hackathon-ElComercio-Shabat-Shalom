@@ -14,7 +14,8 @@
 - [ ] 2.2 Cerrar sesión: `disconnectAndClear`, borrar la clave y volver al inicio; verificar con una prueba que no queda ningún dato
 - [ ] 2.3 Caducidad local de datos sensibles con reloj inyectable; verificar con una prueba sin conexión
 - [ ] 2.4 Sesión revocada (respuesta 401 de credenciales tras revocar) → borrar base local; verificar con una prueba
-- [ ] 2.5 Compilar y depurar en Android e iOS (CI en verde)
+- [ ] 2.5 Conectar el `AuthRepository` real a las pantallas del Lote D: tokens en `SecureStore`, `getToken` con renovación serializada (`/v1/auth/refrescar`) y cierre de sesión (API, `disconnectAndWipeLocalData` y baja del token de avisos); verificar con pruebas con HTTP falso
+- [ ] 2.6 Compilar y depurar en Android e iOS (CI en verde)
 
 ## 3. Parte 3 · Cola de subida con estados, reintentos y rechazos
 

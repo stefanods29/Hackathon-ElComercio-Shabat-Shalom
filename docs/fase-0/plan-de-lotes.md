@@ -21,7 +21,7 @@ cada tarea dice cómo se verifica.
 | **A** | Núcleo offline: PowerSync de punta a punta, cifrado y purga, cola de subida con rechazos, datos sensibles bajo demanda, pruebas de campo e **integración y revisión** | ★★★★ Muy alta | Stefano | `lote-a-nucleo-offline` | 6 |
 | **B** | API: OTP, sesiones revocables, roles y niveles, pg-boss + relay del outbox + workers, muro completo y prueba de capacidad con k6 | ★★★ Alta | Por asignar | `lote-b-api-identidad-y-trabajos` | 6 |
 | **C** | Mapas sin conexión (PMTiles + MapLibre) y avisos (FCM por token y por tópico) | ★★ Media | Por asignar | `lote-c-mapas-y-avisos` | 4 |
-| **D** | Experiencia accesible: sistema de diseño, publicar en 3 toques, estados visibles y "acciones por revisar", tutorial y modo práctica | ★ Media-baja | Por asignar | `lote-d-experiencia-accesible` | 4 |
+| **D** | Experiencia accesible: sistema de diseño, publicar en 3 toques, estados visibles y "acciones por revisar", tutorial y modo práctica, inicio de sesión, zona y cuenta | ★ Media-baja | Por asignar | `lote-d-experiencia-accesible` | 5 |
 
 Las tareas completas, con casillas, están en `openspec/changes/<change>/tasks.md` y en el issue de
 GitHub de cada lote. Para leer un lote: `openspec show lote-a-nucleo-offline`.
@@ -31,7 +31,8 @@ GitHub de cada lote. Para leer un lote: `openspec show lote-a-nucleo-offline`.
 1. **PowerSync de punta a punta:** esquema local, conector con `GET /v1/sync/credenciales` y
    `SyncService` real.
 2. **Cifrado local y purga:** clave en `SecureStore`, `EncryptionOptions` (sqlite3mc), cierre de
-   sesión, caducidad y sesión revocada.
+   sesión, caducidad y sesión revocada. También conecta el inicio de sesión real a las pantallas
+   del Lote D.
 3. **Cola de subida:** `PowerSyncPostRepository`, cambio optimista, `uploadData` con
    `Idempotency-Key`, rechazos definitivos y "acciones por revisar".
 4. **Datos sensibles bajo demanda:** tablas mínimas de `emergencias`, stream `caso_asignado` y
@@ -44,7 +45,8 @@ Además, el Lote A **revisa e integra cada entrega** (`revision-y-entregas.md`).
 
 ### Lote B · API, identidad y trabajos — 6 partes
 
-1. **OTP:** contrato, `identidad.codigos_otp`, `OtpProvider` (falso y real), límites por teléfono e IP.
+1. **OTP:** contrato, `identidad.codigos_otp`, `OtpProvider` (falso y real), límites por teléfono e IP
+   y elección de zona (`GET /v1/zonas`, `PUT /v1/yo/zona`).
 2. **Sesiones revocables:** refresh rotativo con detección de reutilización, cerrar y revocar.
 3. **Roles y niveles:** `@RequireTrustLevel(n)` y `@RequireRole(...)` en todas las rutas.
 4. **Eventos y trabajos:** adaptador pg-boss de `JobQueue`, relay del outbox con `SKIP LOCKED`,
@@ -61,7 +63,7 @@ Además, el Lote A **revisa e integra cada entrega** (`revision-y-entregas.md`).
    de `notificaciones.enviar_aviso`.
 4. **Avisos en la app:** `firebase_messaging`, tópico `zona-<id>` y apertura de la pantalla correcta.
 
-### Lote D · Experiencia accesible — 4 partes
+### Lote D · Experiencia accesible — 5 partes
 
 1. **Sistema de diseño accesible:** `AccessibleTheme` con contrastes probados, componentes, golden
    tests con texto al 200 % y modo sencillo.
@@ -71,6 +73,8 @@ Además, el Lote A **revisa e integra cada entrega** (`revision-y-entregas.md`).
    revisar".
 4. **Tutorial y modo práctica:** `showcaseview`, modo práctica que nunca envía nada y el paso sobre
    116, 105 y 106.
+5. **Inicio de sesión, zona y cuenta:** teléfono y código, "Elige tu zona" y "Mi cuenta" (cerrar
+   sesión y teléfono perdido), sobre un doble que el Lote A conecta a la API.
 
 ## Cómo encajan (en simultáneo)
 
@@ -98,7 +102,7 @@ flowchart LR
     C3[C3 Avisos backend] --> C4[C4 Avisos app]
   end
   subgraph D["Lote D · Experiencia"]
-    D1[D1 Diseño accesible] --> D2[D2 Publicar] --> D3[D3 Estados] --> D4[D4 Tutorial]
+    D1[D1 Diseño accesible] --> D2[D2 Publicar] --> D3[D3 Estados] --> D4[D4 Tutorial] --> D5[D5 Sesión y cuenta]
   end
   DM --> A1 & D1 & B4
   CT --> B1 & C3
@@ -106,7 +110,8 @@ flowchart LR
   B2 -. "401 de credenciales" .-> A2
   B4 -. "trabajo notificaciones.enviar_aviso" .-> C3
   A3 -. "repositorio real, mismas pantallas" .-> D3
-  B6 & C4 & D4 --> A6
+  A2 -. "inicio de sesión real" .-> D5
+  B6 & C4 & D5 --> A6
 ```
 
 | Punto de contacto | Quién lo define | Quién lo usa | Mientras tanto |
@@ -118,6 +123,7 @@ flowchart LR
 | `app/pubspec.yaml` | Cada lote agrega solo sus paquetes | Todos | Conflictos los resuelve A al integrar |
 | `app/lib/l10n/app_es.arb` | D (textos generales); cada lote los suyos | Todos | Claves en inglés, textos en español |
 | `infra/powersync/sync-config.yaml` | A | B (tablas nuevas en la publicación) | `npm run sync:validate` en cada PR |
+| `AuthRepository` (inicio de sesión y cuenta) | D (pantallas y doble) y B (API) | A conecta la versión real | D usa el doble en memoria |
 
 ## Hitos de la Fase 0
 
@@ -127,7 +133,7 @@ Las fases no tienen fechas (sección 12): se avanza al cumplir la condición.
 |---|---|
 | **H1 · Arranque** | Cada lote entregó su parte 1 aprobada (A1, B1, C1, D1) |
 | **H2 · Flujo offline** | A2–A3, B2–B4, C2–C3 y D2–D3 aprobadas: el muro funciona sin señal con la cola real |
-| **H3 · Piezas completas** | A4, B5–B6, C4 y D4 aprobadas |
+| **H3 · Piezas completas** | A4, B5–B6, C4, D4 y D5 aprobadas |
 | **H4 · Salida de la Fase 0** | A5 y A6 aprobadas y todos los criterios de `criterios-de-salida.md` con evidencia |
 
 ## Cómo empieza cada persona

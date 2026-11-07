@@ -6,7 +6,8 @@
 - [ ] 1.2 Migración `identidad.codigos_otp` (hash del código, vigencia, intentos) y puerto `OtpProvider` con adaptador falso; verificar con pruebas unitarias
 - [ ] 1.3 Casos de uso solicitar y verificar (registro con nivel 0) y límites por teléfono e IP (429 + `Retry-After`); verificar con pruebas de integración
 - [ ] 1.4 Adaptador real (Twilio Verify o Firebase) detrás de configuración; verificar con una prueba manual documentada
-- [ ] 1.5 Compilar y depurar: `npm run verify` y `npm run test:integration` en verde
+- [ ] 1.5 Zonas: `GET /v1/zonas` (pública, sin polígono) y `PUT /v1/yo/zona` (una sola vez; devuelve un token de acceso con la zona nueva; 409 `zona_ya_elegida` si ya tenía); verificar con pruebas de integración
+- [ ] 1.6 Compilar y depurar: `npm run verify` y `npm run test:integration` en verde
 
 ## 2. Parte 2 · Sesiones revocables
 

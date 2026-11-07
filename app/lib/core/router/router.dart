@@ -27,7 +27,7 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: Routes.emergency,
         builder: (context, state) =>
-            const UnderConstructionScreen(title: 'Modo emergencia', lot: 'Lote D'),
+            const UnderConstructionScreen(title: 'Modo emergencia', lot: 'equipo en la Fase 1'),
       ),
     ],
   );

@@ -30,6 +30,15 @@
 - [ ] 4.3 Paso sobre la falta de señal y los números 116, 105 y 106; verificar el texto con el equipo
 - [ ] 4.4 Compilar y depurar (CI en verde)
 
+## 5. Parte 5 · Inicio de sesión, zona y cuenta
+
+- [ ] 5.1 Puerto `AuthRepository` y estado de sesión (`SignedOut`, `NeedsZone`, `SignedIn`) en `features/cuenta/domain/`, con un doble en memoria que arranca con la sesión de demostración; verificar con pruebas unitarias
+- [ ] 5.2 Pantallas de teléfono y código (teclado numérico, autocompletado del código, reenvío con cuenta regresiva, errores `codigo_invalido` y `demasiados_intentos` en lenguaje simple); verificar con pruebas de widgets
+- [ ] 5.3 Pantalla "Elige tu zona" antes de mostrar el muro cuando el vecino no tiene zona; verificar con una prueba de widgets
+- [ ] 5.4 Pantalla "Mi cuenta" (`/cuenta`): cerrar sesión con aviso de que se borran los datos del celular, "Perdí mi teléfono" (cerrar todas las sesiones), modo sencillo y ver tutorial; verificar con pruebas de widgets
+- [ ] 5.5 Redirecciones del router según el estado de la sesión (`/ingresar`, `/elegir-zona`); verificar con una prueba que el muro no se ve sin sesión
+- [ ] 5.6 Compilar y depurar (CI en verde)
+
 ## Workflow follow-up
 
 - Archivar este change cuando el Lote A apruebe el último PR del lote.

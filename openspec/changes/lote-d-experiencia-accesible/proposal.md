@@ -16,6 +16,9 @@ con el motor de sincronización del Lote A. **Dueño: Lote D · Dificultad 2/5.*
 - **Estados visibles**: "Guardado en tu celular" destacado, "Actualizado hace X", aviso sin
   conexión y bandeja de "acciones por revisar" con el motivo del rechazo y una alternativa.
 - **Tutorial** interactivo sobre la pantalla real con "modo práctica" (no publica nada).
+- **Inicio de sesión, zona y cuenta**: teléfono y código, "Elige tu zona" y "Mi cuenta" (cerrar
+  sesión y teléfono perdido), sobre un doble de `AuthRepository` que el Lote A conecta a la API
+  del Lote B.
 - Textos en archivos de idioma (es-PE) listos para agregar quechua en la Fase 3; golden tests
   con letra grande.
 
@@ -28,6 +31,7 @@ humanitario (Fase 2), quechua (Fase 3).
 - `app/accesibilidad`: reglas de accesibilidad que cumple toda pantalla.
 - `app/publicar-en-tres-toques`: flujo de publicación más corto posible.
 - `app/visibilidad-de-estados`: el vecino siempre sabe qué se envió, qué no y qué tan frescos son los datos.
+- `app/inicio-de-sesion-y-cuenta`: entrar, elegir la zona y controlar la cuenta sin ayuda.
 - `app/tutorial`: aprender a usar la app sin miedo a equivocarse.
 
 ### Modified Capabilities
@@ -35,5 +39,5 @@ humanitario (Fase 2), quechua (Fase 3).
 ## Impact
 
 `app/lib/core/theme/`, `app/lib/core/ui/`, `app/lib/features/publicar/`,
-`app/lib/features/onboarding/`, `app/lib/features/solidaridad/presentation/`, `app/lib/l10n/`,
+`app/lib/features/onboarding/`, `app/lib/features/cuenta/` (nuevo), `app/lib/features/solidaridad/presentation/`, `app/lib/l10n/`,
 `app/test/` (widget y golden tests), `app/pubspec.yaml` (`showcaseview`).

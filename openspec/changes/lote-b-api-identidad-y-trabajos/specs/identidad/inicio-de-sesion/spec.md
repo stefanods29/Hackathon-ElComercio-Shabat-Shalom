@@ -37,3 +37,14 @@ El envío de códigos SHALL pasar por un puerto con un adaptador falso para desa
 #### Scenario: Pruebas automatizadas
 - **WHEN** corren las pruebas de integración
 - **THEN** usan el adaptador falso y ningún SMS sale del sistema
+
+### Requirement: Elegir la zona
+`GET /v1/zonas` SHALL listar las zonas disponibles sin su polígono, y `PUT /v1/yo/zona` MUST asignar la zona a un vecino que todavía no la tiene y devolver un token de acceso que ya la incluye.
+
+#### Scenario: Vecino nuevo elige su zona
+- **WHEN** un vecino sin zona elige la zona piloto
+- **THEN** recibe un token con esa zona y su siguiente sincronización trae el muro de la zona
+
+#### Scenario: Zona ya elegida
+- **WHEN** un vecino que ya tiene zona intenta cambiarla
+- **THEN** la API responde 409 `zona_ya_elegida`; cambiar de zona llega en la Fase 1
