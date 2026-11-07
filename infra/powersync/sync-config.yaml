@@ -1,0 +1,43 @@
+# yaml-language-server: $schema=https://unpkg.com/@powersync/service-sync-rules@latest/schema/sync_rules.json
+#
+# Sync Streams de la Fase 0 (sección 3.4 y 8 de la arquitectura).
+# Regla de oro: a cada celular llega SOLO lo que le corresponde.
+#   - Datos públicos de la zona → streams con auto_subscribe (llegan al conectar).
+#   - Datos sensibles → NUNCA en streams automáticos; solo streams bajo demanda por caso (Lote A).
+#
+# Claims del JWT que usan los streams (los emite la API en GET /v1/sync/credenciales):
+#   sub   → auth.user_id()          id del vecino
+#   zona  → auth.parameter('zona')  id de su zona
+#
+# Valida antes de subir:  cd backend && npm run sync:validate
+# El servicio no recarga este archivo solo: reinicia el contenedor de PowerSync tras cambiarlo.
+
+config:
+  edition: 3
+
+streams:
+  # Zona del vecino: nombre y distrito (el polígono no viaja al celular).
+  mi_zona:
+    auto_subscribe: true
+    priority: 1
+    query: SELECT id, nombre, distrito, actualizado_en FROM identidad.zonas WHERE id = auth.parameter('zona')
+
+  # Muro de favores de la zona. Ubicación solo aproximada (lat/lng redondeados en la API).
+  muro_de_mi_zona:
+    auto_subscribe: true
+    priority: 2
+    query: |
+      SELECT id, autor_id, zona_id, tipo, categoria, titulo, descripcion, lat, lng, estado,
+             tomada_por_id, version, vence_en, creado_en, actualizado_en
+      FROM solidaridad.publicaciones
+      WHERE zona_id = auth.parameter('zona') AND eliminado_en IS NULL
+
+  # Lo que el vecino publicó, aunque luego se haya mudado de zona.
+  mis_publicaciones:
+    auto_subscribe: true
+    priority: 2
+    query: |
+      SELECT id, autor_id, zona_id, tipo, categoria, titulo, descripcion, lat, lng, estado,
+             tomada_por_id, version, vence_en, creado_en, actualizado_en
+      FROM solidaridad.publicaciones
+      WHERE autor_id = auth.user_id() AND eliminado_en IS NULL

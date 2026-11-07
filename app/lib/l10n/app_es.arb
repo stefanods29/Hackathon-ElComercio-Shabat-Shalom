@@ -1,0 +1,31 @@
+{
+  "@@locale": "es",
+  "appName": "Vecinal",
+  "@appName": { "description": "Nombre de la app en la barra y el selector de tareas." },
+  "wallTitle": "Muro de favores",
+  "wallEmpty": "Todavía no hay publicaciones en tu zona.",
+  "publishAction": "Publicar",
+  "takeFavorAction": "Tomar favor",
+  "statusSavedOnPhone": "Guardado en tu celular",
+  "@statusSavedOnPhone": { "description": "Estado de envío: está en la cola local y nadie más lo recibió." },
+  "statusSavedOnPhoneDetail": "Todavía no se envió. Nadie más lo ha recibido.",
+  "statusSent": "Enviado",
+  "statusCouldNotComplete": "No se pudo completar",
+  "offline": "Sin conexión",
+  "dataFrom": "Estás viendo datos de {ago}; algunos pueden haber cambiado.",
+  "@dataFrom": {
+    "description": "Aviso de frescura sin conexión. {ago} es, por ejemplo, 'hace 5 minutos'.",
+    "placeholders": { "ago": { "type": "String" } }
+  },
+  "updatedAgo": "Actualizado {ago}",
+  "@updatedAgo": {
+    "placeholders": { "ago": { "type": "String" } }
+  },
+  "actionsToReview": "Acciones por revisar",
+  "underConstruction": "Esta pantalla la construye el {lot}.",
+  "@underConstruction": {
+    "placeholders": { "lot": { "type": "String" } }
+  },
+  "emergencyLifeRisk": "Si hay riesgo para la vida, llama al 116, 105 o 106.",
+  "connectsNeighbors": "Esta app conecta vecinos; no reemplaza a los servicios de emergencia."
+}

@@ -1,0 +1,376 @@
+openapi: 3.1.1
+info:
+  title: API de la app vecinal
+  version: 0.1.0
+  summary: Contrato de la Fase 0 (cimientos). Fuente de verdad para backend y app.
+  description: |
+    Contrato **primero el contrato, después el código**: cualquier cambio de la API se hace
+    aquí en el mismo PR que lo implementa, y CI lo valida.
+
+    Reglas que toda ruta cumple (sección 4.5 de la arquitectura):
+    - Errores en formato **Problem Details (RFC 9457)** con un `codigo` estable.
+    - Toda escritura que el celular envía desde su cola offline exige `Idempotency-Key`.
+      Un reintento con la misma clave y el mismo cuerpo devuelve la respuesta guardada
+      (200 con `Idempotent-Replayed: true` si fue un éxito, o el mismo rechazo).
+    - Cómo decide el celular: 2xx → *enviado*; 4xx salvo 408/429 → *no se pudo completar*
+      (rechazo definitivo, va a "acciones por revisar"); red caída, 408, 429 y 5xx → se
+      reintenta con espera exponencial y variación aleatoria.
+  license:
+    name: MIT
+    identifier: MIT
+servers:
+  - url: http://localhost:3000
+    description: Desarrollo local (infra/docker-compose.yml + npm run start:dev)
+tags:
+  - name: plataforma
+    description: Salud y claves públicas.
+  - name: identidad
+    description: Sesión y credenciales de sincronización.
+  - name: solidaridad
+    description: Muro de favores.
+security:
+  - tokenDeAcceso: []
+
+paths:
+  /v1/salud:
+    get:
+      tags: [plataforma]
+      operationId: revisarSalud
+      summary: Estado de la API y de la base de datos
+      security: []
+      responses:
+        '200':
+          description: Todo funciona.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Salud' }
+        '503':
+          description: La base de datos no responde.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Salud' }
+
+  /.well-known/jwks.json:
+    get:
+      tags: [plataforma]
+      operationId: obtenerJwks
+      summary: Claves públicas (JWKS) para validar los JWT ES256
+      description: La consulta PowerSync (`client_auth.jwks_uri`) para validar los tokens de sincronización.
+      security: []
+      responses:
+        '200':
+          description: Conjunto de claves públicas.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Jwks' }
+
+  /v1/dev/sesiones:
+    post:
+      tags: [identidad]
+      operationId: iniciarSesionDeDesarrollo
+      summary: 'SOLO DESARROLLO: inicia sesión con el teléfono de un vecino sembrado'
+      description: |
+        Responde 404 cuando `ENABLE_DEV_SESSION` está apagado (siempre en producción).
+        La reemplaza el inicio de sesión con OTP del Lote B.
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/SolicitudSesionDev' }
+      responses:
+        '201':
+          description: Sesión iniciada.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Sesion' }
+        '400': { $ref: '#/components/responses/SolicitudInvalida' }
+        '404': { $ref: '#/components/responses/NoEncontrado' }
+
+  /v1/sync/credenciales:
+    get:
+      tags: [identidad]
+      operationId: obtenerCredencialesDeSincronizacion
+      summary: Token para conectarse a PowerSync
+      description: |
+        Lo llama `fetchCredentials()` del conector de PowerSync. El token (audiencia `powersync`)
+        lleva `sub` (vecino) y `zona`, que usan los Sync Streams; zona y nivel se releen de la
+        base en cada emisión.
+      responses:
+        '200':
+          description: Credenciales vigentes.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/CredencialesSincronizacion' }
+        '401': { $ref: '#/components/responses/NoAutenticado' }
+        '403': { $ref: '#/components/responses/Prohibido' }
+
+  /v1/publicaciones:
+    post:
+      tags: [solidaridad]
+      operationId: publicarEnElMuro
+      summary: Publicar en el muro de favores (tercer toque)
+      description: |
+        El `id` lo genera el celular (UUIDv7). Si la publicación ya existía (reintento), responde
+        200 con la existente: nunca se duplica. Requiere nivel de confianza 1 y una zona.
+      parameters:
+        - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/NuevaPublicacion' }
+      responses:
+        '201':
+          description: Publicación creada.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Publicacion' }
+        '200':
+          description: Reintento; ya existía (misma Idempotency-Key o mismo id).
+          headers:
+            Idempotent-Replayed: { $ref: '#/components/headers/IdempotentReplayed' }
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Publicacion' }
+        '400': { $ref: '#/components/responses/SolicitudInvalida' }
+        '401': { $ref: '#/components/responses/NoAutenticado' }
+        '403': { $ref: '#/components/responses/Prohibido' }
+        '409': { $ref: '#/components/responses/Conflicto' }
+        '422': { $ref: '#/components/responses/NoProcesable' }
+
+  /v1/publicaciones/{id}/tomar:
+    post:
+      tags: [solidaridad]
+      operationId: tomarFavor
+      summary: Tomar un favor del muro
+      description: |
+        Un favor lo toma un solo vecino. Si dos lo toman sin conexión, el servidor decide: el
+        primero gana; el segundo recibe 409 con `codigo: favor_no_disponible` (o
+        `conflicto_de_version` si la publicación cambió). Repetir la acción ya aceptada no falla.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+        - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/TomarFavor' }
+      responses:
+        '200':
+          description: Favor tomado (o reintento de una acción ya aceptada).
+          headers:
+            Idempotent-Replayed: { $ref: '#/components/headers/IdempotentReplayed' }
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Publicacion' }
+        '400': { $ref: '#/components/responses/SolicitudInvalida' }
+        '401': { $ref: '#/components/responses/NoAutenticado' }
+        '403': { $ref: '#/components/responses/Prohibido' }
+        '404': { $ref: '#/components/responses/NoEncontrado' }
+        '409': { $ref: '#/components/responses/Conflicto' }
+        '422': { $ref: '#/components/responses/NoProcesable' }
+
+components:
+  securitySchemes:
+    tokenDeAcceso:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT ES256 (audiencia vecinal-api, 15 minutos)
+
+  parameters:
+    IdempotencyKey:
+      name: Idempotency-Key
+      in: header
+      required: true
+      description: UUIDv7 generado en el celular, uno por acción; todos los reintentos usan el mismo.
+      schema: { type: string, minLength: 8, maxLength: 255 }
+
+  headers:
+    IdempotentReplayed:
+      description: '`true` cuando la respuesta es la guardada de un intento anterior.'
+      schema: { type: string, enum: ['true'] }
+
+  responses:
+    SolicitudInvalida:
+      description: Datos inválidos o falta Idempotency-Key (`codigo` = validacion).
+      content:
+        application/problem+json:
+          schema: { $ref: '#/components/schemas/ProblemaDeValidacion' }
+    NoAutenticado:
+      description: Falta el token o venció (`codigo` = no_autenticado).
+      content:
+        application/problem+json:
+          schema: { $ref: '#/components/schemas/Problema' }
+    Prohibido:
+      description: El vecino no puede hacer esto (p. ej., nivel_de_confianza_insuficiente, fuera_de_tu_zona).
+      content:
+        application/problem+json:
+          schema: { $ref: '#/components/schemas/Problema' }
+    NoEncontrado:
+      description: El recurso no existe (`codigo` = recurso_no_encontrado).
+      content:
+        application/problem+json:
+          schema: { $ref: '#/components/schemas/Problema' }
+    Conflicto:
+      description: |
+        El estado actual lo impide: favor_no_disponible, conflicto_de_version, id_en_uso o
+        solicitud_en_curso (este último trae `Retry-After` y sí se reintenta).
+      content:
+        application/problem+json:
+          schema: { $ref: '#/components/schemas/Problema' }
+    NoProcesable:
+      description: Regla de negocio incumplida o Idempotency-Key reutilizada con otro contenido.
+      content:
+        application/problem+json:
+          schema: { $ref: '#/components/schemas/Problema' }
+
+  schemas:
+    Problema:
+      type: object
+      description: Problem Details (RFC 9457) con un código estable para el celular.
+      required: [type, title, status, codigo]
+      properties:
+        type: { type: string, examples: ['/problemas/favor-no-disponible'] }
+        title: { type: string, examples: ['Conflicto'] }
+        status: { type: integer, examples: [409] }
+        detail: { type: string, examples: ['Otro vecino ya tomó este favor o ya no está disponible.'] }
+        instance: { type: string, examples: ['/v1/publicaciones/0193.../tomar'] }
+        codigo: { type: string, examples: ['favor_no_disponible'] }
+      additionalProperties: true
+
+    ProblemaDeValidacion:
+      allOf:
+        - $ref: '#/components/schemas/Problema'
+        - type: object
+          required: [errores]
+          properties:
+            errores:
+              type: array
+              items:
+                type: object
+                required: [campo, mensaje]
+                properties:
+                  campo: { type: string, examples: ['titulo'] }
+                  mensaje: { type: string }
+
+    Salud:
+      type: object
+      required: [estado, baseDeDatos, hora]
+      properties:
+        estado: { type: string, enum: [ok, degradado] }
+        baseDeDatos: { type: string, enum: [ok, caida] }
+        hora: { type: string, format: date-time }
+
+    Jwks:
+      type: object
+      required: [keys]
+      properties:
+        keys:
+          type: array
+          items:
+            type: object
+            required: [kty, crv, x, y, kid, alg, use]
+            properties:
+              kty: { type: string, const: EC }
+              crv: { type: string, const: P-256 }
+              x: { type: string }
+              y: { type: string }
+              kid: { type: string }
+              alg: { type: string, const: ES256 }
+              use: { type: string, const: sig }
+
+    SolicitudSesionDev:
+      type: object
+      required: [telefono]
+      properties:
+        telefono: { type: string, pattern: '^\+[1-9][0-9]{7,14}$', examples: ['+51900000002'] }
+
+    Sesion:
+      type: object
+      required: [tokenDeAcceso, expiraEn, usuario]
+      properties:
+        tokenDeAcceso: { type: string }
+        expiraEn: { type: string, format: date-time }
+        usuario:
+          type: object
+          required: [id, nombreVisible, zonaId, nivel, roles]
+          properties:
+            id: { type: string, format: uuid }
+            nombreVisible: { type: string }
+            zonaId: { type: [string, 'null'], format: uuid }
+            nivel: { type: integer, minimum: 0, maximum: 3 }
+            roles:
+              type: array
+              items: { type: string, enum: [proveedor, moderador, coordinador, brigadista, administrador] }
+
+    CredencialesSincronizacion:
+      type: object
+      required: [endpoint, token, expiraEn]
+      properties:
+        endpoint: { type: string, format: uri, description: URL del servicio de PowerSync. }
+        token: { type: string, description: 'JWT ES256, audiencia powersync, claims sub y zona.' }
+        expiraEn: { type: string, format: date-time }
+
+    TipoPublicacion:
+      type: string
+      enum: [ofrezco, necesito, presto, dono, intercambio, movilidad]
+
+    Coordenadas:
+      type: object
+      description: Se guardan redondeadas a ~100 m; nunca la ubicación exacta de una persona.
+      required: [lat, lng]
+      properties:
+        lat: { type: number, minimum: -90, maximum: 90 }
+        lng: { type: number, minimum: -180, maximum: 180 }
+
+    NuevaPublicacion:
+      type: object
+      required: [id, tipo, categoria, titulo]
+      properties:
+        id: { type: string, format: uuid, description: UUIDv7 generado en el celular. }
+        tipo: { $ref: '#/components/schemas/TipoPublicacion' }
+        categoria: { type: string, minLength: 2, maxLength: 40, examples: [herramientas] }
+        titulo: { type: string, minLength: 3, maxLength: 120 }
+        descripcion: { type: [string, 'null'], maxLength: 2000 }
+        ubicacion:
+          oneOf:
+            - $ref: '#/components/schemas/Coordenadas'
+            - type: 'null'
+        venceEn: { type: [string, 'null'], format: date-time }
+
+    TomarFavor:
+      type: object
+      required: [versionVista]
+      properties:
+        versionVista:
+          type: integer
+          minimum: 1
+          description: Versión de la publicación que el vecino veía cuando tocó "Tomar".
+
+    Publicacion:
+      type: object
+      required:
+        [id, autorId, zonaId, tipo, categoria, titulo, descripcion, ubicacion, estado,
+         tomadaPorId, version, venceEn, creadoEn, actualizadoEn]
+      properties:
+        id: { type: string, format: uuid }
+        autorId: { type: string, format: uuid }
+        zonaId: { type: string, format: uuid }
+        tipo: { $ref: '#/components/schemas/TipoPublicacion' }
+        categoria: { type: string }
+        titulo: { type: string }
+        descripcion: { type: [string, 'null'] }
+        ubicacion:
+          oneOf:
+            - $ref: '#/components/schemas/Coordenadas'
+            - type: 'null'
+        estado: { type: string, enum: [abierta, en_curso, resuelta, cancelada] }
+        tomadaPorId: { type: [string, 'null'], format: uuid }
+        version: { type: integer, minimum: 1 }
+        venceEn: { type: [string, 'null'], format: date-time }
+        creadoEn: { type: string, format: date-time }
+        actualizadoEn: { type: string, format: date-time }

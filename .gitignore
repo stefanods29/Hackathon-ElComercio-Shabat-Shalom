@@ -1,0 +1,19 @@
+# Secretos: nunca se suben (variables documentadas en backend/.env.example)
+.env
+.env.*
+!.env.example
+
+# Dependencias y salidas de compilación
+node_modules/
+dist/
+coverage/
+*.tsbuildinfo
+
+# Scripts locales de cada persona (rutas de su PC)
+*.local.cmd
+*.local.sh
+
+# Sistema operativo y editores
+.DS_Store
+Thumbs.db
+*.swp

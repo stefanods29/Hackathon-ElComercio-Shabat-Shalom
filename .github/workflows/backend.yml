@@ -1,0 +1,70 @@
+name: Backend
+
+on:
+  push:
+    branches: [main]
+    paths: ['backend/**', 'infra/powersync/**', 'contracts/**', '.github/workflows/backend.yml']
+  pull_request:
+    paths: ['backend/**', 'infra/powersync/**', 'contracts/**', '.github/workflows/backend.yml']
+  workflow_dispatch:
+
+concurrency:
+  group: backend-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  verificar:
+    name: Tipos, lint, fronteras, Sync Streams, pruebas y build
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '26'
+          cache: npm
+          cache-dependency-path: backend/package-lock.json
+      - run: npm ci
+      - run: npm run typecheck
+      - run: npm run lint
+      - run: npm run format:check
+      - run: npm run boundaries
+      - run: npm run sync:validate
+      - run: npm test
+      - run: npm run build
+
+  integracion:
+    name: Integración con PostgreSQL 18 + PostGIS 3.6
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgis/postgis:18-3.6
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: postgres
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 15
+    defaults:
+      run:
+        working-directory: backend
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '26'
+          cache: npm
+          cache-dependency-path: backend/package-lock.json
+      - run: npm ci
+      - run: npm run test:integration
+        env:
+          DATABASE_URL_ADMIN: postgres://postgres:postgres@localhost:5432/postgres

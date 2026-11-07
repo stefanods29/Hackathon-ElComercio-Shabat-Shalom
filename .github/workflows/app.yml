@@ -1,0 +1,80 @@
+name: App
+
+on:
+  push:
+    branches: [main]
+    paths: ['app/**', '.github/workflows/app.yml']
+  pull_request:
+    paths: ['app/**', '.github/workflows/app.yml']
+  workflow_dispatch:
+
+concurrency:
+  group: app-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+env:
+  FLUTTER_VERSION: '3.47.9'
+
+jobs:
+  verificar:
+    name: Análisis, pruebas, formato y APK
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: app
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          cache: true
+      - run: flutter --version
+      - name: Generar carpetas de plataforma si aún no están en el repo
+        run: '[ -d android ] || flutter create --platforms=android,ios --org pe.shabatshalom --project-name vecinal .'
+      - run: flutter pub get
+      - run: flutter gen-l10n
+      - run: flutter analyze
+      - run: flutter test
+      - name: Formato
+        run: |
+          dart format lib test
+          git diff --exit-code -- lib test > /dev/null || {
+            git diff -- lib test > "$RUNNER_TEMP/formato.patch"
+            echo "::error::El código no está formateado. Corre 'dart format lib test' (parche en los artefactos)."
+            exit 1
+          }
+      - name: Subir el parche de formato
+        if: failure()
+        uses: actions/upload-artifact@v7
+        with:
+          name: parche-formato
+          path: ${{ runner.temp }}/formato.patch
+          if-no-files-found: ignore
+      - run: flutter build apk --debug
+
+  ios:
+    name: Build de iOS (sin firma)
+    if: github.event_name != 'pull_request'
+    runs-on: macos-latest
+    defaults:
+      run:
+        working-directory: app
+    steps:
+      - uses: actions/checkout@v7
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          cache: true
+      - name: Generar carpetas de plataforma si aún no están en el repo
+        run: '[ -d ios ] || flutter create --platforms=android,ios --org pe.shabatshalom --project-name vecinal .'
+      - run: flutter pub get
+      - run: flutter build ios --debug --no-codesign

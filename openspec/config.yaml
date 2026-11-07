@@ -1,0 +1,42 @@
+schema: spec-driven
+
+context: |
+  Language: es
+  All artifacts must be written in es.
+  Keep OpenSpec structural headings and SHALL/MUST keywords in English.
+
+  Proyecto: app vecinal de servicios, solidaridad y emergencias (Hackathon El Comercio).
+  La arquitectura aprobada está en docs/arquitectura/ (secciones 1–15) y manda sobre cualquier
+  suposición. Las correcciones posteriores viven en docs/adr/.
+  Fase actual: Fase 0 · Prueba técnica (sección 12), dividida en los Lotes A, B, C y D
+  (docs/fase-0/plan-de-lotes.md). Cada lote es un change de OpenSpec.
+  Promesas que ningún change puede romper:
+  - Sin conexión se consulta lo descargado y las acciones quedan en cola; nada se envía y la app
+    lo dice ("Guardado en tu celular"). Nunca prometer envíos inmediatos en segundo plano.
+  - Datos sensibles (pedidos de ayuda, ubicación exacta, salud) nunca se replican de forma masiva.
+  - Las notificaciones no llevan datos sensibles en el texto.
+  - Toda escritura desde el celular lleva Idempotency-Key y es segura de reintentar.
+  - Cada módulo del backend es dueño de su esquema de Postgres; nadie lee tablas ajenas.
+
+rules:
+  proposal:
+    - Indicar el lote dueño (A, B, C o D) y la sección de la arquitectura que implementa.
+    - Declarar explícitamente qué queda fuera de alcance y en qué fase se hará.
+  design:
+    - Incluir al menos un diagrama Mermaid (flujo, secuencia o estados) del cambio.
+    - Listar los puntos de contacto con otros lotes (archivos compartidos, contratos, eventos).
+  tasks:
+    - Agrupar las tareas en "Parte N" de tamaño revisable; cada parte se entrega en un PR propio.
+    - Cada tarea indica cómo se verifica (prueba, comando o evidencia).
+    - La última tarea de cada parte es compilar y depurar lo tocado (backend y/o app) en CI.
+  specs:
+    - Escribir los escenarios desde lo que observa el vecino, el coordinador o el sistema.
+
+operations:
+  apply:
+    guidance:
+      - Trabajar una parte a la vez, en la rama lote-<letra>/parte-<n>-<tema>.
+      - Al terminar una parte, abrir el PR con la plantilla y pedir la revisión del Lote A.
+  archive:
+    guidance:
+      - Archivar solo después de que el Lote A apruebe el último PR del lote y CI esté en verde.

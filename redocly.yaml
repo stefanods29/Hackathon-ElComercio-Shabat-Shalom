@@ -1,0 +1,8 @@
+# Reglas para validar contracts/openapi.yaml (`npx @redocly/cli lint contracts/openapi.yaml`).
+extends:
+  - recommended
+rules:
+  # El servidor de desarrollo local es intencional.
+  no-server-example.com: off
+  # /v1/salud y el JWKS son públicos y no tienen errores de cliente.
+  operation-4xx-response: warn

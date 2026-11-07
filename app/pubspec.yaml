@@ -1,0 +1,33 @@
+name: vecinal
+description: App vecinal de servicios, solidaridad y emergencias (Fase 0 · cimientos).
+publish_to: none
+version: 0.1.0+1
+
+environment:
+  sdk: ^3.12.0
+  flutter: ">=3.47.0"
+
+# Los paquetes de cada lote (powersync, maplibre_gl, firebase_messaging, showcaseview…) los
+# agrega el lote dueño con `flutter pub add`, en su propia rama, y se revisan en su PR.
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_localizations:
+    sdk: flutter
+  intl: any
+  flutter_riverpod: ^3.4.3
+  go_router: ^18.1.3
+  dio: ^5.11.1
+  uuid: ^4.6.0
+  flutter_secure_storage: ^11.2.0
+  connectivity_plus: ^7.3.2
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+  mocktail: ^1.0.5
+
+flutter:
+  uses-material-design: true
+  generate: true

@@ -1,0 +1,34 @@
+# yaml-language-server: $schema=https://unpkg.com/@powersync/service-schema@latest/json-schema/powersync-config.json
+#
+# Servicio de PowerSync auto-hospedado (desarrollo). `!env PS_*` toma el valor del entorno.
+
+telemetry:
+  disable_telemetry_sharing: true
+
+# Origen: la base de la API. El rol powersync_rol solo puede LEER lo que está en la publicación.
+replication:
+  connections:
+    - type: postgresql
+      uri: !env PS_DATA_SOURCE_URI
+      sslmode: disable
+
+# Almacén de buckets de PowerSync (otra base en el mismo servidor, solo en desarrollo).
+storage:
+  type: postgresql
+  uri: !env PS_STORAGE_SOURCE_URI
+  sslmode: disable
+
+port: !env PS_PORT
+
+# Sync Streams: qué llega a cada celular. Valídalo con `cd backend && npm run sync:validate`.
+sync_config:
+  path: sync-config.yaml
+
+# Los tokens los firma la API (ES256) y su clave pública está en /.well-known/jwks.json.
+client_auth:
+  jwks_uri: !env PS_JWKS_URL
+  audience: ["powersync"]
+
+api:
+  tokens:
+    - cambia-este-token-solo-para-desarrollo

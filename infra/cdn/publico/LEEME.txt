@@ -1,0 +1,1 @@
+# Teselas PMTiles y JSON públicos (los genera el Lote C). Este archivo mantiene la carpeta en git.
