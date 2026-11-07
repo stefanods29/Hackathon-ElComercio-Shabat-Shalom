@@ -17,6 +17,7 @@ describe('loadConfig', () => {
     expect(config.PORT).toBe(3000);
     expect(config.ENABLE_DEV_SESSION).toBe(false);
     expect(config.JWT_ACCESS_MINUTES).toBe(15);
+    expect(config.JOB_QUEUE_DRIVER).toBe('pgboss');
   });
 
   it('acepta la clave PEM en una sola línea con \\n escritos', () => {
@@ -35,5 +36,16 @@ describe('loadConfig', () => {
   it('falla rápido y con el motivo si falta algo', () => {
     expect(() => loadConfig({ ...base, DATABASE_URL: 'mysql://x' })).toThrow(/DATABASE_URL/);
     expect(() => loadConfig({ ...base, JWT_PRIVATE_KEY_PEM: 'nada' })).toThrow(/PKCS#8/);
+  });
+
+  it('reserva la cola en memoria para pruebas', () => {
+    expect(
+      loadConfig({ ...base, NODE_ENV: 'test', JOB_QUEUE_DRIVER: 'memory' }).JOB_QUEUE_DRIVER,
+    ).toBe('memory');
+    for (const NODE_ENV of ['development', 'production']) {
+      expect(() => loadConfig({ ...base, NODE_ENV, JOB_QUEUE_DRIVER: 'memory' })).toThrow(
+        /JOB_QUEUE_DRIVER/,
+      );
+    }
   });
 });

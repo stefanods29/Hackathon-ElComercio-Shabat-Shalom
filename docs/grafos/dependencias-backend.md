@@ -32,6 +32,10 @@ subgraph src["src"]
     src_shared_queues["queues"]
     src_shared_shared_module_ts["shared.module.ts"]
   end
+  subgraph src_workers["workers"]
+    src_workers_main_ts["main.ts"]
+    src_workers_workers_module_ts["workers.module.ts"]
+  end
 end
 src_app_module_ts-->src_modules_directorio
 src_app_module_ts-->src_modules_emergencias
@@ -71,6 +75,11 @@ src_shared_idempotency-->src_shared_auth
 src_shared_idempotency-->src_shared_domain
 src_shared_outbox-->src_shared_db
 src_shared_outbox-->src_shared_domain
+src_shared_outbox-->src_shared_queues
+src_shared_queues-->src_shared_db
+src_shared_queues-->src_shared_config
+src_shared_queues-->src_shared_domain
+src_shared_queues-->src_shared_idempotency
 src_shared_shared_module_ts-->src_shared_api
 src_shared_shared_module_ts-->src_shared_auth
 src_shared_shared_module_ts-->src_shared_config
@@ -80,4 +89,12 @@ src_shared_shared_module_ts-->src_shared_health
 src_shared_shared_module_ts-->src_shared_idempotency
 src_shared_shared_module_ts-->src_shared_outbox
 src_shared_shared_module_ts-->src_shared_queues
+src_workers_main_ts-->src_shared_config
+src_workers_main_ts-->src_workers_workers_module_ts
+src_workers_workers_module_ts-->src_modules_notificaciones
+src_workers_workers_module_ts-->src_shared_config
+src_workers_workers_module_ts-->src_shared_db
+src_workers_workers_module_ts-->src_shared_outbox
+src_workers_workers_module_ts-->src_shared_queues
+src_workers_workers_module_ts-->src_shared_shared_module_ts
 ```

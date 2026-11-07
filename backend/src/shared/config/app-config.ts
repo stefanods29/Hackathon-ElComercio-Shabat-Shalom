@@ -20,8 +20,16 @@ export const configSchema = z
     POWERSYNC_URL: z.url(),
     ENABLE_DEV_SESSION: z.stringbool().default(false),
     IDEMPOTENCY_RETENTION_HOURS: z.coerce.number().int().min(1).default(168),
+    JOB_QUEUE_DRIVER: z.enum(['memory', 'pgboss']).default('pgboss'),
   })
   .superRefine((config, ctx) => {
+    if (config.JOB_QUEUE_DRIVER === 'memory' && config.NODE_ENV !== 'test') {
+      ctx.addIssue({
+        code: 'custom',
+        path: ['JOB_QUEUE_DRIVER'],
+        message: 'la cola en memoria solo puede usarse en pruebas',
+      });
+    }
     if (config.NODE_ENV === 'production' && config.ENABLE_DEV_SESSION) {
       ctx.addIssue({
         code: 'custom',

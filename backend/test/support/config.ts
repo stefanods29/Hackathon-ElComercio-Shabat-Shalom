@@ -12,6 +12,7 @@ export function testPrivateKey(): string {
 export function testConfig(overrides: Partial<Record<string, string>> = {}): AppConfig {
   return loadConfig({
     NODE_ENV: 'test',
+    JOB_QUEUE_DRIVER: 'memory',
     DATABASE_URL: 'postgres://usuario:clave@localhost:5432/vecinal',
     JWT_PRIVATE_KEY_PEM: testPrivateKey(),
     POWERSYNC_URL: 'http://localhost:8080',

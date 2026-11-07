@@ -45,11 +45,24 @@ flowchart LR
 1. **pg-boss** (cola sobre PostgreSQL) detrás de `JobQueue`, como dice la sección 4.3;
    se reemplaza por BullMQ + Valkey en la Fase 3 sin tocar a quien encola.
 2. **Relay con `FOR UPDATE SKIP LOCKED`** para que varias réplicas no publiquen dos veces el mismo
-   evento; marcar `publicado_en` en la misma transacción que el `send` a la cola.
+   evento; marcar `publicado_en` en la misma transacción que el `send` a la cola. El adaptador
+   `fromKysely` de pg-boss 12.38.1 comparte la transacción de Kysely; un savepoint por evento
+   permite persistir el intento fallido y continuar el lote sin dejar trabajos huérfanos.
 3. **Workers en un proceso aparte** (`src/workers/main.ts`) con el mismo código del monolito.
 4. **Hash del refresh token** (SHA-256 con sal del servidor); nunca se guarda el token.
 5. **Proveedor OTP**: adaptador falso en desarrollo; el real (Twilio Verify o Firebase Auth) se
    elige con la decisión abierta 4 de la sección 13.3.
+
+La API tiene supervisión y programación apagadas. Solo el proceso de workers registra
+manejadores, ejecuta el relay sin solapar lotes y programa la limpieza a las 04:00 de
+`America/Lima`. Al cerrar, primero espera al relay y después a los trabajos activos, antes de
+cerrar la conexión de negocio. Las colas sin manejador conservan sus trabajos pendientes para
+que el Lote C pueda conectar sus consumidores.
+
+`JobOptions.retries` se traduce a `retryLimit`: cinco reintentos además del intento inicial.
+La cola `<nombre>.fallidos` conserva la carga y el error final. Las claves `singletonKey`
+deduplican trabajos pendientes o activos; los manejadores siguen siendo idempotentes porque
+la entrega es al menos una vez. El catálogo de contratos está en `docs/fase-0/trabajos.md`.
 
 ### Puntos de contacto con otros lotes
 

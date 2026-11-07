@@ -60,7 +60,7 @@ module.exports = {
       name: 'only-app-module-composes',
       severity: 'error',
       comment: 'Solo la raíz de composición importa los módulos de NestJS de todos.',
-      from: { path: '^src/', pathNot: ['^src/app\\.module\\.ts$', '^src/modules/'] },
+      from: { path: '^src/', pathNot: ['^src/app\\.module\\.ts$', '^src/modules/', '^src/workers/'] },
       to: { path: '^src/modules/' },
     },
     {

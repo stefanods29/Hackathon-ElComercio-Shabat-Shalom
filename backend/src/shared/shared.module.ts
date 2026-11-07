@@ -1,4 +1,4 @@
-import { Global, Module } from '@nestjs/common';
+import { type DynamicModule, Global, Module } from '@nestjs/common';
 import { APP_FILTER, APP_GUARD, APP_INTERCEPTOR, APP_PIPE } from '@nestjs/core';
 import type { Kysely } from 'kysely';
 import { ProblemDetailsFilter } from './api/problem-details.filter.js';
@@ -18,6 +18,19 @@ import { OUTBOX_WRITER } from './outbox/outbox.js';
 import { PostgresOutboxWriter } from './outbox/outbox.postgres.js';
 import { JOB_QUEUE } from './queues/job-queue.js';
 import { InMemoryJobQueue } from './queues/job-queue.memory.js';
+import { PgBossJobQueue } from './queues/job-queue.pgboss.js';
+import { JobHandlerRegistry } from './queues/job-handler.registry.js';
+
+function queueProvider(worker = false) {
+  return {
+    provide: JOB_QUEUE,
+    inject: [APP_CONFIG],
+    useFactory: (config: AppConfig) =>
+      config.JOB_QUEUE_DRIVER === 'memory'
+        ? new InMemoryJobQueue()
+        : new PgBossJobQueue(config, { worker }),
+  };
+}
 
 /**
  * Shared core: RFC 9457 errors, Standard Schema validation, global authentication,
@@ -36,13 +49,17 @@ import { InMemoryJobQueue } from './queues/job-queue.memory.js';
         new PostgresIdempotencyStore(db, config.IDEMPOTENCY_RETENTION_HOURS),
     },
     { provide: OUTBOX_WRITER, useClass: PostgresOutboxWriter },
-    // Lot B replaces this adapter with the pg-boss one without touching who enqueues.
-    { provide: JOB_QUEUE, useClass: InMemoryJobQueue },
+    queueProvider(),
+    JobHandlerRegistry,
     { provide: APP_FILTER, useClass: ProblemDetailsFilter },
     { provide: APP_PIPE, useFactory: createValidationPipe },
     { provide: APP_GUARD, useClass: AuthGuard },
     { provide: APP_INTERCEPTOR, useClass: IdempotencyInterceptor },
   ],
-  exports: [CLOCK, TokenService, IDEMPOTENCY_STORE, OUTBOX_WRITER, JOB_QUEUE],
+  exports: [CLOCK, TokenService, IDEMPOTENCY_STORE, OUTBOX_WRITER, JOB_QUEUE, JobHandlerRegistry],
 })
-export class SharedModule {}
+export class SharedModule {
+  static forWorkers(): DynamicModule {
+    return { module: SharedModule, providers: [queueProvider(true)] };
+  }
+}

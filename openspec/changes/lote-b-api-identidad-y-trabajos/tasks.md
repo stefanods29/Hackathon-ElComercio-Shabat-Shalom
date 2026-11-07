@@ -24,9 +24,9 @@
 
 ## 4. Parte 4 · Eventos y trabajos
 
-- [ ] 4.1 Adaptador pg-boss de `JobQueue` (prioridad, reintentos, cola de fallidos) en el esquema `colas`; verificar con pruebas de integración
-- [ ] 4.2 Relay del outbox con `SKIP LOCKED`; verificar con una prueba de dos relays en paralelo sin duplicados
-- [ ] 4.3 Proceso `src/workers/main.ts`, limpieza programada (idempotencia vencida, outbox antiguo) y contrato del trabajo `notificaciones.enviar_aviso` para el Lote C; verificar con pruebas
+- [x] 4.1 Adaptador pg-boss de `JobQueue` (prioridad, reintentos, cola de fallidos) en el esquema `colas`; verificar con pruebas de integración
+- [x] 4.2 Relay del outbox con `SKIP LOCKED`; verificar con una prueba de dos relays en paralelo sin duplicados
+- [x] 4.3 Proceso `src/workers/main.ts`, limpieza programada (idempotencia vencida, outbox antiguo) y contrato del trabajo `notificaciones.enviar_aviso` para el Lote C; verificar con pruebas
 - [ ] 4.4 Compilar y depurar (CI en verde)
 
 ## 5. Parte 5 · Muro completo
