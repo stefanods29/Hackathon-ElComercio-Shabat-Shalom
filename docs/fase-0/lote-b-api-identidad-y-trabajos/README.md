@@ -17,7 +17,7 @@
 |---|---|---|---|---|
 | 1 | Inicio de sesión con OTP y elección de zona | Pendiente | Por asignar | — |
 | 2 | Sesiones revocables | Pendiente | Por asignar | — |
-| 3 | Roles y niveles de confianza | Pendiente | Por asignar | — |
+| 3 | Roles y niveles de confianza | En curso | JDiazD33 (con Kimi como asistente) | — |
 | 4 | Eventos y trabajos (pg-boss, outbox y workers) | Hecha | JDiazD33 | [#5](https://github.com/stefanods29/Hackathon-ElComercio-Shabat-Shalom/pull/5) |
 | 5 | Muro completo | Pendiente | Por asignar | — |
 | 6 | Capacidad (k6) | Pendiente | Por asignar | — |
@@ -434,15 +434,19 @@ Rama: `lote-b/parte-3-roles` · Tareas 3.1–3.3 · Spec: `specs/identidad/roles
    `reflector.getAllAndOverride`; si la ruta es `@Public()` o no tiene metadata, deja pasar. Si
    falta nivel: `BusinessRuleViolation('nivel_de_confianza_insuficiente', 'Para hacer esto
    necesitas nivel N de confianza.', 'forbidden', { nivelActual, nivelRequerido })`. Si falta
-   rol: `BusinessRuleViolation('rol_requerido', …, 'forbidden', { rolesRequeridos })`. El rol
-   `administrador` **no** reemplaza a otros roles de forma implícita.
+   rol: `BusinessRuleViolation('rol_requerido', …, 'forbidden', { rolesRequeridos })`. Con varios
+   roles basta tener uno; si también se exige nivel, deben cumplirse ambas condiciones. La
+   metadata del método sobrescribe la de su clase. El rol `administrador` **no** reemplaza a otros
+   roles de forma implícita.
 3. Regístralo en `shared.module.ts` como un segundo `APP_GUARD`, **después** de `AuthGuard`: Nest
    ejecuta los guards globales en el orden en que se registran.
 4. Aplícalo: `POST /v1/publicaciones` y `POST /v1/publicaciones/{id}/tomar` con
    `@RequireTrustLevel(1)`. La regla del dominio de publicar se mantiene como segunda defensa.
    Documenta el nivel en el contrato con `x-nivel-minimo: 1` y en la descripción de cada ruta.
-5. Los cambios de nivel, rol o zona entran en el siguiente token: ya ocurre porque
-   `RefreshSession` y `forSync` leen al usuario desde la base. Agrega una prueba que lo demuestre.
+5. Los cambios de nivel, rol o zona entran en el siguiente token o en las siguientes credenciales
+   de sincronización. Esta entrega lo verifica con `IssueCredentials.forSync`, que relee al usuario
+   desde la base. `RefreshSession` pertenece a la Parte 2 y todavía no existe en esta rama: deberá
+   reutilizar esa lectura al implementarse; aquí no se implementa ni se prueba el refresh.
 6. Pruebas: unitarias del guard con un controlador de prueba, como en
    `idempotency.interceptor.spec.ts` (sin metadata, nivel suficiente o insuficiente, rol presente
    o ausente, ambos a la vez). De punta a punta: `dario` (nivel 0) intenta tomar un favor y recibe

@@ -4,6 +4,7 @@ import type { Kysely } from 'kysely';
 import { ProblemDetailsFilter } from './api/problem-details.filter.js';
 import { createValidationPipe } from './api/validation.js';
 import { AuthGuard } from './auth/auth.guard.js';
+import { AuthorizationGuard } from './auth/authorization.guard.js';
 import { JwksController } from './auth/jwks.controller.js';
 import { TokenService } from './auth/token.service.js';
 import { APP_CONFIG, type AppConfig } from './config/app-config.js';
@@ -54,6 +55,7 @@ function queueProvider(worker = false) {
     { provide: APP_FILTER, useClass: ProblemDetailsFilter },
     { provide: APP_PIPE, useFactory: createValidationPipe },
     { provide: APP_GUARD, useClass: AuthGuard },
+    { provide: APP_GUARD, useClass: AuthorizationGuard },
     { provide: APP_INTERCEPTOR, useClass: IdempotencyInterceptor },
   ],
   exports: [CLOCK, TokenService, IDEMPOTENCY_STORE, OUTBOX_WRITER, JOB_QUEUE, JobHandlerRegistry],

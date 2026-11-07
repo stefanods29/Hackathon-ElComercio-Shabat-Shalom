@@ -1,9 +1,12 @@
 import type { INestApplication } from '@nestjs/common';
 import { createLocalJWKSet, jwtVerify } from 'jose';
+import { sql } from 'kysely';
 import request from 'supertest';
 import { v7 as uuidv7 } from 'uuid';
 import { inject } from 'vitest';
-import { NEIGHBORS, PILOT_ZONE } from '../../scripts/seed-data.js';
+import { NEIGHBORS, NEIGHBOR_ZONE, PILOT_ZONE } from '../../scripts/seed-data.js';
+import { IssueCredentials } from '../../src/modules/identidad/application/issue-credentials.js';
+import { createKysely } from '../../src/shared/db/connection.js';
 import { createTestApp } from '../support/app.js';
 
 /**
@@ -109,7 +112,33 @@ describe('API v1 (de punta a punta)', () => {
       .set('Idempotency-Key', uuidv7())
       .send({ id: uuidv7(), tipo: 'necesito', categoria: 'agua', titulo: 'Necesito agua' })
       .expect(403);
-    expect(lowTrust.body.codigo).toBe('nivel_de_confianza_insuficiente');
+    expect(lowTrust.body).toMatchObject({
+      codigo: 'nivel_de_confianza_insuficiente',
+      nivelActual: 0,
+      nivelRequerido: 1,
+    });
+  });
+
+  it('tomar: Darío, nivel 0, recibe 403 y el nivel requerido', async () => {
+    const id = uuidv7();
+    await request(server())
+      .post('/v1/publicaciones')
+      .set(withToken('ana'))
+      .set('Idempotency-Key', id)
+      .send({ id, tipo: 'necesito', categoria: 'agua', titulo: 'Necesito ayuda con agua' })
+      .expect(201);
+
+    const response = await request(server())
+      .post(`/v1/publicaciones/${id}/tomar`)
+      .set(withToken('dario'))
+      .set('Idempotency-Key', uuidv7())
+      .send({ versionVista: 1 })
+      .expect(403);
+    expect(response.body).toMatchObject({
+      codigo: 'nivel_de_confianza_insuficiente',
+      nivelActual: 0,
+      nivelRequerido: 1,
+    });
   });
 
   it('dos vecinos toman el mismo favor: el primero gana, el segundo entiende por qué', async () => {
@@ -160,6 +189,51 @@ describe('API v1 (de punta a punta)', () => {
       issuer: 'vecinal-api',
     });
     expect(payload).toMatchObject({ sub: NEIGHBORS.beto.id, zona: PILOT_ZONE.id });
+  });
+
+  it('las siguientes credenciales de sincronización releen nivel, roles y zona de la base', async () => {
+    const db = createKysely(inject('databaseUrl'), 1);
+    const issueCredentials = app.get(IssueCredentials);
+    const jwks = (await request(server()).get('/.well-known/jwks.json')).body;
+    const keySet = createLocalJWKSet(jwks);
+    const verifySync = (token: string) =>
+      jwtVerify(token, keySet, { audience: 'powersync', issuer: 'vecinal-api' });
+
+    try {
+      const before = await issueCredentials.forSync(NEIGHBORS.beto.id);
+      const beforePayload = await verifySync(before.token);
+      expect(beforePayload.payload).toMatchObject({
+        sub: NEIGHBORS.beto.id,
+        nivel: NEIGHBORS.beto.trustLevel,
+        roles: NEIGHBORS.beto.roles,
+        zona: PILOT_ZONE.id,
+      });
+
+      await sql`
+        UPDATE identidad.usuarios
+        SET nivel_confianza = 3, roles = ${sql.val(['brigadista'])}::text[],
+            zona_id = ${NEIGHBOR_ZONE.id}, actualizado_en = now()
+        WHERE id = ${NEIGHBORS.beto.id}
+      `.execute(db);
+
+      const after = await issueCredentials.forSync(NEIGHBORS.beto.id);
+      const afterPayload = await verifySync(after.token);
+      expect(afterPayload.payload).toMatchObject({
+        sub: NEIGHBORS.beto.id,
+        nivel: 3,
+        roles: ['brigadista'],
+        zona: NEIGHBOR_ZONE.id,
+      });
+    } finally {
+      await sql`
+        UPDATE identidad.usuarios
+        SET nivel_confianza = ${NEIGHBORS.beto.trustLevel},
+            roles = ${sql.val(NEIGHBORS.beto.roles)}::text[], zona_id = ${PILOT_ZONE.id},
+            actualizado_en = now()
+        WHERE id = ${NEIGHBORS.beto.id}
+      `.execute(db);
+      await db.destroy();
+    }
   });
 });
 

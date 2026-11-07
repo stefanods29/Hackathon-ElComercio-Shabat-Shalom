@@ -2,7 +2,7 @@ import { Body, Controller, HttpCode, Param, Post, Res } from '@nestjs/common';
 import type { Response } from 'express';
 import { V1 } from '../../../shared/api/routes.js';
 import type { Actor } from '../../../shared/auth/actor.js';
-import { CurrentActor } from '../../../shared/auth/decorators.js';
+import { CurrentActor, RequireTrustLevel } from '../../../shared/auth/decorators.js';
 import { Idempotent } from '../../../shared/idempotency/idempotent.decorator.js';
 import { PublishPost } from '../application/publish-post.js';
 import { TakeFavor } from '../application/take-favor.js';
@@ -29,6 +29,7 @@ export class PostsController {
 
   /** 201 when created; 200 when the phone retried and it already existed (no duplicates). */
   @Post()
+  @RequireTrustLevel(1)
   @Idempotent()
   @HttpCode(201)
   async publish(
@@ -56,6 +57,7 @@ export class PostsController {
 
   /** 409 `favor_no_disponible` if another neighbor took it first; 409 `conflicto_de_version` if it changed. */
   @Post(':id/tomar')
+  @RequireTrustLevel(1)
   @Idempotent()
   @HttpCode(200)
   async take(
