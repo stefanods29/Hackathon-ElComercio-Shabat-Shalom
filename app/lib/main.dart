@@ -14,6 +14,8 @@ import 'package:vecinal/core/sync/dev_sync_session.dart';
 import 'package:vecinal/core/sync/local_sync_database.dart';
 import 'package:vecinal/core/sync/powersync_sync_service.dart';
 import 'package:vecinal/core/sync/vecinal_connector.dart';
+import 'package:vecinal/features/emergencias/assigned_case_cache.dart';
+import 'package:vecinal/features/emergencias/assigned_case_provider.dart';
 import 'package:vecinal/features/solidaridad/data/powersync_post_repository.dart';
 import 'package:vecinal/features/solidaridad/data/providers.dart';
 
@@ -26,14 +28,16 @@ Future<void> main() async {
 
   final environment = AppEnvironment.fromDefines();
   final directory = await getApplicationSupportDirectory();
+  const store = SystemSecureStore();
   final local = await LocalSyncDatabase.open(
     path: path.join(directory.path, 'vecinal-demo.db'),
-    store: const SystemSecureStore(),
+    store: store,
     accountId: LocalSession.demo.neighborId,
   );
   final session = DevSyncSession(createApiClient(environment, getToken: () async => null));
   final api = createApiClient(environment, getToken: session.getToken);
   late final PowerSyncSyncService sync;
+  late final AssignedCaseCache cases;
   final connector = VecinalConnector(
     api,
     endpointOverride: environment.powersyncUrl.isEmpty ? null : environment.powersyncUrl,
@@ -42,7 +46,7 @@ Future<void> main() async {
       unawaited(
         Future<void>(() async {
           try {
-            await sync.disconnectAndWipeLocalData();
+            await Future.wait([sync.disconnectAndWipeLocalData(), cases.wipeForSignOut()]);
           } catch (error, stack) {
             FlutterError.reportError(FlutterErrorDetails(exception: error, stack: stack));
           }
@@ -51,7 +55,24 @@ Future<void> main() async {
     },
   );
   sync = PowerSyncSyncService(local, connector);
+  cases = AssignedCaseCache(
+    path: path.join(directory.path, 'vecinal-demo-cases.db'),
+    store: store,
+    accountId: LocalSession.demo.neighborId,
+    connector: connector,
+    clock: DateTime.now,
+  );
   await sync.connect();
+  await cases.restore();
+  AppLifecycleListener(
+    onResume: () {
+      unawaited(
+        cases.review().catchError((Object error, StackTrace stack) {
+          FlutterError.reportError(FlutterErrorDetails(exception: error, stack: stack));
+        }),
+      );
+    },
+  );
   final posts = PowerSyncPostRepository(
     local.database,
     neighborId: LocalSession.demo.neighborId,
@@ -62,6 +83,7 @@ Future<void> main() async {
       overrides: [
         syncServiceProvider.overrideWithValue(sync),
         postRepositoryProvider.overrideWithValue(posts),
+        assignedCaseCacheProvider.overrideWithValue(cases),
       ],
       child: const VecinalApp(),
     ),

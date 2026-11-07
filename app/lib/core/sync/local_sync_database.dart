@@ -7,12 +7,12 @@ import 'package:vecinal/core/storage/secure_store.dart';
 import 'package:vecinal/core/sync/local_schema.dart';
 
 class LocalSyncDatabase {
-  LocalSyncDatabase._(this.database, this._path, this._store, this._keyName);
+  LocalSyncDatabase._(this.database, this._path, this._store, this._accountId);
 
   final PowerSyncDatabase database;
   final String _path;
   final SecureStore _store;
-  final String _keyName;
+  final String _accountId;
   bool _closed = false;
   Future<void>? _wiping;
 
@@ -20,6 +20,7 @@ class LocalSyncDatabase {
     required String path,
     required SecureStore store,
     required String accountId,
+    Schema schema = localSchema,
   }) async {
     final keyName = 'powersync.database.$accountId';
     var key = await store.read(keyName);
@@ -29,13 +30,13 @@ class LocalSyncDatabase {
       await store.write(keyName, key);
     }
     final db = PowerSyncDatabase(
-      schema: localSchema,
+      schema: schema,
       path: path,
       encryption: EncryptionOptions(key: key),
     );
     try {
       await db.initialize();
-      return LocalSyncDatabase._(db, path, store, keyName);
+      return LocalSyncDatabase._(db, path, store, accountId);
     } catch (_) {
       await db.close();
       rethrow;
@@ -49,11 +50,20 @@ class LocalSyncDatabase {
       await database.disconnectAndClear();
       await close();
     }
+    await discard(path: _path, store: _store, accountId: _accountId);
+  }
+
+  /// Removes an encrypted database that has already been closed.
+  static Future<void> discard({
+    required String path,
+    required SecureStore store,
+    required String accountId,
+  }) async {
     for (final suffix in ['-wal', '-shm', '-journal', '']) {
-      final file = File('$_path$suffix');
+      final file = File('$path$suffix');
       if (await file.exists()) await file.delete();
     }
-    await _store.delete(_keyName);
+    await store.delete('powersync.database.$accountId');
   }
 
   Future<void> close() async {
