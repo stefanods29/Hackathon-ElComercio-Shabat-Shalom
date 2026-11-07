@@ -23,11 +23,16 @@ avión y validación Android/iOS. Detalle: `docs/fase-0/evidencias/mapas.md`.
 
 ## 3. Parte 3 · Avisos en el backend
 
-- [ ] 3.1 Agregar `POST /v1/dispositivos` al contrato; verificar con `redocly lint`
-- [ ] 3.2 Migración `notificaciones.dispositivos`, registro idempotente y baja al cerrar sesión; verificar con pruebas de integración
-- [ ] 3.3 Puerto `NotificationPort` con adaptador FCM y adaptador falso; envío por token y por tópico; verificar con pruebas
-- [ ] 3.4 Manejador del trabajo `notificaciones.enviar_aviso` (idempotente) y aviso de "favor tomado"; verificar con una prueba de entrega doble
+- [x] 3.1 Agregar `POST /v1/dispositivos` al contrato; verificar con `redocly lint`
+- [x] 3.2 Migración `notificaciones.dispositivos`, registro idempotente y baja al cerrar sesión; verificar con pruebas de integración
+- [x] 3.3 Puerto `NotificationPort` con adaptador FCM y adaptador falso; envío por token y por tópico; verificar con pruebas
+- [x] 3.4 Manejador del trabajo `notificaciones.enviar_aviso` (idempotente) y aviso de "favor tomado"; verificar con una prueba de entrega doble
 - [ ] 3.5 Compilar y depurar (CI en verde)
+
+Avance local de C3: 40 pruebas unitarias y 24 de integración aprobadas con PostgreSQL/PostGIS.
+Contrato válido. FCM se comprueba con el SDK simulado y el trabajo con el adaptador falso; falta
+la recepción real y la integración del relay/worker B4. La ruta de coordinador y su texto público
+dependen de B3, según el punto de contacto de la guía. Evidencia: `docs/fase-0/evidencias/avisos.md`.
 
 ## 4. Parte 4 · Avisos en la app
 
@@ -36,6 +41,11 @@ avión y validación Android/iOS. Detalle: `docs/fase-0/evidencias/mapas.md`.
 - [ ] 4.3 Tocar el aviso abre la pantalla correcta tras autenticarse; verificar en Android e iPhone
 - [ ] 4.4 Evidencia de aviso por token y por tópico en `docs/fase-0/evidencias/avisos.md`
 - [ ] 4.5 Compilar y depurar (CI en verde)
+
+Avance local de C4: permiso, registro persistente, refresco, tópicos, baja y apertura del detalle
+local implementados; 76 pruebas Flutter aprobadas. Firebase es opcional. Las tareas siguen
+abiertas por la sesión real del Lote A, configuración Firebase/APNs, recepción en teléfonos,
+compilación iOS y CI. No hay evidencia física disponible. Se rediseñaron también los dos visores.
 
 ## Workflow follow-up
 

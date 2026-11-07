@@ -23,7 +23,8 @@ ver `lib/features/mapa/README.md` y `../infra/cdn/README.md` antes de probar en 
 
 La integración `maplibre_gl` 0.28 requiere JDK 21, Android API 24+ e iOS 15.5+. El CI verifica
 Android e iOS en las solicitudes de revisión. No se necesita habilitar la ubicación del vecino.
-# Configurar avisos (Lote C)
+
+## Configurar avisos (Lote C)
 
 La compilación normal mantiene `ENABLE_PUSH=false`; no necesita un proyecto Firebase.
 Para probar la recepción real, el equipo debe registrar las apps con sus identificadores reales

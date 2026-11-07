@@ -6,12 +6,7 @@ import { execFileSync } from 'node:child_process';
 import { writeFileSync } from 'node:fs';
 import path from 'node:path';
 
-const binary = path.join(
-  'node_modules',
-  'dependency-cruiser',
-  'bin',
-  'dependency-cruiser.mjs',
-);
+const binary = path.join('node_modules', 'dependency-cruiser', 'bin', 'dependency-cruiser.mjs');
 const mermaid = execFileSync(
   process.execPath,
   [

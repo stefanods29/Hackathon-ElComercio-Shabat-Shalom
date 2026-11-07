@@ -78,8 +78,9 @@ class PushController extends Notifier<PushStatus> {
     _service = service;
     ref.listen(pushCredentialsProvider, (_, next) => unawaited(service.updateSession(next)));
     final connection = Connectivity().onConnectivityChanged.listen((values) {
-      if (!values.contains(ConnectivityResult.none))
+      if (!values.contains(ConnectivityResult.none)) {
         unawaited(service.start(ref.read(pushCredentialsProvider)));
+      }
     });
     ref.onDispose(() {
       unawaited(connection.cancel());

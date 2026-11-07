@@ -1,6 +1,6 @@
 # Avisos · implementación y verificación local
 
-Fecha: 2026-11-07. Estado: C3 y C4 implementadas en código, con integraciones externas pendientes.
+Fecha: 2026-11-07. Estado: implementación local de C3 y C4, con integraciones externas pendientes.
 Esta evidencia no equivale a recepción real en un teléfono ni a aprobación del lote.
 
 ## Implementado
@@ -18,18 +18,24 @@ Esta evidencia no equivale a recepción real en un teléfono ni a aprobación de
 
 | Comprobación | Resultado local |
 |---|---|
-| Backend: tipos, lint, formato, fronteras, Sync Streams, pruebas y build | `npm run verify` |
+| Backend: tipos, lint, formato, fronteras, Sync Streams, pruebas y build | Aprobados con Node 26.13.0 |
 | Pruebas unitarias de backend | 40 aprobadas; incluye plantillas, FCM simulado y configuración |
 | Integración con PostgreSQL 18.6 / PostGIS 3.6.2 | 24 aprobadas; 7 de avisos |
 | Pruebas Flutter | 76 aprobadas; 10 nuevas de avisos/detalle |
-| Análisis Flutter | Sin incidencias antes del último ajuste de integración; comprobación final en curso |
+| Análisis Flutter | Sin errores, advertencias ni incidencias (`flutter analyze --no-pub`) |
 | Contrato OpenAPI | Válido; 2 advertencias preexistentes en salud y JWKS |
 | OpenSpec estricto | 10 elementos aprobados |
-| APK Android sin archivos Firebase privados | Compilación final en curso |
+| APK Android sin archivos Firebase privados | Compilado: `app/build/app/outputs/flutter-apk/app-debug.apk` (243 619 620 bytes) |
 
 El trabajo repetido, también en paralelo, produce **un envío** en el adaptador falso. Si el
 segundo dispositivo falla, el primer envío completado no se repite al reintentar. El adaptador
 FCM se prueba con el SDK simulado; estas pruebas no se presentan como entrega real de Firebase.
+
+El APK se generó con `ENABLE_PUSH=false`, sin JSON/plist de Firebase. La compilación terminó
+después de regenerar una entrada dañada de la caché local de Gradle. Firebase Core 5.1.0 todavía
+emite un aviso de futura migración de Kotlin; no impide este build. No se ha compilado iOS en Windows.
+El formato Dart queda verificado en los 72 archivos de código/pruebas y el visor supera sus
+5 pruebas, comprobación de formato y validación de recursos/archivo PMTiles.
 
 El FID de Firebase Messaging 17 se registra en el campo REST opaco `token`. Admin 14.5 envía
 con `fid`. Referencias oficiales:

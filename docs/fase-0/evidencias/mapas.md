@@ -76,7 +76,8 @@ resultados para completar la evidencia. Cuando se disponga de los equipos:
 
 El recorte PMTiles de C1 ocupa 2 964 673 bytes, pero ese dato no equivale al espacio de una
 región offline de MapLibre, que también contiene estilo, fuentes y sprites.
-# Actualización de diseño · 2026-11-07
+
+## Actualización de diseño · 2026-11-07
 
 La pantalla Flutter agrupa el mapa y los controles en tarjetas, con jerarquía de texto más clara
 y una anchura de lectura limitada. Conserva la atribución fija y controles de 48 dp. Sus pruebas
