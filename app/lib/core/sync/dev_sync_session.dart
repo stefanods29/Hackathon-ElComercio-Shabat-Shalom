@@ -8,8 +8,15 @@ class DevSyncSession {
   final Dio _api;
   ({String token, DateTime expiresAt})? _session;
   Future<String>? _renewal;
+  bool _closed = false;
+
+  void close() {
+    _closed = true;
+    _session = null;
+  }
 
   Future<String> getToken() async {
+    if (_closed) throw StateError('La sesión de prueba está cerrada.');
     final session = _session;
     if (session != null &&
         session.expiresAt.isAfter(DateTime.now().add(const Duration(minutes: 1)))) {
@@ -23,6 +30,7 @@ class DevSyncSession {
       '/v1/dev/sesiones',
       data: {'telefono': '+51900000002'},
     );
+    if (_closed) throw StateError('La sesión de prueba está cerrada.');
     final data = response.data;
     if (response.statusCode != 201 || data is! Map<String, Object?>) {
       throw StateError('Sesión de desarrollo no disponible (${response.statusCode}).');

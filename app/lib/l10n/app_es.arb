@@ -22,6 +22,13 @@
     "placeholders": { "ago": { "type": "String" } }
   },
   "actionsToReview": "Acciones por revisar",
+  "demoWelcome": "Cuenta de prueba",
+  "demoSignIn": "Iniciar sesión de prueba",
+  "demoSignOut": "Cerrar sesión de prueba",
+  "demoSignOutWarning": "Se borrarán los datos de prueba de este celular, incluidas las acciones pendientes de envío.",
+  "demoSessionError": "No se pudo preparar el almacenamiento de la sesión de prueba.",
+  "cancelAction": "Cancelar",
+  "retryAction": "Reintentar",
   "underConstruction": "Esta pantalla la construye el {lot}.",
   "@underConstruction": {
     "placeholders": { "lot": { "type": "String" } }

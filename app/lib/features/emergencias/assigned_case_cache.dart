@@ -29,7 +29,16 @@ class AssignedCaseCache {
     required String accountId,
     required this.connector,
     required this.clock,
-  }) : _keyScope = 'cases.$accountId';
+  }) : _keyScope = _scope(accountId);
+
+  static String _scope(String accountId) => 'cases.$accountId';
+
+  /// Finishes a pending purge at startup, before opening a case database.
+  static Future<void> discard({
+    required String path,
+    required SecureStore store,
+    required String accountId,
+  }) => LocalSyncDatabase.discard(path: path, store: store, accountId: _scope(accountId));
 
   final String path;
   final SecureStore store;
