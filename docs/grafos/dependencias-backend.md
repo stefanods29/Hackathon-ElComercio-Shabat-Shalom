@@ -47,10 +47,11 @@ src_app_module_ts-->src_shared_shared_module_ts
 src_main_ts-->src_app_module_ts
 src_main_ts-->src_shared_config
 src_modules_identidad-->src_shared_auth
-src_modules_identidad-->src_shared_api
-src_modules_identidad-->src_shared_config
-src_modules_identidad-->src_shared_domain
 src_modules_identidad-->src_shared_db
+src_modules_identidad-->src_shared_config
+src_modules_identidad-->src_shared_api
+src_modules_identidad-->src_shared_domain
+src_modules_identidad-->src_shared_idempotency
 src_modules_solidaridad-->src_shared_domain
 src_modules_solidaridad-->src_shared_api
 src_modules_solidaridad-->src_shared_auth

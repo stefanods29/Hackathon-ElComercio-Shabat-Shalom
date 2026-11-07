@@ -9,6 +9,7 @@ const base = {
   DATABASE_URL: 'postgres://u:c@localhost:5432/vecinal',
   JWT_PRIVATE_KEY_PEM: pem,
   POWERSYNC_URL: 'http://localhost:8080',
+  OTP_HASH_SECRET: 'secreto-de-pruebas-de-32-caracteres-minimo',
 };
 
 describe('loadConfig', () => {
@@ -17,6 +18,8 @@ describe('loadConfig', () => {
     expect(config.PORT).toBe(3000);
     expect(config.ENABLE_DEV_SESSION).toBe(false);
     expect(config.JWT_ACCESS_MINUTES).toBe(15);
+    expect(config.TRUST_PROXY_HOPS).toBe(0);
+    expect(config.OTP_PROVIDER).toBe('fake');
   });
 
   it('acepta la clave PEM en una sola línea con \\n escritos', () => {
@@ -30,6 +33,14 @@ describe('loadConfig', () => {
     expect(() =>
       loadConfig({ ...base, NODE_ENV: 'production', ENABLE_DEV_SESSION: 'true' }),
     ).toThrow(/ENABLE_DEV_SESSION/);
+  });
+
+  it('no permite el proveedor OTP falso en producción', () => {
+    expect(() => loadConfig({ ...base, NODE_ENV: 'production' })).toThrow(/OTP_PROVIDER/);
+  });
+
+  it('exige todas las credenciales de Twilio cuando se selecciona ese proveedor', () => {
+    expect(() => loadConfig({ ...base, OTP_PROVIDER: 'twilio' })).toThrow(/TWILIO_ACCOUNT_SID/);
   });
 
   it('falla rápido y con el motivo si falta algo', () => {

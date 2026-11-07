@@ -23,8 +23,21 @@ export interface UsersTable {
   eliminado_en: NullableTimestamp;
 }
 
+export interface OtpCodesTable {
+  id: WithDefault<string>;
+  telefono: string;
+  codigo_hash: string;
+  canal: 'sms' | 'whatsapp';
+  ip: string | null;
+  intentos: WithDefault<number>;
+  expira_en: Timestamp;
+  usado_en: NullableTimestamp;
+  creado_en: WithDefault<Date>;
+}
+
 /** Tables of the `identidad` schema. Only the Identity module queries them. */
 export interface IdentityTables {
   'identidad.zonas': ZonesTable;
   'identidad.usuarios': UsersTable;
+  'identidad.codigos_otp': OtpCodesTable;
 }

@@ -11,6 +11,7 @@ const app = await NestFactory.create<NestExpressApplication>(AppModule, {
   logger: new ConsoleLogger({ json: config.NODE_ENV === 'production', prefix: 'vecinal' }),
 });
 app.disable('x-powered-by');
+app.set('trust proxy', config.TRUST_PROXY_HOPS);
 app.useBodyParser('json', { limit: '256kb' });
 app.enableShutdownHooks();
 

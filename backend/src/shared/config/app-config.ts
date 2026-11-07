@@ -20,6 +20,18 @@ export const configSchema = z
     POWERSYNC_URL: z.url(),
     ENABLE_DEV_SESSION: z.stringbool().default(false),
     IDEMPOTENCY_RETENTION_HOURS: z.coerce.number().int().min(1).default(168),
+    TRUST_PROXY_HOPS: z.coerce.number().int().min(0).default(0),
+    OTP_PROVIDER: z.enum(['fake', 'twilio']).default('fake'),
+    OTP_HASH_SECRET: z.string().min(32),
+    OTP_TTL_MINUTES: z.coerce.number().int().min(1).default(5),
+    OTP_MAX_REQUESTS_PER_PHONE: z.coerce.number().int().min(1).default(3),
+    OTP_MAX_REQUESTS_PER_IP: z.coerce.number().int().min(1).default(20),
+    OTP_MAX_ATTEMPTS: z.coerce.number().int().min(1).default(5),
+    OTP_LOCK_MINUTES: z.coerce.number().int().min(1).default(15),
+    TWILIO_ACCOUNT_SID: z.string().optional(),
+    TWILIO_AUTH_TOKEN: z.string().optional(),
+    TWILIO_FROM_SMS: z.string().optional(),
+    TWILIO_FROM_WHATSAPP: z.string().optional(),
   })
   .superRefine((config, ctx) => {
     if (config.NODE_ENV === 'production' && config.ENABLE_DEV_SESSION) {
@@ -28,6 +40,29 @@ export const configSchema = z
         path: ['ENABLE_DEV_SESSION'],
         message: 'la sesión de desarrollo no puede habilitarse en producción',
       });
+    }
+    if (config.NODE_ENV === 'production' && config.OTP_PROVIDER === 'fake') {
+      ctx.addIssue({
+        code: 'custom',
+        path: ['OTP_PROVIDER'],
+        message: 'el proveedor OTP falso no puede usarse en producción',
+      });
+    }
+    if (config.OTP_PROVIDER === 'twilio') {
+      for (const variable of [
+        'TWILIO_ACCOUNT_SID',
+        'TWILIO_AUTH_TOKEN',
+        'TWILIO_FROM_SMS',
+        'TWILIO_FROM_WHATSAPP',
+      ] as const) {
+        if (!config[variable]) {
+          ctx.addIssue({
+            code: 'custom',
+            path: [variable],
+            message: 'es obligatoria cuando OTP_PROVIDER=twilio',
+          });
+        }
+      }
     }
   });
 

@@ -1,21 +1,24 @@
 /**
- * `npm run dev:keys`: creates `.env` from `.env.example` with a new ES256 key.
- * If `.env` already exists, it only prints a new key so you can copy it if needed.
+ * `npm run dev:keys`: creates `.env` with a new ES256 key and OTP HMAC secret.
+ * If `.env` already exists, it only prints new secrets so you can copy them if needed.
  */
-import { generateKeyPairSync } from 'node:crypto';
+import { generateKeyPairSync, randomBytes } from 'node:crypto';
 import { existsSync, readFileSync, writeFileSync } from 'node:fs';
 
 const { privateKey } = generateKeyPairSync('ec', { namedCurve: 'prime256v1' });
 const pem = privateKey.export({ format: 'pem', type: 'pkcs8' }).toString().trim();
 const keyLine = `JWT_PRIVATE_KEY_PEM="${pem.replace(/\n/g, '\\n')}"`;
+const otpSecretLine = `OTP_HASH_SECRET=${randomBytes(32).toString('base64url')}`;
 
 if (existsSync('.env')) {
-  console.log('.env ya existe; no lo modifico. Clave nueva por si la necesitas:\n');
+  console.log('.env ya existe; no lo modifico. Claves nuevas por si las necesitas:\n');
   console.log(keyLine);
+  console.log(otpSecretLine);
 } else {
   const template = readFileSync('.env.example', 'utf8');
-  writeFileSync('.env', template.replace(/^JWT_PRIVATE_KEY_PEM=.*$/m, keyLine), {
-    mode: 0o600,
-  });
-  console.log('Listo: .env creado con una clave ES256 nueva (no lo subas al repositorio).');
+  const env = template
+    .replace(/^JWT_PRIVATE_KEY_PEM=.*$/m, keyLine)
+    .replace(/^OTP_HASH_SECRET=.*$/m, otpSecretLine);
+  writeFileSync('.env', env, { mode: 0o600 });
+  console.log('Listo: .env creado con claves nuevas (no lo subas al repositorio).');
 }

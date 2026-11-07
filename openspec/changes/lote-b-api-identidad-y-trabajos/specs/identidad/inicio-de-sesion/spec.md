@@ -14,7 +14,7 @@ Que cualquier vecino entre a la app con su número de teléfono y un código de 
 - **THEN** recibe la misma respuesta que un usuario existente y el código llega por SMS o WhatsApp
 
 ### Requirement: Verificar el código
-`POST /v1/auth/otp/verificar` SHALL aceptar el código una sola vez y dentro de su vigencia; si el teléfono no existía, MUST crear el usuario con nivel de confianza 0 y responder con un token de acceso y un refresh token.
+`POST /v1/auth/otp/verificar` SHALL aceptar el código una sola vez y dentro de su vigencia; si el teléfono no existía, MUST crear el usuario con nivel de confianza 0 y responder con un token de acceso y el usuario. En la Parte 1 la respuesta no incluye refresh token; ese campo y las sesiones revocables se agregan en la Parte 2.
 
 #### Scenario: Código correcto
 - **WHEN** el vecino ingresa el código recibido dentro de los 5 minutos

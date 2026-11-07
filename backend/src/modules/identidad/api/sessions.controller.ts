@@ -4,6 +4,7 @@ import { V1 } from '../../../shared/api/routes.js';
 import type { Actor } from '../../../shared/auth/actor.js';
 import { CurrentActor, Public } from '../../../shared/auth/decorators.js';
 import { IssueCredentials } from '../application/issue-credentials.js';
+import { type SessionResponse, toSessionResponse } from './schemas.js';
 
 /** Contract: `contracts/openapi.yaml` → `SesionDev`. JSON keys stay in Spanish. */
 const devSessionSchema = z.object({
@@ -11,18 +12,6 @@ const devSessionSchema = z.object({
     .string()
     .regex(/^\+[1-9][0-9]{7,14}$/, 'usa el formato internacional, p. ej., +51987654321'),
 });
-
-export interface SessionResponse {
-  tokenDeAcceso: string;
-  expiraEn: string;
-  usuario: {
-    id: string;
-    nombreVisible: string;
-    zonaId: string | null;
-    nivel: number;
-    roles: readonly string[];
-  };
-}
 
 export interface SyncCredentialsResponse {
   endpoint: string;
@@ -45,17 +34,7 @@ export class SessionsController {
     @Body({ schema: devSessionSchema }) body: z.infer<typeof devSessionSchema>,
   ): Promise<SessionResponse> {
     const session = await this.credentials.startDevSession(body.telefono);
-    return {
-      tokenDeAcceso: session.accessToken,
-      expiraEn: session.expiresAt.toISOString(),
-      usuario: {
-        id: session.user.id,
-        nombreVisible: session.user.displayName,
-        zonaId: session.user.zoneId,
-        nivel: session.user.trustLevel,
-        roles: session.user.roles,
-      },
-    };
+    return toSessionResponse(session);
   }
 
   /** Called by `fetchCredentials()` of the PowerSync connector on the phone. */

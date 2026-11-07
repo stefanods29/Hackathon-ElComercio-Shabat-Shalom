@@ -15,7 +15,7 @@
 
 | Parte | Qué entrega | Estado | Responsable | PR |
 |---|---|---|---|---|
-| 1 | Inicio de sesión con OTP y elección de zona | Pendiente | Por asignar | — |
+| 1 | Inicio de sesión con OTP y elección de zona | En curso (`lote-b/parte-1-otp`; pendiente de revisión) | JDiazD33 | — |
 | 2 | Sesiones revocables | Pendiente | Por asignar | — |
 | 3 | Roles y niveles de confianza | Pendiente | Por asignar | — |
 | 4 | Eventos y trabajos (pg-boss, outbox y workers) | Pendiente | Por asignar | — |
