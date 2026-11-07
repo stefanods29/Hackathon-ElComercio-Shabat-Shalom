@@ -18,30 +18,30 @@
 
 ## 3. Parte 3 · Roles y niveles de confianza
 
-- [ ] 3.1 Decoradores `@RequireTrustLevel(n)` y `@RequireRole(...)` con guard; verificar con pruebas por cada combinación
-- [ ] 3.2 Aplicarlos a las rutas existentes y documentarlos en el contrato; verificar con pruebas de punta a punta
-- [ ] 3.3 Compilar y depurar (CI en verde)
+- [x] 3.1 Decoradores `@RequireTrustLevel(n)` y `@RequireRole(...)` con guard; verificar con pruebas por cada combinación
+- [x] 3.2 Aplicarlos a las rutas existentes y documentarlos en el contrato; verificar con pruebas de punta a punta
+- [x] 3.3 Compilar y depurar (CI en verde)
 
 ## 4. Parte 4 · Eventos y trabajos
 
-- [ ] 4.1 Adaptador pg-boss de `JobQueue` (prioridad, reintentos, cola de fallidos) en el esquema `colas`; verificar con pruebas de integración
-- [ ] 4.2 Relay del outbox con `SKIP LOCKED`; verificar con una prueba de dos relays en paralelo sin duplicados
-- [ ] 4.3 Proceso `src/workers/main.ts`, limpieza programada (idempotencia vencida, outbox antiguo) y contrato del trabajo `notificaciones.enviar_aviso` para el Lote C; verificar con pruebas
-- [ ] 4.4 Compilar y depurar (CI en verde)
+- [x] 4.1 Adaptador pg-boss de `JobQueue` (prioridad, reintentos, cola de fallidos) en el esquema `colas`; verificar con pruebas de integración
+- [x] 4.2 Relay del outbox con `SKIP LOCKED`; verificar con una prueba de dos relays en paralelo sin duplicados
+- [x] 4.3 Proceso `src/workers/main.ts`, limpieza programada (idempotencia vencida, outbox antiguo) y contrato del trabajo `notificaciones.enviar_aviso` para el Lote C; verificar con pruebas
+- [x] 4.4 Compilar y depurar (CI en verde)
 
 ## 5. Parte 5 · Muro completo
 
-- [ ] 5.1 Búsqueda por cercanía con `ST_DWithin` y cursor; verificar con pruebas de integración con PostGIS
-- [ ] 5.2 Cancelar y resolver con versión e idempotencia; verificar con pruebas
-- [ ] 5.3 Límites diarios (429 `limite_diario_alcanzado`); verificar con pruebas
-- [ ] 5.4 Compilar y depurar (CI en verde)
+- [x] 5.1 Búsqueda por cercanía con `ST_DWithin` y cursor; verificar con pruebas de integración con PostGIS
+- [x] 5.2 Cancelar y resolver con versión e idempotencia; verificar con pruebas
+- [x] 5.3 Límites diarios (429 `limite_diario_alcanzado`); verificar con pruebas
+- [x] 5.4 Compilar y depurar (CI en verde)
 
 ## 6. Parte 6 · Capacidad
 
-- [ ] 6.1 Escenario k6 en `backend/test/carga/` (pico de emergencia + reconexión con jitter); verificar con una corrida de humo local
-- [ ] 6.2 Logs estructurados con `requestId` y métricas de idempotencia y outbox; verificar en una corrida de k6
-- [ ] 6.3 Informe en `docs/fase-0/evidencias/capacidad.md` con p95, errores y cola crítica
-- [ ] 6.4 Compilar y depurar (CI en verde)
+- [x] 6.1 Escenario k6 en `backend/test/load/emergency-peak.js` (pico de emergencia + reconexión con jitter); verificar con una corrida de humo local
+- [x] 6.2 Logs estructurados con `requestId` y métricas de idempotencia y outbox; verificar en una corrida de k6
+- [x] 6.3 Informe en `docs/fase-0/evidencias/capacidad.md` con p95, errores y cola crítica
+- [x] 6.4 Compilar y depurar (CI en verde)
 
 ## Workflow follow-up
 

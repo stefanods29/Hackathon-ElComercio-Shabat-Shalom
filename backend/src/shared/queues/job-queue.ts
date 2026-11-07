@@ -21,3 +21,18 @@ export interface JobQueue {
 }
 
 export const JOB_QUEUE = Symbol('JOB_QUEUE');
+import type { TransactionContext } from '../db/unit-of-work.js';
+
+/** Durable adapters can atomically publish alongside the outbox update. */
+export interface TransactionalJobQueue extends JobQueue {
+  enqueueInTransaction<T>(
+    transaction: TransactionContext,
+    name: string,
+    data: T,
+    options?: JobOptions,
+  ): Promise<void>;
+}
+
+export function isTransactionalJobQueue(queue: JobQueue): queue is TransactionalJobQueue {
+  return 'enqueueInTransaction' in queue && typeof queue.enqueueInTransaction === 'function';
+}

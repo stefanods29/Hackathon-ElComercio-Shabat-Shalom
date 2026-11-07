@@ -9,6 +9,10 @@ dist/
 coverage/
 *.tsbuildinfo
 
+# Credenciales sintéticas de carga y resultados locales de k6.
+*.load-tokens.json
+*.load-summary.json
+
 # Scripts locales de cada persona (rutas de su PC)
 *.local.cmd
 *.local.sh

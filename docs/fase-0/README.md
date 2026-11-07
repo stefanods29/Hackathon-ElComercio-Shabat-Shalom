@@ -8,10 +8,10 @@ lote. Si vas a contribuir, empieza por esta página.
 | Carpeta | Qué es | Dificultad | Responsable | Estado |
 |---|---|---|---|---|
 | [`cimientos/`](cimientos/) | La base de todo: backend, app, contrato, infraestructura y CI | — | — | **Hecho** |
-| [`lote-a-nucleo-offline/`](lote-a-nucleo-offline/) | PowerSync, base cifrada y purga, cola de subida, datos sensibles, pruebas de campo e integración | ★★★★ | Stefano | En curso en `fase0-a`. [Avance verificado](lote-a-nucleo-offline/README.md#estado-del-lote) |
-| [`lote-b-api-identidad-y-trabajos/`](lote-b-api-identidad-y-trabajos/) | Inicio de sesión con código, sesiones, roles, trabajos en segundo plano, muro completo y carga | ★★★ | Por asignar | Partes 1–2 incorporadas en `fase0-a`; las demás entregas requieren integración y verificación. |
-| [`lote-c-mapas-y-avisos/`](lote-c-mapas-y-avisos/) | Mapa sin conexión y notificaciones push | ★★ | Por asignar | Pendiente (0 de 4 partes) |
-| [`lote-d-experiencia-accesible/`](lote-d-experiencia-accesible/) | Diseño accesible, publicar en 3 toques, estados visibles, tutorial, inicio de sesión y cuenta | ★ | Por asignar | Diseño en `main`; pantallas de la parte 5 incorporadas en `fase0-a`, con cierre del lote pendiente. |
+| [`lote-a-nucleo-offline/`](lote-a-nucleo-offline/) | PowerSync, base cifrada y purga, cola de subida, datos sensibles, pruebas de campo e integración | ★★★★ | Stefano | En curso: 22 de 28 tareas, ya en `main` (PR 13 y 14). [Avance verificado](lote-a-nucleo-offline/README.md#estado-del-lote) |
+| [`lote-b-api-identidad-y-trabajos/`](lote-b-api-identidad-y-trabajos/) | Inicio de sesión con código, sesiones, roles, trabajos en segundo plano, muro completo y carga | ★★★ | JDiazD33 | Partes 1–6 en `main`; falta el adaptador real de OTP (tarea 1.4) |
+| [`lote-c-mapas-y-avisos/`](lote-c-mapas-y-avisos/) | Mapa sin conexión y notificaciones push | ★★ | Por asignar | **Pendiente (0 de 4 partes).** Bloquea los criterios de mapas y avisos |
+| [`lote-d-experiencia-accesible/`](lote-d-experiencia-accesible/) | Diseño accesible, publicar en 3 toques, estados visibles, tutorial, inicio de sesión y cuenta | ★ | Kenzowo-dev | Partes 1–5 en `main`; para cerrarlo falta la evidencia de conflictos (A 5.3 + D 3.3) |
 
 El estado de **cada parte** está en la tabla "Estado del lote" del README de cada carpeta. Los
 cuatro lotes se trabajan en simultáneo: ninguno espera a otro para empezar.
@@ -32,6 +32,7 @@ cuatro lotes se trabajan en simultáneo: ninguno espera a otro para empezar.
 |---|---|
 | [`plan-de-lotes.md`](plan-de-lotes.md) | Visión general: los 4 lotes, cómo encajan, hitos y lo que sigue después de la Fase 0 |
 | [`revision-y-entregas.md`](revision-y-entregas.md) | Cómo se entrega cada parte y cómo se revisa antes de integrarla |
+| [`revision-2026-11-07.md`](revision-2026-11-07.md) | Última revisión de ramas: qué se integró, qué se cierra y qué falta |
 | [`criterios-de-salida.md`](criterios-de-salida.md) | Cuándo termina la Fase 0 (sección 13.1 de la arquitectura) |
 | [`evidencias/`](evidencias/) | Resultados de las pruebas de campo |
 

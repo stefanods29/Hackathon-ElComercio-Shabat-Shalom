@@ -1,7 +1,7 @@
 # Grafo de dependencias del backend
 
 Generado con `cd backend && npm run graph` (dependency-cruiser). No lo edites a mano.
-Cada flecha es un `import`. Los módulos de negocio solo se conocen desde `app.module.ts`
+Cada flecha es un `import`. Las raíces de composición son `app.module.ts` y `workers/`
 y todos dependen de `shared`, nunca al revés (reglas en `backend/.dependency-cruiser.cjs`).
 
 ```mermaid
@@ -28,9 +28,14 @@ subgraph src["src"]
     src_shared_domain["domain"]
     src_shared_health["health"]
     src_shared_idempotency["idempotency"]
+    src_shared_observability["observability"]
     src_shared_outbox["outbox"]
     src_shared_queues["queues"]
     src_shared_shared_module_ts["shared.module.ts"]
+  end
+  subgraph src_workers["workers"]
+    src_workers_main_ts["main.ts"]
+    src_workers_workers_module_ts["workers.module.ts"]
   end
 end
 src_app_module_ts-->src_modules_directorio
@@ -58,6 +63,8 @@ src_modules_solidaridad-->src_shared_auth
 src_modules_solidaridad-->src_shared_idempotency
 src_modules_solidaridad-->src_shared_db
 src_modules_solidaridad-->src_shared_outbox
+src_modules_solidaridad-->src_shared_config
+src_shared_api-->src_shared_observability
 src_shared_api-->src_shared_domain
 src_shared_auth-->src_shared_config
 src_shared_auth-->src_shared_domain
@@ -70,8 +77,20 @@ src_shared_idempotency-->src_shared_db
 src_shared_idempotency-->src_shared_api
 src_shared_idempotency-->src_shared_auth
 src_shared_idempotency-->src_shared_domain
+src_shared_idempotency-->src_shared_observability
+src_shared_observability-->src_shared_domain
+src_shared_observability-->src_shared_idempotency
+src_shared_observability-->src_shared_api
+src_shared_observability-->src_shared_auth
+src_shared_observability-->src_shared_db
+src_shared_observability-->src_shared_queues
 src_shared_outbox-->src_shared_db
 src_shared_outbox-->src_shared_domain
+src_shared_outbox-->src_shared_queues
+src_shared_queues-->src_shared_db
+src_shared_queues-->src_shared_domain
+src_shared_queues-->src_shared_config
+src_shared_queues-->src_shared_idempotency
 src_shared_shared_module_ts-->src_shared_api
 src_shared_shared_module_ts-->src_shared_auth
 src_shared_shared_module_ts-->src_shared_config
@@ -79,6 +98,15 @@ src_shared_shared_module_ts-->src_shared_db
 src_shared_shared_module_ts-->src_shared_domain
 src_shared_shared_module_ts-->src_shared_health
 src_shared_shared_module_ts-->src_shared_idempotency
+src_shared_shared_module_ts-->src_shared_observability
 src_shared_shared_module_ts-->src_shared_outbox
 src_shared_shared_module_ts-->src_shared_queues
+src_workers_main_ts-->src_shared_config
+src_workers_main_ts-->src_workers_workers_module_ts
+src_workers_workers_module_ts-->src_modules_notificaciones
+src_workers_workers_module_ts-->src_shared_config
+src_workers_workers_module_ts-->src_shared_db
+src_workers_workers_module_ts-->src_shared_outbox
+src_workers_workers_module_ts-->src_shared_queues
+src_workers_workers_module_ts-->src_shared_shared_module_ts
 ```

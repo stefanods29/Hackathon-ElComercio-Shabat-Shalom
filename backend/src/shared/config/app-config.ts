@@ -20,6 +20,7 @@ export const configSchema = z
     POWERSYNC_URL: z.url(),
     ENABLE_DEV_SESSION: z.stringbool().default(false),
     IDEMPOTENCY_RETENTION_HOURS: z.coerce.number().int().min(1).default(168),
+    MAX_POSTS_PER_DAY: z.coerce.number().int().min(1).default(10),
     TRUST_PROXY_HOPS: z.coerce.number().int().min(0).default(0),
     OTP_PROVIDER: z.enum(['fake', 'twilio']).default('fake'),
     OTP_HASH_SECRET: z.string().min(32),
@@ -35,8 +36,17 @@ export const configSchema = z
     TWILIO_AUTH_TOKEN: z.string().optional(),
     TWILIO_FROM_SMS: z.string().optional(),
     TWILIO_FROM_WHATSAPP: z.string().optional(),
+
+    JOB_QUEUE_DRIVER: z.enum(['memory', 'pgboss']).default('pgboss'),
   })
   .superRefine((config, ctx) => {
+    if (config.JOB_QUEUE_DRIVER === 'memory' && config.NODE_ENV !== 'test') {
+      ctx.addIssue({
+        code: 'custom',
+        path: ['JOB_QUEUE_DRIVER'],
+        message: 'la cola en memoria solo puede usarse en pruebas',
+      });
+    }
     if (config.NODE_ENV === 'production' && config.ENABLE_DEV_SESSION) {
       ctx.addIssue({
         code: 'custom',

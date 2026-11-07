@@ -7,6 +7,7 @@ import { InMemoryPostRepository } from '../infrastructure/post.repository.memory
 import type { NeighborActor } from './ports.js';
 import { PublishPost } from './publish-post.js';
 import { TakeFavor } from './take-favor.js';
+import { testConfig } from '../../../../test/support/config.js';
 
 const ZONE = '01970000-0000-7000-8000-000000000001';
 const OTHER_ZONE = '01970000-0000-7000-8000-000000000002';
@@ -37,7 +38,7 @@ function setup() {
   return {
     posts,
     outbox,
-    publish: new PublishPost(unitOfWork, posts, outbox, clock),
+    publish: new PublishPost(unitOfWork, posts, outbox, clock, testConfig()),
     take: new TakeFavor(unitOfWork, posts, outbox, clock),
   };
 }

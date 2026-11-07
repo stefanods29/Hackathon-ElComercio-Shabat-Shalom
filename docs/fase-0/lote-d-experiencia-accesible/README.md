@@ -15,11 +15,11 @@
 
 | Parte | Qué entrega | Estado | Responsable | PR |
 |---|---|---|---|---|
-| 1 | Sistema de diseño accesible | Hecha | — | — |
-| 2 | Publicar en 3 toques | Hecha | — | — |
-| 3 | Estados visibles y "acciones por revisar" | Hecha | — | — |
-| 4 | Tutorial y modo práctica | Hecha | — | — |
-| 5 | Inicio de sesión, zona y cuenta | Hecha | — | — |
+| 1 | Sistema de diseño accesible | Hecha | Kenzowo-dev | PR 8 |
+| 2 | Publicar en 3 toques | Hecha | Kenzowo-dev | Commit `68e9c4d` (el PR 9 quedó obsoleto) |
+| 3 | Estados visibles y "acciones por revisar" | Hecha | Kenzowo-dev | Commit `68e9c4d` (el PR 10 quedó obsoleto) |
+| 4 | Tutorial y modo práctica | Hecha | Kenzowo-dev | Commit `68e9c4d` (el PR 11 quedó obsoleto) |
+| 5 | Inicio de sesión, zona y cuenta | Hecha | Kenzowo-dev | PR 12 y PR 14 |
 
 Estados posibles: **Pendiente**, **En curso** o **Hecha** (integrada en `main`). Quien toma una
 parte la marca **En curso** con su nombre (en el issue del lote o en un PR pequeño) para que

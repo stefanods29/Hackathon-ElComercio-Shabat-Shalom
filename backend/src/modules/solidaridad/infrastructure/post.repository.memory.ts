@@ -6,6 +6,24 @@ import { Post, type PostProps } from '../domain/post.js';
 export class InMemoryPostRepository implements PostRepository {
   private readonly rows = new Map<string, PostProps>();
 
+  async lockAuthor(_transaction: TransactionContext, _authorId: string): Promise<void> {}
+
+  async countByAuthorSince(
+    _transaction: TransactionContext,
+    authorId: string,
+    since: Date,
+  ): Promise<{ count: number; oldest: Date | null }> {
+    const rows = [...this.rows.values()].filter(
+      (row) => row.authorId === authorId && row.createdAt.getTime() > since.getTime(),
+    );
+    return {
+      count: rows.length,
+      oldest: rows.length
+        ? new Date(Math.min(...rows.map((row) => row.createdAt.getTime())))
+        : null,
+    };
+  }
+
   async insertIfAbsent(_transaction: TransactionContext, post: Post): Promise<boolean> {
     if (this.rows.has(post.id)) return false;
     this.rows.set(post.id, post.snapshot());

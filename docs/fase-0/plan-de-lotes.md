@@ -22,7 +22,7 @@ El **estado de cada lote** (lo hecho y lo que falta) y su **guía paso a paso** 
 | Lote | Tema | Dificultad | Dueño | Change de OpenSpec | Partes |
 |---|---|---|---|---|---|
 | **A** | Núcleo offline: PowerSync de punta a punta, cifrado y purga, cola de subida con rechazos, datos sensibles bajo demanda, pruebas de campo e **integración y revisión** | ★★★★ Muy alta | Stefano | `lote-a-nucleo-offline` | 6 |
-| **B** | API: OTP, sesiones revocables, roles y niveles, pg-boss + relay del outbox + workers, muro completo y prueba de capacidad con k6 | ★★★ Alta | Por asignar | `lote-b-api-identidad-y-trabajos` | 6 |
+| **B** | API: OTP, sesiones revocables, roles y niveles, pg-boss + relay del outbox + workers, muro completo y prueba de capacidad con k6 | ★★★ Alta | JDiazD33 | `lote-b-api-identidad-y-trabajos` | 6 |
 | **C** | Mapas sin conexión (PMTiles + MapLibre) y avisos (FCM por token y por tópico) | ★★ Media | Por asignar | `lote-c-mapas-y-avisos` | 4 |
 | **D** | Experiencia accesible: sistema de diseño, publicar en 3 toques, estados visibles y "acciones por revisar", tutorial y modo práctica, inicio de sesión, zona y cuenta | ★ Media-baja | Por asignar | `lote-d-experiencia-accesible` | 5 |
 
@@ -156,6 +156,11 @@ Para que no quede nada fuera, este es el resto de la arquitectura repartido con 
 (A: offline, seguridad e integración · B: backend · C: mapas, medios, avisos e infraestructura ·
 D: experiencia). Cada fase se planifica como changes nuevos de OpenSpec cuando se cumple la
 condición de la anterior.
+
+El detalle de cada fase, con sus guías por lote y sus criterios de salida, está en
+[`../fase-1/`](../fase-1/README.md), [`../fase-2/`](../fase-2/README.md) y
+[`../fase-3/`](../fase-3/README.md). La [hoja de ruta](../hoja-de-ruta.md) dice cómo se abre cada
+fase.
 
 | Fase | Lote A | Lote B | Lote C | Lote D |
 |---|---|---|---|---|

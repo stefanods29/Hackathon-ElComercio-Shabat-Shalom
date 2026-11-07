@@ -87,11 +87,80 @@ flowchart LR
 1. **pg-boss** (cola sobre PostgreSQL) detrás de `JobQueue`, como dice la sección 4.3;
    se reemplaza por BullMQ + Valkey en la Fase 3 sin tocar a quien encola.
 2. **Relay con `FOR UPDATE SKIP LOCKED`** para que varias réplicas no publiquen dos veces el mismo
-   evento; marcar `publicado_en` en la misma transacción que el `send` a la cola.
+   evento; marcar `publicado_en` en la misma transacción que el `send` a la cola. El adaptador
+   `fromKysely` de pg-boss 12.38.1 comparte la transacción de Kysely; un savepoint por evento
+   permite persistir el intento fallido y continuar el lote sin dejar trabajos huérfanos.
 3. **Workers en un proceso aparte** (`src/workers/main.ts`) con el mismo código del monolito.
 4. **Hash del refresh token** (HMAC-SHA256 con secreto del servidor); nunca se guarda el token.
 5. **Proveedor OTP**: adaptador falso en desarrollo; el real (Twilio Verify o Firebase Auth) se
    elige con la decisión abierta 4 de la sección 13.3.
+
+La API tiene supervisión y programación apagadas. Solo el proceso de workers registra
+manejadores, ejecuta el relay sin solapar lotes y programa la limpieza a las 04:00 de
+`America/Lima`. Al cerrar, primero espera al relay y después a los trabajos activos, antes de
+cerrar la conexión de negocio. Las colas sin manejador conservan sus trabajos pendientes para
+que el Lote C pueda conectar sus consumidores.
+
+`JobOptions.retries` se traduce a `retryLimit`: cinco reintentos además del intento inicial.
+La cola `<nombre>.fallidos` conserva la carga y el error final. Las claves `singletonKey`
+deduplican trabajos pendientes o activos; los manejadores siguen siendo idempotentes porque
+la entrega es al menos una vez. El catálogo de contratos está en `docs/fase-0/trabajos.md`.
+
+### Muro completo (Parte 5)
+
+La búsqueda se limita a la zona del actor y usa `ST_DWithin` sobre `geography` con el índice
+GiST existente. Solo devuelve filas abiertas, con ubicación, no eliminadas y sin vencer.
+`ST_Distance` establece el orden por distancia/id, con `limite + 1` para detectar la página
+siguiente. La ubicación de búsqueda no se persiste y las distancias visibles se redondean
+a 50 m.
+
+El cursor conserva `base64url(JSON { d, id })`, pero `d` contiene la distancia redondeada;
+no se debe filtrar la distancia precisa a través de un JSON decodificable. Al continuar se
+recalcula en el servidor la distancia del id de anclaje y se usa esa clave precisa para
+paginar. El ancla sigue sirviendo tras cancelarse, vencer o borrarse lógicamente; si ya no
+existe físicamente o no corresponde a la búsqueda se devuelve 400 para reiniciarla. La
+ubicación de una publicación es inmutable en esta fase. El cliente mantiene punto y radio
+entre páginas; el cursor no fija una instantánea del muro.
+
+Cancelar y resolver comprueban primero al participante, luego el estado y la versión.
+La repetición válida no genera eventos. Si la actualización optimista pierde una carrera,
+se relee el agregado y se distingue una transición ya aceptada del conflicto real. Actualización
+y outbox comparten transacción y se revierten juntos ante un error.
+
+El límite es una ventana móvil de 24 horas por autor: se cuentan también publicaciones
+canceladas o eliminadas, y una creada exactamente hace 24 horas ya queda fuera. La búsqueda
+del id existente precede al límite y a la creación del agregado. Un bloqueo transaccional por
+autor serializa comprobación e inserción; los reintentos del mismo id con otras claves no
+consumen cupo ni generan eventos. `Retry-After` cuenta hasta que sale la fila más antigua.
+
+### Capacidad y observabilidad (Parte 6)
+
+Con autorización explícita, la rama de la Parte 6 integra las dependencias de las Partes 1–5
+sin modificar sus ramas originales ni `main`. No hay staging disponible: se verifica el humo
+local de 30 segundos, y se entrega el escenario completo sin certificar aún su capacidad.
+
+El middleware propaga un `x-request-id` acotado a ASCII seguro o genera UUIDv7, lo devuelve y
+lo asocia al log JSON de finalización. Se registra plantilla de ruta, método, estado y duración;
+no consulta, cuerpo, cabeceras de autenticación ni respuesta. El filtro agrega la correlación
+actual también a los rechazos guardados, sin modificar el objeto cacheado. Los errores internos
+omiten texto y stack para evitar registrar secretos de adaptadores.
+
+`GET /v1/operacion/metricas` exige administrador. Los contadores de los cuatro resultados de
+reserva de idempotencia son de proceso y exponen instancia/inicio. Outbox y profundidad de colas
+son lecturas actuales; el adaptador pg-boss consulta su propio esquema sin usar estadísticas
+cacheadas. La edad crítica considera solo trabajos elegibles, no diferidos/bloqueados.
+
+k6 usa llegada constante para 1750 lecturas/s y 500 escrituras/s durante diez minutos;
+reconexión usa llegada variable con base 250/s, picos y jitter. Los replays son deterministas
+entre VUs, un 10 % de solicitudes de escritura. Se conserva el límite diario y se dimensiona
+la cantidad de usuarios sintéticos. Las credenciales son revocables, sin sesión de desarrollo,
+con archivo local 0600 ignorado por Git y un observador administrador.
+
+El humo inicia API y workers reales con pg-boss en una base temporal, registra serie temporal
+y procesa una sonda crítica sintética. Verifica además que umbrales imposibles de latencia
+y de cola crítica fallen. Los umbrales de la guía son valores provisionales configurables;
+la aceptación en staging requiere los valores acordados por el equipo. La corrida completa
+no se ejecuta en la laptop ni se infiere del humo.
 
 ### Puntos de contacto con otros lotes
 

@@ -8,6 +8,8 @@ info:
     aquí en el mismo PR que lo implementa, y CI lo valida.
 
     Reglas que toda ruta cumple (sección 4.5 de la arquitectura):
+    - `x-request-id` correlaciona respuesta y logs; cada problema incluye `requestId` y lo
+      referencia en `instance`. Un problema repetido conserva su rechazo con una correlación nueva.
     - Errores en formato **Problem Details (RFC 9457)** con un `codigo` estable.
     - Toda escritura que el celular envía desde su cola offline exige `Idempotency-Key`.
       Un reintento con la misma clave y el mismo cuerpo devuelve la respuesta guardada
@@ -28,6 +30,8 @@ tags:
     description: Sesión y credenciales de sincronización.
   - name: solidaridad
     description: Muro de favores.
+  - name: operacion
+    description: Métricas operativas reservadas a administradores.
 security:
   - tokenDeAcceso: []
 
@@ -269,14 +273,83 @@ paths:
         '404': { $ref: '#/components/responses/NoEncontrado' }
         '409': { $ref: '#/components/responses/Conflicto' }
 
+  /v1/operacion/metricas:
+    get:
+      tags: [operacion]
+      operationId: consultarMetricasOperativas
+      summary: Métricas de idempotencia, outbox y colas para administradores
+      description: |
+        Exige el rol administrador. Los contadores de idempotencia corresponden a esta
+        instancia desde su arranque; outbox y colas son lecturas actuales de PostgreSQL.
+        No devuelve cargas de trabajos, cuerpos, claves de idempotencia ni tokens.
+        Todas las rutas aceptan x-request-id de 1–128 caracteres ASCII seguros; si falta
+        o es inválido se genera un UUIDv7. La respuesta lo devuelve y los problemas incluyen
+        requestId y un instance que lo identifica. Los reintentos tienen su propio requestId.
+      parameters:
+        - name: x-request-id
+          in: header
+          schema: { type: string, minLength: 1, maxLength: 128, pattern: '^[A-Za-z0-9._:-]+$' }
+      responses:
+        '200':
+          description: Instantánea operativa sin datos personales ni cargas de trabajos.
+          headers:
+            x-request-id: { $ref: '#/components/headers/RequestId' }
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/MetricasOperativas' }
+        '401': { $ref: '#/components/responses/NoAutenticado' }
+        '403': { $ref: '#/components/responses/Prohibido' }
+
   /v1/publicaciones:
+    get:
+      tags: [solidaridad]
+      operationId: buscarPublicacionesCercanas
+      summary: Buscar favores abiertos de tu zona por cercanía
+      description: |
+        Devuelve solo publicaciones abiertas, no eliminadas, con ubicación y sin vencer,
+        ordenadas por distancia y luego por id. La distancia se redondea a múltiplos de 50 m;
+        las ubicaciones publicadas ya son aproximadas. La posición de búsqueda no se guarda.
+        El cursor es opaco y se debe reutilizar con el mismo punto y radio. Es una lectura
+        en línea; el cursor no representa una instantánea del muro.
+      parameters:
+        - name: lat
+          in: query
+          required: true
+          schema: { type: number, minimum: -90, maximum: 90 }
+        - name: lng
+          in: query
+          required: true
+          schema: { type: number, minimum: -180, maximum: 180 }
+        - name: radio
+          in: query
+          schema: { type: integer, minimum: 100, maximum: 5000, default: 2000 }
+        - name: limite
+          in: query
+          schema: { type: integer, minimum: 1, maximum: 50, default: 20 }
+        - name: cursor
+          in: query
+          schema: { type: string, minLength: 1, maxLength: 512 }
+      responses:
+        '200':
+          description: Página de favores cercanos, posiblemente vacía.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/PaginaDePublicaciones' }
+        '400': { $ref: '#/components/responses/SolicitudInvalida' }
+        '401': { $ref: '#/components/responses/NoAutenticado' }
+        '403': { $ref: '#/components/responses/Prohibido' }
     post:
       tags: [solidaridad]
       operationId: publicarEnElMuro
+      x-nivel-minimo: 1
       summary: Publicar en el muro de favores (tercer toque)
       description: |
         El `id` lo genera el celular (UUIDv7). Si la publicación ya existía (reintento), responde
-        200 con la existente: nunca se duplica. Requiere nivel de confianza 1 y una zona.
+        200 con la existente: nunca se duplica. Requiere nivel de confianza mínimo 1 y una zona.
+        Sin token responde 401; con un nivel insuficiente responde 403
+        `nivel_de_confianza_insuficiente`.
+        El límite por autor es una ventana móvil de 24 horas (10 por defecto), incluidas
+        publicaciones canceladas o eliminadas. Un reintento del mismo id no consume otra plaza.
       parameters:
         - $ref: '#/components/parameters/IdempotencyKey'
       requestBody:
@@ -302,16 +375,107 @@ paths:
         '403': { $ref: '#/components/responses/Prohibido' }
         '409': { $ref: '#/components/responses/Conflicto' }
         '422': { $ref: '#/components/responses/NoProcesable' }
+        '429':
+          description: Límite diario alcanzado (`codigo` = limite_diario_alcanzado).
+          headers:
+            Retry-After:
+              description: Segundos hasta que salga la publicación más antigua de la ventana.
+              required: true
+              schema: { type: integer, minimum: 1 }
+          content:
+            application/problem+json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Problema'
+                  - type: object
+                    required: [reintentarEnSegundos]
+                    properties:
+                      reintentarEnSegundos: { type: integer, minimum: 1 }
+
+  /v1/publicaciones/{id}/cancelar:
+    post:
+      tags: [solidaridad]
+      operationId: cancelarPublicacion
+      summary: Cancelar una publicación abierta propia
+      description: |
+        Solo el autor puede cancelar, dentro de su zona. Cambia a cancelada y sube la versión.
+        Repetir una cancelación propia ya aceptada no falla ni genera otro evento.
+        Devuelve 403 no_eres_el_autor o fuera_de_tu_zona; 409 no_se_puede_cancelar
+        (con estadoActual) o conflicto_de_version (con versionActual).
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+        - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/CambioDeEstadoPublicacion' }
+      responses:
+        '200':
+          description: Publicación cancelada o cancelación ya aceptada.
+          headers:
+            Idempotent-Replayed: { $ref: '#/components/headers/IdempotentReplayed' }
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Publicacion' }
+        '400': { $ref: '#/components/responses/SolicitudInvalida' }
+        '401': { $ref: '#/components/responses/NoAutenticado' }
+        '403': { $ref: '#/components/responses/Prohibido' }
+        '404': { $ref: '#/components/responses/NoEncontrado' }
+        '409': { $ref: '#/components/responses/Conflicto' }
+        '422': { $ref: '#/components/responses/NoProcesable' }
+
+  /v1/publicaciones/{id}/resolver:
+    post:
+      tags: [solidaridad]
+      operationId: resolverFavor
+      summary: Marcar como resuelto un favor en curso
+      description: |
+        Puede hacerlo el autor o quien tomó el favor, dentro de su zona. Cambia a resuelta
+        y sube la versión. Repetir una resolución propia ya aceptada no genera otro evento.
+        Devuelve 403 no_participas_en_este_favor o fuera_de_tu_zona; 409 favor_no_en_curso
+        (con estadoActual) o conflicto_de_version (con versionActual).
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+        - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/CambioDeEstadoPublicacion' }
+      responses:
+        '200':
+          description: Favor resuelto o resolución ya aceptada.
+          headers:
+            Idempotent-Replayed: { $ref: '#/components/headers/IdempotentReplayed' }
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Publicacion' }
+        '400': { $ref: '#/components/responses/SolicitudInvalida' }
+        '401': { $ref: '#/components/responses/NoAutenticado' }
+        '403': { $ref: '#/components/responses/Prohibido' }
+        '404': { $ref: '#/components/responses/NoEncontrado' }
+        '409': { $ref: '#/components/responses/Conflicto' }
+        '422': { $ref: '#/components/responses/NoProcesable' }
 
   /v1/publicaciones/{id}/tomar:
     post:
       tags: [solidaridad]
       operationId: tomarFavor
+      x-nivel-minimo: 1
       summary: Tomar un favor del muro
       description: |
-        Un favor lo toma un solo vecino. Si dos lo toman sin conexión, el servidor decide: el
-        primero gana; el segundo recibe 409 con `codigo: favor_no_disponible` (o
-        `conflicto_de_version` si la publicación cambió). Repetir la acción ya aceptada no falla.
+        Requiere nivel de confianza mínimo 1. Sin token responde 401; con un nivel insuficiente
+        responde 403 `nivel_de_confianza_insuficiente`. Un favor lo toma un solo vecino. Si dos
+        lo toman sin conexión, el servidor decide: el primero gana; el segundo recibe 409 con
+        `codigo: favor_no_disponible` (o `conflicto_de_version` si la publicación cambió).
+        Repetir la acción ya aceptada no falla.
       parameters:
         - name: id
           in: path
@@ -354,6 +518,9 @@ components:
       schema: { type: string, minLength: 8, maxLength: 255 }
 
   headers:
+    RequestId:
+      description: Identificador de la solicitud, también presente en errores y logs JSON.
+      schema: { type: string }
     IdempotentReplayed:
       description: '`true` cuando la respuesta es la guardada de un intento anterior.'
       schema: { type: string, enum: ['true'] }
@@ -389,7 +556,10 @@ components:
                     minimum: 1
                     description: Segundos que deben transcurrir antes de reintentar.
     Prohibido:
-      description: El vecino no puede hacer esto (p. ej., nivel_de_confianza_insuficiente, fuera_de_tu_zona).
+      description: |
+        El vecino no puede hacer esto. `nivel_de_confianza_insuficiente` incluye `nivelActual` y
+        `nivelRequerido`; `rol_requerido` incluye `rolesRequeridos`. Otros códigos posibles son
+        `fuera_de_tu_zona` y `no_eres_el_autor`.
       content:
         application/problem+json:
           schema: { $ref: '#/components/schemas/Problema' }
@@ -412,6 +582,43 @@ components:
           schema: { $ref: '#/components/schemas/Problema' }
 
   schemas:
+    MetricasOperativas:
+      type: object
+      required: [instanciaId, desde, generadoEn, idempotencia, outbox, colasMotor, colas]
+      properties:
+        instanciaId: { type: string, format: uuid }
+        desde: { type: string, format: date-time }
+        generadoEn: { type: string, format: date-time }
+        idempotencia:
+          type: object
+          required: [nueva, repetida, enCurso, huellaDistinta]
+          properties:
+            nueva: { type: integer, minimum: 0 }
+            repetida: { type: integer, minimum: 0 }
+            enCurso: { type: integer, minimum: 0 }
+            huellaDistinta: { type: integer, minimum: 0 }
+        outbox:
+          type: object
+          required: [pendientes, edadMasAntiguoSegundos]
+          properties:
+            pendientes: { type: integer, minimum: 0 }
+            edadMasAntiguoSegundos: { type: [number, 'null'], minimum: 0 }
+        colasMotor: { type: string, enum: [pgboss, memory], description: memory solo existe en pruebas. }
+        colas:
+          type: array
+          items:
+            type: object
+            required: [nombre, pendientes, activas, fallidas, criticasPendientes, edadCriticaMasAntiguaSegundos]
+            properties:
+              nombre: { type: string }
+              pendientes: { type: integer, minimum: 0, description: Incluye trabajos diferidos y en reintento; excluye activos. }
+              activas: { type: integer, minimum: 0 }
+              fallidas: { type: integer, minimum: 0 }
+              criticasPendientes: { type: integer, minimum: 0 }
+              edadCriticaMasAntiguaSegundos:
+                type: [number, 'null']
+                minimum: 0
+                description: Edad del trabajo crítico elegible más antiguo; nulo si no hay ninguno listo.
     Problema:
       type: object
       description: Problem Details (RFC 9457) con un código estable para el celular.
@@ -421,8 +628,25 @@ components:
         title: { type: string, examples: ['Conflicto'] }
         status: { type: integer, examples: [409] }
         detail: { type: string, examples: ['Otro vecino ya tomó este favor o ya no está disponible.'] }
-        instance: { type: string, examples: ['/v1/publicaciones/0193.../tomar'] }
+        instance: { type: string, examples: ['/v1/publicaciones#requestId=01970000-0000-7000-8000-000000000001'] }
+        requestId: { type: string, description: 'Identificador de esta solicitud, incluso al repetir un rechazo guardado.' }
         codigo: { type: string, examples: ['favor_no_disponible'] }
+        nivelActual:
+          type: integer
+          minimum: 0
+          maximum: 3
+          description: Nivel del vecino cuando el código es `nivel_de_confianza_insuficiente`.
+        nivelRequerido:
+          type: integer
+          minimum: 0
+          maximum: 3
+          description: Nivel mínimo exigido cuando el código es `nivel_de_confianza_insuficiente`.
+        rolesRequeridos:
+          type: array
+          items:
+            type: string
+            enum: [proveedor, moderador, coordinador, brigadista, administrador]
+          description: Roles aceptados cuando el código es `rol_requerido`; basta tener uno.
       additionalProperties: true
 
     ProblemaDeValidacion:
@@ -592,6 +816,30 @@ components:
           type: integer
           minimum: 1
           description: Versión de la publicación que el vecino veía cuando tocó "Tomar".
+
+    CambioDeEstadoPublicacion:
+      type: object
+      required: [versionVista]
+      properties:
+        versionVista: { type: integer, minimum: 1 }
+
+    PublicacionCercana:
+      allOf:
+        - $ref: '#/components/schemas/Publicacion'
+        - type: object
+          required: [distanciaMetros]
+          properties:
+            distanciaMetros: { type: integer, minimum: 0, multipleOf: 50 }
+
+    PaginaDePublicaciones:
+      type: object
+      required: [datos, siguienteCursor]
+      properties:
+        datos:
+          type: array
+          maxItems: 50
+          items: { $ref: '#/components/schemas/PublicacionCercana' }
+        siguienteCursor: { type: [string, 'null'] }
 
     Publicacion:
       type: object

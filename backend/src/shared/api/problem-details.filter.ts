@@ -1,6 +1,16 @@
 import { type ArgumentsHost, Catch, type ExceptionFilter, Logger } from '@nestjs/common';
-import type { Request, Response } from 'express';
-import { PROBLEM_CONTENT_TYPE, PrebuiltProblem, toProblemDetails } from './problem-details.js';
+import type { Response } from 'express';
+import {
+  type CorrelatedRequest,
+  problemInstance,
+  requestIdFor,
+} from '../observability/request-id.middleware.js';
+import {
+  PROBLEM_CONTENT_TYPE,
+  PrebuiltProblem,
+  toProblemDetails,
+  type ProblemDetails,
+} from './problem-details.js';
 
 /** Every error response goes out as `application/problem+json` (RFC 9457). */
 @Catch()
@@ -10,18 +20,21 @@ export class ProblemDetailsFilter implements ExceptionFilter {
   catch(error: unknown, host: ArgumentsHost): void {
     const http = host.switchToHttp();
     const response = http.getResponse<Response>();
-    const request = http.getRequest<Request>();
+    const request = http.getRequest<CorrelatedRequest>();
+    const requestId = request.requestId ?? requestIdFor(undefined);
+    const instance = problemInstance(request, requestId);
 
-    const problem =
-      error instanceof PrebuiltProblem
-        ? error.problem
-        : toProblemDetails(error, request.originalUrl);
+    const base =
+      error instanceof PrebuiltProblem ? error.problem : toProblemDetails(error, instance);
+    const problem: ProblemDetails = { ...base, instance, requestId };
 
     if (problem.status >= 500) {
-      this.logger.error(
-        `${request.method} ${request.originalUrl} → ${problem.status}`,
-        error instanceof Error ? error.stack : String(error),
-      );
+      this.logger.error({
+        evento: 'http.error_interno',
+        requestId,
+        metodo: request.method,
+        estado: problem.status,
+      });
     }
 
     if (response.headersSent) {
@@ -33,6 +46,7 @@ export class ProblemDetailsFilter implements ExceptionFilter {
     }
     response
       .status(problem.status)
+      .setHeader('x-request-id', requestId)
       .setHeader('content-type', `${PROBLEM_CONTENT_TYPE}; charset=utf-8`)
       .send(JSON.stringify(problem));
   }

@@ -11,7 +11,7 @@
 
 ## Estado del lote
 
-**22 de 28 tareas verificadas en la rama `fase0-a`.** Las fracciones de la tabla corresponden
+**22 de 28 tareas verificadas e integradas en `main` (PR 13 y 14).** Las fracciones de la tabla corresponden
 a las casillas del [checklist de OpenSpec](../../../openspec/changes/lote-a-nucleo-offline/tasks.md).
 La verificación en la rama y la integración en `main` son hitos separados.
 
