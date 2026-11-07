@@ -143,6 +143,7 @@ class HttpAuthRepository implements AuthRepository {
       data: {'zonaId': zoneId},
       options: Options(headers: {'Authorization': 'Bearer $token', 'Idempotency-Key': key}),
     );
+    if (response.statusCode == 401) await _rejectSession(_session!);
     _require(response, 200);
     // This endpoint issues access credentials only; retain the current refresh token.
     await _save({..._session!, ...Map<String, Object?>.from(response.data as Map)});
@@ -165,11 +166,7 @@ class HttpAuthRepository implements AuthRepository {
     );
     if (response.statusCode == 401) {
       // Do not await engine disconnection here: it may itself be waiting on getToken.
-      final accountId = _user(session).neighborId;
-      await _store.write(purgeKey, accountId);
-      _session = null;
-      _emit(const SignedOut());
-      unawaited(_serialize(() => _clear(accountId)));
+      await _rejectSession(session);
       return null;
     }
     _require(response, 200);
@@ -182,6 +179,14 @@ class HttpAuthRepository implements AuthRepository {
     final session = _session;
     if (session != null) await _clear(_user(session).neighborId);
   });
+
+  Future<void> _rejectSession(Map<String, Object?> session) async {
+    final accountId = _user(session).neighborId;
+    await _store.write(purgeKey, accountId);
+    _session = null;
+    _emit(const SignedOut());
+    unawaited(_serialize(() => _clear(accountId)));
+  }
 
   @override
   Future<void> signOut() => _serialize(() async {

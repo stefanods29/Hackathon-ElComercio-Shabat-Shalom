@@ -25,8 +25,8 @@ disponibles en la parte 5 del Lote D. El arranque normal usa `AuthenticatedApp` 
 
 | Comprobación | Resultado |
 | --- | --- |
-| Sesión con HTTP falso | 9 de 9 aprobadas |
-| Suite de la app con `LIVE_POWERSYNC=true` | 63 de 63 aprobadas, incluida la prueba contra la API y PowerSync locales |
+| Sesión con HTTP falso | 10 de 10 aprobadas |
+| Suite de la app con `LIVE_POWERSYNC=true` | 64 de 64 aprobadas, incluida la prueba contra la API y PowerSync locales |
 | Análisis estático de la app | Sin incidencias |
 | Pruebas unitarias del backend | 68 de 68 aprobadas |
 | Integración del backend con PostgreSQL | 59 de 59 aprobadas |

@@ -222,4 +222,16 @@ void main() {
     await auth.chooseZone('zone-1');
     expect(await auth.watch().first, isA<SignedIn>());
   });
+
+  test('revocación al elegir zona vuelve al ingreso aunque todavía no exista motor sync', () async {
+    respond = (r) async => answer(r, 200, session(zone: null));
+    await auth.verifyCode('+51900000002', '123456');
+    respond = (r) async => answer(r, 401, {'codigo': 'sesion_revocada'});
+    await expectLater(auth.chooseZone('zone-1'), throwsA(isA<AuthFailure>()));
+    await auth.whenIdle;
+    expect(await auth.watch().first, isA<SignedOut>());
+    expect(purged, ['neighbor-1']);
+    expect(await store.read(HttpAuthRepository.sessionKey), isNull);
+    expect(await auth.getToken(), isNull);
+  });
 }
