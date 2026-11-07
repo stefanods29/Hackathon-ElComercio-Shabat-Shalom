@@ -34,6 +34,7 @@ npm run dev:keys          # crea .env con una clave ES256 nueva (no se sube)
 npm run db:migrate        # migraciones de todos los módulos
 npm run db:seed           # zonas y vecinos de demostración
 npm run start:dev
+npm run start:workers:dev # otra terminal: relay, trabajos y limpieza (Lote B, Parte 4)
 npm run verify            # tipos, lint, formato, fronteras, Sync Streams, pruebas y build
 DATABASE_URL_ADMIN=postgres://postgres:postgres@localhost:5432/postgres npm run test:integration
 npm run graph             # grafo de dependencias en docs/grafos/

@@ -310,10 +310,13 @@ paths:
     post:
       tags: [solidaridad]
       operationId: publicarEnElMuro
+      x-nivel-minimo: 1
       summary: Publicar en el muro de favores (tercer toque)
       description: |
         El `id` lo genera el celular (UUIDv7). Si la publicación ya existía (reintento), responde
-        200 con la existente: nunca se duplica. Requiere nivel de confianza 1 y una zona.
+        200 con la existente: nunca se duplica. Requiere nivel de confianza mínimo 1 y una zona.
+        Sin token responde 401; con un nivel insuficiente responde 403
+        `nivel_de_confianza_insuficiente`.
         El límite por autor es una ventana móvil de 24 horas (10 por defecto), incluidas
         publicaciones canceladas o eliminadas. Un reintento del mismo id no consume otra plaza.
       parameters:
@@ -434,11 +437,14 @@ paths:
     post:
       tags: [solidaridad]
       operationId: tomarFavor
+      x-nivel-minimo: 1
       summary: Tomar un favor del muro
       description: |
-        Un favor lo toma un solo vecino. Si dos lo toman sin conexión, el servidor decide: el
-        primero gana; el segundo recibe 409 con `codigo: favor_no_disponible` (o
-        `conflicto_de_version` si la publicación cambió). Repetir la acción ya aceptada no falla.
+        Requiere nivel de confianza mínimo 1. Sin token responde 401; con un nivel insuficiente
+        responde 403 `nivel_de_confianza_insuficiente`. Un favor lo toma un solo vecino. Si dos
+        lo toman sin conexión, el servidor decide: el primero gana; el segundo recibe 409 con
+        `codigo: favor_no_disponible` (o `conflicto_de_version` si la publicación cambió).
+        Repetir la acción ya aceptada no falla.
       parameters:
         - name: id
           in: path
@@ -516,7 +522,10 @@ components:
                     minimum: 1
                     description: Segundos que deben transcurrir antes de reintentar.
     Prohibido:
-      description: El vecino no puede hacer esto (p. ej., nivel_de_confianza_insuficiente, fuera_de_tu_zona).
+      description: |
+        El vecino no puede hacer esto. `nivel_de_confianza_insuficiente` incluye `nivelActual` y
+        `nivelRequerido`; `rol_requerido` incluye `rolesRequeridos`. Otros códigos posibles son
+        `fuera_de_tu_zona` y `no_eres_el_autor`.
       content:
         application/problem+json:
           schema: { $ref: '#/components/schemas/Problema' }
@@ -550,6 +559,22 @@ components:
         detail: { type: string, examples: ['Otro vecino ya tomó este favor o ya no está disponible.'] }
         instance: { type: string, examples: ['/v1/publicaciones/0193.../tomar'] }
         codigo: { type: string, examples: ['favor_no_disponible'] }
+        nivelActual:
+          type: integer
+          minimum: 0
+          maximum: 3
+          description: Nivel del vecino cuando el código es `nivel_de_confianza_insuficiente`.
+        nivelRequerido:
+          type: integer
+          minimum: 0
+          maximum: 3
+          description: Nivel mínimo exigido cuando el código es `nivel_de_confianza_insuficiente`.
+        rolesRequeridos:
+          type: array
+          items:
+            type: string
+            enum: [proveedor, moderador, coordinador, brigadista, administrador]
+          description: Roles aceptados cuando el código es `rol_requerido`; basta tener uno.
       additionalProperties: true
 
     ProblemaDeValidacion:

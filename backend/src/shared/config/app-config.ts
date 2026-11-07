@@ -36,8 +36,17 @@ export const configSchema = z
     TWILIO_AUTH_TOKEN: z.string().optional(),
     TWILIO_FROM_SMS: z.string().optional(),
     TWILIO_FROM_WHATSAPP: z.string().optional(),
+
+    JOB_QUEUE_DRIVER: z.enum(['memory', 'pgboss']).default('pgboss'),
   })
   .superRefine((config, ctx) => {
+    if (config.JOB_QUEUE_DRIVER === 'memory' && config.NODE_ENV !== 'test') {
+      ctx.addIssue({
+        code: 'custom',
+        path: ['JOB_QUEUE_DRIVER'],
+        message: 'la cola en memoria solo puede usarse en pruebas',
+      });
+    }
     if (config.NODE_ENV === 'production' && config.ENABLE_DEV_SESSION) {
       ctx.addIssue({
         code: 'custom',

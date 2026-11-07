@@ -18,16 +18,16 @@
 
 ## 3. Parte 3 · Roles y niveles de confianza
 
-- [ ] 3.1 Decoradores `@RequireTrustLevel(n)` y `@RequireRole(...)` con guard; verificar con pruebas por cada combinación
-- [ ] 3.2 Aplicarlos a las rutas existentes y documentarlos en el contrato; verificar con pruebas de punta a punta
-- [ ] 3.3 Compilar y depurar (CI en verde)
+- [x] 3.1 Decoradores `@RequireTrustLevel(n)` y `@RequireRole(...)` con guard; verificar con pruebas por cada combinación
+- [x] 3.2 Aplicarlos a las rutas existentes y documentarlos en el contrato; verificar con pruebas de punta a punta
+- [x] 3.3 Compilar y depurar (CI en verde)
 
 ## 4. Parte 4 · Eventos y trabajos
 
-- [ ] 4.1 Adaptador pg-boss de `JobQueue` (prioridad, reintentos, cola de fallidos) en el esquema `colas`; verificar con pruebas de integración
-- [ ] 4.2 Relay del outbox con `SKIP LOCKED`; verificar con una prueba de dos relays en paralelo sin duplicados
-- [ ] 4.3 Proceso `src/workers/main.ts`, limpieza programada (idempotencia vencida, outbox antiguo) y contrato del trabajo `notificaciones.enviar_aviso` para el Lote C; verificar con pruebas
-- [ ] 4.4 Compilar y depurar (CI en verde)
+- [x] 4.1 Adaptador pg-boss de `JobQueue` (prioridad, reintentos, cola de fallidos) en el esquema `colas`; verificar con pruebas de integración
+- [x] 4.2 Relay del outbox con `SKIP LOCKED`; verificar con una prueba de dos relays en paralelo sin duplicados
+- [x] 4.3 Proceso `src/workers/main.ts`, limpieza programada (idempotencia vencida, outbox antiguo) y contrato del trabajo `notificaciones.enviar_aviso` para el Lote C; verificar con pruebas
+- [x] 4.4 Compilar y depurar (CI en verde)
 
 ## 5. Parte 5 · Muro completo
 

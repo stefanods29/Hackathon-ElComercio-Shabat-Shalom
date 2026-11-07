@@ -5,7 +5,7 @@ describe('FakeOtpProvider', () => {
   it('conserva los códigos para las pruebas y solo los registra en development', async () => {
     const developmentLogger = { log: vi.fn() };
     const development = new FakeOtpProvider(
-      testConfig({ NODE_ENV: 'development' }),
+      testConfig({ NODE_ENV: 'development', JOB_QUEUE_DRIVER: 'pgboss' }),
       developmentLogger,
     );
     await development.send('+51910000001', '123456', 'sms');
