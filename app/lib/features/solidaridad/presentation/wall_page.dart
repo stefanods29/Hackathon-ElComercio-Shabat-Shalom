@@ -3,7 +3,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:vecinal/core/di/providers.dart';
 import 'package:vecinal/core/router/routes.dart';
+import 'package:vecinal/core/sync/sync_service.dart';
+import 'package:vecinal/core/time/time_ago.dart';
 import 'package:vecinal/core/ui/connection_banner.dart';
+import 'package:vecinal/features/onboarding/tutorial_screen.dart';
 import 'package:vecinal/features/solidaridad/data/providers.dart';
 import 'package:vecinal/features/solidaridad/presentation/widgets/post_card.dart';
 import 'package:vecinal/l10n/app_localizations.dart';
@@ -18,14 +21,43 @@ class WallPage extends ConsumerWidget {
     final texts = AppLocalizations.of(context);
     final wall = ref.watch(wallProvider);
     final signOut = ref.watch(demoSignOutProvider);
+    final syncStatus = ref.watch(syncStatusProvider).value ?? SyncStatus.initial;
+    final lastSyncedAt = syncStatus.lastSyncedAt;
+
     return Scaffold(
       appBar: AppBar(
         title: Text(texts.wallTitle),
         actions: [
-          IconButton(
-            tooltip: texts.actionsToReview,
-            icon: const Icon(Icons.inbox_outlined),
-            onPressed: () => context.push(Routes.toReview),
+          Stack(
+            children: [
+              IconButton(
+                tooltip: texts.actionsToReview,
+                icon: const Icon(Icons.inbox_outlined),
+                onPressed: () => context.push(Routes.toReview),
+              ),
+              if (syncStatus.pendingUploads > 0)
+                Positioned(
+                  right: 8,
+                  top: 8,
+                  child: Container(
+                    padding: const EdgeInsets.all(4),
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).colorScheme.error,
+                      shape: BoxShape.circle,
+                    ),
+                    constraints: const BoxConstraints(minWidth: 20, minHeight: 20),
+                    child: Text(
+                      '${syncStatus.pendingUploads}',
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 10,
+                        fontWeight: FontWeight.bold,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
+                ),
+            ],
           ),
           if (signOut != null)
             IconButton(
@@ -52,11 +84,31 @@ class WallPage extends ConsumerWidget {
                 if (confirmed == true && context.mounted) signOut();
               },
             ),
+          IconButton(
+            tooltip: texts.accountTitle,
+            icon: const Icon(Icons.person_outline),
+            onPressed: () => context.push(Routes.account),
+          ),
+          const TutorialButton(),
         ],
       ),
       body: Column(
         children: [
           const ConnectionBanner(),
+          if (lastSyncedAt != null)
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+              child: Row(
+                children: [
+                  Text(
+                    texts.updatedAgo(timeAgo(lastSyncedAt, ref.watch(clockProvider)(), texts)),
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    ),
+                  ),
+                ],
+              ),
+            ),
           Expanded(
             child: wall.when(
               data: (posts) => posts.isEmpty

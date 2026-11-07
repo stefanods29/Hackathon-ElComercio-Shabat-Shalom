@@ -20,7 +20,7 @@ class ConnectionBanner extends ConsumerWidget {
     final lastSyncedAt = status.lastSyncedAt;
     final detail = lastSyncedAt == null
         ? texts.statusSavedOnPhoneDetail
-        : texts.dataFrom(timeAgo(lastSyncedAt, ref.watch(clockProvider)()));
+        : texts.dataFrom(timeAgo(lastSyncedAt, ref.watch(clockProvider)(), texts));
     return Semantics(
       liveRegion: true,
       child: Material(

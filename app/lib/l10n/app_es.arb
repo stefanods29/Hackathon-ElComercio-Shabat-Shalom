@@ -34,5 +34,268 @@
     "placeholders": { "lot": { "type": "String" } }
   },
   "emergencyLifeRisk": "Si hay riesgo para la vida, llama al 116, 105 o 106.",
-  "connectsNeighbors": "Esta app conecta vecinos; no reemplaza a los servicios de emergencia."
+  "connectsNeighbors": "Esta app conecta vecinos; no reemplaza a los servicios de emergencia.",
+  "chooseTypeTitle": "Elige qué quieres publicar",
+  "@chooseTypeTitle": {
+    "description": "Título de la pantalla de elección de tipo de publicación"
+  },
+  "publishFormTitle": "Publicar",
+  "@publishFormTitle": {
+    "description": "Título del formulario de publicación"
+  },
+  "titleLabel": "Título",
+  "@titleLabel": {
+    "description": "Etiqueta del campo de título del formulario"
+  },
+  "categoryLabel": "Categoría",
+  "@categoryLabel": {
+    "description": "Etiqueta del campo de categoría del formulario"
+  },
+  "descriptionLabel": "Descripción",
+  "@descriptionLabel": {
+    "description": "Etiqueta del campo de descripción opcional"
+  },
+  "descriptionHint": "Más detalles (opcional)",
+  "@descriptionHint": {
+    "description": "Placeholder del campo de descripción opcional"
+  },
+  "publishButton": "Publicar",
+  "@publishButton": {
+    "description": "Botón para guardar la publicación"
+  },
+  "timeAgoMoment": "hace un momento",
+  "@timeAgoMoment": {
+    "description": "Tiempo transcurrido: menos de un minuto"
+  },
+  "timeAgoMinutes": "{count, plural, =1{hace 1 minuto} other{hace {count} minutos}}",
+  "@timeAgoMinutes": {
+    "description": "Tiempo transcurrido: minutos, con plurales ICU",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "timeAgoHours": "{count, plural, =1{hace 1 hora} other{hace {count} horas}}",
+  "@timeAgoHours": {
+    "description": "Tiempo transcurrido: horas, con plurales ICU",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "timeAgoDays": "{count, plural, =1{hace 1 día} other{hace {count} días}}",
+  "@timeAgoDays": {
+    "description": "Tiempo transcurrido: días, con plurales ICU",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "noActionsToReview": "No tienes acciones por revisar.",
+  "@noActionsToReview": {
+    "description": "Estado vacío de la bandeja de acciones por revisar"
+  },
+  "favorUnavailableAlternative": "Otro vecino llegó primero. Busca otro favor en el muro.",
+  "@favorUnavailableAlternative": {
+    "description": "Alternativa para el código favor_no_disponible"
+  },
+  "conflictVersionAlternative": "La publicación cambió. Revísala y vuelve a intentarlo.",
+  "@conflictVersionAlternative": {
+    "description": "Alternativa para el código conflicto_de_version"
+  },
+  "insufficientTrustAlternative": "Primero confirma que vives en la zona.",
+  "@insufficientTrustAlternative": {
+    "description": "Alternativa para el código nivel_de_confianza_insuficiente"
+  },
+  "outsideZoneAlternative": "Solo puedes tomar favores de tu zona.",
+  "@outsideZoneAlternative": {
+    "description": "Alternativa para el código fuera_de_tu_zona"
+  },
+  "reviewAgainAlternative": "Revisa los datos y vuelve a intentarlo.",
+  "@reviewAgainAlternative": {
+    "description": "Alternativa genérica para cualquier otro código de rechazo"
+  },
+  "goToWall": "Ir al muro",
+  "@goToWall": {
+    "description": "Botón para volver al muro desde la bandeja de acciones"
+  },
+  "tutorialTitle": "Tutorial de Vecinal",
+  "@tutorialTitle": {
+    "description": "Título de la pantalla de tutorial"
+  },
+  "tutorialSubtitle": "Aprende a usar la app sin miedo a equivocarte.",
+  "@tutorialSubtitle": {
+    "description": "Subtítulo de la pantalla de tutorial"
+  },
+  "startTutorial": "Comenzar tutorial",
+  "@startTutorial": {
+    "description": "Botón para iniciar el tutorial"
+  },
+  "skipTutorial": "Saltar",
+  "@skipTutorial": {
+    "description": "Botón para saltar el tutorial"
+  },
+  "viewTutorial": "Ver tutorial",
+  "@viewTutorial": {
+    "description": "Botón del menú para ver el tutorial"
+  },
+  "tutorialPublishStep": "Toca aquí para publicar en 3 toques.",
+  "@tutorialPublishStep": {
+    "description": "Texto del paso del tutorial sobre el botón +"
+  },
+  "tutorialTakeFavorStep": "Toca 'Tomar favor' en una tarjeta para ayudarte con un vecino.",
+  "@tutorialTakeFavorStep": {
+    "description": "Texto del paso del tutorial sobre tomar favor"
+  },
+  "tutorialSavedStep": "Lo guardado en tu celular todavía no le llega a nadie. Se envía cuando vuelve la señal.",
+  "@tutorialSavedStep": {
+    "description": "Texto del paso del tutorial sobre estado guardado"
+  },
+  "tutorialReviewStep": "Si algo no se envió, revisa la bandeja de acciones por revisar.",
+  "@tutorialReviewStep": {
+    "description": "Texto del paso del tutorial sobre bandeja"
+  },
+  "tutorialEmergencyStep": "Si hay riesgo para la vida, llama al",
+  "@tutorialEmergencyStep": {
+    "description": "Texto del paso del tutorial sobre emergencia (parte 1)"
+  },
+  "tutorialEmergencyNote": "Esta app conecta vecinos; no reemplaza a los servicios de emergencia.",
+  "@tutorialEmergencyNote": {
+    "description": "Texto del paso del tutorial sobre emergencia (parte 2)"
+  },
+  "signInTitle": "Ingresar a Vecinal",
+  "@signInTitle": {
+    "description": "Título de la pantalla de ingreso"
+  },
+  "signInWelcome": "Bienvenido de vuelta",
+  "@signInWelcome": {
+    "description": "Mensaje de bienvenida en la pantalla de ingreso"
+  },
+  "signInSubtitle": "Ingresa tu número celular para recibir un código de verificación.",
+  "@signInSubtitle": {
+    "description": "Subtítulo de la pantalla de ingreso"
+  },
+  "phoneLabel": "Número celular",
+  "@phoneLabel": {
+    "description": "Etiqueta del campo de teléfono"
+  },
+  "sendCode": "Enviar código",
+  "@sendCode": {
+    "description": "Botón para solicitar el código de verificación"
+  },
+  "privacyNotice": "Usaremos tu número solo para que entres a la app.",
+  "@privacyNotice": {
+    "description": "Aviso de privacidad en la pantalla de ingreso"
+  },
+  "verifyCodeTitle": "Código de verificación",
+  "@verifyCodeTitle": {
+    "description": "Título de la pantalla de código"
+  },
+  "verifyCodeWelcome": "Te enviamos un código a",
+  "@verifyCodeWelcome": {
+    "description": "Mensaje de bienvenida en la pantalla de código"
+  },
+  "verifyCodeSubtitle": "Ingresa los 6 dígitos que recibiste por SMS.",
+  "@verifyCodeSubtitle": {
+    "description": "Subtítulo de la pantalla de código"
+  },
+  "codeLabel": "Código",
+  "@codeLabel": {
+    "description": "Etiqueta del campo de código"
+  },
+  "verifyCodeButton": "Verificar código",
+  "@verifyCodeButton": {
+    "description": "Botón para verificar el código"
+  },
+  "resendCode": "Reenviar código",
+  "@resendCode": {
+    "description": "Botón para reenviar el código"
+  },
+  "resendCodeIn": "Reenviar código en",
+  "@resendCodeIn": {
+    "description": "Texto de cuenta regresiva para reenviar código"
+  },
+  "chooseZoneTitle": "Elige tu zona",
+  "@chooseZoneTitle": {
+    "description": "Título de la pantalla de elección de zona"
+  },
+  "chooseZoneSubtitle": "Selecciona tu zona para ver los favores de tu vecindario.",
+  "@chooseZoneSubtitle": {
+    "description": "Subtítulo de la pantalla de elección de zona"
+  },
+  "chooseZoneDetail": "Esto nos ayuda a mostrarte publicaciones de tu zona.",
+  "@chooseZoneDetail": {
+    "description": "Detalle de la pantalla de elección de zona"
+  },
+  "noZonesAvailable": "No hay zonas disponibles.",
+  "@noZonesAvailable": {
+    "description": "Estado vacío de zonas"
+  },
+  "chooseZoneError": "No se pudo elegir la zona. Intenta de nuevo.",
+  "@chooseZoneError": {
+    "description": "Error al elegir zona"
+  },
+  "accountTitle": "Mi cuenta",
+  "@accountTitle": {
+    "description": "Título de la pantalla de cuenta"
+  },
+  "accountSignedIn": "Sesión iniciada",
+  "@accountSignedIn": {
+    "description": "Subtítulo indicando que hay sesión iniciada"
+  },
+  "unknownUser": "Usuario",
+  "@unknownUser": {
+    "description": "Nombre predeterminado cuando no se conoce el usuario"
+  },
+  "simpleModeTitle": "Modo sencillo",
+  "@simpleModeTitle": {
+    "description": "Título del modo sencillo"
+  },
+  "simpleModeSubtitle": "Menos opciones, textos más grandes.",
+  "@simpleModeSubtitle": {
+    "description": "Subtítulo del modo sencillo"
+  },
+  "signOut": "Cerrar sesión",
+  "@signOut": {
+    "description": "Botón para cerrar sesión"
+  },
+  "signOutWarning": "Se borrarán los datos guardados en este celular.",
+  "@signOutWarning": {
+    "description": "Advertencia al cerrar sesión"
+  },
+  "signOutConfirmTitle": "¿Cerrar sesión?",
+  "@signOutConfirmTitle": {
+    "description": "Título del diálogo de cerrar sesión"
+  },
+  "signOutConfirmBody": "Se borrarán los datos guardados en este celular.",
+  "@signOutConfirmBody": {
+    "description": "Cuerpo del diálogo de cerrar sesión"
+  },
+  "lostPhone": "Perdí mi teléfono",
+  "@lostPhone": {
+    "description": "Opción para cerrar sesión en todos los dispositivos"
+  },
+  "lostPhoneSubtitle": "Cerrar sesión en todos mis dispositivos.",
+  "@lostPhoneSubtitle": {
+    "description": "Subtítulo de perdido mi teléfono"
+  },
+  "lostPhoneConfirmTitle": "¿Cerrar sesión en todos los dispositivos?",
+  "@lostPhoneConfirmTitle": {
+    "description": "Título del diálogo de perdido mi teléfono"
+  },
+  "lostPhoneConfirmBody": "Se cerrará la sesión en todos los dispositivos donde hayas iniciado sesión.",
+  "@lostPhoneConfirmBody": {
+    "description": "Cuerpo del diálogo de perdido mi teléfono"
+  },
+  "cancel": "Cancelar",
+  "@cancel": {
+    "description": "Botón cancelar"
+  },
+  "confirm": "Confirmar",
+  "@confirm": {
+    "description": "Botón confirmar"
+  }
 }
