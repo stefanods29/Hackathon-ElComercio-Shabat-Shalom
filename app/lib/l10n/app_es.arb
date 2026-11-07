@@ -27,5 +27,92 @@
     "placeholders": { "lot": { "type": "String" } }
   },
   "emergencyLifeRisk": "Si hay riesgo para la vida, llama al 116, 105 o 106.",
-  "connectsNeighbors": "Esta app conecta vecinos; no reemplaza a los servicios de emergencia."
+  "connectsNeighbors": "Esta app conecta vecinos; no reemplaza a los servicios de emergencia.",
+  "chooseTypeTitle": "Elige qué quieres publicar",
+  "@chooseTypeTitle": {
+    "description": "Título de la pantalla de elección de tipo de publicación"
+  },
+  "publishFormTitle": "Publicar",
+  "@publishFormTitle": {
+    "description": "Título del formulario de publicación"
+  },
+  "titleLabel": "Título",
+  "@titleLabel": {
+    "description": "Etiqueta del campo de título del formulario"
+  },
+  "categoryLabel": "Categoría",
+  "@categoryLabel": {
+    "description": "Etiqueta del campo de categoría del formulario"
+  },
+  "descriptionLabel": "Descripción",
+  "@descriptionLabel": {
+    "description": "Etiqueta del campo de descripción opcional"
+  },
+  "descriptionHint": "Más detalles (opcional)",
+  "@descriptionHint": {
+    "description": "Placeholder del campo de descripción opcional"
+  },
+  "publishButton": "Publicar",
+  "@publishButton": {
+    "description": "Botón para guardar la publicación"
+  },
+  "timeAgoMoment": "hace un momento",
+  "@timeAgoMoment": {
+    "description": "Tiempo transcurrido: menos de un minuto"
+  },
+  "timeAgoMinutes": "{count, plural, =1{hace 1 minuto} other{hace {count} minutos}}",
+  "@timeAgoMinutes": {
+    "description": "Tiempo transcurrido: minutos, con plurales ICU",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "timeAgoHours": "{count, plural, =1{hace 1 hora} other{hace {count} horas}}",
+  "@timeAgoHours": {
+    "description": "Tiempo transcurrido: horas, con plurales ICU",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "timeAgoDays": "{count, plural, =1{hace 1 día} other{hace {count} días}}",
+  "@timeAgoDays": {
+    "description": "Tiempo transcurrido: días, con plurales ICU",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "noActionsToReview": "No tienes acciones por revisar.",
+  "@noActionsToReview": {
+    "description": "Estado vacío de la bandeja de acciones por revisar"
+  },
+  "favorUnavailableAlternative": "Otro vecino llegó primero. Busca otro favor en el muro.",
+  "@favorUnavailableAlternative": {
+    "description": "Alternativa para el código favor_no_disponible"
+  },
+  "conflictVersionAlternative": "La publicación cambió. Revísala y vuelve a intentarlo.",
+  "@conflictVersionAlternative": {
+    "description": "Alternativa para el código conflicto_de_version"
+  },
+  "insufficientTrustAlternative": "Primero confirma que vives en la zona.",
+  "@insufficientTrustAlternative": {
+    "description": "Alternativa para el código nivel_de_confianza_insuficiente"
+  },
+  "outsideZoneAlternative": "Solo puedes tomar favores de tu zona.",
+  "@outsideZoneAlternative": {
+    "description": "Alternativa para el código fuera_de_tu_zona"
+  },
+  "reviewAgainAlternative": "Revisa los datos y vuelve a intentarlo.",
+  "@reviewAgainAlternative": {
+    "description": "Alternativa genérica para cualquier otro código de rechazo"
+  },
+  "goToWall": "Ir al muro",
+  "@goToWall": {
+    "description": "Botón para volver al muro desde la bandeja de acciones"
+  }
 }
