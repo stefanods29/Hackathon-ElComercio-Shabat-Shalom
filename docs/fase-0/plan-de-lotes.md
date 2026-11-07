@@ -157,6 +157,11 @@ Para que no quede nada fuera, este es el resto de la arquitectura repartido con 
 D: experiencia). Cada fase se planifica como changes nuevos de OpenSpec cuando se cumple la
 condición de la anterior.
 
+El detalle de cada fase, con sus guías por lote y sus criterios de salida, está en
+[`../fase-1/`](../fase-1/README.md), [`../fase-2/`](../fase-2/README.md) y
+[`../fase-3/`](../fase-3/README.md). La [hoja de ruta](../hoja-de-ruta.md) dice cómo se abre cada
+fase.
+
 | Fase | Lote A | Lote B | Lote C | Lote D |
 |---|---|---|---|---|
 | **1 · Piloto en un barrio** | Streams públicos del directorio y la reputación; directorio de emergencia offline (solo lectura) con fuente y fecha; métricas de sincronización | Módulos Directorio (perfiles, servicios, búsqueda por cercanía), Reputación (reseñas, Visto Bueno, ranking bayesiano, antifraude) y Moderación (denuncias, cola) | Módulo Media (URLs firmadas, miniaturas, EXIF borrado); fotos en la app; compartir por WhatsApp; entornos dev · staging · prod con Terraform u OpenTofu; OpenTelemetry + Sentry | Pantallas del directorio, perfil de proveedor y reseñas con fotos; onboarding; consentimiento y derechos ARCO (Ley 29733) |
