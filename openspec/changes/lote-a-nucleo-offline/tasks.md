@@ -2,7 +2,7 @@
 
 ## 1. Parte 1 · PowerSync de punta a punta
 
-- [ ] 1.1 Levantar `infra/` (`docker compose up -d`), la API y la semilla; verificar en los logs de PowerSync que replica `identidad.zonas` y `solidaridad.publicaciones`
+- [x] 1.1 Levantar `infra/` (`docker compose up -d`), la API y la semilla; verificar en los logs de PowerSync que replica `identidad.zonas` y `solidaridad.publicaciones`
 - [ ] 1.2 Agregar `powersync` 2.x a la app y definir el esquema local (zonas, publicaciones, comandos insert-only, envíos local-only); verificar con una prueba que el esquema abre
 - [ ] 1.3 Implementar el conector (`fetchCredentials` con `GET /v1/sync/credenciales`, renovación antes de vencer); verificar con una prueba con HTTP falso
 - [ ] 1.4 Implementar `SyncService` sobre PowerSync (conectado, última sincronización, pendientes) y sobreescribir su proveedor; verificar en un Android real que llegan las publicaciones de la zona

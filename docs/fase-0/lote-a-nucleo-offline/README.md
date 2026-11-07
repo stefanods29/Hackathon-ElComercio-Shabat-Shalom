@@ -15,7 +15,7 @@
 
 | Parte | Qué entrega | Estado | Responsable | PR |
 |---|---|---|---|---|
-| 1 | PowerSync de punta a punta | Pendiente | Stefano | — |
+| 1 | PowerSync de punta a punta | En curso | Stefano | — |
 | 2 | Cifrado local, purga e inicio de sesión real | Pendiente | Stefano | — |
 | 3 | Cola de subida con estados, reintentos y rechazos | Pendiente | Stefano | — |
 | 4 | Datos sensibles bajo demanda | Pendiente | Stefano | — |
@@ -68,9 +68,16 @@ Las 6 partes de abajo. Cada una termina con la app y el backend compilados y dep
 
 ```bash
 git clone https://github.com/stefanods29/Hackathon-ElComercio-Shabat-Shalom.git
-cd Hackathon-ElComercio-Shabat-Shalom/infra && docker compose up -d
-cd ../backend && npm ci && npm run dev:keys && npm run db:migrate && npm run db:seed && npm run start:dev
-cd ../app && flutter pub get && flutter gen-l10n
+cd Hackathon-ElComercio-Shabat-Shalom/infra && docker compose up -d --wait postgres cdn
+cd ../backend && npm ci && npm run dev:keys && npm run db:migrate && npm run db:seed
+docker compose -f ../infra/docker-compose.yml up -d --wait powersync
+npm run start:dev
+```
+
+En otra terminal, desde la raíz del repositorio:
+
+```bash
+cd app && flutter pub get && flutter gen-l10n
 flutter run --dart-define=API_BASE_URL=http://10.0.2.2:3000 --dart-define=POWERSYNC_URL=http://10.0.2.2:8080
 ```
 
@@ -106,6 +113,11 @@ sequenceDiagram
 ## Parte 1 · PowerSync de punta a punta
 
 Rama: `lote-a/parte-1-powersync` · Tareas 1.1–1.5
+
+El 7 de noviembre de 2026 se verificó la tarea 1.1 en Windows. La API y el servidor de
+archivos respondieron con HTTP 200. Una sesión de prueba de Beto recibió la zona piloto
+y una publicación creada por Ana a través de `POST /sync/stream`, con el punto de
+sincronización confirmado. Pasaron las 36 pruebas del backend y las 17 de integración.
 
 1. **Infraestructura viva:** con `docker compose up -d`, la API y la semilla corriendo, revisa con
    `docker compose logs -f powersync` que el servicio replica `identidad.zonas` y
