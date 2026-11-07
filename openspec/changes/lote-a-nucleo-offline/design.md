@@ -3,7 +3,7 @@
 ## Context
 
 Ver `proposal.md`. Los cimientos ya traen: la máquina de estados de envío
-(`app/lib/core/envios/`), la clasificación de respuestas (`core/red/clasificar_respuesta.dart`),
+(`app/lib/core/submissions/`), la clasificación de respuestas (`core/network/classify_response.dart`),
 la política de reintentos con jitter, el puerto `SyncService`, la interfaz
 `PostRepository` con un doble en memoria, y en el backend los endpoints idempotentes de
 publicar y tomar favor, `GET /v1/sync/credenciales`, el JWKS y los Sync Streams por zona.
@@ -80,7 +80,7 @@ stateDiagram-v2
 
 | Con | Qué | Regla |
 |---|---|---|
-| Lote B | Endpoints del muro y, más adelante, `obtenerToken` con OTP | El contrato manda; A usa la sesión de desarrollo mientras tanto |
+| Lote B | Endpoints del muro y, más adelante, `getToken` con OTP | El contrato manda; A usa la sesión de desarrollo mientras tanto |
 | Lote D | Pantallas que leen `PostRepository` y "acciones por revisar" | D trabaja con el doble; A solo sobreescribe el proveedor |
 | Lote C | `app/pubspec.yaml`, `infra/` | Cambios pequeños y en PR separado; rebase antes de integrar |
 

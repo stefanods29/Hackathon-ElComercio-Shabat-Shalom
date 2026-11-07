@@ -38,5 +38,5 @@ Fuera de alcance: validación de DNI (nivel 3) y consola web (Fase 2), Valkey/Bu
 ## Impact
 
 `backend/src/modules/identidad/`, `backend/src/modules/solidaridad/`,
-`backend/src/shared/colas/` (adaptador pg-boss), `backend/src/workers/` (nuevo),
+`backend/src/shared/queues/` (adaptador pg-boss), `backend/src/workers/` (nuevo),
 `backend/test/carga/` (nuevo), `contracts/openapi.yaml` (nuevas rutas `/v1/auth/*` y del muro).

@@ -3,7 +3,7 @@
 ## Context
 
 Ver `proposal.md`. Los cimientos ya traen el patrón completo en `modules/solidaridad` (copiarlo),
-la emisión de tokens ES256 (`shared/auth/servicio-tokens.ts`), el outbox
+la emisión de tokens ES256 (`shared/auth/token.service.ts`), el outbox
 (`shared/outbox/`), el puerto `JobQueue` con un doble en memoria y la idempotencia.
 
 ## Goals / Non-Goals
@@ -55,7 +55,7 @@ flowchart LR
 
 | Con | Qué | Regla |
 |---|---|---|
-| Lote A | `obtenerToken` y revocación (401 en credenciales) | Contrato en `contracts/openapi.yaml` antes de implementar |
+| Lote A | `getToken` y revocación (401 en credenciales) | Contrato en `contracts/openapi.yaml` antes de implementar |
 | Lote C | Trabajo `notificaciones.enviar_aviso` | B define el nombre y la carga del trabajo en la Parte 4; C implementa el manejador |
 | Todos | `contracts/openapi.yaml` | PR pequeño solo del contrato al inicio de cada parte |
 
