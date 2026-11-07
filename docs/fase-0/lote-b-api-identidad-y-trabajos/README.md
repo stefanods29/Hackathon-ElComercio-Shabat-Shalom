@@ -18,7 +18,7 @@
 | 1 | Inicio de sesión con OTP y elección de zona | Pendiente | Por asignar | — |
 | 2 | Sesiones revocables | Pendiente | Por asignar | — |
 | 3 | Roles y niveles de confianza | Pendiente | Por asignar | — |
-| 4 | Eventos y trabajos (pg-boss, outbox y workers) | Pendiente | Por asignar | — |
+| 4 | Eventos y trabajos (pg-boss, outbox y workers) | En curso | JDiazD33 | — |
 | 5 | Muro completo | Pendiente | Por asignar | — |
 | 6 | Capacidad (k6) | Pendiente | Por asignar | — |
 
