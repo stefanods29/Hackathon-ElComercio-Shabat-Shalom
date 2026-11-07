@@ -1,0 +1,41 @@
+import 'package:powersync/powersync.dart';
+
+const localSchema = Schema([
+  Table('zonas', [Column.text('nombre'), Column.text('distrito'), Column.text('actualizado_en')]),
+  Table('publicaciones', [
+    Column.text('autor_id'),
+    Column.text('zona_id'),
+    Column.text('tipo'),
+    Column.text('categoria'),
+    Column.text('titulo'),
+    Column.text('descripcion'),
+    Column.real('lat'),
+    Column.real('lng'),
+    Column.text('estado'),
+    Column.text('tomada_por_id'),
+    Column.integer('version'),
+    Column.text('vence_en'),
+    Column.text('creado_en'),
+    Column.text('actualizado_en'),
+  ]),
+  Table.insertOnly('comandos', [
+    Column.text('tipo'),
+    Column.text('recurso_id'),
+    Column.text('cuerpo'),
+    Column.text('clave_idempotencia'),
+  ]),
+  Table.localOnly('envios', [
+    Column.text('tipo'),
+    Column.text('recurso_id'),
+    Column.text('clave_idempotencia'),
+    Column.text('estado'),
+    Column.integer('intentos'),
+    Column.text('creado_en'),
+    Column.text('ultimo_intento_en'),
+    Column.text('reintentar_en'),
+    Column.text('motivo_codigo'),
+    Column.text('motivo_titulo'),
+    Column.text('motivo_detalle'),
+    Column.text('publicacion_optimista'),
+  ]),
+]);

@@ -6,6 +6,7 @@ infraestructura local y las especificaciones (OpenSpec).
 
 - **Arquitectura:** `docs/arquitectura/` · correcciones en `docs/adr/`
 - **Estado de la Fase 0 y cómo contribuir (empieza aquí):** `docs/fase-0/README.md`
+- [Avance del Lote A, tareas verificadas y evidencias](docs/fase-0/lote-a-nucleo-offline/README.md#estado-del-lote)
 - **Plan de trabajo en 4 lotes (A–D):** `docs/fase-0/plan-de-lotes.md`
 - **Cómo se entrega y revisa:** `docs/fase-0/revision-y-entregas.md`
 - **Reglas, stack y comandos:** `CONTRIBUTING.md`

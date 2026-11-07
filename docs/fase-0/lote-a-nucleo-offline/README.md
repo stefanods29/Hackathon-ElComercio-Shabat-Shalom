@@ -9,21 +9,27 @@
 | Issue de GitHub | #1 · Lote A · Núcleo offline, integración y revisión |
 | Partes | 6, en orden |
 
-> Las tareas con casillas viven en `openspec/changes/lote-a-nucleo-offline/tasks.md`; esta guía explica cómo hacerlas.
-
 ## Estado del lote
 
-| Parte | Qué entrega | Estado | Responsable | PR |
-|---|---|---|---|---|
-| 1 | PowerSync de punta a punta | Pendiente | Stefano | — |
-| 2 | Cifrado local, purga e inicio de sesión real | Pendiente | Stefano | — |
-| 3 | Cola de subida con estados, reintentos y rechazos | Pendiente | Stefano | — |
-| 4 | Datos sensibles bajo demanda | Pendiente | Stefano | — |
-| 5 | Pruebas de campo (sección 13.1) | Pendiente | Stefano | — |
-| 6 | Integración de la Fase 0 | Pendiente | Stefano | — |
+**21 de 28 tareas verificadas en la rama `fase0-a`.** Las fracciones de la tabla corresponden
+a las casillas del [checklist de OpenSpec](../../../openspec/changes/lote-a-nucleo-offline/tasks.md).
+La verificación en la rama y la integración en `main` son hitos separados.
 
-Estados posibles: **Pendiente**, **En curso** o **Hecha** (integrada en `main`). Quien toma una
-parte cambia su estado en el mismo PR en que la entrega.
+| Parte | Tareas | Terminado y comprobado | Pendiente para cerrar |
+| --- | --- | --- | --- |
+| 1 · PowerSync | 5/5 | La API entrega credenciales renovables y el muro sincroniza y se puede abrir sin señal. Verificado en un Redmi Note 13 y con CI aprobada. | Tareas de esta parte verificadas. |
+| 2 · Cifrado y sesión | 5/6 | SQLite cifrado, caducidad de casos, purga por revocación y cierre local de la sesión de prueba. [Pruebas de purga](../evidencias/purga.md). Compilaciones Android e iOS aprobadas en CI. | Conexión con la cuenta real de los Lotes B y D. |
+| 3 · Cola de subida | 5/6 | Publicar y tomar quedan en la cola cifrada. En la prueba de conflicto se conservó el motivo del rechazo y se envió la siguiente acción. CI aprobada. | Verificar las pantallas del Lote D con el repositorio real. |
+| 4 · Casos sensibles | 5/5 | Solo se descarga el caso solicitado por el personal asignado. El Redmi borró el caso al reasignarlo. [Prueba de purga](../evidencias/purga.md). CI aprobada. | Tareas de esta parte verificadas. |
+| 5 · Pruebas de campo | 1/4 | Purga comprobada en Android. En una prueba parcial de carga, 500 publicaciones sintéticas llegaron desde el Redmi sin pérdidas ni duplicados. [Prueba de carga](../evidencias/cola-offline.md). | Completar la matriz de campo en Android e iOS, medir segundo plano y probar el conflicto con dos celulares y la pantalla del Lote D. |
+| 6 · Integración | 0/2 | El entorno local y los resultados de los componentes ya están disponibles para la integración. | Entregas aprobadas de B, C y D, flujo completo y CI en `main`. |
+
+La entrega se integra con el diseño accesible que ya contiene `main` mediante el
+[PR 13](https://github.com/stefanods29/Hackathon-ElComercio-Shabat-Shalom/pull/13).
+El 7 de noviembre de 2026 pasaron las comprobaciones de
+[Android e iOS](https://github.com/stefanods29/Hackathon-ElComercio-Shabat-Shalom/actions/runs/42378742817),
+[backend y PostgreSQL](https://github.com/stefanods29/Hackathon-ElComercio-Shabat-Shalom/actions/runs/42378743130)
+y [OpenSpec y contrato](https://github.com/stefanods29/Hackathon-ElComercio-Shabat-Shalom/actions/runs/42378743163).
 
 ---
 
@@ -33,7 +39,7 @@ parte cambia su estado en el mismo PR en que la entrega.
 
 Si la cola offline pierde o duplica acciones, o si un dato sensible llega al celular equivocado,
 el producto falla justo cuando más se necesita. Este lote cambia los dobles en memoria de la app
-por **PowerSync** con una base local **cifrada**, sin tocar ninguna pantalla, y demuestra con
+por **PowerSync** con una base local **cifrada** mediante proveedores de la app y demuestra con
 dispositivos reales los criterios de la sección 13.1.
 
 ### 0.2 Lo que ya está hecho (cimientos en `main`)
@@ -57,7 +63,8 @@ Las 6 partes de abajo. Cada una termina con la app y el backend compilados y dep
 
 ### 0.4 Reglas
 
-1. **Ninguna pantalla cambia.** La versión real entra sobreescribiendo proveedores de Riverpod.
+1. **Integración mediante proveedores.** La versión real entra sobreescribiendo proveedores de
+   Riverpod. El modo de depuración incluye un botón para probar el cierre local.
 2. **Toda acción del vecino es un comando con su `Idempotency-Key`**, que se reintenta sin duplicar.
 3. **Un rechazo definitivo nunca bloquea la cola:** se completa y va a "acciones por revisar".
 4. **Datos sensibles nunca en streams automáticos**, solo bajo demanda y para quien está asignado.
@@ -68,11 +75,22 @@ Las 6 partes de abajo. Cada una termina con la app y el backend compilados y dep
 
 ```bash
 git clone https://github.com/stefanods29/Hackathon-ElComercio-Shabat-Shalom.git
-cd Hackathon-ElComercio-Shabat-Shalom/infra && docker compose up -d
-cd ../backend && npm ci && npm run dev:keys && npm run db:migrate && npm run db:seed && npm run start:dev
-cd ../app && flutter pub get && flutter gen-l10n
-flutter run --dart-define=API_BASE_URL=http://10.0.2.2:3000 --dart-define=POWERSYNC_URL=http://10.0.2.2:8080
+cd Hackathon-ElComercio-Shabat-Shalom/infra && docker compose up -d --wait postgres cdn
+cd ../backend && npm ci && npm run dev:keys && npm run db:migrate && npm run db:seed
+docker compose -f ../infra/docker-compose.yml up -d --wait powersync
+npm run start:dev
 ```
+
+En otra terminal, desde la raíz del repositorio:
+
+```bash
+cd app && flutter pub get && flutter gen-l10n
+flutter run --debug --dart-define=DEV_SYNC=true --dart-define=API_BASE_URL=http://10.0.2.2:3000 --dart-define=POWERSYNC_URL=http://10.0.2.2:8080
+```
+
+`DEV_SYNC` activa la conexión real en depuración con la cuenta de prueba de Beto. Las
+direcciones `10.0.2.2` son para el emulador Android. Para un celular físico, usa la
+dirección de la PC en la red local en ambas opciones y conecta ambos equipos a esa red.
 
 Necesitas Docker Desktop, Node 26, Flutter 3.47.9, Android SDK 36 con el NDK 28.2.13676358, un
 Android real de gama baja y un iPhone (o los builds de iOS de la CI con TestFlight).
@@ -107,6 +125,17 @@ sequenceDiagram
 
 Rama: `lote-a/parte-1-powersync` · Tareas 1.1–1.5
 
+El 7 de noviembre de 2026 se verificó la tarea 1.1 en Windows. La API y el servidor de
+archivos respondieron con HTTP 200. Una sesión de prueba de Beto recibió la zona piloto
+y una publicación creada por Ana a través de `POST /sync/stream`, con el punto de
+sincronización confirmado. Pasaron las 36 pruebas del backend y las 17 de integración.
+
+En el emulador con Android 36 se instaló el APK de depuración y se comprobó que una
+publicación descargada sigue visible al cerrar y reabrir la app en modo avión.
+En un Redmi Note 13 con Android 15 se verificó la descarga del muro por PowerSync mediante
+USB y se volvió a abrir la app en modo avión. El muro conservó la publicación de prueba
+y mostró «Sin conexión».
+
 1. **Infraestructura viva:** con `docker compose up -d`, la API y la semilla corriendo, revisa con
    `docker compose logs -f powersync` que el servicio replica `identidad.zonas` y
    `solidaridad.publicaciones` sin errores de permisos ni de esquema.
@@ -137,6 +166,8 @@ Rama: `lote-a/parte-2-cifrado-y-purga` · Tareas 2.1–2.6
    versión instalada), borra la clave y vuelve al inicio. Prueba: no queda ningún dato.
 3. **Caducidad local** de los datos sensibles con el reloj inyectable (`clockProvider`): se borran
    al vencer su plazo (24 h propuestas, decisión abierta 6) aunque el celular siga sin conexión.
+   El caso abierto se guarda en una base cifrada con su propia clave y vence en `vence_en`.
+   Se revisa al iniciar, al volver a la app y mientras la app está activa.
 4. **Sesión revocada:** si `GET /v1/sync/credenciales` responde 401 `sesion_revocada`, se borra la
    base local.
 5. **Inicio de sesión real:** implementa el `AuthRepository` del Lote D (Parte 5) contra la API del
@@ -148,6 +179,19 @@ Rama: `lote-a/parte-2-cifrado-y-purga` · Tareas 2.1–2.6
 ## Parte 3 · Cola de subida con estados, reintentos y rechazos
 
 Rama: `lote-a/parte-3-cola-de-subida` · Tareas 3.1–3.6
+
+Con la infraestructura y la API levantadas en la PC, la prueba siguiente simula dos vecinos
+que toman el mismo favor sin conexión y comprueba que el rechazo del segundo no bloquea el
+envío de su siguiente publicación.
+
+```bash
+flutter test --dart-define=LIVE_POWERSYNC=true test/features/solidaridad/powersync_wall_live_test.dart
+```
+
+En el Redmi Note 13 se interrumpió el acceso de la app a la API y PowerSync por USB. Al
+tomar un favor se mostró «Guardado en tu celular». Ese estado sobrevivió al cierre
+forzado y PostgreSQL conservó el favor abierto hasta reconectar. Al restablecer el
+acceso, la app mostró «Enviado» y el servidor confirmó el favor en curso, versión 2.
 
 1. **`PowerSyncPostRepository implements PostRepository`**
    (`features/solidaridad/data/powersync_post_repository.dart`): `watchWall()` con consultas
@@ -171,6 +215,10 @@ Rama: `lote-a/parte-3-cola-de-subida` · Tareas 3.1–3.6
 
 Rama: `lote-a/parte-4-datos-sensibles` · Tareas 4.1–4.5
 
+El servicio exige una suscripción explícita al caso, una asignación activa y el rol de
+brigadista o coordinador. La prueba de acceso se ejecuta con `npm test` en el backend.
+La [evidencia en Android](../evidencias/purga.md) muestra la caducidad y el borrado tras reasignar.
+
 1. **Migraciones mínimas** del módulo `emergencias`: `emergencias.pedidos_ayuda` y
    `emergencias.asignaciones`. Se agregan a la publicación `powersync` con `SELECT` solo para
    `powersync_rol`. Verifica con `npm run test:integration`.
@@ -187,6 +235,10 @@ Rama: `lote-a/parte-4-datos-sensibles` · Tareas 4.1–4.5
 
 Rama: `lote-a/parte-5-pruebas-de-campo` · Tareas 5.1–5.4. Cada prueba deja su evidencia en
 `docs/fase-0/evidencias/` con el formato de su `README.md`.
+
+La [prueba de carga en Android](../evidencias/cola-offline.md) confirmó 500 publicaciones
+únicas con una cuenta y una zona sintéticas. La tarea 5.1 requiere completar la matriz de
+campo en Android y repetirla en iPhone.
 
 1. **500 operaciones** con modo avión, señal débil, cierre forzado, reinicio y batería baja en un
    Android de gama baja y un iPhone: 0 pérdidas y 0 duplicados, con conteos en el servidor

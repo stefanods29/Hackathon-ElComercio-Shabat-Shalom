@@ -7,9 +7,11 @@ class AppEnvironment {
 
   factory AppEnvironment.fromDefines() => const AppEnvironment(
     apiBaseUrl: String.fromEnvironment('API_BASE_URL', defaultValue: 'http://10.0.2.2:3000'),
-    powersyncUrl: String.fromEnvironment('POWERSYNC_URL', defaultValue: 'http://10.0.2.2:8080'),
+    powersyncUrl: String.fromEnvironment('POWERSYNC_URL'),
   );
 
   final String apiBaseUrl;
+
+  /// Debug override for reaching the local service from an emulator or another device.
   final String powersyncUrl;
 }

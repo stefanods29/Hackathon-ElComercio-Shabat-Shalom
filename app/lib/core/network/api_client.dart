@@ -20,11 +20,15 @@ Dio createApiClient(AppEnvironment environment, {required Future<String?> Functi
   dio.interceptors.add(
     InterceptorsWrapper(
       onRequest: (options, handler) async {
-        final token = await getToken();
-        if (token != null) {
-          options.headers['Authorization'] = 'Bearer $token';
+        try {
+          final token = await getToken();
+          if (token != null) {
+            options.headers['Authorization'] = 'Bearer $token';
+          }
+          handler.next(options);
+        } catch (error, stack) {
+          handler.reject(DioException(requestOptions: options, error: error, stackTrace: stack));
         }
-        handler.next(options);
       },
     ),
   );

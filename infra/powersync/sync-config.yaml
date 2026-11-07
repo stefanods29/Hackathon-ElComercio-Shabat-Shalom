@@ -41,3 +41,20 @@ streams:
              tomada_por_id, version, vence_en, creado_en, actualizado_en
       FROM solidaridad.publicaciones
       WHERE autor_id = auth.user_id() AND eliminado_en IS NULL
+
+  # El celular solicita un caso concreto. El servidor confirma la asignación activa.
+  caso_asignado:
+    auto_subscribe: false
+    priority: 1
+    query: |
+      SELECT id, detalle, creado_en, vence_en
+      FROM emergencias.pedidos_ayuda
+      WHERE id = subscription.parameter('pedido_id') AND cerrado_en IS NULL
+        AND (
+          'brigadista' IN (SELECT value FROM json_each(auth.parameter('roles')))
+          OR 'coordinador' IN (SELECT value FROM json_each(auth.parameter('roles')))
+        )
+        AND id IN (
+          SELECT pedido_id FROM emergencias.asignaciones
+          WHERE usuario_id = auth.user_id() AND finalizada_en IS NULL
+        )

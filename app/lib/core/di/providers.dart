@@ -30,6 +30,9 @@ class LocalSession {
 
 final sessionProvider = Provider<LocalSession>((ref) => LocalSession.demo);
 
+/// Exposed only by the development session while the real account screen is being built.
+final demoSignOutProvider = Provider<void Function()?>((ref) => null);
+
 /// Sync engine. A double until Lot A delivers the PowerSync implementation.
 final syncServiceProvider = Provider<SyncService>((ref) {
   final service = FakeSyncService(SyncStatus(connected: true, lastSyncedAt: DateTime.now()));

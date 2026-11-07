@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:vecinal/core/di/providers.dart';
 import 'package:vecinal/core/router/routes.dart';
 import 'package:vecinal/core/ui/connection_banner.dart';
 import 'package:vecinal/features/solidaridad/data/providers.dart';
@@ -16,6 +17,7 @@ class WallPage extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final texts = AppLocalizations.of(context);
     final wall = ref.watch(wallProvider);
+    final signOut = ref.watch(demoSignOutProvider);
     return Scaffold(
       appBar: AppBar(
         title: Text(texts.wallTitle),
@@ -25,6 +27,31 @@ class WallPage extends ConsumerWidget {
             icon: const Icon(Icons.inbox_outlined),
             onPressed: () => context.push(Routes.toReview),
           ),
+          if (signOut != null)
+            IconButton(
+              tooltip: texts.demoSignOut,
+              icon: const Icon(Icons.logout),
+              onPressed: () async {
+                final confirmed = await showDialog<bool>(
+                  context: context,
+                  builder: (dialog) => AlertDialog(
+                    title: Text(texts.demoSignOut),
+                    content: Text(texts.demoSignOutWarning),
+                    actions: [
+                      TextButton(
+                        onPressed: () => Navigator.pop(dialog, false),
+                        child: Text(texts.cancelAction),
+                      ),
+                      FilledButton(
+                        onPressed: () => Navigator.pop(dialog, true),
+                        child: Text(texts.demoSignOut),
+                      ),
+                    ],
+                  ),
+                );
+                if (confirmed == true && context.mounted) signOut();
+              },
+            ),
         ],
       ),
       body: Column(
