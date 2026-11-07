@@ -20,9 +20,15 @@ describe('Migraciones de todos los módulos', () => {
 
     const { rows } = await sql<{ schema_name: string }>`
       SELECT schema_name FROM information_schema.schemata
-      WHERE schema_name IN ('compartido', 'identidad', 'solidaridad') ORDER BY schema_name
+      WHERE schema_name IN ('compartido', 'emergencias', 'identidad', 'solidaridad')
+      ORDER BY schema_name
     `.execute(db);
-    expect(rows.map((row) => row.schema_name)).toEqual(['compartido', 'identidad', 'solidaridad']);
+    expect(rows.map((row) => row.schema_name)).toEqual([
+      'compartido',
+      'emergencias',
+      'identidad',
+      'solidaridad',
+    ]);
   });
 
   it('uuidv7() genera UUID de versión 7 (nativa en PG18, compatible en versiones anteriores)', async () => {
@@ -38,6 +44,8 @@ describe('Migraciones de todos los módulos', () => {
       WHERE pubname = 'powersync' ORDER BY 1
     `.execute(db);
     expect(rows.map((row) => row.table_name)).toEqual([
+      'emergencias.asignaciones',
+      'emergencias.pedidos_ayuda',
       'identidad.zonas',
       'solidaridad.publicaciones',
     ]);
