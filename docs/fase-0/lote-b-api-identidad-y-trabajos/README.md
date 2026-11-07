@@ -16,7 +16,7 @@
 | Parte | Qué entrega | Estado | Responsable | PR |
 |---|---|---|---|---|
 | 1 | Inicio de sesión con OTP y elección de zona | En curso (`lote-b/parte-1-otp`; pendiente de revisión) | JDiazD33 | — |
-| 2 | Sesiones revocables | Pendiente | Por asignar | — |
+| 2 | Sesiones revocables | En curso (`lote-b/parte-2-sesiones`; pendiente de revisión) | JDiazD33 | — |
 | 3 | Roles y niveles de confianza | Pendiente | Por asignar | — |
 | 4 | Eventos y trabajos (pg-boss, outbox y workers) | Pendiente | Por asignar | — |
 | 5 | Muro completo | Pendiente | Por asignar | — |
@@ -358,6 +358,10 @@ pruebas, y `npm run verify` y `npm run test:integration` en verde.
 ## Parte 2 · Sesiones revocables
 
 Rama: `lote-b/parte-2-sesiones` · Tareas 2.1–2.4 · Spec: `specs/identidad/sesiones/spec.md`
+
+Base de esta rama: `9b5054073dea147dcf081a3ad529f6fbec1b16b6` de la Parte 1, con los
+bloqueos OTP corregidos. La entrega se conserva en su rama para revisión, sin merge,
+rebase, cherry-pick ni PR, por indicación del equipo.
 
 ### 2.1 Contrato
 

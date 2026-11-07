@@ -95,7 +95,8 @@ paths:
       description: |
         Lo llama `fetchCredentials()` del conector de PowerSync. El token (audiencia `powersync`)
         lleva `sub` (vecino) y `zona`, que usan los Sync Streams; zona y nivel se releen de la
-        base en cada emisión.
+        base en cada emisión. Una familia de sesión revocada o vencida recibe 401
+        (`codigo` = sesion_revocada), aunque su token de acceso aún no haya vencido.
       responses:
         '200':
           description: Credenciales vigentes.
@@ -141,7 +142,7 @@ paths:
       operationId: verificarCodigo
       summary: Verificar un código e iniciar sesión
       description: |
-        Devuelve acceso y usuario. El refresh token y las sesiones revocables se agregan en la Parte 2.
+        Devuelve acceso con claim `sid` (familia de sesión), refresh token opaco y usuario.
         Un código incorrecto, vencido o ya utilizado recibe la misma respuesta 401.
         Los fallos se acumulan por teléfono y por IP entre códigos distintos. Por defecto, cinco
         fallos por teléfono o veinte por IP en quince minutos bloquean durante quince minutos
@@ -158,7 +159,7 @@ paths:
           description: Código verificado y sesión iniciada.
           content:
             application/json:
-              schema: { $ref: '#/components/schemas/Sesion' }
+              schema: { $ref: '#/components/schemas/SesionRenovable' }
         '400': { $ref: '#/components/responses/SolicitudInvalida' }
         '401':
           description: Código incorrecto, vencido o ya utilizado (`codigo` = codigo_invalido).
@@ -166,6 +167,62 @@ paths:
             application/problem+json:
               schema: { $ref: '#/components/schemas/Problema' }
         '429': { $ref: '#/components/responses/DemasiadasSolicitudes' }
+
+  /v1/auth/refrescar:
+    post:
+      tags: [identidad]
+      operationId: refrescarSesion
+      summary: Renovar el par de tokens y consumir el refresh anterior
+      description: |
+        Cada refresh token se usa una sola vez. Reutilizar uno ya rotado revoca toda su familia
+        y responde 401 sesion_revocada. No hay ventana de gracia: el cliente debe serializar
+        las renovaciones y guardar el refresh nuevo antes de usarlo. Si pierde la respuesta,
+        debe iniciar sesión otra vez. Ruta en línea, sin Idempotency-Key ni reintento automático.
+        Zona, nivel y roles se releen de la base al emitir el par nuevo.
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/RenovacionSesion' }
+      responses:
+        '200':
+          description: Par de tokens nuevo; el refresh presentado queda consumido.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/SesionRenovable' }
+        '400': { $ref: '#/components/responses/SolicitudInvalida' }
+        '401':
+          description: Refresh desconocido o vencido (sesion_invalida), revocado o reutilizado (sesion_revocada).
+          content:
+            application/problem+json:
+              schema: { $ref: '#/components/schemas/Problema' }
+
+  /v1/auth/cerrar-sesion:
+    post:
+      tags: [identidad]
+      operationId: cerrarSesion
+      summary: Revocar la familia de sesión del dispositivo actual
+      description: |
+        Impide renovar tokens y obtener credenciales nuevas de PowerSync. El acceso ya emitido
+        conserva su vigencia hasta expirar; las credenciales de PowerSync ya emitidas también.
+        Operación en línea e idempotente. Una sesión de desarrollo sin sid no tiene familia.
+      responses:
+        '204': { description: Familia revocada o ya cerrada. }
+        '401': { $ref: '#/components/responses/NoAutenticado' }
+
+  /v1/auth/sesiones/revocar:
+    post:
+      tags: [identidad]
+      operationId: revocarTodasLasSesiones
+      summary: Revocar todas las familias de sesión del vecino
+      description: |
+        Incluye el dispositivo actual. Impide renovar tokens y obtener credenciales nuevas
+        de PowerSync en todos los dispositivos. Los tokens ya emitidos conservan su vigencia
+        hasta expirar. Operación en línea e idempotente.
+      responses:
+        '204': { description: Todas las familias revocadas. }
+        '401': { $ref: '#/components/responses/NoAutenticado' }
 
   /v1/zonas:
     get:
@@ -465,6 +522,8 @@ components:
       properties:
         tokenDeAcceso: { type: string }
         expiraEn: { type: string, format: date-time }
+        refreshToken: { type: string, description: Token opaco; solo presente al verificar OTP o renovar. }
+        refreshExpiraEn: { type: string, format: date-time }
         usuario:
           type: object
           required: [id, nombreVisible, zonaId, nivel, roles]
@@ -476,6 +535,18 @@ components:
             roles:
               type: array
               items: { type: string, enum: [proveedor, moderador, coordinador, brigadista, administrador] }
+
+    SesionRenovable:
+      allOf:
+        - $ref: '#/components/schemas/Sesion'
+        - type: object
+          required: [refreshToken, refreshExpiraEn]
+
+    RenovacionSesion:
+      type: object
+      required: [refreshToken]
+      properties:
+        refreshToken: { type: string, minLength: 1, maxLength: 512 }
 
     CredencialesSincronizacion:
       type: object
