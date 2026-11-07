@@ -15,11 +15,11 @@
 
 | Parte | Qué entrega | Estado | Responsable | PR |
 |---|---|---|---|---|
-| 1 | Sistema de diseño accesible | Pendiente | Por asignar | — |
-| 2 | Publicar en 3 toques | Pendiente | Por asignar | — |
-| 3 | Estados visibles y "acciones por revisar" | Pendiente | Por asignar | — |
-| 4 | Tutorial y modo práctica | Pendiente | Por asignar | — |
-| 5 | Inicio de sesión, zona y cuenta | Pendiente | Por asignar | — |
+| 1 | Sistema de diseño accesible | Hecha | — | — |
+| 2 | Publicar en 3 toques | Hecha | — | — |
+| 3 | Estados visibles y "acciones por revisar" | Hecha | — | — |
+| 4 | Tutorial y modo práctica | Hecha | — | — |
+| 5 | Inicio de sesión, zona y cuenta | Hecha | — | — |
 
 Estados posibles: **Pendiente**, **En curso** o **Hecha** (integrada en `main`). Quien toma una
 parte la marca **En curso** con su nombre (en el issue del lote o en un PR pequeño) para que
