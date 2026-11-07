@@ -6,4 +6,6 @@ abstract final class Routes {
   static const toReview = '/por-revisar';
   static const emergency = '/emergencia';
   static const map = '/mapa';
+  static const pushSettings = '/avisos';
+  static const postDetail = '/publicaciones/:id';
 }

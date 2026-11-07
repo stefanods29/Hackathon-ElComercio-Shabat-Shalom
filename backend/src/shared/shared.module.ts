@@ -18,6 +18,7 @@ import { OUTBOX_WRITER } from './outbox/outbox.js';
 import { PostgresOutboxWriter } from './outbox/outbox.postgres.js';
 import { JOB_QUEUE } from './queues/job-queue.js';
 import { InMemoryJobQueue } from './queues/job-queue.memory.js';
+import { JobHandlerRegistry } from './queues/job-handler.registry.js';
 
 /**
  * Shared core: RFC 9457 errors, Standard Schema validation, global authentication,
@@ -27,6 +28,7 @@ import { InMemoryJobQueue } from './queues/job-queue.memory.js';
 @Module({
   controllers: [JwksController, HealthController],
   providers: [
+    JobHandlerRegistry,
     { provide: CLOCK, useValue: systemClock },
     TokenService,
     {
@@ -43,6 +45,6 @@ import { InMemoryJobQueue } from './queues/job-queue.memory.js';
     { provide: APP_GUARD, useClass: AuthGuard },
     { provide: APP_INTERCEPTOR, useClass: IdempotencyInterceptor },
   ],
-  exports: [CLOCK, TokenService, IDEMPOTENCY_STORE, OUTBOX_WRITER, JOB_QUEUE],
+  exports: [CLOCK, TokenService, IDEMPOTENCY_STORE, OUTBOX_WRITER, JOB_QUEUE, JobHandlerRegistry],
 })
 export class SharedModule {}

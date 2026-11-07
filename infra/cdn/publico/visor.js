@@ -17,11 +17,33 @@ async function startMap() {
   const map = new maplibregl.Map({
     container: "map",
     style,
+    maxBounds: [
+      [style.sources.vecinal.bounds[0], style.sources.vecinal.bounds[1]],
+      [style.sources.vecinal.bounds[2], style.sources.vecinal.bounds[3]],
+    ],
+    maxZoom: style.sources.vecinal.maxzoom,
+    locale: {
+      "NavigationControl.ZoomIn": "Acercar",
+      "NavigationControl.ZoomOut": "Alejar",
+      "NavigationControl.ResetBearing": "Orientar hacia el norte",
+    },
     attributionControl: false,
   });
   window.vecinalMap = map;
   map.addControl(new maplibregl.AttributionControl({ compact: false }));
   map.addControl(new maplibregl.NavigationControl(), "top-right");
+  const recenter = document.getElementById("recenter");
+  map.on("load", () => {
+    recenter.disabled = false;
+    recenter.addEventListener("click", () =>
+      map.flyTo({
+        center: style.center,
+        zoom: Math.max(style.zoom, map.getMinZoom(), 14),
+        bearing: 0,
+        pitch: 0,
+      }),
+    );
+  });
   let resourceFailed = false;
   map.on("error", (event) => {
     resourceFailed = true;
@@ -31,9 +53,7 @@ async function startMap() {
     console.error(event.error);
   });
   map.on("idle", () => {
-    if (!resourceFailed)
-      statusElement.textContent =
-        "Mapa listo. Puedes desplazarte y acercar la zona.";
+    if (!resourceFailed) statusElement.textContent = "Mapa listo para explorar";
   });
 }
 

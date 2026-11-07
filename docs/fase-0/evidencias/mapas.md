@@ -76,3 +76,16 @@ resultados para completar la evidencia. Cuando se disponga de los equipos:
 
 El recorte PMTiles de C1 ocupa 2 964 673 bytes, pero ese dato no equivale al espacio de una
 región offline de MapLibre, que también contiene estilo, fuentes y sprites.
+# Actualización de diseño · 2026-11-07
+
+La pantalla Flutter agrupa el mapa y los controles en tarjetas, con jerarquía de texto más clara
+y una anchura de lectura limitada. Conserva la atribución fija y controles de 48 dp. Sus pruebas
+incluyen descarga, cancelación, borrado y texto al 200 %, adaptadas al desplazamiento de la vista.
+
+El visor web muestra el mapa a pantalla completa, cabecera compacta, controles en español y
+botón para volver al área piloto. Limita la navegación al recorte disponible para evitar áreas
+vacías. Revisión visual real y botón comprobados en navegador local; esta captura es del visor
+web, no de un teléfono ni del funcionamiento en modo avión:
+
+![Visor de Lince rediseñado](visor-lince-redisenado.png)
+

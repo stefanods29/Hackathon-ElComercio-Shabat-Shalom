@@ -21,6 +21,11 @@ class WallPage extends ConsumerWidget {
         title: Text(texts.wallTitle),
         actions: [
           IconButton(
+            tooltip: texts.pushTitle,
+            icon: const Icon(Icons.notifications_outlined),
+            onPressed: () => context.push(Routes.pushSettings),
+          ),
+          IconButton(
             tooltip: texts.mapTitle,
             icon: const Icon(Icons.map_outlined),
             onPressed: () => context.push(Routes.map),

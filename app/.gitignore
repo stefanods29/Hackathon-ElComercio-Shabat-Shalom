@@ -1,4 +1,7 @@
 # Flutter / Dart
+lib/firebase_options.dart
+android/app/google-services.json
+ios/Runner/GoogleService-Info.plist
 .dart_tool/
 .flutter-plugins-dependencies
 .pub-cache/
@@ -14,6 +17,7 @@ lib/l10n/app_localizations*.dart
 
 # Android
 android/.gradle/
+android/.kotlin/
 android/captures/
 android/local.properties
 android/**/GeneratedPluginRegistrant.java

@@ -15,6 +15,13 @@ import 'support/fakes.dart';
 Widget _mapView(BuildContext context, MapRegionDefinition definition) =>
     const ColoredBox(color: Colors.grey);
 
+Future<void> _reveal(WidgetTester tester, String label) async {
+  await tester.scrollUntilVisible(find.text(label), 160);
+  await tester.pumpAndSettle();
+  await tester.ensureVisible(find.text(label));
+  await tester.pumpAndSettle();
+}
+
 void main() {
   late FakeMapRegionRepository repository;
   late FakeMapConnectionMonitor monitor;
@@ -63,13 +70,13 @@ void main() {
   testWidgets('muestra avance y tamaño; cancelar permite volver a descargar', (tester) async {
     await tester.pumpWidget(host());
     await tester.pumpAndSettle();
-    await tester.ensureVisible(find.text('Descargar mapa de mi distrito'));
+    await _reveal(tester, 'Descargar mapa de mi distrito');
     await tester.tap(find.text('Descargar mapa de mi distrito'));
     await tester.pumpAndSettle();
     repository.emit(OfflineRegionStatus.downloading, progress: 0.25, bytes: 1500000);
     await tester.pumpAndSettle();
     expect(find.text('25 % · 1,5 MB descargados'), findsOneWidget);
-    await tester.ensureVisible(find.text('Cancelar descarga'));
+    await _reveal(tester, 'Cancelar descarga');
     await tester.tap(find.text('Cancelar descarga'));
     await tester.pumpAndSettle();
     expect(repository.cancellations, 1);
@@ -94,7 +101,7 @@ void main() {
     repository.emit(OfflineRegionStatus.ready, bytes: 3000000);
     await tester.pumpWidget(host());
     await tester.pumpAndSettle();
-    await tester.ensureVisible(find.text('Borrar mapa descargado'));
+    await _reveal(tester, 'Borrar mapa descargado');
     await tester.tap(find.text('Borrar mapa descargado'));
     await tester.pumpAndSettle();
     expect(repository.deletions, 0);
@@ -112,7 +119,7 @@ void main() {
     monitor.connection = MapConnection.other;
     await tester.pumpWidget(host());
     await tester.pumpAndSettle();
-    await tester.ensureVisible(find.text('Descargar mapa de mi distrito'));
+    await _reveal(tester, 'Descargar mapa de mi distrito');
     await tester.tap(find.text('Descargar mapa de mi distrito'));
     await tester.pumpAndSettle();
     expect(repository.downloads, 0);
@@ -135,7 +142,7 @@ void main() {
       await tester.pumpAndSettle();
       final attribution = find.textContaining('© OpenStreetMap contributors');
       expect(attribution.hitTestable(), findsOneWidget);
-      await tester.ensureVisible(find.text('Descargar mapa de mi distrito'));
+      await _reveal(tester, 'Descargar mapa de mi distrito');
       await tester.pumpAndSettle();
       expect(attribution.hitTestable(), findsOneWidget);
       expect(tester.takeException(), isNull);

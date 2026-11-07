@@ -1,0 +1,47 @@
+
+> @vecinal/backend@0.1.0 verify
+> npm run typecheck && npm run lint && npm run format:check && npm run boundaries && npm run sync:validate && npm run test && npm run build
+
+
+> @vecinal/backend@0.1.0 typecheck
+> tsc --noEmit -p tsconfig.json
+
+
+> @vecinal/backend@0.1.0 lint
+> oxlint --type-aware src/ test/ scripts/
+
+
+> @vecinal/backend@0.1.0 format:check
+> prettier --check "src/**/*.ts" "test/**/*.ts" "scripts/**/*.ts"
+
+Checking formatting...
+All matched files use Prettier code style!
+
+> @vecinal/backend@0.1.0 boundaries
+> depcruise src --config .dependency-cruiser.cjs
+
+
+✔ no dependency violations found (105 modules, 276 dependencies cruised)
+
+
+> @vecinal/backend@0.1.0 sync:validate
+> tsx scripts/validate-sync-config.ts ../infra/powersync/sync-config.yaml
+
+✓ ../infra/powersync/sync-config.yaml es válido (0 advertencia(s)).
+
+> @vecinal/backend@0.1.0 test
+> vitest run
+
+
+ RUN  v4.1.12 C:/Users/Defar/Documents/Yo/Hackathon-UTP/backend
+
+
+ Test Files  8 passed (8)
+      Tests  40 passed (40)
+   Start at  13:10:31
+   Duration  21.03s (transform 1.80s, setup 0ms, import 54.68s, tests 2.71s, environment 1ms)
+
+
+> @vecinal/backend@0.1.0 build
+> nest build
+

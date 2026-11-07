@@ -1,0 +1,9 @@
+
+ RUN  v4.1.12 C:/Users/Defar/Documents/Yo/Hackathon-UTP/backend
+
+
+ Test Files  4 passed (4)
+      Tests  24 passed (24)
+   Start at  13:10:41
+   Duration  15.77s (transform 474ms, setup 0ms, import 5.58s, tests 1.45s, environment 0ms)
+

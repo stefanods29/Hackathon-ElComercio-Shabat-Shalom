@@ -36,4 +36,30 @@ describe('loadConfig', () => {
     expect(() => loadConfig({ ...base, DATABASE_URL: 'mysql://x' })).toThrow(/DATABASE_URL/);
     expect(() => loadConfig({ ...base, JWT_PRIVATE_KEY_PEM: 'nada' })).toThrow(/PKCS#8/);
   });
+
+  it('exige FCM real en producción y valida las credenciales sin exponerlas', () => {
+    expect(() => loadConfig({ ...base, NODE_ENV: 'production' })).toThrow(/NOTIFICATION_DRIVER/);
+    expect(() =>
+      loadConfig({
+        ...base,
+        NOTIFICATION_DRIVER: 'fcm',
+        FIREBASE_SERVICE_ACCOUNT_BASE64: 'privado',
+      }),
+    ).toThrow(/FIREBASE_SERVICE_ACCOUNT_BASE64/);
+    const account = Buffer.from(
+      JSON.stringify({
+        project_id: 'prueba',
+        client_email: 'prueba@example.com',
+        private_key: pem,
+      }),
+    ).toString('base64');
+    expect(
+      loadConfig({
+        ...base,
+        NODE_ENV: 'production',
+        NOTIFICATION_DRIVER: 'fcm',
+        FIREBASE_SERVICE_ACCOUNT_BASE64: account,
+      }).NOTIFICATION_DRIVER,
+    ).toBe('fcm');
+  });
 });

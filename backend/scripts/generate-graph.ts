@@ -8,12 +8,14 @@ import path from 'node:path';
 
 const binary = path.join(
   'node_modules',
-  '.bin',
-  process.platform === 'win32' ? 'depcruise.cmd' : 'depcruise',
+  'dependency-cruiser',
+  'bin',
+  'dependency-cruiser.mjs',
 );
 const mermaid = execFileSync(
-  binary,
+  process.execPath,
   [
+    binary,
     'src',
     '--config',
     '.dependency-cruiser.cjs',
@@ -26,7 +28,7 @@ const mermaid = execFileSync(
     '--collapse',
     '^src/(modules/[^/]+|shared/[^/]+)',
   ],
-  { encoding: 'utf8', shell: process.platform === 'win32' },
+  { encoding: 'utf8' },
 );
 
 const target = path.join('..', 'docs', 'grafos', 'dependencias-backend.md');
