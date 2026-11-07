@@ -24,8 +24,9 @@ final class SignedIn extends AuthState {
 
 /// Datos mínimos del vecino autenticado.
 final class LocalUser {
-  const LocalUser({required this.neighborId, required this.displayName});
+  const LocalUser({required this.neighborId, required this.displayName, this.zoneId});
 
   final String neighborId;
   final String displayName;
+  final String? zoneId;
 }
