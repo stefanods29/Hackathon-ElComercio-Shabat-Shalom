@@ -20,7 +20,7 @@
 
 - [x] 3.1 Decoradores `@RequireTrustLevel(n)` y `@RequireRole(...)` con guard; verificar con pruebas por cada combinación
 - [x] 3.2 Aplicarlos a las rutas existentes y documentarlos en el contrato; verificar con pruebas de punta a punta
-- [ ] 3.3 Compilar y depurar (CI en verde)
+- [x] 3.3 Compilar y depurar (CI en verde)
 
 ## 4. Parte 4 · Eventos y trabajos
 
