@@ -12,6 +12,8 @@ analyzer:
   exclude:
     - lib/l10n/app_localizations*.dart
     - build/**
+    - android/**
+    - ios/**
 
 linter:
   rules:

@@ -70,19 +70,22 @@ void main() {
       expect(await posts.watchActionsToReview().first, isEmpty);
     });
 
-    test('si otro vecino lo tomó primero: se deshace el cambio y va a "acciones por revisar"', () async {
-      final submission = await TakeFavor(posts, currentNeighborId: beto).execute(anasFavor);
-      posts.recordResponse(
-        submission.id,
-        const Rejected(RejectionReason(code: 'favor_no_disponible', title: 'Conflicto')),
-      );
+    test(
+      'si otro vecino lo tomó primero: se deshace el cambio y va a "acciones por revisar"',
+      () async {
+        final submission = await TakeFavor(posts, currentNeighborId: beto).execute(anasFavor);
+        posts.recordResponse(
+          submission.id,
+          const Rejected(RejectionReason(code: 'favor_no_disponible', title: 'Conflicto')),
+        );
 
-      final wall = await posts.watchWall().first;
-      expect(wall.single.status, PostStatus.open);
-      expect(wall.single.submissionStatus, SubmissionStatus.couldNotComplete);
-      final toReview = await posts.watchActionsToReview().first;
-      expect(toReview.single.rejectionReason?.code, 'favor_no_disponible');
-    });
+        final wall = await posts.watchWall().first;
+        expect(wall.single.status, PostStatus.open);
+        expect(wall.single.submissionStatus, SubmissionStatus.couldNotComplete);
+        final toReview = await posts.watchActionsToReview().first;
+        expect(toReview.single.rejectionReason?.code, 'favor_no_disponible');
+      },
+    );
 
     test('un fallo transitorio deja la acción en la cola para reintentar', () async {
       final submission = await TakeFavor(posts, currentNeighborId: beto).execute(anasFavor);
