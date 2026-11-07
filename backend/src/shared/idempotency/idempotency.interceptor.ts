@@ -25,6 +25,7 @@ import {
   type IdempotentRequest,
 } from './idempotency-store.js';
 import { IDEMPOTENT_METADATA } from './idempotent.decorator.js';
+import { IdempotencyCounters } from '../observability/idempotency-counters.js';
 
 /** Visible ASCII characters; a UUIDv7 generated on the phone is recommended. */
 const KEY_FORMAT = /^[\x21-\x7E]{8,255}$/;
@@ -49,6 +50,7 @@ export class IdempotencyInterceptor implements NestInterceptor {
     private readonly reflector: Reflector,
     @Inject(IDEMPOTENCY_STORE) private readonly store: IdempotencyStore,
     @Inject(CLOCK) private readonly clock: Clock,
+    private readonly counters: IdempotencyCounters,
   ) {}
 
   async intercept(context: ExecutionContext, next: CallHandler): Promise<Observable<unknown>> {
@@ -85,6 +87,7 @@ export class IdempotencyInterceptor implements NestInterceptor {
     };
 
     const reservation = await this.store.reserve(idempotentRequest, this.clock.now());
+    this.counters.record(reservation.kind);
     switch (reservation.kind) {
       case 'replay':
         response.setHeader(IDEMPOTENT_REPLAYED_HEADER, 'true');

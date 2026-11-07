@@ -4,8 +4,9 @@ import { loadConfig, loadEnvFile } from '../shared/config/app-config.js';
 import { WorkersModule } from './workers.module.js';
 
 loadEnvFile();
-const config = loadConfig();
+loadConfig();
 const app = await NestFactory.createApplicationContext(WorkersModule, {
-  logger: new ConsoleLogger({ json: config.NODE_ENV === 'production', prefix: 'vecinal-workers' }),
+  logger: new ConsoleLogger({ json: true, prefix: 'vecinal-workers' }),
 });
 app.enableShutdownHooks();
+new ConsoleLogger('Bootstrap', { json: true }).log({ evento: 'workers.iniciados' });

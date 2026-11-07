@@ -5,6 +5,7 @@ import { asKysely } from '../db/unit-of-work.kysely.js';
 import type { TransactionContext } from '../db/unit-of-work.js';
 import { newId } from '../domain/ids.js';
 import type { JobHandler, JobOptions, TransactionalJobQueue } from './job-queue.js';
+import type { QueueDepth, QueueMetricsReader } from './queue-metrics.js';
 
 const PRIORITIES = { critical: 20, normal: 10, low: 0 } as const;
 
@@ -16,8 +17,9 @@ export interface PgBossRuntimeOptions {
 
 /** The API only produces jobs; only the worker process runs supervision and schedules. */
 export class PgBossJobQueue
-  implements TransactionalJobQueue, OnModuleInit, BeforeApplicationShutdown
+  implements TransactionalJobQueue, QueueMetricsReader, OnModuleInit, BeforeApplicationShutdown
 {
+  readonly driver = 'pgboss' as const;
   readonly boss: PgBoss;
   private readonly logger = new Logger(PgBossJobQueue.name);
   private readonly queues = new Map<string, Promise<void>>();
@@ -73,6 +75,29 @@ export class PgBossJobQueue
   async enqueue<T>(name: string, data: T, options: JobOptions = {}): Promise<void> {
     await this.ensureQueue(name);
     await this.boss.send(name, data as object, this.sendOptions(options));
+  }
+
+  async depths(now: Date): Promise<QueueDepth[]> {
+    // Adapter-owned SQL gives current counts; pg-boss's queue stats cache can lag by a minute.
+    const schema = '"' + (this.options.schema ?? 'colas').replaceAll('"', '""') + '"';
+    const result = await this.boss.getDb().executeSql(
+      `
+      SELECT q.name,
+        count(j.id) FILTER (WHERE j.state IN ('created', 'retry'))::int AS pending,
+        count(j.id) FILTER (WHERE j.state = 'active')::int AS active,
+        count(j.id) FILTER (WHERE j.state = 'failed')::int AS failed,
+        count(j.id) FILTER (WHERE j.state IN ('created', 'retry') AND j.priority >= 20)::int AS "criticalPending",
+        CASE WHEN count(j.id) FILTER (WHERE j.state IN ('created', 'retry') AND j.priority >= 20 AND j.start_after <= $1::timestamptz AND NOT j.blocked) = 0
+          THEN NULL ELSE greatest(0, extract(epoch FROM ($1::timestamptz - min(j.created_on) FILTER (
+          WHERE j.state IN ('created', 'retry') AND j.priority >= 20 AND j.start_after <= $1::timestamptz AND NOT j.blocked
+        )))::double precision) END AS "oldestCriticalAgeSeconds"
+      FROM ${schema}.queue q LEFT JOIN ${schema}.job j
+        ON j.name = q.name AND j.state IN ('created', 'retry', 'active', 'failed')
+      GROUP BY q.name ORDER BY q.name
+    `,
+      [now],
+    );
+    return result.rows as QueueDepth[];
   }
 
   async enqueueInTransaction<T>(

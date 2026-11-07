@@ -133,6 +133,35 @@ del id existente precede al límite y a la creación del agregado. Un bloqueo tr
 autor serializa comprobación e inserción; los reintentos del mismo id con otras claves no
 consumen cupo ni generan eventos. `Retry-After` cuenta hasta que sale la fila más antigua.
 
+### Capacidad y observabilidad (Parte 6)
+
+Con autorización explícita, la rama de la Parte 6 integra las dependencias de las Partes 1–5
+sin modificar sus ramas originales ni `main`. No hay staging disponible: se verifica el humo
+local de 30 segundos, y se entrega el escenario completo sin certificar aún su capacidad.
+
+El middleware propaga un `x-request-id` acotado a ASCII seguro o genera UUIDv7, lo devuelve y
+lo asocia al log JSON de finalización. Se registra plantilla de ruta, método, estado y duración;
+no consulta, cuerpo, cabeceras de autenticación ni respuesta. El filtro agrega la correlación
+actual también a los rechazos guardados, sin modificar el objeto cacheado. Los errores internos
+omiten texto y stack para evitar registrar secretos de adaptadores.
+
+`GET /v1/operacion/metricas` exige administrador. Los contadores de los cuatro resultados de
+reserva de idempotencia son de proceso y exponen instancia/inicio. Outbox y profundidad de colas
+son lecturas actuales; el adaptador pg-boss consulta su propio esquema sin usar estadísticas
+cacheadas. La edad crítica considera solo trabajos elegibles, no diferidos/bloqueados.
+
+k6 usa llegada constante para 1750 lecturas/s y 500 escrituras/s durante diez minutos;
+reconexión usa llegada variable con base 250/s, picos y jitter. Los replays son deterministas
+entre VUs, un 10 % de solicitudes de escritura. Se conserva el límite diario y se dimensiona
+la cantidad de usuarios sintéticos. Las credenciales son revocables, sin sesión de desarrollo,
+con archivo local 0600 ignorado por Git y un observador administrador.
+
+El humo inicia API y workers reales con pg-boss en una base temporal, registra serie temporal
+y procesa una sonda crítica sintética. Verifica además que umbrales imposibles de latencia
+y de cola crítica fallen. Los umbrales de la guía son valores provisionales configurables;
+la aceptación en staging requiere los valores acordados por el equipo. La corrida completa
+no se ejecuta en la laptop ni se infiere del humo.
+
 ### Puntos de contacto con otros lotes
 
 | Con | Qué | Regla |

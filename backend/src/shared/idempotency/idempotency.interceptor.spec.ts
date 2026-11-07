@@ -11,6 +11,7 @@ import { IDEMPOTENCY_STORE } from './idempotency-store.js';
 import { InMemoryIdempotencyStore } from './idempotency-store.memory.js';
 import { IdempotencyInterceptor } from './idempotency.interceptor.js';
 import { Idempotent } from './idempotent.decorator.js';
+import { IdempotencyCounters } from '../observability/idempotency-counters.js';
 
 let executions = 0;
 let failWith: 'none' | 'transient' | 'definitive' = 'none';
@@ -47,6 +48,7 @@ describe('IdempotencyInterceptor', () => {
       controllers: [TestController],
       providers: [
         { provide: CLOCK, useValue: clock },
+        IdempotencyCounters,
         { provide: IDEMPOTENCY_STORE, useValue: new InMemoryIdempotencyStore() },
         { provide: APP_INTERCEPTOR, useClass: IdempotencyInterceptor },
         { provide: APP_FILTER, useClass: ProblemDetailsFilter },
@@ -108,7 +110,14 @@ describe('IdempotencyInterceptor', () => {
     const first = await send(`${KEY}d`).expect(409);
     failWith = 'none';
     const second = await send(`${KEY}d`).expect(409);
-    expect(second.body).toEqual(first.body);
+    const { instance: _firstInstance, requestId: _firstRequestId, ...firstRejection } = first.body;
+    const {
+      instance: _secondInstance,
+      requestId: _secondRequestId,
+      ...secondRejection
+    } = second.body;
+    expect(secondRejection).toEqual(firstRejection);
+    expect(second.body.requestId).not.toBe(first.body.requestId);
     expect(second.body.codigo).toBe('favor_no_disponible');
     expect(executions).toBe(1);
   });

@@ -1,4 +1,10 @@
-import { type DynamicModule, Global, Module } from '@nestjs/common';
+import {
+  type DynamicModule,
+  Global,
+  Module,
+  type MiddlewareConsumer,
+  type NestModule,
+} from '@nestjs/common';
 import { APP_FILTER, APP_GUARD, APP_INTERCEPTOR, APP_PIPE } from '@nestjs/core';
 import type { Kysely } from 'kysely';
 import { ProblemDetailsFilter } from './api/problem-details.filter.js';
@@ -21,6 +27,11 @@ import { JOB_QUEUE } from './queues/job-queue.js';
 import { InMemoryJobQueue } from './queues/job-queue.memory.js';
 import { PgBossJobQueue } from './queues/job-queue.pgboss.js';
 import { JobHandlerRegistry } from './queues/job-handler.registry.js';
+import { QUEUE_METRICS_READER } from './queues/queue-metrics.js';
+import { IdempotencyCounters } from './observability/idempotency-counters.js';
+import { HttpRequestLogger, RequestIdMiddleware } from './observability/request-id.middleware.js';
+import { OperationalMetrics } from './observability/operational-metrics.js';
+import { MetricsController } from './observability/metrics.controller.js';
 
 function queueProvider(worker = false) {
   return {
@@ -39,7 +50,7 @@ function queueProvider(worker = false) {
  */
 @Global()
 @Module({
-  controllers: [JwksController, HealthController],
+  controllers: [JwksController, HealthController, MetricsController],
   providers: [
     { provide: CLOCK, useValue: systemClock },
     TokenService,
@@ -52,6 +63,15 @@ function queueProvider(worker = false) {
     { provide: OUTBOX_WRITER, useClass: PostgresOutboxWriter },
     queueProvider(),
     JobHandlerRegistry,
+    IdempotencyCounters,
+    HttpRequestLogger,
+    RequestIdMiddleware,
+    OperationalMetrics,
+    {
+      provide: QUEUE_METRICS_READER,
+      inject: [JOB_QUEUE],
+      useFactory: (queue: InMemoryJobQueue | PgBossJobQueue) => queue,
+    },
     { provide: APP_FILTER, useClass: ProblemDetailsFilter },
     { provide: APP_PIPE, useFactory: createValidationPipe },
     { provide: APP_GUARD, useClass: AuthGuard },
@@ -60,7 +80,10 @@ function queueProvider(worker = false) {
   ],
   exports: [CLOCK, TokenService, IDEMPOTENCY_STORE, OUTBOX_WRITER, JOB_QUEUE, JobHandlerRegistry],
 })
-export class SharedModule {
+export class SharedModule implements NestModule {
+  configure(consumer: MiddlewareConsumer): void {
+    consumer.apply(RequestIdMiddleware).forRoutes('{*path}');
+  }
   static forWorkers(): DynamicModule {
     return { module: SharedModule, providers: [queueProvider(true)] };
   }
