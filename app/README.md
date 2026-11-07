@@ -53,7 +53,10 @@ Firebase (`POST /v1/auth/firebase`). No se sube ningún archivo del proyecto Fir
    le dan acceso a la API y a PowerSync de tu PC. Luego:
    `flutter run --dart-define-from-file=firebase.local.json`.
 
-Android puede verificar el número sin que el vecino escriba el código (lee el SMS o no lo
+Si la app no viene de Google Play (por ejemplo, instalada por cable), Firebase abre una página de
+verificación (reCAPTCHA) en el navegador del celular y vuelve sola a la app. No agregues
+`android:taskAffinity=""` a `MainActivity`: con esa línea el resultado no vuelve y no llega el
+SMS. Android puede verificar el número sin que el vecino escriba el código (lee el SMS o no lo
 necesita); en ese caso la app entra sola. La política de regiones del proyecto solo permite
 números de Perú. Si existe `google-services.json` (avisos), pueden omitirse los `FIREBASE_*`:
 Firebase lee los archivos nativos.

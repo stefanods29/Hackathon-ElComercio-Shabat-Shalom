@@ -89,6 +89,14 @@ Pruebas: prueba del enrutamiento de enlaces y una prueba manual en Android y en 
   secretos, DNS y backups con recuperación a un punto en el tiempo (PITR).
 - Despliegue continuo: staging en cada integración a `main` y producción con una etiqueta. Betas
   móviles por TestFlight y por las pruebas internas de Google Play (Fastlane o Codemagic).
+- Ingreso por SMS ([ADR 0009](../../adr/0009-proveedor-de-codigos-firebase.md)):
+  - Registrar en Firebase las huellas SHA-1 y SHA-256 de la clave de firma de Google Play (*App
+    signing*) y de la clave de subida.
+  - Con la app instalada desde Play, Play Integrity la reconoce y el vecino no ve la página de
+    verificación.
+  - Comprobar con un celular sin Google Play o con otro navegador predeterminado que la página
+    de reCAPTCHA vuelve a la app.
+  - En iOS, cargar la clave APNs para el ingreso por teléfono.
 - Con B: correr en staging la prueba de capacidad de la Fase 0 (`npm run test:load`) y cerrar ese
   criterio.
 - Un simulacro de restauración del backup, documentado.

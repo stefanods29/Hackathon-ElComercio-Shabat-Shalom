@@ -54,6 +54,12 @@ Se adopta la opción 3, configurable con `OTP_PROVIDER=firebase`:
   (`identidad.limites_otp`) siguen vigentes para el proveedor falso y para Twilio.
 - Cada persona que compile para un celular debe registrar la huella de su clave de depuración. Las
   betas y la versión publicada usarán las huellas de la clave de firma del Lote C (Fase 1, parte 4).
+- Firebase verifica primero la app con Play Integrity. Solo una app instalada desde Google Play la
+  supera. Si falla (instalación por cable, celulares sin Google Play), abre una página de reCAPTCHA
+  en el navegador que tenga el celular (Chrome, Samsung Internet, Firefox u otro) y vuelve a la
+  app con el resultado. Para que esa vuelta funcione, `MainActivity` no lleva
+  `android:taskAffinity=""`. Con esa línea de la plantilla de Flutter, el resultado se perdía
+  («web operation canceled») y no se enviaba el SMS.
 - iOS necesita la clave APNs o el respaldo con reCAPTCHA de Firebase, que se configurará cuando el
   equipo tenga un iPhone para el piloto.
 - La evidencia de la prueba manual está en `docs/fase-0/evidencias/otp.md`.
