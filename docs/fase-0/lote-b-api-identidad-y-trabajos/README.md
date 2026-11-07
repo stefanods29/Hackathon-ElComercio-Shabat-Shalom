@@ -585,6 +585,11 @@ OTP y sesiones en las pruebas de esta parte. Las Partes 3 y 4 se conservan en su
 ramas; sus casillas no representan integraciones en esta rama. Por indicación del equipo,
 la entrega se limita a commits y push, sin merges, rebases, cherry-picks ni PR.
 
+Implementación: `5597e15`. Tareas 5.1–5.4 verificadas: 112 pruebas unitarias, 81 de
+integración y CI remoto en verde. Evidencia y puntos de contacto:
+[`../evidencias/muro.md`](../evidencias/muro.md). El estado sigue **En curso** porque
+falta la revisión; la rama se conserva sin integrar.
+
 ### 5.1 Contrato
 
 - `GET /v1/publicaciones` con los parámetros `lat`, `lng` (obligatorios), `radio` (metros, de 100

@@ -68,7 +68,17 @@ Las 22 integraciones nuevas cubren:
 La prueba HTTP de concurrencia escucha una sola vez en un puerto efímero local para evitar
 acumular callbacks de arranque de Supertest. Se mantienen todas las regresiones de OTP y sesiones.
 
-CI remoto pendiente de ejecución manual; la tarea 5.4 permanece abierta hasta confirmarlo.
+## CI remoto
+
+Ejecuciones manuales sobre `lote-b/parte-5-muro`, commit de implementación
+`5597e15c141bf50a1a7cf56b1ead794bf76ada08`, completadas en verde:
+
+- [Backend: tipos, lint, formato, fronteras, Sync Streams, pruebas, build e integración](https://github.com/stefanods29/Hackathon-ElComercio-Shabat-Shalom/actions/runs/42384660262).
+  La integración remota usa PostgreSQL 18 + PostGIS 3.6.
+- [Especificaciones: OpenSpec estricto y contrato OpenAPI](https://github.com/stefanods29/Hackathon-ElComercio-Shabat-Shalom/actions/runs/42384662686).
+
+Las tareas 5.1–5.4 están verificadas. El commit posterior solo registra esta evidencia y
+el estado de entrega; no cambia código. La rama queda pendiente de revisión, sin PR ni integración.
 
 ## Puntos de contacto y límites
 
