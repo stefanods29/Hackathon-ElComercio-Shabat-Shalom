@@ -8,8 +8,8 @@ context: |
   Proyecto: app vecinal de servicios, solidaridad y emergencias (Hackathon El Comercio).
   La arquitectura aprobada está en docs/arquitectura/ (secciones 1–15) y manda sobre cualquier
   suposición. Las correcciones posteriores viven en docs/adr/.
-  Fase actual: Fase 0 · Prueba técnica (sección 12), dividida en los Lotes A, B, C y D
-  (docs/fase-0/plan-de-lotes.md). Cada lote es un change de OpenSpec.
+  Fase actual: Fase 1 · Piloto en un barrio (sección 12), dividida en los Lotes A, B, C y D
+  (docs/fase-1/plan-de-lotes.md). Cada lote es un change de OpenSpec. La Fase 0 está cerrada.
   Promesas que ningún change puede romper:
   - Sin conexión se consulta lo descargado y las acciones quedan en cola; nada se envía y la app
     lo dice ("Guardado en tu celular"). Nunca prometer envíos inmediatos en segundo plano.
@@ -35,8 +35,8 @@ rules:
 operations:
   apply:
     guidance:
-      - Trabajar una parte a la vez, en la rama lote-<letra>/parte-<n>-<tema>.
-      - Al terminar una parte, abrir el PR con la plantilla y pedir la revisión del Lote A.
+      - Trabajar una parte a la vez, en la rama f1-lote-<letra>/parte-<n>-<tema>.
+      - Al terminar una parte, subir la rama y pedir la revisión del Lote A con el informe de entrega; abrir un PR o integrar solo con autorización del equipo.
   archive:
     guidance:
-      - Archivar solo después de que el Lote A apruebe el último PR del lote y CI esté en verde.
+      - Archivar solo después de que el Lote A apruebe la última entrega del lote y CI esté en verde.

@@ -8,9 +8,15 @@ los [criterios de esta fase](criterios-de-salida.md).
 
 ## Estado
 
+**En curso desde el 7 de noviembre de 2026.** Cada lote tiene su change de OpenSpec con sus
+tareas y los contratos acordados entre lotes. Hasta que el equipo los confirme se asume que el
+barrio piloto es la zona sembrada de Lince (demo) y que entran todos los flujos de la sección 12
+(decisión 13.3.1). Los números de los criterios de salida se fijan al preparar el piloto (Lote A,
+parte 5).
+
 | Carpeta | Qué es | Dificultad | Responsable | Estado |
 |---|---|---|---|---|
-| [`lote-a-datos-offline-y-metricas/`](lote-a-datos-offline-y-metricas/) | Streams públicos del directorio y la reputación, directorio de emergencia offline, métricas de sincronización, piloto e integración | ★★★★ | Stefano | Pendiente (0 de 6 partes) |
+| [`lote-a-datos-offline-y-metricas/`](lote-a-datos-offline-y-metricas/) | Streams públicos del directorio y la reputación, directorio de emergencia offline, métricas de sincronización, piloto e integración | ★★★★ | JDiazD33 | Pendiente (0 de 6 partes) |
 | [`lote-b-directorio-reputacion-y-moderacion/`](lote-b-directorio-reputacion-y-moderacion/) | Directorio, búsqueda, reseñas y ranking, identidad del piloto y moderación | ★★★ | Por asignar | Pendiente (0 de 5 partes) |
 | [`lote-c-fotos-entornos-y-observabilidad/`](lote-c-fotos-entornos-y-observabilidad/) | Módulo Media, fotos en la app, compartir por WhatsApp, entornos con OpenTofu y observabilidad | ★★ | Por asignar | Pendiente (0 de 5 partes) |
 | [`lote-d-pantallas-del-piloto/`](lote-d-pantallas-del-piloto/) | Pantallas del directorio, perfil y reseñas, botón de emergencia, consentimiento y derechos ARCO | ★ | Por asignar | Pendiente (0 de 5 partes) |
@@ -21,8 +27,8 @@ tanto.
 
 ## Cómo contribuir
 
-1. Mientras la fase no se abra, las guías son el plan. Puedes leerlas y proponer cambios con un
-   PR pequeño.
+1. Lee la guía de tu lote y su change de OpenSpec: el change fija los contratos con los demás
+   lotes (tablas, columnas, rutas, eventos y puertos).
 2. Al abrirse la fase ([`../hoja-de-ruta.md`](../hoja-de-ruta.md#cómo-se-abre-una-fase)), elige
    un lote sin responsable o una parte **Pendiente** del tuyo y márcala **En curso** con tu
    nombre.
@@ -51,5 +57,5 @@ Valen las mismas de la Fase 0 (sección 0.1 de cada guía), además de estas:
 | [`criterios-de-salida.md`](criterios-de-salida.md) | Cuándo termina el piloto |
 | [`evidencias/`](evidencias/) | Resultados del piloto y de las pruebas |
 
-Cuando la fase se abra, las tareas con casillas estarán en
+Las tareas con casillas de cada lote están en
 `openspec/changes/fase-1-lote-<letra>-…/tasks.md`.

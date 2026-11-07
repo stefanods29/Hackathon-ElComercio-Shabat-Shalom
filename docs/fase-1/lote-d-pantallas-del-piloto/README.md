@@ -4,7 +4,7 @@
 |---|---|
 | Dificultad | ★ La más accesible para empezar |
 | Área | `app/lib/features/directorio/`, `reputacion/`, `emergencias/`, `onboarding/`, `cuenta/`, `app/lib/l10n/app_es.arb`, `app/test/` |
-| Change de OpenSpec | `fase-1-lote-d-pantallas-del-piloto` (se crea al abrir la fase) |
+| Change de OpenSpec | `openspec/changes/fase-1-lote-d-pantallas-del-piloto/` (proposal, design, specs, tasks) |
 | Partes | 5. Todas pueden empezar con repositorios en memoria |
 | Depende de | Contratos de B, repositorios de A, fotos y compartir de C |
 
@@ -61,7 +61,7 @@ completas y búsqueda con datos en memoria.
 - "Ofrezco un servicio" desde el botón "+" en 3 toques: **(1)** "+" → **(2)** "Ofrezco" → **(3)**
   formulario mínimo prellenado (categoría y ubicación sugeridas) y "Publicar".
 - Editar y retirar un servicio, mostrando el motivo si el servidor rechaza el cambio (por ejemplo,
-  `version_desactualizada`).
+  `conflicto_de_version`).
 
 Pruebas: el flujo de 3 toques con una prueba de widget que cuente los toques, y el estado
 "Guardado en tu celular" sin señal.

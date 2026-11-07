@@ -4,7 +4,7 @@
 |---|---|
 | Dificultad | ★★★★ Alta (el más complejo de la fase; integra a los demás) |
 | Área | `infra/powersync/sync-config.yaml`, `app/lib/core/sync/`, `app/lib/features/emergencias/`, `backend/src/shared/observability/`, `contracts/`, `infra/cdn/publico/emergencia/` |
-| Change de OpenSpec | `fase-1-lote-a-datos-offline-y-metricas` (se crea al abrir la fase) |
+| Change de OpenSpec | `openspec/changes/fase-1-lote-a-datos-offline-y-metricas/` (proposal, design, specs, tasks) |
 | Partes | 6. La 1, la 2 y la 3 pueden avanzar en paralelo; la 5 y la 6 cierran la fase |
 | Depende de | Contratos de B (partes 1–5), Media de C (parte 1) y staging de C (parte 4) |
 
@@ -12,12 +12,12 @@
 
 | Parte | Qué entrega | Estado | Responsable | PR |
 |---|---|---|---|---|
-| 1 | Datos públicos del piloto en el celular | Pendiente | Stefano | — |
-| 2 | Directorio de emergencia sin conexión | Pendiente | Stefano | — |
-| 3 | Métricas de sincronización | Pendiente | Stefano | — |
-| 4 | Zona, cuenta y fotos pendientes | Pendiente | Stefano | — |
-| 5 | Piloto en campo | Pendiente | Stefano | — |
-| 6 | Integración de la Fase 1 | Pendiente | Stefano | — |
+| 1 | Datos públicos del piloto en el celular | Pendiente | JDiazD33 | — |
+| 2 | Directorio de emergencia sin conexión | Pendiente | JDiazD33 | — |
+| 3 | Métricas de sincronización | Pendiente | JDiazD33 | — |
+| 4 | Zona, cuenta y fotos pendientes | Pendiente | JDiazD33 | — |
+| 5 | Piloto en campo | Pendiente | JDiazD33 | — |
+| 6 | Integración de la Fase 1 | Pendiente | JDiazD33 | — |
 
 Estados posibles: **Pendiente**, **En curso** o **Hecha** (integrada en `main`).
 

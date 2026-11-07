@@ -4,7 +4,7 @@
 |---|---|
 | Dificultad | ★★★ Media-alta |
 | Área | `backend/src/modules/directorio/`, `reputacion/`, `moderacion/`, `identidad/`, `contracts/openapi.yaml`, `backend/src/workers/` |
-| Change de OpenSpec | `fase-1-lote-b-directorio-reputacion-y-moderacion` (se crea al abrir la fase) |
+| Change de OpenSpec | `openspec/changes/fase-1-lote-b-directorio-reputacion-y-moderacion/` (proposal, design, specs, tasks) |
 | Partes | 5. La 1 va primero; la 4 y la 5 pueden avanzar en paralelo con la 2 y la 3 |
 | Depende de | Precisión de ubicación (A parte 1), archivos de C (parte 1) para las fotos |
 
@@ -55,7 +55,7 @@ Rutas:
 | `GET /v1/categorias` | Lista de categorías | Pública con token |
 | `PUT /v1/yo/proveedor` | Crea o actualiza mi perfil de proveedor | `@Idempotent()`, nivel 1 |
 | `POST /v1/servicios` | Publica un servicio | `@Idempotent()`, nivel 1; evento `directorio.servicio_publicado` |
-| `PUT /v1/servicios/{id}` | Edita con `version` | 409 `version_desactualizada` si cambió |
+| `PUT /v1/servicios/{id}` | Edita con `version` | 409 `conflicto_de_version` si cambió (el código que ya traduce la app) |
 | `DELETE /v1/servicios/{id}` | Borrado lógico | Solo el dueño; idempotente |
 | `GET /v1/proveedores/{id}` | Perfil con sus servicios | Sin teléfono ni ubicación exacta |
 

@@ -1,8 +1,8 @@
 # Cómo contribuir · App vecinal (Hackathon El Comercio)
 
 Reglas para todas las personas que trabajan en este repositorio. La arquitectura aprobada está en
-`docs/arquitectura/` y las correcciones posteriores en `docs/adr/`. Fase actual: **Fase 0**,
-dividida en los Lotes A–D (`docs/fase-0/plan-de-lotes.md`).
+`docs/arquitectura/` y las correcciones posteriores en `docs/adr/`. Fase actual: **Fase 1**,
+dividida en los Lotes A–D (`docs/fase-1/plan-de-lotes.md`).
 
 ## Estructura
 
@@ -68,7 +68,8 @@ npx @redocly/cli lint contracts/openapi.yaml
 
 ## Forma de trabajo
 
-- Una parte de un lote por rama: `lote-<letra>/parte-<n>-<tema>`.
+- Una parte de un lote por rama: `f<fase>-lote-<letra>/parte-<n>-<tema>` (en la Fase 0 fue
+  `lote-<letra>/parte-<n>-<tema>`).
 - **Al terminar cada parte se compila y se depura** lo tocado (backend y/o app) antes de pedir
   revisión.
 - La entrega y la revisión siguen `docs/fase-0/revision-y-entregas.md`.
