@@ -6,14 +6,16 @@ de la app. No lee publicaciones por HTTP: el detalle usa exclusivamente `wallPro
 
 Los avisos están desactivados por defecto (`ENABLE_PUSH=false`). La app y sus pruebas pueden
 compilar sin archivos de un proyecto Firebase. Activarlos no inicia una sesión de demostración:
-`pushCredentialsProvider` devuelve `null` hasta que el Lote A lo conecte a su sesión real.
+`pushCredentialsProvider` devuelve `null` sin una sesión real.
 
-## Integración con A
+## Integración con A (hecha)
 
-1. Sobreescribir `pushCredentialsProvider` con el estado autenticado real: `PushCredentials`
-   contiene `userId`, `zoneId` y `accessToken`. Al renovar el JWT debe actualizarse el proveedor.
-2. Antes de eliminar credenciales, llamar a
-   `ref.read(pushControllerProvider.notifier).signOut()` y publicar luego sesión nula.
+1. `AuthenticatedApp` sobreescribe `pushCredentialsProvider` con el vecino de la sesión.
+   `PushCredentials` contiene `userId`, `zoneId` y `accessToken`: una función que entrega un JWT
+   vigente de ese mismo vecino, renovado si hace falta, o `null` si ya no tiene sesión.
+2. Antes de cerrar la sesión, `AccountPage` llama a
+   `ref.read(pushControllerProvider.notifier).signOut()`, con un límite de 5 segundos para que el
+   cierre siga funcionando sin señal.
 3. Conservar las claves `push.installation` y `push.pending.<usuarioId>` mientras haya una baja
    pendiente. Un `SecureStore.deleteAll()` indiscriminado elimina también esa recuperación.
    Una baja sin red queda pendiente; la app además intenta invalidar la instalación en Firebase.

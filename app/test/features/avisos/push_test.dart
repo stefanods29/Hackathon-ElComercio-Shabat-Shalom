@@ -18,7 +18,9 @@ import 'package:vecinal/l10n/app_localizations.dart';
 
 const _post = '01970000-0000-7000-8000-00000000f001';
 const _zone = '01970000-0000-7000-8000-000000000001';
-const _credentials = PushCredentials(userId: 'ana', zoneId: _zone, accessToken: 'jwt-de-prueba');
+Future<String?> _jwt() async => 'jwt-de-prueba';
+Future<String?> _newJwt() async => 'nuevo-jwt';
+const _credentials = PushCredentials(userId: 'ana', zoneId: _zone, accessToken: _jwt);
 const _message = {'tipo': 'favor_tomado', 'publicacionId': _post};
 
 class _Platform implements PushPlatform {
@@ -144,7 +146,7 @@ void main() {
       expect(registration.registered, ['token-1', 'token-2']);
       expect(registration.removed, ['token-1']);
       await service.updateSession(
-        const PushCredentials(userId: 'ana', zoneId: 'otra-zona', accessToken: 'nuevo-jwt'),
+        const PushCredentials(userId: 'ana', zoneId: 'otra-zona', accessToken: _newJwt),
       );
       expect(platform.removed, contains('zona-$_zone'));
       expect(platform.topics.last, 'zona-otra-zona');

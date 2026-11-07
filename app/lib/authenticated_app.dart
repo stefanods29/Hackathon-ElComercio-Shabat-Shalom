@@ -10,6 +10,8 @@ import 'package:vecinal/core/network/api_client.dart';
 import 'package:vecinal/core/storage/secure_store.dart';
 import 'package:vecinal/core/sync/authenticated_sync_session.dart';
 import 'package:vecinal/core/theme/accessible_theme.dart';
+import 'package:vecinal/features/avisos/data/providers.dart';
+import 'package:vecinal/features/avisos/domain/push_registration.dart';
 import 'package:vecinal/features/cuenta/data/http_auth_repository.dart';
 import 'package:vecinal/features/cuenta/data/providers.dart';
 import 'package:vecinal/features/cuenta/domain/auth_state.dart';
@@ -84,6 +86,12 @@ class _AuthenticatedAppState extends State<AuthenticatedApp> {
     if (mounted) setState(() => _session = null);
   }
 
+  /// The push journal belongs to one neighbor: it never sends with another neighbor's JWT.
+  Future<String?> _tokenFor(String neighborId) async {
+    if (_session?.user.neighborId != neighborId) return null;
+    return _auth.getToken();
+  }
+
   @override
   void dispose() {
     _report(() async {
@@ -115,6 +123,13 @@ class _AuthenticatedAppState extends State<AuthenticatedApp> {
               syncServiceProvider.overrideWithValue(session.sync),
               syncedPostRepositoryProvider.overrideWithValue(session.posts),
               assignedCaseCacheProvider.overrideWithValue(session.cases),
+              pushCredentialsProvider.overrideWithValue(
+                PushCredentials(
+                  userId: session.user.neighborId,
+                  zoneId: session.user.zoneId,
+                  accessToken: () => _tokenFor(session.user.neighborId),
+                ),
+              ),
             ],
           ],
           child: const VecinalApp(),

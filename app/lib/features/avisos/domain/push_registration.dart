@@ -5,10 +5,12 @@ abstract interface class PushRegistration {
   Future<bool> retry();
 }
 
-/// Lot A supplies an authenticated snapshot. The demonstration session never registers devices.
+/// Lot A supplies the signed-in neighbor. The demonstration session never registers devices.
 class PushCredentials {
   const PushCredentials({required this.userId, required this.zoneId, required this.accessToken});
   final String userId;
   final String? zoneId;
-  final String accessToken;
+
+  /// Returns a current JWT of this same neighbor, renewing it if needed; null without a session.
+  final Future<String?> Function() accessToken;
 }

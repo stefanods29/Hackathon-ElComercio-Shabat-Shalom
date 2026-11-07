@@ -54,6 +54,15 @@ class ApiPushRegistration implements PushRegistration {
   Future<bool> retry() => _serialized(() async => _flush(await _read()));
 
   Future<bool> _flush(List<Map<String, dynamic>> items) async {
+    if (items.isEmpty) return true;
+    final String? token;
+    try {
+      token = await credentials.accessToken();
+    } on Object {
+      return false;
+    }
+    // Without a session of this same owner the operation stays queued for a later retry.
+    if (token == null) return false;
     while (items.isNotEmpty) {
       final item = items.first;
       Response<dynamic> response;
@@ -67,7 +76,7 @@ class ApiPushRegistration implements PushRegistration {
           options: Options(
             headers: {
               idempotencyKeyHeader: item['clave'],
-              'Authorization': 'Bearer ${credentials.accessToken}',
+              'Authorization': 'Bearer $token',
             },
             validateStatus: (_) => true,
           ),

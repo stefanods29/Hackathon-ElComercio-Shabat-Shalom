@@ -10,7 +10,7 @@ import 'package:vecinal/features/avisos/data/push_service.dart';
 import 'package:vecinal/features/avisos/domain/push_platform.dart';
 import 'package:vecinal/features/avisos/domain/push_registration.dart';
 
-/// Integration seam for Lot A. Null until real OTP authentication is available.
+/// Null without a session; Lot A overrides it in `AuthenticatedApp` for the signed-in neighbor.
 final pushCredentialsProvider = Provider<PushCredentials?>((ref) => null);
 final pushPlatformProvider = Provider<PushPlatform>((ref) => FirebasePushPlatform());
 final foregroundPushProvider = NotifierProvider<ForegroundPush, Map<String, String>?>(

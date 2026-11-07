@@ -3,9 +3,13 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:vecinal/core/router/routes.dart';
 import 'package:vecinal/core/ui/simple_mode.dart';
+import 'package:vecinal/features/avisos/data/providers.dart';
 import 'package:vecinal/features/cuenta/data/providers.dart';
 import 'package:vecinal/features/cuenta/domain/auth_state.dart';
 import 'package:vecinal/l10n/app_localizations.dart';
+
+/// Longest wait for the push unregistration before signing out anyway.
+const _pushSignOutLimit = Duration(seconds: 5);
 
 /// Pantalla "Mi cuenta" (/cuenta).
 class AccountPage extends ConsumerWidget {
@@ -70,6 +74,15 @@ class AccountPage extends ConsumerWidget {
     );
   }
 
+  /// Unregisters the push token while the session is still valid (Lot A, task 2.5).
+  Future<void> _unregisterPush(WidgetRef ref) async {
+    try {
+      await ref.read(pushControllerProvider.notifier).signOut().timeout(_pushSignOutLimit);
+    } catch (_) {
+      // Signing out keeps working offline; the next sign-in invalidates this installation.
+    }
+  }
+
   Future<void> _confirmSignOut(BuildContext context, WidgetRef ref) async {
     final confirmed = await showDialog<bool>(
       context: context,
@@ -90,6 +103,7 @@ class AccountPage extends ConsumerWidget {
     );
     if (confirmed == true && context.mounted) {
       try {
+        await _unregisterPush(ref);
         await ref.read(authRepositoryProvider).signOut();
         if (context.mounted) context.go(Routes.signIn);
       } catch (_) {
@@ -124,6 +138,7 @@ class AccountPage extends ConsumerWidget {
     );
     if (confirmed == true && context.mounted) {
       try {
+        await _unregisterPush(ref);
         await ref.read(authRepositoryProvider).signOutEverywhere();
         if (context.mounted) context.go(Routes.signIn);
       } catch (_) {
