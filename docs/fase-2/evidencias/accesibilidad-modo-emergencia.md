@@ -44,23 +44,20 @@ Preparación del 8 de noviembre de 2026, America/Lima, en
 `f2-lote-a/parte-3-y-d-4-telefonos`, desde `origin/main` en `4fb7761`.
 Responsable del recorrido y de las observaciones: `JDiazD33`.
 
-**Alcance acordado: Android/TalkBack por ahora. iPhone/VoiceOver no se ejecutó por no disponer de
-una Mac con Xcode ni de las herramientas de firma de iOS.** D 4.5 sigue abierta: los resultados
-automáticos de arriba no reemplazan ninguno de los recorridos físicos.
-
-La [guía Android](telefonos-android.md#3-d-45-talkback-texto-grande-y-contraste) describe configuración,
-gestos, resultados esperados y límites de práctica. Los comandos ejecutados y sus resultados se
-registran en el [reporte de la entrega](reporte-telefonos-android.md).
+D 4.5 sigue abierta hasta registrar el recorrido con el lector y el contraste del sistema en ambos
+teléfonos. La [guía Android](telefonos-android.md#3-d-45-talkback-texto-grande-y-contraste) y la
+[guía de iPhone](telefonos-ios.md#d-45--voiceover-texto-grande-y-contraste) describen los ajustes,
+los pasos y los límites de práctica. Consultar el [reporte inicial de Android](reporte-telefonos-android.md).
 
 | Registro | Android | iPhone |
 |---|---|---|
-| Modelo y versión del sistema | POCO X6 Pro informado por el usuario; ADB confirma Xiaomi `2311DRK48G`, Android 16, API 36 | No ejecutado: faltan Mac, Xcode y firma |
+| Modelo y versión del sistema | POCO X6 Pro informado por el usuario; ADB confirma Xiaomi `2311DRK48G`, Android 16, API 36 | iPhone XR, iOS 17.7, detectado por Xcode mediante USB |
 | Versión de TalkBack/VoiceOver | `17.1.0.1003738110`, consultada en el dispositivo | No probado |
 | Teclado y dictado del sistema | Pendiente | No probado |
 | Tamaño de fuente y contraste del sistema | Consulta inicial: `font_scale=1.1` (110 %); `high_text_contrast_enabled` sin valor definido. No se atribuye al teléfono el 200 % de los widgets | No configurado |
 | Modo sencillo, tema y sesión usados | Práctica confirmada por el usuario; modo sencillo y tema de la ejecución pendientes | No ejecutado |
-| Fecha y commit instalado | 8 de noviembre de 2026; base `4fb7761` más entrada de práctica de esta rama. APK de práctica instalado y actividad abierta por ADB; integridad en el reporte | No instalado |
-| Observación física recibida | El usuario confirma la franja «Modo práctica», el acceso con «Estoy en emergencia» y la identificación de «Volver al inicio normal»; pendiente del recorrido con lector | Ninguna |
+| Fecha y commit instalado | 8 de noviembre de 2026; base `4fb7761` más entrada de práctica de esta rama. APK de práctica instalado y actividad abierta por ADB; integridad en el reporte | 8 de noviembre de 2026, `e658974`. Variante de práctica compilada, firmada e instalada por USB con un identificador de laboratorio |
+| Observación física recibida | El usuario confirma la franja «Modo práctica», el acceso con «Estoy en emergencia» y la identificación de «Volver al inicio normal»; pendiente del recorrido con lector | La Mac confirmó el arranque de la entrada de práctica y el muro. El responsable pospuso el recorrido con VoiceOver |
 
 La confirmación de arranque y navegación corresponde a la variante de práctica del commit
 `5f4ec140097e2cc4093c6eaea3d83578747cbba7`, el 8 de noviembre de 2026. No se confirmó que TalkBack

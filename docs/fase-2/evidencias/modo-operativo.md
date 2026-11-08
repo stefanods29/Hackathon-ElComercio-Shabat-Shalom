@@ -63,19 +63,19 @@ Preparación del 8 de noviembre de 2026, America/Lima, en
 Responsable de ejecutar y comunicar las observaciones: `JDiazD33`.
 El código del caso operativo permanece en esa base; no se modificó el código nativo.
 
-**Alcance acordado: Android por ahora. iPhone no se ejecutó por no disponer de una Mac con Xcode
-ni de las herramientas de firma de iOS.** La tarea A 3.2 permanece abierta, pues exige ambos sistemas.
+La entrega inicial preparó Android. La [guía de iPhone](telefonos-ios.md#a-32--selector-de-apps-y-primer-plano)
+completa el protocolo para comprobar la cubierta del selector y el regreso a la app en iOS.
+La tarea A 3.2 permanece abierta hasta observar el contenido protegido en ambos sistemas.
 
-La [guía de instalación y ejecución](telefonos-android.md) contiene las condiciones del entorno,
-el acceso al caso ficticio y los pasos completos. El resultado de la preparación local está en
-el [reporte de la entrega](reporte-telefonos-android.md).
+Consultar la [guía de Android](telefonos-android.md) y el
+[reporte de la entrega inicial](reporte-telefonos-android.md) para el ensayo con `FLAG_SECURE`.
 
 | Registro | Android | iPhone |
 |---|---|---|
-| Modelo y versión del sistema | POCO X6 Pro informado por el usuario; ADB confirma Xiaomi `2311DRK48G`, Android 16, API 36 | No ejecutado: faltan Mac, Xcode y firma |
-| Fecha de ejecución en el teléfono | No ejecutado | No ejecutado |
-| Commit de la app instalada | APK normal del código base `4fb7761`, instalado por USB; no se probó el caso operativo | No instalado |
-| Observación física recibida | El usuario informa que el ingreso no envía el código; la API local no está disponible. Sin observaciones del contenido protegido | Ninguna |
+| Modelo y versión del sistema | POCO X6 Pro informado por el usuario; ADB confirma Xiaomi `2311DRK48G`, Android 16, API 36 | iPhone XR, iOS 17.7, detectado por Xcode mediante USB |
+| Fecha de ejecución en el teléfono | No ejecutado | 8 de noviembre de 2026 (America/Lima) |
+| Commit de la app instalada | APK normal del código base `4fb7761`, instalado por USB; no se probó el caso operativo | `668e015`. Variante normal instalada por USB para el ensayo del caso operativo |
+| Observación física recibida | El usuario informa que el ingreso no envía el código; la API local no está disponible. Sin observaciones del contenido protegido | Ingreso por OTP ficticio y desbloqueo con Face ID. Tras la corrección, se vio el caso «En camino». La miniatura quedó negra en el selector |
 
 Esta tabla registra el estado real de la evidencia, no una ejecución simulada:
 
@@ -94,5 +94,44 @@ Esta tabla registra el estado real de la evidencia, no una ejecución simulada:
 En Android una superficie vacía/negra en el selector puede cumplir la ausencia de contenido;
 el difuminado nativo descrito arriba corresponde a iOS. No se infiere ese resultado del código.
 Las capturas de evidencia no incluirán descripciones, ubicaciones, teléfonos ni nombres, ni siquiera
-ficticios. Un fallo que muestre datos se describirá en texto. No hay hallazgos observados en
-teléfono ni una corrección nativa que declarar todavía.
+ficticios. Un fallo que muestre datos se describirá en texto.
+
+### Ensayo en iPhone XR · iOS 17.7
+
+En la primera compilación (`e658974`), `JDiazD33` entró con el OTP ficticio y desbloqueó el modo
+operativo con Face ID. La pantalla mostró «El caso no está disponible en este celular». La API
+concedió el permiso auditado (HTTP 200). PowerSync devolvió el caso para ese permiso al pedir el
+stream desde la Mac. La primera sincronización del cliente nativo llegó sin la suscripción.
+
+En `668e015`, `AssignedCaseCache` abre primero la conexión de PowerSync y después suscribe el
+caso. Así el cliente nativo de PowerSync 2.6.0 envía los parámetros de la suscripción. La conexión
+empieza con los streams por defecto desactivados y conserva el permiso auditado y el alcance de
+cada solicitud.
+
+La prueba «la conexión nativa envía la suscripción del caso sin streams por defecto» agotó su
+espera con el código anterior y pasó con la corrección. Usa un servidor HTTP en loopback e
+inspecciona los parámetros enviados por el SDK nativo. `flutter analyze --no-pub` pasó y se
+ejecutaron 19 pruebas de la caché asignada, la pantalla operativa, el bloqueo y el arranque de
+práctica. La variante corregida se compiló con Xcode y se instaló en el mismo iPhone.
+
+```bash
+cd app
+flutter test --no-pub --timeout 90s \
+  test/features/emergencias/assigned_case_cache_test.dart \
+  test/features/emergencias/operational_case_page_test.dart \
+  test/core/security/operational_lock_test.dart \
+  test/features/emergencias/phone_practice_test.dart
+```
+
+En la repetición, PowerSync entregó al cliente iOS el stream `caso_asignado`. `JDiazD33` confirmó
+que después de Face ID se veía «En camino» y que pudo volver al tablero.
+
+| Paso iOS | Observación comunicada | Resultado |
+|---|---|---|
+| A-05 · Selector con el caso abierto | La miniatura de Vecinal quedó negra y el contenido del caso no era visible | Pasa |
+| A-06 · Regreso a primer plano | En el primer regreso se percibió algo fugaz sin identificar. Al repetir desde Configuración, solo se vio el indicador circular de carga | Pasa en la repetición |
+
+El resultado corresponde al iPhone XR con la compilación `668e015`. Quedan pendientes el control
+del selector desde el muro o tablero, la cancelación del desbloqueo, la repetición de la cubierta
+tras salir del caso, el regreso después de la inactividad y el ensayo de caducidad en modo avión.
+Las comprobaciones de `FLAG_SECURE` en Android permanecen pendientes.

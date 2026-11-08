@@ -4,10 +4,8 @@ Responsable de las observaciones: `JDiazD33`.
 Rama: `f2-lote-a/parte-3-y-d-4-telefonos`, desde `origin/main` en `4fb7761`.
 Fecha de preparación: 8 de noviembre de 2026, America/Lima.
 
-Por indicación del responsable de esta entrega, el alcance actual es Android.
-**iPhone/VoiceOver no se ejecutó: este equipo es Windows y no dispone de una Mac con Xcode ni
-de las herramientas de firma de desarrollo de iOS.** A 3.2 y D 4.5 exigen ambos sistemas y se
-mantienen abiertas. Una compilación, un emulador o una prueba de widgets no sustituyen el teléfono.
+Esta guía corresponde a la entrega inicial desde Windows. La continuación en Mac se registra
+en la [guía de iPhone](telefonos-ios.md). A 3.2 y D 4.5 exigen ensayos en ambos sistemas.
 
 ## 1. Preparar el teléfono y la app
 
