@@ -39,7 +39,7 @@ las dependencias restantes o registrar la aceptación de su riesgo.
 | `npm run verify` | 249 pruebas, tipos, formato, fronteras, reglas de Sync Streams y build aprobados. Seis avisos de lint ya presentes. |
 | `npm run test:integration` | 204 pruebas aprobadas con PostgreSQL 18.6 y PostGIS 3.7. |
 | `npm run test:console-contract` | Una suite aprobada, con los siete casos de los adaptadores contra la API local. |
-| `app/tool/verify.sh` | 284 aprobadas, una omitida, análisis y formato correctos en macOS. Una primera corrida falló en la prueba de cobertura sin señal. La prueba pasó aislada y en la repetición completa. |
+| `app/tool/verify.sh` | 284 aprobadas, una omitida, análisis y formato correctos en macOS. Una primera corrida falló en la prueba de cobertura sin señal. La prueba pasó aislada y en la repetición completa. La CI de Linux reprodujo el fallo. [Corrección de cobertura en `aa438ba`](https://github.com/stefanods29/Hackathon-ElComercio-Shabat-Shalom/blob/aa438ba5c8ab6f6f872280c94ec7b481f25e9302/docs/fase-2/evidencias/cobertura-local-sin-senal.md). |
 | Consola | Análisis, siete pruebas y build web aprobados. Siete pruebas de API se omiten en la suite normal y se ejecutan con el contrato. El build conserva un aviso de fuente. |
 | Contrato OpenAPI | Válido con seis avisos. |
 | `openspec validate --all --strict` | 30 elementos válidos. |

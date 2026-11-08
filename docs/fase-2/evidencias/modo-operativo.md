@@ -59,7 +59,10 @@ dispositivo, versión, condiciones y resultado. El CI de esta rama queda pendien
 ## Prueba de campo
 
 Preparada el 8 de noviembre de 2026. Responsable: `JDiazD33`.
-A 5.2 queda abierta hasta la ejecución en varios teléfonos.
+A 5.2 queda abierta hasta la ejecución en varios teléfonos. En laboratorio se reprodujo
+CAM-01, una emisión inicial de cobertura sin esperar la lectura local. La [repetición y
+corrección](https://github.com/stefanods29/Hackathon-ElComercio-Shabat-Shalom/blob/aa438ba5c8ab6f6f872280c94ec7b481f25e9302/docs/fase-2/evidencias/cobertura-local-sin-senal.md)
+quedaron en una rama desde `main`.
 
 1. Preparar una zona y un evento de laboratorio dedicados a la corrida, con dos coordinadores
    ficticios habilitados, un turno y cuentas separadas en al menos dos Android y dos iPhone.
