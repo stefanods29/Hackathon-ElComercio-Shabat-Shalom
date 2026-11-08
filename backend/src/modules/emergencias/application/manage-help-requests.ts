@@ -33,6 +33,7 @@ import {
   type OperationsStore,
   REQUEST_STORE,
   type RequestStore,
+  type StreamAccess,
 } from './ports.js';
 import { ManageEvents } from './manage-events.js';
 import { OperationalAccess } from './operational-access.js';
@@ -435,6 +436,61 @@ export class ManageHelpRequests {
       await this.audit.record(tx, actor.id, 'coordinador', id, 'prioridad_actualizada', now);
       await this.emit(tx, 'emergencias.pedido_actualizado', updated, {});
       return updated;
+    });
+  }
+  /**
+   * Audited opening of a case on the assigned operator's phone (Lot A, part 2). The permission is
+   * tied to the assignment, the session and the scope: the summary while the case is open, the
+   * exact location only while it is «En camino». It ends with the assignment.
+   */
+  async openSyncAccess(
+    id: string,
+    scope: StreamAccess['scope'],
+    actor: Actor,
+  ): Promise<StreamAccess> {
+    const sessionId = actor.sessionId;
+    if (!sessionId)
+      throw new BusinessRuleViolation(
+        'sesion_requerida',
+        'Vuelve a iniciar sesión en el celular para abrir el caso.',
+        'forbidden',
+      );
+    return this.uow.run(async (tx) => {
+      await this.accounts.requireActiveWrite(tx, actor.id);
+      const request = await this.requireRequest(tx, id);
+      const now = this.clock.now();
+      const assignment = (await this.requests.assignments(tx, id, now)).find(
+        (item) => item.userId === actor.id,
+      );
+      if (!assignment || !actor.zoneId || !isOpen(request.state) || request.expiresAt <= now)
+        throw new ResourceNotFound('el pedido', id);
+      await this.access.require(tx, actor, actor.zoneId, [assignment.role]);
+      await this.requireSupport(tx, request.zoneId, actor.zoneId);
+      if (scope === 'exacta' && request.state !== 'en_camino')
+        throw new BusinessRuleViolation(
+          'ubicacion_no_disponible',
+          'La ubicación exacta se abre cuando el caso está en camino.',
+          'conflict',
+        );
+      const access = await this.requests.openStreamAccess(tx, {
+        id: newId(),
+        assignmentId: assignment.id,
+        requestId: id,
+        userId: actor.id,
+        sessionId,
+        scope,
+        createdAt: now,
+        expiresAt: assignment.expiresAt,
+      });
+      await this.audit.record(
+        tx,
+        actor.id,
+        assignment.role,
+        id,
+        scope === 'exacta' ? 'ubicacion_exacta_autorizada' : 'caso_abierto_en_celular',
+        now,
+      );
+      return access;
     });
   }
   async requireRequest(tx: TransactionContext, id: string): Promise<HelpRequest> {

@@ -95,9 +95,17 @@ espera JSON `{ "alertas": [{ "id": "referencia", "zonaId": "uuid", "nivel": 1,
 de cinco segundos, deduplicación por fuente/referencia/zona y circuit breaker tras tres fallos.
 Una URL vacía no consulta nada. No se ha conectado ni acreditado un canal IGP/SENAMHI/INDECI.
 
-Hasta integrar los avisos urgentes de C, se usan avisos personales genéricos compatibles con Fase 0.
-`EMERGENCY_URGENT_NOTICES_ENABLED=true` requiere su consumidor real; habilita el contrato
-`notificaciones.enviar_aviso_urgente`. El SMS de respaldo es responsabilidad de C.
+Con los avisos urgentes de C integrados, `EMERGENCY_URGENT_NOTICES_ENABLED=true` (por defecto)
+encola `notificaciones.enviar_aviso_urgente` al asignar un caso o cuando está por escalar o escaló;
+con `false` se vuelve al aviso personal genérico `pedido_actualizado`. El SMS de respaldo es
+responsabilidad de C. El aviso público de zona de `emergencias.evento_activado` también es de C
+(`modo_emergencia_activado`); B ya no envía uno propio, para no avisar dos veces.
+
+La app de A abre un caso asignado con `POST /v1/pedidos-ayuda/{id}/accesos-sincronizacion`:
+el permiso queda ligado a la asignación, la sesión y el alcance (`resumen` mientras el caso está
+abierto, `exacta` solo en camino) y se audita. Los streams leen copias mínimas que mantienen
+disparadores de la base: `historial_para_autor` (sin el usuario ni el motivo operativo) y
+`ubicaciones_en_camino`; `detalles_pedidos` no se publica.
 
 Contrato: `contracts/openapi.yaml` referencia `contracts/emergencias.openapi.json`.
 Entrega y conexiones con A/C/D: `docs/fase-2/lote-b-modulo-emergencias/entrega.md`.

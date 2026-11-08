@@ -202,7 +202,7 @@ export class ManageResources {
         verification: 'verificado',
         version: resource.version + 1,
       };
-      await this.resources.update(tx, updated, false);
+      await this.resources.update(tx, updated, false, this.clock.now());
       await this.audit.record(
         tx,
         actor.id,

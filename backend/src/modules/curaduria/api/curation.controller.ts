@@ -20,7 +20,7 @@ type PublicationShape = z.infer<typeof publicationShape>;
 
 /** `curador` joins these roles when Lot B (Phase 2, part 5) adds it to the token. */
 @Controller(`${V1}/operacion/directorio-emergencia`)
-@RequireRole('administrador', 'coordinador')
+@RequireRole('administrador', 'coordinador', 'curador')
 export class CurationController {
   constructor(private readonly directories: EmergencyDirectories) {}
 

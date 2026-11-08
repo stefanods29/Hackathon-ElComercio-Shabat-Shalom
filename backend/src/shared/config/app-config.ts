@@ -49,7 +49,8 @@ export const configSchema = z
     MAX_REVIEWS_PER_DAY: z.coerce.number().int().min(1).default(5),
     MAX_POSTS_PER_DAY: z.coerce.number().int().min(1).default(10),
     EMERGENCIES_ENABLED: z.stringbool().default(false),
-    EMERGENCY_URGENT_NOTICES_ENABLED: z.stringbool().default(false),
+    // Lot C consumes the urgent notices: assigned and escalated cases reach the operator's case view.
+    EMERGENCY_URGENT_NOTICES_ENABLED: z.stringbool().default(true),
     EMERGENCY_REQUEST_TTL_SECONDS: z.coerce.number().int().min(300).max(86400).default(86400),
     EMERGENCY_REVIEW_HIGH_SECONDS: z.coerce.number().int().min(60).max(86400).default(900),
     EMERGENCY_REVIEW_MEDIUM_SECONDS: z.coerce.number().int().min(60).max(86400).default(7200),

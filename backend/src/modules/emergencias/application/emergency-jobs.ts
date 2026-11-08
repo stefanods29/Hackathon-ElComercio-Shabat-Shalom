@@ -95,25 +95,7 @@ export class EmergencyJobs implements OnModuleInit {
     this.registry.register('emergencias.evento_cerrado', async (data) => {
       eventSchema.parse(data);
     });
-    this.registry.subscribe(
-      'emergencias.evento_activado',
-      'emergencias-aviso-compatible',
-      async (data) => {
-        if (this.config.EMERGENCY_URGENT_NOTICES_ENABLED) return; // C owns the richer broadcast when integrated.
-        const event = eventSchema.parse(data);
-        const id = uuidv5(`${event.eventoId}:zona`, noticeNamespace);
-        await this.queue.enqueue(
-          SEND_NOTIFICATION_JOB,
-          {
-            avisoId: id,
-            destino: { tipo: 'zona', zonaId: event.carga.zonaId },
-            plantilla: 'aviso_de_zona',
-            datos: {},
-          },
-          { priority: 'critical', singletonKey: id },
-        );
-      },
-    );
+    // The public zone notice of `emergencias.evento_activado` belongs to Notifications (Lot C).
   }
   private async onRequest(data: unknown, urgent?: UrgentTemplate): Promise<void> {
     const event = eventSchema.parse(data);

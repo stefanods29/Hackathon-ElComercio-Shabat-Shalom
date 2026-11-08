@@ -12,6 +12,7 @@ import {
   page,
   pageQuery,
   prioritizeRequest,
+  syncAccess,
   toRequestDto,
   zoneParams,
   type AssignRequestDto,
@@ -20,6 +21,7 @@ import {
   type NewRequestDto,
   type PageQuery,
   type PrioritizeRequestDto,
+  type SyncAccessDto,
   type ZoneParams,
 } from './schemas.js';
 
@@ -125,6 +127,25 @@ export class HelpRequestsController {
     return toRequestDto(
       await this.requests.change(params.id, body.versionVista, body.estado, body.motivo, actor),
     );
+  }
+  /** Lot A, part 2: permission for the assigned phone's streams, tied to this session. */
+  @Post('pedidos-ayuda/:id/accesos-sincronizacion')
+  @Idempotent()
+  @HttpCode(200)
+  @RequireTrustLevel(3)
+  @RequireRole('coordinador', 'brigadista')
+  async openSyncAccess(
+    @Param({ schema: idParams }) params: IdParams,
+    @Body({ schema: syncAccess }) body: SyncAccessDto,
+    @CurrentActor() actor: Actor,
+  ) {
+    const access = await this.requests.openSyncAccess(params.id, body.alcance, actor);
+    return {
+      autorizacionId: access.id,
+      pedidoId: access.requestId,
+      alcance: access.scope,
+      venceEn: access.expiresAt.toISOString(),
+    };
   }
   @Post('pedidos-ayuda/:id/asignaciones')
   @Idempotent()

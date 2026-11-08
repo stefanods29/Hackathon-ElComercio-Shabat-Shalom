@@ -1428,6 +1428,8 @@ paths:
     $ref: './emergencias.openapi.json#/paths/~1v1~1pedidos-ayuda~1{id}~1estado'
   /v1/pedidos-ayuda/{id}/asignaciones:
     $ref: './emergencias.openapi.json#/paths/~1v1~1pedidos-ayuda~1{id}~1asignaciones'
+  /v1/pedidos-ayuda/{id}/accesos-sincronizacion:
+    $ref: './emergencias.openapi.json#/paths/~1v1~1pedidos-ayuda~1{id}~1accesos-sincronizacion'
   /v1/operacion/zonas/{zonaId}/casos:
     $ref: './emergencias.openapi.json#/paths/~1v1~1operacion~1zonas~1{zonaId}~1casos'
   /v1/operacion/zonas/{zonaId}/personas:
@@ -1531,8 +1533,7 @@ paths:
       operationId: listarDirectoriosDeEmergencia
       summary: Listar los directorios de emergencia publicados
       description: |
-        Exige el rol administrador o coordinador; se suma `curador` cuando exista (Fase 2, Lote B,
-        parte 5). Lee el índice publicado en la CDN (`emergencia/indice.json`).
+        Exige el rol administrador, coordinador o curador (Fase 2, Lote B, parte 5). Lee el índice publicado en la CDN (`emergencia/indice.json`).
       responses:
         '200':
           description: Un elemento por archivo de distrito del índice.

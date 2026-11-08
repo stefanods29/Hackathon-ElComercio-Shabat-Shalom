@@ -707,6 +707,83 @@
         }
       }
     },
+    "/v1/pedidos-ayuda/{id}/accesos-sincronizacion": {
+      "post": {
+        "operationId": "abrirAccesoSincronizacionCaso",
+        "tags": ["emergencias"],
+        "summary": "Persona asignada abre el caso en su celular con un permiso de sincronización",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 8,
+              "maxLength": 128
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Operación completada.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string"
+                },
+                "description": "no-store"
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AccesoSincronizacion"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/SolicitudInvalida"
+          },
+          "401": {
+            "$ref": "#/components/responses/SesionRequerida"
+          },
+          "403": {
+            "$ref": "#/components/responses/AccesoDenegado"
+          },
+          "404": {
+            "$ref": "#/components/responses/RecursoNoVisible"
+          },
+          "409": {
+            "$ref": "#/components/responses/EstadoIncompatible"
+          },
+          "422": {
+            "$ref": "#/components/responses/ReglaInvalida"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/NuevoAccesoSincronizacion"
+              }
+            }
+          }
+        },
+        "description": "Lote A, parte 2. El permiso queda ligado a la asignación vigente, a la sesión del token (sid) y al alcance: resumen mientras el caso está abierto y exacta solo en camino. Cada apertura se audita sin su contenido. Termina con la asignación; repetir la apertura en la misma sesión devuelve el mismo permiso."
+      }
+    },
     "/v1/operacion/zonas/{zonaId}/casos": {
       "get": {
         "operationId": "colaPedidosAyuda",
@@ -3403,6 +3480,42 @@
             "type": "string",
             "minLength": 1,
             "maxLength": 500
+          }
+        }
+      },
+      "NuevoAccesoSincronizacion": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["alcance"],
+        "properties": {
+          "alcance": {
+            "type": "string",
+            "enum": ["resumen", "exacta"],
+            "description": "exacta responde 409 ubicacion_no_disponible si el caso no está en camino."
+          }
+        }
+      },
+      "AccesoSincronizacion": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["autorizacionId", "pedidoId", "alcance", "venceEn"],
+        "properties": {
+          "autorizacionId": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Parámetro autorizacion_id de los streams caso_asignado y caso_ubicacion_exacta."
+          },
+          "pedidoId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "alcance": {
+            "type": "string",
+            "enum": ["resumen", "exacta"]
+          },
+          "venceEn": {
+            "type": "string",
+            "format": "date-time"
           }
         }
       }

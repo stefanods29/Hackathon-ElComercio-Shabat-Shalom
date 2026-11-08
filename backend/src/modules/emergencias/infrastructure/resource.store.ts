@@ -35,6 +35,7 @@ export class PostgresResourceStore implements ResourceStore {
     tx: TransactionContext,
     resource: CriticalResource,
     clearConfirmations: boolean,
+    verifiedAt?: Date,
   ): Promise<void> {
     if (clearConfirmations)
       await sql`DELETE FROM emergencias.confirmaciones_recursos WHERE recurso_id = ${resource.id}`.execute(
@@ -42,19 +43,24 @@ export class PostgresResourceStore implements ResourceStore {
       );
     await sql`UPDATE emergencias.recursos_criticos SET cantidad = ${resource.quantity},reportado_en = ${resource.reportedAt},
       verificacion = ${resource.verification},confirmaciones = ${resource.confirmations},etiqueta_publica = ${resource.publicLabel},
-      fuente_url = ${resource.sourceUrl},oficial = ${resource.official},version = ${resource.version} WHERE id = ${resource.id}`.execute(
-      asKysely(tx),
-    );
+      fuente_url = ${resource.sourceUrl},oficial = ${resource.official},version = ${resource.version},
+      verificado_en = CASE WHEN ${resource.verification} = 'verificado'
+        THEN coalesce(${verifiedAt ?? null}::timestamptz, verificado_en) END
+      WHERE id = ${resource.id}`.execute(asKysely(tx));
     await this.publish(tx, resource.id);
   }
   private async publish(tx: TransactionContext, id: string): Promise<void> {
-    await sql`INSERT INTO emergencias.recursos_publicos SELECT id,zona_id,tipo,cantidad,celda,reportado_en,
-      umbral_segundos,verificacion,confirmaciones,etiqueta_publica,fuente_url,oficial,version
+    await sql`INSERT INTO emergencias.recursos_publicos(id,zona_id,tipo,cantidad,celda,reportado_en,
+      umbral_segundos,verificacion,confirmaciones,etiqueta_publica,fuente_url,oficial,version,verificado_en)
+      SELECT id,zona_id,tipo,cantidad,celda,reportado_en,
+      umbral_segundos,verificacion,confirmaciones,etiqueta_publica,fuente_url,oficial,version,verificado_en
       FROM emergencias.recursos_criticos WHERE id = ${id}
       ON CONFLICT(id) DO UPDATE SET cantidad = EXCLUDED.cantidad,reportado_en = EXCLUDED.reportado_en,
       verificacion = EXCLUDED.verificacion,confirmaciones = EXCLUDED.confirmaciones,
       etiqueta_publica = EXCLUDED.etiqueta_publica,fuente_url = EXCLUDED.fuente_url,
-      oficial = EXCLUDED.oficial,version = EXCLUDED.version`.execute(asKysely(tx));
+      oficial = EXCLUDED.oficial,version = EXCLUDED.version,verificado_en = EXCLUDED.verificado_en`.execute(
+      asKysely(tx),
+    );
   }
   async confirm(tx: TransactionContext, id: string, userId: string, now: Date): Promise<void> {
     await sql`INSERT INTO emergencias.confirmaciones_recursos(recurso_id,usuario_id,confirmado_en)

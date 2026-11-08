@@ -26,6 +26,17 @@ export interface RequestHistory {
   readonly at: Date;
   readonly reason: string | null;
 }
+/** Permission for the assigned operator's phone to open one case's stream (Lot A, part 2). */
+export interface StreamAccess {
+  readonly id: string;
+  readonly assignmentId: string;
+  readonly requestId: string;
+  readonly userId: string;
+  readonly sessionId: string;
+  readonly scope: 'resumen' | 'exacta';
+  readonly createdAt: Date;
+  readonly expiresAt: Date;
+}
 export interface AuditEntry {
   readonly id: string;
   readonly userId: string | null;
@@ -151,15 +162,19 @@ export interface RequestStore {
     now: Date,
   ): Promise<void>;
   removePrivate(tx: TransactionContext, id: string): Promise<void>;
+  /** Reuses the open permission of the same assignment, session and scope. */
+  openStreamAccess(tx: TransactionContext, access: StreamAccess): Promise<StreamAccess>;
 }
 export const REQUEST_STORE = Symbol('REQUEST_STORE');
 export interface ResourceStore {
   find(tx: TransactionContext, id: string): Promise<CriticalResource | null>;
   insert(tx: TransactionContext, resource: CriticalResource): Promise<void>;
+  /** `verifiedAt` records a human verification; any other change keeps the previous date. */
   update(
     tx: TransactionContext,
     resource: CriticalResource,
     clearConfirmations: boolean,
+    verifiedAt?: Date,
   ): Promise<void>;
   confirm(tx: TransactionContext, id: string, userId: string, now: Date): Promise<void>;
   confirmationCount(tx: TransactionContext, id: string): Promise<number>;

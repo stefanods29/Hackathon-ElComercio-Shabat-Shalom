@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { sql } from 'kysely';
 import type { TransactionContext } from '../../../shared/db/unit-of-work.js';
 import { asKysely } from '../../../shared/db/unit-of-work.kysely.js';
-import type { RequestHistory, RequestStore } from '../application/ports.js';
+import type { RequestHistory, RequestStore, StreamAccess } from '../application/ports.js';
 import type { Assignment, HelpRequest, PrivateRequestDetails } from '../domain/emergency.js';
 
 const fields = sql.raw(`id,evento_id AS "eventId",zona_id AS "zoneId",autor_id AS "ownerId",
@@ -155,6 +155,18 @@ export class PostgresRequestStore implements RequestStore {
       AND usuario_id = ${userId} LIMIT 1`.execute(asKysely(tx))
       ).rows.length > 0
     );
+  }
+  async openStreamAccess(tx: TransactionContext, access: StreamAccess): Promise<StreamAccess> {
+    const row = (
+      await sql<{ id: string; expiresAt: Date }>`INSERT INTO emergencias.autorizaciones_stream
+      (id,asignacion_id,pedido_id,usuario_id,sesion_id,alcance,creada_en,vence_en)
+      VALUES(${access.id},${access.assignmentId},${access.requestId},${access.userId},
+      ${access.sessionId},${access.scope},${access.createdAt},${access.expiresAt})
+      ON CONFLICT (asignacion_id,sesion_id,alcance) WHERE revocada_en IS NULL
+      DO UPDATE SET vence_en = EXCLUDED.vence_en
+      RETURNING id,vence_en AS "expiresAt"`.execute(asKysely(tx))
+    ).rows[0]!;
+    return { ...access, id: row.id, expiresAt: row.expiresAt };
   }
   async recordEscalation(
     tx: TransactionContext,

@@ -253,7 +253,7 @@ const sourceRows: Array<[ReturnType<typeof table>, SourceRecord]> = [
     { id: 'pedido-2', autor_id: 'autora', estado: 'visto', cerrado_en: null },
   ],
   [
-    table('emergencias', 'historial_pedidos'),
+    table('emergencias', 'historial_para_autor'),
     {
       id: '1',
       pedido_id: 'pedido-1',
@@ -267,11 +267,11 @@ const sourceRows: Array<[ReturnType<typeof table>, SourceRecord]> = [
     },
   ],
   [
-    table('emergencias', 'historial_pedidos'),
+    table('emergencias', 'historial_para_autor'),
     { id: '2', pedido_id: 'pedido-2', hasta: 'visto', usuario_id: 'operador' },
   ],
   [
-    table('emergencias', 'detalles_pedidos'),
+    table('emergencias', 'ubicaciones_en_camino'),
     {
       id: 'pedido-1',
       pedido_id: 'pedido-1',
@@ -531,7 +531,9 @@ describe('Sync Stream del pedido propio', () => {
       ocurrido_en: HIDDEN_AT,
       motivo: 'Derivado al servicio oficial',
     });
-    expect(dataRows.some((row) => row.table === 'detalles_pedidos')).toBe(false);
+    // The exact location is only for an authorized operator, never for the author's stream.
+    const authorRows = await deliveredRows('autora', PILOT, 'pedido-1');
+    expect(authorRows.some((row) => row.table === 'ubicaciones_casos')).toBe(false);
   });
 });
 

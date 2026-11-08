@@ -77,6 +77,8 @@ export const newShift = z.strictObject({
   fin: time,
 });
 export const seenVersion = z.strictObject({ versionVista: version });
+export const syncAccess = z.strictObject({ alcance: z.enum(['resumen', 'exacta']) });
+export type SyncAccessDto = z.infer<typeof syncAccess>;
 export const prioritizeRequest = z.strictObject({
   versionVista: version,
   prioridad: z.enum(PRIORITIES),

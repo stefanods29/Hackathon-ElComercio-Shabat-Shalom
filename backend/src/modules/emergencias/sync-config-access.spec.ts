@@ -17,8 +17,8 @@ const rules = config.hydrate({ hydrationState: DEFAULT_HYDRATION_STATE, sqlite: 
 const table = (name: string) => ({ connectionTag: 'default', schema: 'emergencias', name });
 const cases = table('pedidos_ayuda');
 const assignments = table('asignaciones');
-const history = table('historial_pedidos');
-const details = table('detalles_pedidos');
+const history = table('historial_para_autor');
+const details = table('ubicaciones_en_camino');
 const access = table('autorizaciones_stream');
 
 const summary = 'caso_asignado';
