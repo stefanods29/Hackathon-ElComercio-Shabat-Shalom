@@ -10,11 +10,6 @@ export interface UserRepository {
   findByPhone(phone: string): Promise<RegisteredUser | null>;
   findById(id: string, transaction?: TransactionContext): Promise<RegisteredUser | null>;
   findOrCreateByPhone(transaction: TransactionContext, phone: string): Promise<RegisteredUser>;
-  assignZone(
-    transaction: TransactionContext,
-    userId: string,
-    zoneId: string,
-  ): Promise<RegisteredUser | null>;
 }
 
 export const USER_REPOSITORY = Symbol('USER_REPOSITORY');

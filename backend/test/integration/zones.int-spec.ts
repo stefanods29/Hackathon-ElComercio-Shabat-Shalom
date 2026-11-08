@@ -3,7 +3,7 @@ import { sql } from 'kysely';
 import request from 'supertest';
 import { v7 as uuidv7 } from 'uuid';
 import { inject } from 'vitest';
-import { PILOT_ZONE } from '../../scripts/seed-data.js';
+import { NEIGHBOR_ZONE, PILOT_ZONE } from '../../scripts/seed-data.js';
 import { OTP_PROVIDER } from '../../src/modules/identidad/application/ports.js';
 import { FakeOtpProvider } from '../../src/modules/identidad/infrastructure/fake-otp.provider.js';
 import { TokenService } from '../../src/shared/auth/token.service.js';
@@ -62,7 +62,7 @@ describe('Zonas del vecino', () => {
     }
   });
 
-  it('elige una sola vez, es idempotente y actualiza los tokens de acceso y sincronización', async () => {
+  it('elige la zona, acepta la misma zona y actualiza los tokens de acceso y sincronización', async () => {
     const session = await register('+51912000001');
     const key = uuidv7();
     const chosen = await choose(session.tokenDeAcceso, PILOT_ZONE.id, key).expect(200);
@@ -86,8 +86,8 @@ describe('Zonas del vecino', () => {
       zoneId: PILOT_ZONE.id,
     });
 
-    const conflict = await choose(chosen.body.tokenDeAcceso, PILOT_ZONE.id).expect(409);
-    expect(conflict.body.codigo).toBe('zona_ya_elegida');
+    const same = await choose(chosen.body.tokenDeAcceso, PILOT_ZONE.id).expect(200);
+    expect(same.body.usuario).toEqual(chosen.body.usuario);
   });
 
   it('responde 404 si la zona no existe', async () => {
@@ -97,12 +97,12 @@ describe('Zonas del vecino', () => {
     expect(response.body.codigo).toBe('recurso_no_encontrado');
   });
 
-  it('mantiene la elección única y atómica ante dos solicitudes concurrentes', async () => {
+  it('solo asigna una zona cuando dos elecciones distintas compiten', async () => {
     const session = await register('+51912000003');
 
     const responses = await Promise.all([
       choose(session.tokenDeAcceso, PILOT_ZONE.id),
-      choose(session.tokenDeAcceso, PILOT_ZONE.id),
+      choose(session.tokenDeAcceso, NEIGHBOR_ZONE.id),
     ]);
     expect(
       responses.map((response) => response.status).sort((left, right) => left - right),
@@ -110,6 +110,7 @@ describe('Zonas del vecino', () => {
     const { rows } = await sql<{ zoneId: string }>`
       SELECT zona_id::text AS "zoneId" FROM identidad.usuarios WHERE id = ${session.usuario.id}
     `.execute(db);
-    expect(rows).toEqual([{ zoneId: PILOT_ZONE.id }]);
+    const winner = responses.find((response) => response.status === 200);
+    expect(rows).toEqual([{ zoneId: winner?.body.usuario.zonaId }]);
   });
 });

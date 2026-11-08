@@ -6,6 +6,9 @@ import {
   type OnModuleDestroy,
   type OnModuleInit,
 } from '@nestjs/common';
+import { IdentityModule, PRESENCE_CLEANUP_JOB } from '../modules/identidad/index.js';
+import { SolidarityModule } from '../modules/solidaridad/index.js';
+import { EmergenciesModule } from '../modules/emergencias/index.js';
 import { DirectoryModule } from '../modules/directorio/index.js';
 import { ModerationModule } from '../modules/moderacion/index.js';
 import { ReputationModule } from '../modules/reputacion/index.js';
@@ -45,6 +48,7 @@ export class WorkerRuntime implements OnModuleInit, OnApplicationBootstrap, OnMo
     }
     await this.registry.startAll(this.queue);
     await this.queue.schedule(DAILY_CLEANUP_JOB, '0 4 * * *', 'America/Lima');
+    await this.queue.schedule(PRESENCE_CLEANUP_JOB, '0 4 * * *', 'America/Lima');
     this.loop.start();
   }
 
@@ -58,6 +62,9 @@ export class WorkerRuntime implements OnModuleInit, OnApplicationBootstrap, OnMo
     AppConfigModule,
     DatabaseModule,
     SharedModule.forWorkers(),
+    IdentityModule,
+    SolidarityModule,
+    EmergenciesModule,
     NotificationsModule,
     DirectoryModule,
     ReputationModule,

@@ -1,4 +1,5 @@
 import { Inject, Injectable } from '@nestjs/common';
+import { AccountAccess } from '../../../shared/auth/account-access.js';
 import { type Kysely, type Selectable, sql } from 'kysely';
 import { KYSELY } from '../../../shared/db/connection.js';
 import { asKysely } from '../../../shared/db/unit-of-work.kysely.js';
@@ -53,7 +54,10 @@ const COLUMNS = [
 
 @Injectable()
 export class KyselyPostRepository implements PostRepository, NearbyPostReader {
-  constructor(@Inject(KYSELY) private readonly db: Kysely<SolidarityTables>) {}
+  constructor(
+    @Inject(KYSELY) private readonly db: Kysely<SolidarityTables>,
+    private readonly accounts: AccountAccess,
+  ) {}
 
   async lockAuthor(transaction: TransactionContext, authorId: string): Promise<void> {
     await sql`SELECT pg_advisory_xact_lock(hashtextextended(${`solidaridad:publicaciones:autor:${authorId}`}, 0))`.execute(
@@ -115,6 +119,7 @@ export class KyselyPostRepository implements PostRepository, NearbyPostReader {
   }
   async insertIfAbsent(transaction: TransactionContext, post: Post): Promise<boolean> {
     const p = post.snapshot();
+    await this.accounts.requireActiveWrite(transaction, p.authorId);
     const inserted = await asKysely<SolidarityTables>(transaction)
       .insertInto('solidaridad.publicaciones')
       .values({
@@ -159,6 +164,8 @@ export class KyselyPostRepository implements PostRepository, NearbyPostReader {
     previousVersion: number,
   ): Promise<boolean> {
     const p = post.snapshot();
+    if (p.status === 'en_curso' && p.takenById)
+      await this.accounts.requireActiveWrite(transaction, p.takenById);
     const result = await asKysely<SolidarityTables>(transaction)
       .updateTable('solidaridad.publicaciones')
       .set({

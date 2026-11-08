@@ -9,3 +9,4 @@ export {
   type ReviewerContext,
   type ReviewerReader,
 } from './application/reviewer-reader.js';
+export { PRESENCE_CLEANUP_JOB } from './application/identity-events.js';

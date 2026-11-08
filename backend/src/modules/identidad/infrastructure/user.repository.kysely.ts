@@ -1,5 +1,6 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { type Kysely, type Selectable, sql } from 'kysely';
+import { AuthenticationFailure } from '../../../shared/domain/errors.js';
 import { ROLES, type Role } from '../../../shared/auth/actor.js';
 import { KYSELY } from '../../../shared/db/connection.js';
 import type { TransactionContext } from '../../../shared/db/unit-of-work.js';
@@ -8,6 +9,7 @@ import type { RegisteredUser, UserRepository } from '../application/ports.js';
 import type { IdentityTables, UsersTable } from './tables.js';
 
 function toUser(row: Selectable<UsersTable>): RegisteredUser {
+  if (row.telefono === null) throw new Error('Una cuenta activa debe tener teléfono.');
   return {
     id: row.id,
     phone: row.telefono,
@@ -68,23 +70,10 @@ export class KyselyUserRepository implements UserRepository {
       .selectAll()
       .where('telefono', '=', phone)
       .where('eliminado_en', 'is', null)
-      .executeTakeFirstOrThrow();
-    return toUser(existing);
-  }
-
-  async assignZone(
-    transaction: TransactionContext,
-    userId: string,
-    zoneId: string,
-  ): Promise<RegisteredUser | null> {
-    const row = await asKysely<IdentityTables>(transaction)
-      .updateTable('identidad.usuarios')
-      .set({ zona_id: zoneId, actualizado_en: sql`now()` })
-      .where('id', '=', userId)
-      .where('zona_id', 'is', null)
-      .where('eliminado_en', 'is', null)
-      .returningAll()
       .executeTakeFirst();
-    return row ? toUser(row) : null;
+    if (!existing) {
+      throw new AuthenticationFailure('sesion_revocada', 'La cuenta ya no está activa.');
+    }
+    return toUser(existing);
   }
 }

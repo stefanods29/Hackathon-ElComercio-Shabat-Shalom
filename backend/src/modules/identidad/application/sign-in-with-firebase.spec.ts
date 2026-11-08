@@ -42,11 +42,16 @@ describe('SignInWithFirebase', () => {
         storedUsers.set(value, user);
         return user;
       },
-      assignZone: async () => null,
     };
     const verifier: PhoneTokenVerifier = { verify: async () => verified };
     tokens = new TokenService(config, clock);
-    const createSession = new CreateSession(new InMemorySessionRepository(), tokens, config, clock);
+    const createSession = new CreateSession(
+      new InMemorySessionRepository(),
+      tokens,
+      config,
+      clock,
+      users,
+    );
     signIn = new SignInWithFirebase(unitOfWork, users, verifier, createSession, clock);
   });
 

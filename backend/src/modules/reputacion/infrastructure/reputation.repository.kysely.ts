@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { AccountAccess } from '../../../shared/auth/account-access.js';
 import { type Selectable, sql } from 'kysely';
 import type { TransactionContext } from '../../../shared/db/unit-of-work.js';
 import { asKysely } from '../../../shared/db/unit-of-work.kysely.js';
@@ -24,6 +25,8 @@ function toEndorsement(row: Selectable<EndorsementsTable>): Endorsement {
 
 @Injectable()
 export class KyselyReputationRepository implements ReputationRepository {
+  constructor(private readonly accounts: AccountAccess) {}
+
   private async lock(transaction: TransactionContext, key: string): Promise<void> {
     await sql`SELECT pg_advisory_xact_lock(hashtextextended(${key}, 0))`.execute(
       asKysely(transaction),
@@ -109,6 +112,7 @@ export class KyselyReputationRepository implements ReputationRepository {
   ): Promise<boolean> {
     const db = asKysely<ReputationTables>(transaction);
     const r = review.snapshot();
+    await this.accounts.requireActiveWrite(transaction, r.authorId);
     const inserted = await db
       .insertInto('reputacion.resenas')
       .values({
@@ -176,6 +180,7 @@ export class KyselyReputationRepository implements ReputationRepository {
     transaction: TransactionContext,
     data: EndorsementData,
   ): Promise<Endorsement | null> {
+    await this.accounts.requireActiveWrite(transaction, data.neighborId);
     const row = await asKysely<ReputationTables>(transaction)
       .insertInto('reputacion.vistos_buenos')
       .values({

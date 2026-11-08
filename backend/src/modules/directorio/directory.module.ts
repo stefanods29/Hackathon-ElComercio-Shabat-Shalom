@@ -5,6 +5,7 @@ import {
 } from './application/reputation-ports.js';
 import { KyselyDirectoryReputationStore } from './infrastructure/reputation.store.kysely.js';
 import { Module } from '@nestjs/common';
+import { DirectoryPersonalData } from './infrastructure/directory-personal-data.kysely.js';
 import { DirectoryController } from './api/directory.controller.js';
 import { FindServices } from './application/find-services.js';
 import { SERVICE_SEARCH_READER } from './application/search-ports.js';
@@ -21,6 +22,7 @@ import { KyselyDirectoryRepository } from './infrastructure/directory.repository
 @Module({
   controllers: [DirectoryController],
   providers: [
+    DirectoryPersonalData,
     SaveProvider,
     PublishService,
     EditService,

@@ -1,4 +1,5 @@
 import { Inject, Injectable } from '@nestjs/common';
+import { AccountAccess } from '../../../shared/auth/account-access.js';
 import { type Kysely, type Selectable, sql } from 'kysely';
 import { KYSELY } from '../../../shared/db/connection.js';
 import { asJsonb, asKysely } from '../../../shared/db/unit-of-work.kysely.js';
@@ -59,7 +60,10 @@ function editableValues(service: Service) {
 
 @Injectable()
 export class KyselyDirectoryRepository implements DirectoryRepository {
-  constructor(@Inject(KYSELY) private readonly db: Kysely<DirectoryTables>) {}
+  constructor(
+    @Inject(KYSELY) private readonly db: Kysely<DirectoryTables>,
+    private readonly accounts: AccountAccess,
+  ) {}
 
   async listCategories(): Promise<Category[]> {
     const rows = await this.db
@@ -115,6 +119,7 @@ export class KyselyDirectoryRepository implements DirectoryRepository {
 
   async saveProvider(transaction: TransactionContext, provider: ProviderProfile): Promise<void> {
     const data = provider.snapshot();
+    await this.accounts.requireActiveWrite(transaction, data.id);
     await asKysely<DirectoryTables>(transaction)
       .insertInto('directorio.proveedores')
       .values({
@@ -151,6 +156,7 @@ export class KyselyDirectoryRepository implements DirectoryRepository {
 
   async insertService(transaction: TransactionContext, service: Service): Promise<boolean> {
     const data = service.snapshot();
+    await this.accounts.requireActiveWrite(transaction, data.providerId);
     const inserted = await asKysely<DirectoryTables>(transaction)
       .insertInto('directorio.servicios')
       .values({
@@ -171,6 +177,7 @@ export class KyselyDirectoryRepository implements DirectoryRepository {
     service: Service,
     previousVersion: number,
   ): Promise<boolean> {
+    await this.accounts.requireActiveWrite(transaction, service.snapshot().providerId);
     const updated = await asKysely<DirectoryTables>(transaction)
       .updateTable('directorio.servicios')
       .set(editableValues(service))

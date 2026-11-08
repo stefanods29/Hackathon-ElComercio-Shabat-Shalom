@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+import { ReputationPersonalData } from './infrastructure/reputation-personal-data.kysely.js';
 import { DirectoryModule } from '../directorio/index.js';
 import { IdentityModule } from '../identidad/index.js';
 import { ReputationController } from './api/reputation.controller.js';
@@ -17,6 +18,7 @@ import { KyselyReputationRepository } from './infrastructure/reputation.reposito
   imports: [DirectoryModule, IdentityModule],
   controllers: [ReputationController],
   providers: [
+    ReputationPersonalData,
     WriteReview,
     Endorsements,
     RecalculateReputation,
