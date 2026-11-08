@@ -240,7 +240,13 @@ final emergencyContactsRepositoryProvider = Provider<EmergencyContactsRepository
     return null;
   }
 });
-final emergencyContactsProvider = StreamProvider<List<EmergencyContact>>((ref) {
+final _emergencyContactsStreamProvider = StreamProvider.autoDispose
+    .family<List<EmergencyContact>, EmergencyContactsRepository>(
+      (ref, repository) => repository.watch(),
+    );
+final emergencyContactsProvider = Provider<AsyncValue<List<EmergencyContact>>>((ref) {
   final repository = ref.watch(emergencyContactsRepositoryProvider);
-  return repository?.watch() ?? Stream.value(const []);
+  if (repository == null) return const AsyncData<List<EmergencyContact>>([]);
+  // No previous-data retention when switching between real and practice repositories.
+  return ref.watch(_emergencyContactsStreamProvider(repository));
 });

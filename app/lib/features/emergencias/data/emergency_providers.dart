@@ -42,8 +42,11 @@ final emergencyRepositoryProvider = Provider<EmergencyRepository>((ref) {
   ref.onDispose(repository.close);
   return repository;
 });
-final emergencySnapshotProvider = StreamProvider<EmergencySnapshot>(
-  (ref) => ref.watch(emergencyRepositoryProvider).watch(),
+// A new repository gets a fresh asynchronous state, without the prior account's value.
+final _emergencySnapshotStreamProvider = StreamProvider.autoDispose
+    .family<EmergencySnapshot, EmergencyRepository>((ref, repository) => repository.watch());
+final emergencySnapshotProvider = Provider<AsyncValue<EmergencySnapshot>>(
+  (ref) => ref.watch(_emergencySnapshotStreamProvider(ref.watch(emergencyRepositoryProvider))),
 );
 final emergencyHomeProvider = Provider<bool>(
   (ref) =>
