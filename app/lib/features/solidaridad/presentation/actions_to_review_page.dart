@@ -30,7 +30,11 @@ class ActionsToReviewPage extends ConsumerWidget {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(Icons.inbox_outlined, size: 64, color: Colors.grey),
+                  Icon(
+                    Icons.inbox_outlined,
+                    size: 64,
+                    color: Theme.of(context).colorScheme.primary,
+                  ),
                   const SizedBox(height: 16),
                   Text(texts.noActionsToReview, style: Theme.of(context).textTheme.titleMedium),
                 ],
@@ -53,7 +57,23 @@ class ActionsToReviewPage extends ConsumerWidget {
         );
       },
       loading: () => const Scaffold(body: Center(child: CircularProgressIndicator())),
-      error: (error, stack) => Scaffold(body: Center(child: Text('$error'))),
+      error: (_, _) => Scaffold(
+        appBar: AppBar(title: Text(texts.actionsToReview)),
+        body: Center(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(texts.authTryAgainError, textAlign: TextAlign.center),
+              const SizedBox(height: 12),
+              OutlinedButton.icon(
+                onPressed: () => ref.invalidate(actionsToReviewProvider),
+                icon: const Icon(Icons.refresh),
+                label: Text(texts.retryAction),
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }

@@ -1,4 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter/widgets.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 /// Modo sencillo: menos opciones visibles, textos más grandes y acciones principales
@@ -32,3 +33,39 @@ class SimpleModeNotifier extends AsyncNotifier<bool> {
 
 /// Factor de escala de texto en modo sencillo.
 const simpleModeTextScale = 1.3;
+
+/// Scales text on top of the system's (possibly nonlinear) Dynamic Type curve.
+TextScaler simpleModeScaler(TextScaler systemScaler, bool enabled) =>
+    enabled ? _MultipliedTextScaler(systemScaler, simpleModeTextScale) : systemScaler;
+
+final class _MultipliedTextScaler implements TextScaler {
+  const _MultipliedTextScaler(this.base, this.factor);
+
+  final TextScaler base;
+  final double factor;
+
+  @override
+  double scale(double fontSize) => base.scale(fontSize) * factor;
+
+  @override
+  TextScaler clamp({double minScaleFactor = 0, double maxScaleFactor = double.infinity}) =>
+      _MultipliedTextScaler(
+        base.clamp(
+          minScaleFactor: minScaleFactor / factor,
+          maxScaleFactor: maxScaleFactor / factor,
+        ),
+        factor,
+      );
+
+  // Flutter still requires this compatibility getter on TextScaler.
+  // ignore: deprecated_member_use
+  @override
+  double get textScaleFactor => base.textScaleFactor * factor;
+
+  @override
+  bool operator ==(Object other) =>
+      other is _MultipliedTextScaler && other.base == base && other.factor == factor;
+
+  @override
+  int get hashCode => Object.hash(base, factor);
+}

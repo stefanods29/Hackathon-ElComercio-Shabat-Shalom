@@ -54,7 +54,7 @@ class _MapScreenState extends State<MapScreen> {
           onPressed: () => _scaffoldKey.currentState?.openDrawer(),
         ),
         title: const Text('Winki', style: TextStyle(fontWeight: FontWeight.bold)),
-        centerTitle: true,
+        centerTitle: false,
         actions: [
           IconButton(
             tooltip: l10n.actionsToReview,
@@ -148,7 +148,7 @@ class _MapScreenState extends State<MapScreen> {
       ),
       bottomNavigationBar: Material(
         color: kSurfaceColor,
-        elevation: 8,
+        elevation: 0,
         child: SafeArea(
           top: false,
           child: Row(
@@ -160,22 +160,35 @@ class _MapScreenState extends State<MapScreen> {
                     selected: widget.tab == tab,
                     button: true,
                     child: InkWell(
+                      key: ValueKey<String>('home-tab-${tab.name}'),
                       onTap: () => _selectTab(tab),
+                      borderRadius: BorderRadius.circular(kRadiusLarge),
                       child: Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 12),
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
                         child: Column(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            Icon(
-                              icons[tab.index],
-                              color: widget.tab == tab ? kPrimaryColor : kTextSecondaryColor,
+                            AnimatedContainer(
+                              duration: kMotionPress,
+                              constraints: const BoxConstraints(minWidth: 48, minHeight: 36),
+                              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                              decoration: BoxDecoration(
+                                color: widget.tab == tab
+                                    ? kPrimaryColor.withValues(alpha: 0.10)
+                                    : Colors.transparent,
+                                borderRadius: BorderRadius.circular(kRadiusPill),
+                              ),
+                              child: Icon(
+                                icons[tab.index],
+                                color: widget.tab == tab ? kPrimaryColor : kTextSecondaryColor,
+                              ),
                             ),
                             const SizedBox(height: 4),
                             Text(
                               labels[tab.index],
                               textAlign: TextAlign.center,
                               style: TextStyle(
-                                fontSize: 12,
+                                fontSize: 13,
                                 fontWeight: widget.tab == tab ? FontWeight.bold : FontWeight.w500,
                                 color: widget.tab == tab ? kPrimaryColor : kTextSecondaryColor,
                               ),
@@ -203,47 +216,54 @@ class _MapTab extends StatelessWidget {
     return SafeArea(
       child: SingleChildScrollView(
         key: const PageStorageKey('prototype-map'),
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.fromLTRB(20, 12, 20, 24),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Text(l10n.protoMapHeading, style: Theme.of(context).textTheme.headlineLarge),
-            const SizedBox(height: 4),
-            Text(l10n.protoNearbyPosts),
+            const SizedBox(height: 8),
+            Text(l10n.protoNearbyPosts, style: Theme.of(context).textTheme.bodyLarge),
             const SizedBox(height: 20),
-            Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: kSecondaryColor.withValues(alpha: 0.06),
-                borderRadius: BorderRadius.circular(24),
-                border: Border.all(color: kSecondaryColor.withValues(alpha: 0.15)),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  const Icon(Icons.map_outlined, size: 40, color: kSecondaryColor),
-                  const SizedBox(height: 8),
-                  Text(l10n.protoMapPlaceholder, textAlign: TextAlign.center),
-                  const SizedBox(height: 20),
-                  LayoutBuilder(
-                    builder: (context, constraints) {
-                      final scale = MediaQuery.textScalerOf(context).scale(16) / 16;
-                      final columns = (constraints.maxWidth / (240 * scale)).floor().clamp(1, 3);
-                      final width = (constraints.maxWidth - (columns - 1) * 12) / columns;
-                      return Wrap(
-                        spacing: 12,
-                        runSpacing: 12,
-                        children: [
-                          for (final post in mockPosts)
-                            SizedBox(
-                              width: width,
-                              child: _MapMarker(post: post),
-                            ),
-                        ],
-                      );
-                    },
-                  ),
-                ],
+            Card.outlined(
+              margin: EdgeInsets.zero,
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Row(
+                      children: [
+                        const Icon(Icons.map_outlined, size: 26, color: kSecondaryColor),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Text(
+                            l10n.protoMapPlaceholder,
+                            style: Theme.of(context).textTheme.titleMedium,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 16),
+                    LayoutBuilder(
+                      builder: (context, constraints) {
+                        final scale = MediaQuery.textScalerOf(context).scale(16) / 16;
+                        final columns = (constraints.maxWidth / (240 * scale)).floor().clamp(1, 3);
+                        final width = (constraints.maxWidth - (columns - 1) * 12) / columns;
+                        return Wrap(
+                          spacing: 12,
+                          runSpacing: 12,
+                          children: [
+                            for (final post in mockPosts)
+                              SizedBox(
+                                width: width,
+                                child: _MapMarker(post: post),
+                              ),
+                          ],
+                        );
+                      },
+                    ),
+                  ],
+                ),
               ),
             ),
             const SizedBox(height: 20),

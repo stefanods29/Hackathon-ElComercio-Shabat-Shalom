@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:vecinal/core/router/routes.dart';
+import 'package:vecinal/core/theme/vecinal_tokens.dart';
 import 'package:vecinal/features/publicar/domain/suggestions.dart';
 import 'package:vecinal/features/solidaridad/data/providers.dart';
 import 'package:vecinal/features/solidaridad/domain/post.dart';
@@ -25,9 +26,7 @@ class _PublishFormPageState extends ConsumerState<PublishFormPage> {
   final _titleController = TextEditingController();
   final _categoryController = TextEditingController();
   final _descriptionController = TextEditingController();
-  String? _errorTitle;
-  String? _errorCategory;
-  String? _errorDescription;
+  final _formKey = GlobalKey<FormState>();
   bool _isSubmitting = false;
 
   @override
@@ -47,29 +46,10 @@ class _PublishFormPageState extends ConsumerState<PublishFormPage> {
   }
 
   Future<void> _publish() async {
-    setState(() {
-      _errorTitle = null;
-      _errorCategory = null;
-      _errorDescription = null;
-    });
-
     final title = _titleController.text.trim();
     final category = _categoryController.text.trim().toLowerCase();
     final description = _descriptionController.text.trim();
-
-    // Validación local con las mismas reglas que el servidor.
-    if (title.length < 3 || title.length > 120) {
-      setState(() => _errorTitle = 'El título debe tener entre 3 y 120 caracteres.');
-      return;
-    }
-    if (category.length < 2 || category.length > 40) {
-      setState(() => _errorCategory = 'Elige una categoría.');
-      return;
-    }
-    if (description.length > 2000) {
-      setState(() => _errorDescription = 'La descripción no puede pasar de 2000 caracteres.');
-      return;
-    }
+    if (!(_formKey.currentState?.validate() ?? false)) return;
 
     setState(() => _isSubmitting = true);
 
@@ -94,20 +74,22 @@ class _PublishFormPageState extends ConsumerState<PublishFormPage> {
       setState(() => _isSubmitting = false);
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(SnackBar(content: Text('Error al guardar: $error')));
+      ).showSnackBar(SnackBar(content: Text(AppLocalizations.of(context).wallLoadError)));
     }
   }
 
   void _applyFieldError(LocalValidationError error) {
     switch (error.field) {
       case 'title':
-        setState(() => _errorTitle = error.message);
+        _formKey.currentState?.validate();
       case 'category':
-        setState(() => _errorCategory = error.message);
+        _formKey.currentState?.validate();
       case 'description':
-        setState(() => _errorDescription = error.message);
+        _formKey.currentState?.validate();
       case null:
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(error.message)));
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(AppLocalizations.of(context).wallLoadError)));
     }
   }
 
@@ -121,60 +103,86 @@ class _PublishFormPageState extends ConsumerState<PublishFormPage> {
         title: Text(texts.publishAction),
         leading: IconButton(icon: const Icon(Icons.arrow_back), onPressed: () => context.pop()),
       ),
-      body: ListView(
-        padding: const EdgeInsets.all(16),
-        children: [
-          Text(
-            '${widget.type.apiValue.toUpperCase()} · ${suggestion.category}',
-            style: Theme.of(context).textTheme.labelLarge,
-          ),
-          const SizedBox(height: 4),
-          Text(texts.publishFormTitle, style: Theme.of(context).textTheme.headlineSmall),
-          const SizedBox(height: 16),
-          TextFormField(
-            controller: _titleController,
-            autofocus: true,
-            decoration: InputDecoration(
-              labelText: texts.titleLabel,
-              errorText: _errorTitle,
-              border: const OutlineInputBorder(),
+      body: SafeArea(
+        child: Center(
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 640),
+            child: Form(
+              key: _formKey,
+              child: ListView(
+                padding: EdgeInsets.all(context.vecinalTokens.spaceLg),
+                children: [
+                  Text(
+                    '${widget.type.apiValue.toUpperCase()} · ${suggestion.category}',
+                    style: Theme.of(context).textTheme.labelLarge,
+                  ),
+                  const SizedBox(height: 4),
+                  Text(texts.publishFormTitle, style: Theme.of(context).textTheme.headlineSmall),
+                  const SizedBox(height: 16),
+                  TextFormField(
+                    controller: _titleController,
+                    autofocus: true,
+                    textCapitalization: TextCapitalization.sentences,
+                    textInputAction: TextInputAction.next,
+                    maxLength: 120,
+                    decoration: InputDecoration(
+                      labelText: texts.titleLabel,
+                      border: const OutlineInputBorder(),
+                    ),
+                    validator: (value) {
+                      final text = value?.trim() ?? '';
+                      if (text.length < 3) return texts.titleLengthError;
+                      if (text.length > 120) return texts.titleLengthError;
+                      return null;
+                    },
+                  ),
+                  const SizedBox(height: 12),
+                  TextFormField(
+                    controller: _categoryController,
+                    textCapitalization: TextCapitalization.sentences,
+                    textInputAction: TextInputAction.next,
+                    maxLength: 40,
+                    decoration: InputDecoration(
+                      labelText: texts.categoryLabel,
+                      border: const OutlineInputBorder(),
+                    ),
+                    validator: (value) =>
+                        (value?.trim().length ?? 0) < 2 ? texts.categoryRequiredError : null,
+                  ),
+                  const SizedBox(height: 12),
+                  TextFormField(
+                    controller: _descriptionController,
+                    textCapitalization: TextCapitalization.sentences,
+                    textInputAction: TextInputAction.newline,
+                    decoration: InputDecoration(
+                      labelText: texts.descriptionLabel,
+                      hintText: texts.descriptionHint,
+                      border: const OutlineInputBorder(),
+                    ),
+                    maxLines: 4,
+                    maxLength: 2000,
+                    validator: (value) =>
+                        (value?.length ?? 0) > 2000 ? texts.descriptionTooLongError : null,
+                  ),
+                  const SizedBox(height: 24),
+                  SizedBox(
+                    width: double.infinity,
+                    child: FilledButton(
+                      onPressed: _isSubmitting ? null : _publish,
+                      child: _isSubmitting
+                          ? const SizedBox(
+                              height: 20,
+                              width: 20,
+                              child: CircularProgressIndicator(strokeWidth: 2),
+                            )
+                          : Text(texts.publishButton),
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
-          const SizedBox(height: 12),
-          TextFormField(
-            controller: _categoryController,
-            decoration: InputDecoration(
-              labelText: texts.categoryLabel,
-              errorText: _errorCategory,
-              border: const OutlineInputBorder(),
-            ),
-          ),
-          const SizedBox(height: 12),
-          TextFormField(
-            controller: _descriptionController,
-            decoration: InputDecoration(
-              labelText: texts.descriptionLabel,
-              hintText: texts.descriptionHint,
-              errorText: _errorDescription,
-              border: const OutlineInputBorder(),
-            ),
-            maxLines: 3,
-          ),
-          const SizedBox(height: 24),
-          SizedBox(
-            width: double.infinity,
-            child: FilledButton(
-              onPressed: _isSubmitting ? null : _publish,
-              child: _isSubmitting
-                  ? const SizedBox(
-                      height: 20,
-                      width: 20,
-                      child: CircularProgressIndicator(strokeWidth: 2),
-                    )
-                  : Text(texts.publishButton),
-            ),
-          ),
-        ],
+        ),
       ),
     );
   }

@@ -4,6 +4,7 @@ import 'package:vecinal/core/di/providers.dart';
 import 'package:vecinal/core/submissions/submission_status.dart';
 import 'package:vecinal/core/ui/notice_card.dart';
 import 'package:vecinal/core/ui/submission_status_chip.dart';
+import 'package:vecinal/core/theme/vecinal_tokens.dart';
 import 'package:vecinal/features/solidaridad/data/providers.dart';
 import 'package:vecinal/features/solidaridad/domain/post.dart';
 import 'package:vecinal/features/solidaridad/domain/use_cases.dart';
@@ -22,6 +23,7 @@ class PostCard extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final texts = AppLocalizations.of(context);
     final theme = Theme.of(context);
+    final tokens = context.vecinalTokens;
     final session = ref.watch(sessionProvider);
     final canTake = post.isAvailable && post.authorId != session.neighborId;
 
@@ -31,36 +33,46 @@ class PostCard extends ConsumerWidget {
 
     return Semantics(
       label: semanticsLabel,
-      child: Card(
+      child: Card.outlined(
+        key: ValueKey<String>('post-${post.id}'),
         child: Padding(
-          padding: const EdgeInsets.all(16),
+          padding: EdgeInsets.all(tokens.spaceLg),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
                 '${post.type.apiValue.toUpperCase()} · ${post.category}',
-                style: theme.textTheme.labelLarge,
+                style: theme.textTheme.labelMedium?.copyWith(
+                  color: theme.colorScheme.primary,
+                  fontWeight: FontWeight.w700,
+                ),
               ),
-              const SizedBox(height: 4),
+              SizedBox(height: tokens.spaceSm),
               Text(post.title, style: theme.textTheme.titleLarge),
-              const SizedBox(height: 8),
+              if (post.description case final description? when description.isNotEmpty) ...[
+                SizedBox(height: tokens.spaceSm),
+                Text(description, style: theme.textTheme.bodyMedium),
+              ],
+              SizedBox(height: tokens.spaceMd),
               if (post.submissionStatus == SubmissionStatus.savedOnPhone)
                 NoticeCard(
-                  icon: Icons.cloud_off,
+                  icon: Icons.cloud_off_outlined,
                   title: texts.statusSavedOnPhone,
                   detail: texts.statusSavedOnPhoneDetail,
                 ),
-              const SizedBox(height: 8),
+              SizedBox(height: tokens.spaceMd),
               Wrap(
-                spacing: 8,
-                runSpacing: 8,
+                spacing: tokens.spaceSm,
+                runSpacing: tokens.spaceSm,
                 crossAxisAlignment: WrapCrossAlignment.center,
                 children: [
                   SubmissionStatusChip(status: post.submissionStatus),
                   if (canTake)
-                    FilledButton(
+                    FilledButton.tonalIcon(
+                      key: const ValueKey<String>('take-favor'),
                       onPressed: () => _take(context, ref),
-                      child: Text(texts.takeFavorAction),
+                      icon: const Icon(Icons.volunteer_activism_outlined),
+                      label: Text(texts.takeFavorAction),
                     ),
                 ],
               ),

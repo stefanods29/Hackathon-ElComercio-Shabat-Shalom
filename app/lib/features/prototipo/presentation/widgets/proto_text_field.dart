@@ -37,16 +37,16 @@ class ProtoTextField extends StatelessWidget {
     maxLines: maxLines,
     onChanged: onChanged,
     textInputAction: textInputAction,
-    style: const TextStyle(fontSize: 16, color: kTextColor),
+    style: Theme.of(context).textTheme.bodyLarge?.copyWith(color: kTextColor),
     decoration: InputDecoration(
       labelText: label,
       floatingLabelBehavior: FloatingLabelBehavior.always,
-      labelStyle: const TextStyle(color: kTextColor),
+      labelStyle: Theme.of(context).textTheme.labelLarge?.copyWith(color: kTextColor),
       hintText: hint,
-      hintStyle: const TextStyle(color: kTextSecondaryColor),
+      hintStyle: Theme.of(context).textTheme.bodyMedium?.copyWith(color: kTextSecondaryColor),
       errorText: errorText,
       errorMaxLines: 3,
-      errorStyle: const TextStyle(color: kErrorColor, fontSize: 14),
+      errorStyle: Theme.of(context).textTheme.bodyMedium?.copyWith(color: kErrorColor),
     ),
   );
 }

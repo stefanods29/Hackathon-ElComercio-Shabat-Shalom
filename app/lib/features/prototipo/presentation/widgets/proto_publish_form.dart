@@ -106,106 +106,162 @@ class _ProtoPublishFormState extends State<ProtoPublishForm> {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     return SafeArea(
-      child: Column(
-        children: [
-          Expanded(
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.all(20),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  Text(l10n.protoPublishTitle, style: Theme.of(context).textTheme.headlineLarge),
-                  const SizedBox(height: 8),
-                  Text(l10n.protoPublishHint),
-                  const SizedBox(height: 20),
-                  Wrap(
-                    spacing: 8,
-                    runSpacing: 8,
-                    children: mockPublishTypes
-                        .map(
-                          (type) => ChoiceChip(
-                            label: Text(type['label']!),
-                            selected: _selectedType == type['value'],
-                            onSelected: (_) => setState(() => _selectType(type['value'])),
-                            selectedColor: kPrimaryColor,
-                            backgroundColor: kSurfaceColor,
-                            labelStyle: TextStyle(
-                              fontSize: 16,
-                              color: _selectedType == type['value'] ? Colors.white : kTextColor,
-                            ),
-                            checkmarkColor: Colors.white,
-                            materialTapTargetSize: MaterialTapTargetSize.padded,
-                            labelPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-                            side: BorderSide(
-                              color: _selectedType == type['value']
-                                  ? kPrimaryColor
-                                  : kTextSecondaryColor,
-                            ),
-                          ),
-                        )
-                        .toList(),
-                  ),
-                  if (_showTypeError) ...[
-                    const SizedBox(height: 8),
-                    Semantics(
-                      liveRegion: true,
-                      child: Text(
-                        l10n.protoChooseTypeError,
-                        style: const TextStyle(color: kErrorColor),
+      child: Center(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 760),
+          child: Column(
+            children: [
+              Expanded(
+                child: SingleChildScrollView(
+                  padding: const EdgeInsets.fromLTRB(20, 12, 20, 20),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      Text(
+                        l10n.protoPublishTitle,
+                        style: Theme.of(context).textTheme.headlineLarge,
                       ),
-                    ),
-                  ],
-                  const SizedBox(height: 24),
-                  ProtoTextField(
-                    key: const ValueKey('prototype-publish-title'),
-                    label: l10n.titleLabel,
-                    hint: l10n.protoTitleHint,
-                    controller: _titleController,
-                    errorText: _showTitleError ? l10n.protoTitleError : null,
-                    onChanged: (_) {
-                      if (_showTitleError) setState(() => _showTitleError = false);
-                    },
-                    textInputAction: TextInputAction.next,
+                      const SizedBox(height: 8),
+                      Text(l10n.protoPublishHint),
+                      const SizedBox(height: 20),
+                      LayoutBuilder(
+                        builder: (context, constraints) {
+                          final columns = constraints.maxWidth < 500 ? 2 : 3;
+                          final gap = 8.0;
+                          final itemWidth = (constraints.maxWidth - gap * (columns - 1)) / columns;
+                          return Wrap(
+                            spacing: gap,
+                            runSpacing: gap,
+                            children: [
+                              for (final type in mockPublishTypes)
+                                SizedBox(
+                                  width: itemWidth,
+                                  child: _PublishTypeChoice(
+                                    label: type['label']!,
+                                    hint: type['hint']!,
+                                    selected: _selectedType == type['value'],
+                                    onTap: () => setState(() => _selectType(type['value'])),
+                                  ),
+                                ),
+                            ],
+                          );
+                        },
+                      ),
+                      if (_showTypeError) ...[
+                        const SizedBox(height: 8),
+                        Semantics(
+                          liveRegion: true,
+                          child: Text(
+                            l10n.protoChooseTypeError,
+                            style: const TextStyle(color: kErrorColor),
+                          ),
+                        ),
+                      ],
+                      const SizedBox(height: 24),
+                      ProtoTextField(
+                        key: const ValueKey('prototype-publish-title'),
+                        label: l10n.titleLabel,
+                        hint: l10n.protoTitleHint,
+                        controller: _titleController,
+                        errorText: _showTitleError ? l10n.protoTitleError : null,
+                        onChanged: (_) {
+                          if (_showTitleError) setState(() => _showTitleError = false);
+                        },
+                        textInputAction: TextInputAction.next,
+                      ),
+                      const SizedBox(height: 20),
+                      ProtoTextField(
+                        label: l10n.protoOptionalDescription,
+                        hint: l10n.descriptionHint,
+                        controller: _descriptionController,
+                        keyboardType: TextInputType.multiline,
+                        maxLength: 2000,
+                        maxLines: 3,
+                      ),
+                      const SizedBox(height: 16),
+                      ProtoButton(
+                        text: l10n.cancelAction,
+                        icon: Icons.close,
+                        onPressed: () {
+                          FocusScope.of(context).unfocus();
+                          _reset();
+                          widget.onCancel();
+                        },
+                        secondary: true,
+                        fullWidth: true,
+                      ),
+                    ],
                   ),
-                  const SizedBox(height: 20),
-                  ProtoTextField(
-                    label: l10n.protoOptionalDescription,
-                    hint: l10n.descriptionHint,
-                    controller: _descriptionController,
-                    keyboardType: TextInputType.multiline,
-                    maxLength: 2000,
-                    maxLines: 3,
-                  ),
-                  const SizedBox(height: 16),
-                  ProtoButton(
-                    text: l10n.cancelAction,
-                    icon: Icons.close,
-                    onPressed: () {
-                      FocusScope.of(context).unfocus();
-                      _reset();
-                      widget.onCancel();
-                    },
-                    secondary: true,
-                    fullWidth: true,
-                  ),
-                ],
+                ),
               ),
-            ),
+              // Keep the publish action reachable above the home indicator.
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
+                child: ProtoButton(
+                  key: const ValueKey<String>('prototype-publish-submit'),
+                  text: l10n.publishButton,
+                  icon: Icons.publish_outlined,
+                  onPressed: _publish,
+                  fullWidth: true,
+                ),
+              ),
+            ],
           ),
-          // Keep the third tap reachable without scrolling through the form.
-          Container(
-            padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
-            color: kSurfaceColor,
-            child: ProtoButton(
-              key: const ValueKey('prototype-publish-submit'),
-              text: l10n.publishButton,
-              icon: Icons.publish,
-              onPressed: _publish,
-              fullWidth: true,
-            ),
-          ),
-        ],
+        ),
       ),
     );
   }
+}
+
+class _PublishTypeChoice extends StatelessWidget {
+  const _PublishTypeChoice({
+    required this.label,
+    required this.hint,
+    required this.selected,
+    required this.onTap,
+  });
+
+  final String label;
+  final String hint;
+  final bool selected;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) => Semantics(
+    button: true,
+    selected: selected,
+    child: OutlinedButton(
+      key: ValueKey<String>('publish-type-${label.toLowerCase()}'),
+      onPressed: onTap,
+      style: OutlinedButton.styleFrom(
+        minimumSize: const Size.fromHeight(76),
+        padding: const EdgeInsets.all(12),
+        backgroundColor: selected ? kPrimaryColor.withValues(alpha: 0.08) : kSurfaceColor,
+        side: BorderSide(color: selected ? kPrimaryColor : kBorderColor, width: selected ? 1.5 : 1),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(kRadiusLarge)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Row(
+            children: [
+              Expanded(
+                child: Text(
+                  label,
+                  style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                    color: selected ? kPrimaryColor : kTextColor,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+              ),
+              if (selected) const Icon(Icons.check_circle, color: kPrimaryColor, size: 20),
+            ],
+          ),
+          const SizedBox(height: 4),
+          Text(hint, style: Theme.of(context).textTheme.bodySmall),
+        ],
+      ),
+    ),
+  );
 }

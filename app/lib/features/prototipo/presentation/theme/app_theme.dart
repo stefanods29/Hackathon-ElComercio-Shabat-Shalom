@@ -1,45 +1,17 @@
 // Paleta de colores de Winki según DISENO_UI_UX.md
 import 'package:flutter/material.dart';
+import 'package:vecinal/features/prototipo/presentation/design-system/tokens/winki_tokens.dart';
 
-const Color kPrimaryColor = Color(0xFF0F766E);
-const Color kSecondaryColor = Color(0xFF1E3A5F);
-const Color kAccentColor = Color(0xFFF4B942);
-const Color kBackgroundColor = Color(0xFFF8FAFC);
-const Color kTextColor = Color(0xFF1F2937);
-const Color kTextSecondaryColor = Color(0xFF4B5563);
-const Color kSurfaceColor = Colors.white;
-// Dark tones retain readable contrast on white and lightly tinted surfaces.
-const Color kErrorColor = Color(0xFFB91C1C);
-const Color kSuccessColor = Color(0xFF065F46);
-const Color kWarningColor = Color(0xFF92400E);
-const Color kStatusSavedColor = kWarningColor;
-const Color kStatusAcceptedColor = kSuccessColor;
-const Color kStatusRejectedColor = kErrorColor;
-
-const double kSpacingBase = 4.0;
-const double kSpacingStack = 12.0;
-const double kSpacingGutter = 16.0;
-const double kSpacingContainer = 20.0;
-const double kRadiusSmall = 4.0;
-const double kRadiusMedium = 8.0;
-const double kRadiusLarge = 12.0;
-const double kRadiusExtraLarge = 16.0;
-const double kRadiusCard = 20.0;
-const double kRadiusCardLarge = 26.0;
-const double kRadiusPill = 9999.0;
-const double kFontDisplayLG = 32.0;
-const double kFontHeadlineLG = 22.0;
-const double kFontHeadlineMD = 18.0;
-const double kFontHeadlineSM = 16.0;
-const double kFontBodyLG = 16.0;
-const double kFontBodyMD = 14.0;
-const double kFontBodySM = 12.0;
-const double kFontBodyXS = 10.0;
+export 'package:vecinal/features/prototipo/presentation/design-system/tokens/winki_tokens.dart';
 
 ThemeData winkiTheme() {
   return ThemeData(
     useMaterial3: true,
     brightness: Brightness.light,
+    fontFamily: 'AtkinsonHyperlegible',
+    splashFactory: NoSplash.splashFactory,
+    highlightColor: Colors.transparent,
+    hoverColor: Colors.transparent,
     scaffoldBackgroundColor: kBackgroundColor,
     colorScheme: ColorScheme.fromSeed(
       seedColor: kPrimaryColor,
@@ -88,17 +60,18 @@ ThemeData winkiTheme() {
       style: ElevatedButton.styleFrom(
         backgroundColor: kPrimaryColor,
         foregroundColor: Colors.white,
-        minimumSize: const Size(double.infinity, 52),
+        minimumSize: const Size(0, 52),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(kRadiusLarge)),
-        elevation: 4,
-        shadowColor: kPrimaryColor.withValues(alpha: 0.35),
+        elevation: 0,
+        textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+        shadowColor: Colors.transparent,
       ),
     ),
     outlinedButtonTheme: OutlinedButtonThemeData(
       style: OutlinedButton.styleFrom(
         foregroundColor: kPrimaryColor,
-        side: const BorderSide(color: kPrimaryColor),
-        minimumSize: const Size(double.infinity, 52),
+        side: const BorderSide(color: kPrimaryColor, width: 1.25),
+        minimumSize: const Size(0, 52),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(kRadiusLarge)),
       ),
     ),
@@ -108,30 +81,38 @@ ThemeData winkiTheme() {
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(kRadiusMedium)),
       ),
     ),
+    appBarTheme: const AppBarTheme(
+      backgroundColor: kBackgroundColor,
+      foregroundColor: kTextColor,
+      centerTitle: false,
+      scrolledUnderElevation: 0,
+      surfaceTintColor: Colors.transparent,
+    ),
     cardTheme: const CardThemeData().copyWith(
       color: kSurfaceColor,
-      elevation: 3,
-      shadowColor: Colors.black.withValues(alpha: 0.08),
+      elevation: 0,
+      shadowColor: Colors.transparent,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(kRadiusCard),
-        side: BorderSide(color: Colors.grey.shade200),
+        side: const BorderSide(color: kBorderColor),
       ),
     ),
+    dividerTheme: const DividerThemeData(space: 1, thickness: 1, color: kBorderColor),
     inputDecorationTheme: InputDecorationTheme(
       filled: true,
       fillColor: kSurfaceColor,
-      contentPadding: const EdgeInsets.symmetric(vertical: 14, horizontal: 16),
+      contentPadding: const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(kRadiusMedium),
-        borderSide: const BorderSide(color: Color(0xFFE5E7EB)),
+        borderSide: const BorderSide(color: kBorderColor),
       ),
       enabledBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(kRadiusMedium),
-        borderSide: const BorderSide(color: Color(0xFFE5E7EB)),
+        borderSide: const BorderSide(color: kBorderColor),
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(kRadiusMedium),
-        borderSide: const BorderSide(color: kPrimaryColor, width: 2),
+        borderSide: const BorderSide(color: kPrimaryColor, width: kBorderFocusWidth),
       ),
       errorBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(kRadiusMedium),
@@ -165,7 +146,7 @@ class WinkiLogo extends StatelessWidget {
                 child: Container(
                   width: size * 0.12,
                   height: size * 0.12,
-                  decoration: BoxDecoration(color: const Color(0xFF0E5A58), shape: BoxShape.circle),
+                  decoration: BoxDecoration(color: kSecondaryColor, shape: BoxShape.circle),
                 ),
               ),
               Positioned(
@@ -174,7 +155,7 @@ class WinkiLogo extends StatelessWidget {
                 child: Container(
                   width: size * 0.12,
                   height: size * 0.12,
-                  decoration: BoxDecoration(color: const Color(0xFF0E5A58), shape: BoxShape.circle),
+                  decoration: BoxDecoration(color: kSecondaryColor, shape: BoxShape.circle),
                 ),
               ),
               Positioned(
@@ -184,7 +165,7 @@ class WinkiLogo extends StatelessWidget {
                   width: size * 0.40,
                   height: size * 0.12,
                   decoration: BoxDecoration(
-                    color: const Color(0xFF0E5A58),
+                    color: kSecondaryColor,
                     borderRadius: BorderRadius.circular(kRadiusPill),
                   ),
                 ),
@@ -212,7 +193,7 @@ class WinkiLogo extends StatelessWidget {
               letterSpacing: -0.02,
             ),
           ),
-          const SizedBox(height: 2),
+          const SizedBox(height: 4),
           Row(
             mainAxisSize: MainAxisSize.min,
             children: [

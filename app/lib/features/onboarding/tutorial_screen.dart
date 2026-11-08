@@ -4,7 +4,6 @@ import 'package:go_router/go_router.dart';
 import 'package:showcaseview/showcaseview.dart';
 import 'package:vecinal/core/router/routes.dart';
 import 'package:vecinal/core/ui/large_button.dart';
-import 'package:vecinal/core/ui/simple_mode.dart';
 import 'package:vecinal/features/onboarding/tutorial_provider.dart';
 import 'package:vecinal/l10n/app_localizations.dart';
 
@@ -54,8 +53,6 @@ class _TutorialScreenState extends ConsumerState<TutorialScreen> {
   @override
   Widget build(BuildContext context) {
     final texts = AppLocalizations.of(context);
-    final simpleModeAsync = ref.watch(simpleModeProvider);
-    final scale = simpleModeAsync.value == true ? simpleModeTextScale : 1.0;
 
     return Scaffold(
       appBar: AppBar(
@@ -71,10 +68,7 @@ class _TutorialScreenState extends ConsumerState<TutorialScreen> {
           children: [
             Icon(Icons.tips_and_updates, size: 64, color: Theme.of(context).colorScheme.primary),
             const SizedBox(height: 24),
-            Text(
-              texts.tutorialTitle,
-              style: Theme.of(context).textTheme.headlineSmall?.copyWith(fontSize: 24 * scale),
-            ),
+            Text(texts.tutorialTitle, style: Theme.of(context).textTheme.headlineSmall),
             const SizedBox(height: 16),
             Text(
               texts.tutorialSubtitle,

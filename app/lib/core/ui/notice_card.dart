@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:vecinal/core/theme/vecinal_tokens.dart';
 
 /// Aviso destacado con ícono, título y detalle.
 ///
@@ -23,28 +24,31 @@ class NoticeCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
+    final tokens = context.vecinalTokens;
     final bg = background ?? scheme.surfaceContainerHighest;
     final fg = foreground ?? scheme.onSurface;
     return Semantics(
       liveRegion: true,
       child: Container(
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(color: bg, borderRadius: BorderRadius.circular(12)),
+        padding: EdgeInsets.all(tokens.spaceLg),
+        decoration: BoxDecoration(color: bg, borderRadius: BorderRadius.circular(tokens.radiusLg)),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Icon(icon, color: fg, size: 32),
-            const SizedBox(width: 16),
+            Icon(icon, color: fg),
+            SizedBox(width: tokens.spaceSm),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
                     title,
-                    style: TextStyle(color: fg, fontWeight: FontWeight.w700, fontSize: 16),
+                    style: Theme.of(
+                      context,
+                    ).textTheme.titleSmall?.copyWith(color: fg, fontWeight: FontWeight.w700),
                   ),
-                  const SizedBox(height: 4),
-                  Text(detail, style: TextStyle(color: fg, fontSize: 14)),
+                  SizedBox(height: tokens.spaceXs),
+                  Text(detail, style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: fg)),
                 ],
               ),
             ),

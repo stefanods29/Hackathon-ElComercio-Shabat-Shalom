@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:vecinal/core/router/routes.dart';
+import 'package:vecinal/core/theme/vecinal_tokens.dart';
 import 'package:vecinal/core/ui/simple_mode.dart';
 import 'package:vecinal/features/avisos/data/providers.dart';
 import 'package:vecinal/features/cuenta/data/providers.dart';
@@ -30,47 +31,85 @@ class AccountPage extends ConsumerWidget {
 
         return Scaffold(
           appBar: AppBar(title: Text(texts.accountTitle)),
-          body: ListView(
-            children: [
-              ListTile(
-                leading: const Icon(Icons.person),
-                title: Text(user?.displayName ?? texts.unknownUser),
-                subtitle: Text(texts.accountSignedIn),
-              ),
-              const Divider(),
-              ListTile(
-                leading: const Icon(Icons.tips_and_updates),
-                title: Text(texts.viewTutorial),
-                onTap: () => context.push(Routes.tutorial),
-              ),
-              ListTile(
-                leading: const Icon(Icons.accessibility_new),
-                title: Text(texts.simpleModeTitle),
-                subtitle: Text(texts.simpleModeSubtitle),
-                trailing: Switch(
-                  value: simpleModeAsync.value == true,
-                  onChanged: (_) => ref.read(simpleModeProvider.notifier).toggle(),
+          body: SafeArea(
+            child: Center(
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 720),
+                child: ListView(
+                  padding: EdgeInsets.all(context.vecinalTokens.spaceLg),
+                  children: [
+                    Card.outlined(
+                      child: ListTile(
+                        minTileHeight: 76,
+                        leading: const Icon(Icons.person),
+                        title: Text(user?.displayName ?? texts.unknownUser),
+                        subtitle: Text(texts.accountSignedIn),
+                      ),
+                    ),
+                    SizedBox(height: context.vecinalTokens.spaceLg),
+                    Card.outlined(
+                      child: Column(
+                        children: [
+                          ListTile(
+                            leading: const Icon(Icons.tips_and_updates),
+                            title: Text(texts.viewTutorial),
+                            onTap: () => context.push(Routes.tutorial),
+                          ),
+                          ListTile(
+                            leading: const Icon(Icons.accessibility_new),
+                            title: Text(texts.simpleModeTitle),
+                            subtitle: Text(texts.simpleModeSubtitle),
+                            trailing: Switch.adaptive(
+                              value: simpleModeAsync.value == true,
+                              onChanged: (_) => ref.read(simpleModeProvider.notifier).toggle(),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    SizedBox(height: context.vecinalTokens.spaceLg),
+                    Card.outlined(
+                      child: Column(
+                        children: [
+                          ListTile(
+                            leading: const Icon(Icons.logout),
+                            title: Text(texts.signOut),
+                            subtitle: Text(texts.signOutWarning),
+                            onTap: () => _confirmSignOut(context, ref),
+                          ),
+                          ListTile(
+                            leading: const Icon(Icons.phone_missed),
+                            title: Text(texts.lostPhone),
+                            subtitle: Text(texts.lostPhoneSubtitle),
+                            onTap: () => _confirmLostPhone(context, ref),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
                 ),
               ),
-              const Divider(),
-              ListTile(
-                leading: const Icon(Icons.logout),
-                title: Text(texts.signOut),
-                subtitle: Text(texts.signOutWarning),
-                onTap: () => _confirmSignOut(context, ref),
-              ),
-              ListTile(
-                leading: const Icon(Icons.phone_missed),
-                title: Text(texts.lostPhone),
-                subtitle: Text(texts.lostPhoneSubtitle),
-                onTap: () => _confirmLostPhone(context, ref),
-              ),
-            ],
+            ),
           ),
         );
       },
       loading: () => const Scaffold(body: Center(child: CircularProgressIndicator())),
-      error: (error, stack) => Scaffold(body: Center(child: Text('$error'))),
+      error: (_, _) => Scaffold(
+        body: Center(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(texts.authTryAgainError, textAlign: TextAlign.center),
+              const SizedBox(height: 12),
+              OutlinedButton.icon(
+                onPressed: () => ref.invalidate(authStateProvider),
+                icon: const Icon(Icons.refresh),
+                label: Text(texts.retryAction),
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 

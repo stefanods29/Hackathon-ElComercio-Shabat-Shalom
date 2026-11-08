@@ -22,7 +22,7 @@ class ProtoStatusBadge extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       decoration: BoxDecoration(
         color: color.withValues(alpha: 0.08),
-        borderRadius: BorderRadius.circular(10),
+        borderRadius: BorderRadius.circular(kRadiusLarge),
         border: Border.all(color: color.withValues(alpha: 0.4)),
       ),
       child: Row(
@@ -41,7 +41,9 @@ class ProtoStatusBadge extends StatelessWidget {
           Flexible(
             child: Text(
               post.statusLabel,
-              style: TextStyle(fontSize: 14, color: color, fontWeight: FontWeight.w600),
+              style: Theme.of(
+                context,
+              ).textTheme.bodyMedium?.copyWith(color: color, fontWeight: FontWeight.w600),
             ),
           ),
         ],

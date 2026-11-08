@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:vecinal/features/mapa/data/providers.dart';
+import 'package:vecinal/core/theme/vecinal_tokens.dart';
 import 'package:vecinal/features/mapa/domain/offline_region.dart';
 import 'package:vecinal/features/mapa/presentation/map_download_controller.dart';
 import 'package:vecinal/features/mapa/presentation/map_view.dart';
@@ -43,6 +44,7 @@ class _MapPageState extends ConsumerState<MapPage> with WidgetsBindingObserver {
   @override
   Widget build(BuildContext context) {
     final texts = AppLocalizations.of(context);
+    final tokens = context.vecinalTokens;
     final definition = ref.watch(mapRegionDefinitionProvider);
     final regions = ref.watch(offlineRegionsProvider);
     final controls = ref.watch(mapDownloadControllerProvider);
@@ -59,7 +61,12 @@ class _MapPageState extends ConsumerState<MapPage> with WidgetsBindingObserver {
                 child: ConstrainedBox(
                   constraints: const BoxConstraints(maxWidth: 760),
                   child: ListView(
-                    padding: const EdgeInsets.fromLTRB(16, 4, 16, 20),
+                    padding: EdgeInsets.fromLTRB(
+                      tokens.spaceLg,
+                      tokens.spaceXs,
+                      tokens.spaceLg,
+                      tokens.spaceXl,
+                    ),
                     children: [
                       Card(
                         margin: EdgeInsets.zero,
@@ -68,7 +75,7 @@ class _MapPageState extends ConsumerState<MapPage> with WidgetsBindingObserver {
                           crossAxisAlignment: CrossAxisAlignment.stretch,
                           children: [
                             Padding(
-                              padding: const EdgeInsets.all(16),
+                              padding: EdgeInsets.all(tokens.spaceLg),
                               child: Row(
                                 children: [
                                   DecoratedBox(
@@ -77,14 +84,14 @@ class _MapPageState extends ConsumerState<MapPage> with WidgetsBindingObserver {
                                       borderRadius: BorderRadius.circular(14),
                                     ),
                                     child: Padding(
-                                      padding: const EdgeInsets.all(12),
+                                      padding: EdgeInsets.all(tokens.spaceMd),
                                       child: Icon(
                                         Icons.near_me_outlined,
                                         color: Theme.of(context).colorScheme.onPrimaryContainer,
                                       ),
                                     ),
                                   ),
-                                  const SizedBox(width: 12),
+                                  SizedBox(width: tokens.spaceMd),
                                   Expanded(
                                     child: Column(
                                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -95,7 +102,7 @@ class _MapPageState extends ConsumerState<MapPage> with WidgetsBindingObserver {
                                             context,
                                           ).textTheme.labelSmall?.copyWith(letterSpacing: 1.6),
                                         ),
-                                        const SizedBox(height: 4),
+                                        SizedBox(height: tokens.spaceXs),
                                         Text(
                                           texts.mapDistrictName,
                                           style: Theme.of(context).textTheme.titleLarge?.copyWith(
@@ -116,7 +123,7 @@ class _MapPageState extends ConsumerState<MapPage> with WidgetsBindingObserver {
                               ),
                             ),
                             Padding(
-                              padding: const EdgeInsets.all(16),
+                              padding: EdgeInsets.all(tokens.spaceLg),
                               child: Text(
                                 texts.mapDemoBoundary,
                                 style: Theme.of(context).textTheme.bodySmall,
@@ -125,11 +132,11 @@ class _MapPageState extends ConsumerState<MapPage> with WidgetsBindingObserver {
                           ],
                         ),
                       ),
-                      const SizedBox(height: 16),
+                      SizedBox(height: tokens.spaceLg),
                       Card(
                         margin: EdgeInsets.zero,
                         child: Padding(
-                          padding: const EdgeInsets.all(20),
+                          padding: EdgeInsets.all(tokens.spaceLg),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.stretch,
                             children: [
@@ -139,7 +146,7 @@ class _MapPageState extends ConsumerState<MapPage> with WidgetsBindingObserver {
                                   context,
                                 ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700),
                               ),
-                              const SizedBox(height: 16),
+                              SizedBox(height: tokens.spaceLg),
                               regions.when(
                                 data: (items) => _DownloadControls(
                                   region: items.single,
@@ -160,7 +167,7 @@ class _MapPageState extends ConsumerState<MapPage> with WidgetsBindingObserver {
             ),
             // Outside the scroll view: visible even when controls or 200% text need scrolling.
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              padding: EdgeInsets.symmetric(horizontal: tokens.spaceLg, vertical: tokens.spaceSm),
               child: Text(texts.mapAttribution, textAlign: TextAlign.center),
             ),
           ],

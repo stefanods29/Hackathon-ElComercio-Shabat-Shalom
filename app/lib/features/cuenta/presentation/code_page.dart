@@ -27,6 +27,7 @@ class CodePage extends ConsumerStatefulWidget {
 
 class _CodePageState extends ConsumerState<CodePage> {
   final _codeController = TextEditingController();
+  final _formKey = GlobalKey<FormState>();
   final _resendController = ValueNotifier<int>(0);
   bool _isVerifying = false;
   String? _error;
@@ -47,6 +48,7 @@ class _CodePageState extends ConsumerState<CodePage> {
   }
 
   Future<void> _verifyCode() async {
+    if (!(_formKey.currentState?.validate() ?? false)) return;
     final code = _codeController.text.trim();
     setState(() {
       _isVerifying = true;
@@ -62,23 +64,23 @@ class _CodePageState extends ConsumerState<CodePage> {
       } else {
         context.go(Routes.home);
       }
-    } on TooManyAttempts catch (error) {
+    } on TooManyAttempts catch (failure) {
       if (!mounted) return;
       setState(() {
         _isVerifying = false;
-        _error = 'Demasiados intentos. Prueba de nuevo en ${error.retryAfterSeconds ~/ 60} min.';
-        _startResendCountdown(error.retryAfterSeconds);
+        _error = AppLocalizations.of(context).waitBeforeRetry(failure.retryAfterSeconds);
+        _startResendCountdown(failure.retryAfterSeconds);
       });
     } on InvalidCode {
       if (!mounted) return;
       setState(() {
         _isVerifying = false;
-        _error = 'El código no es correcto o ya venció.';
+        _error = AppLocalizations.of(context).protoInvalidCode;
       });
-    } on AuthFailure catch (error) {
-      if (mounted) setState(() => _error = error.message);
+    } on AuthFailure {
+      if (mounted) setState(() => _error = AppLocalizations.of(context).authTryAgainError);
     } catch (_) {
-      if (mounted) setState(() => _error = 'No se pudo verificar. Revisa tu conexión.');
+      if (mounted) setState(() => _error = AppLocalizations.of(context).authTryAgainError);
     } finally {
       if (mounted) setState(() => _isVerifying = false);
     }
@@ -103,12 +105,12 @@ class _CodePageState extends ConsumerState<CodePage> {
       if (!mounted) return;
       setState(() => _error = null);
       _startResendCountdown(request.retryAfterSeconds);
-    } on TooManyAttempts catch (error) {
-      if (mounted) _startResendCountdown(error.retryAfterSeconds);
-    } on AuthFailure catch (error) {
-      if (mounted) setState(() => _error = error.message);
+    } on TooManyAttempts catch (failure) {
+      if (mounted) _startResendCountdown(failure.retryAfterSeconds);
+    } on AuthFailure {
+      if (mounted) setState(() => _error = AppLocalizations.of(context).authTryAgainError);
     } catch (_) {
-      if (mounted) setState(() => _error = 'No se pudo reenviar. Revisa tu conexión.');
+      if (mounted) setState(() => _error = AppLocalizations.of(context).authTryAgainError);
     }
   }
 
@@ -118,68 +120,75 @@ class _CodePageState extends ConsumerState<CodePage> {
 
     return Scaffold(
       appBar: AppBar(title: Text(texts.verifyCodeTitle)),
-      body: Padding(
-        padding: const EdgeInsets.all(24),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              '${texts.verifyCodeWelcome} ${widget.phone}',
-              style: Theme.of(context).textTheme.headlineSmall,
-            ),
-            const SizedBox(height: 8),
-            Text(texts.verifyCodeSubtitle, style: Theme.of(context).textTheme.bodyMedium),
-            const SizedBox(height: 32),
-            TextFormField(
-              controller: _codeController,
-              keyboardType: TextInputType.number,
-              autofocus: true,
-              maxLength: 6,
-              decoration: InputDecoration(
-                labelText: texts.codeLabel,
-                errorText: _error,
-                border: const OutlineInputBorder(),
-              ),
-            ),
-            const SizedBox(height: 16),
-            ValueListenableBuilder<int>(
-              valueListenable: _resendController,
-              builder: (context, remaining, child) {
-                return SizedBox(
-                  width: double.infinity,
-                  child: FilledButton(
-                    onPressed: _isVerifying ? null : _verifyCode,
-                    child: _isVerifying
-                        ? const SizedBox(
-                            height: 20,
-                            width: 20,
-                            child: CircularProgressIndicator(strokeWidth: 2),
-                          )
-                        : Text(texts.verifyCodeButton),
+      body: SafeArea(
+        child: Center(
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 560),
+            child: Form(
+              key: _formKey,
+              child: ListView(
+                padding: const EdgeInsets.all(24),
+                children: [
+                  Text(
+                    '${texts.verifyCodeWelcome} ${widget.phone}',
+                    style: Theme.of(context).textTheme.headlineSmall,
                   ),
-                );
-              },
-            ),
-            const SizedBox(height: 12),
-            if (_error != null)
-              Text(
-                _error!,
-                style: TextStyle(color: Theme.of(context).colorScheme.error, fontSize: 14),
+                  const SizedBox(height: 8),
+                  Text(texts.verifyCodeSubtitle, style: Theme.of(context).textTheme.bodyMedium),
+                  const SizedBox(height: 32),
+                  TextFormField(
+                    controller: _codeController,
+                    keyboardType: TextInputType.number,
+                    autofillHints: const [AutofillHints.oneTimeCode],
+                    textInputAction: TextInputAction.done,
+                    autofocus: true,
+                    maxLength: 6,
+                    decoration: InputDecoration(
+                      labelText: texts.codeLabel,
+                      errorText: _error,
+                      border: const OutlineInputBorder(),
+                    ),
+                    validator: (value) => RegExp(r'^\d{6}$').hasMatch(value?.trim() ?? '')
+                        ? null
+                        : texts.protoInvalidCode,
+                  ),
+                  const SizedBox(height: 16),
+                  ValueListenableBuilder<int>(
+                    valueListenable: _resendController,
+                    builder: (context, remaining, child) {
+                      return SizedBox(
+                        width: double.infinity,
+                        child: FilledButton(
+                          onPressed: _isVerifying ? null : _verifyCode,
+                          child: _isVerifying
+                              ? const SizedBox(
+                                  height: 20,
+                                  width: 20,
+                                  child: CircularProgressIndicator(strokeWidth: 2),
+                                )
+                              : Text(texts.verifyCodeButton),
+                        ),
+                      );
+                    },
+                  ),
+                  const SizedBox(height: 12),
+                  const SizedBox(height: 8),
+                  Align(
+                    alignment: Alignment.centerRight,
+                    child: ValueListenableBuilder<int>(
+                      valueListenable: _resendController,
+                      builder: (context, remaining, child) => TextButton(
+                        onPressed: remaining == 0 ? _resendCode : null,
+                        child: remaining == 0
+                            ? Text(texts.resendCode)
+                            : Text('${texts.resendCodeIn} $remaining s'),
+                      ),
+                    ),
+                  ),
+                ],
               ),
-            const SizedBox(height: 8),
-            Align(
-              alignment: Alignment.centerRight,
-              child: ValueListenableBuilder<int>(
-                valueListenable: _resendController,
-                builder: (context, remaining, child) => TextButton(
-                  onPressed: remaining == 0 ? _resendCode : null,
-                  child: remaining == 0
-                      ? Text(texts.resendCode)
-                      : Text('${texts.resendCodeIn} $remaining s'),
-                ),
-              ),
             ),
-          ],
+          ),
         ),
       ),
     );

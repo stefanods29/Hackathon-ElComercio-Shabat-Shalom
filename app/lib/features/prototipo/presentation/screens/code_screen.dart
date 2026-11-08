@@ -15,7 +15,6 @@ class CodeScreen extends StatefulWidget {
 
 class _CodeScreenState extends State<CodeScreen> {
   final _codeController = TextEditingController();
-  // Verification and the resend countdown remain prototype placeholders.
   static const _secondsLeft = 30;
   bool _invalidCode = false;
 
@@ -46,91 +45,94 @@ class _CodeScreenState extends State<CodeScreen> {
         ),
       ),
       body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(24),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Text(l10n.protoEnterCode, style: Theme.of(context).textTheme.headlineLarge),
-              const SizedBox(height: 8),
-              Text(l10n.verifyCodeSubtitle),
-              const SizedBox(height: 28),
-              // The real input below owns semantics; these boxes only mirror it.
-              ExcludeSemantics(
-                child: Row(
-                  children: [
-                    for (var index = 0; index < 6; index++) ...[
-                      if (index > 0) const SizedBox(width: 6),
-                      Expanded(
-                        child: Container(
-                          constraints: const BoxConstraints(minHeight: 60),
-                          padding: const EdgeInsets.symmetric(vertical: 12),
-                          alignment: Alignment.center,
-                          decoration: BoxDecoration(
-                            color: kSurfaceColor,
-                            borderRadius: BorderRadius.circular(12),
-                            border: Border.all(
-                              color: index < _codeController.text.length
-                                  ? kPrimaryColor
-                                  : kTextSecondaryColor,
-                              width: 2,
+        child: Center(
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 560),
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.fromLTRB(20, 16, 20, 24),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Text(l10n.protoEnterCode, style: Theme.of(context).textTheme.headlineLarge),
+                  const SizedBox(height: 8),
+                  Text(l10n.verifyCodeSubtitle, style: Theme.of(context).textTheme.bodyLarge),
+                  const SizedBox(height: 24),
+                  Semantics(
+                    label: l10n.codeLabel,
+                    child: ExcludeSemantics(
+                      child: Row(
+                        children: [
+                          for (var index = 0; index < 6; index++) ...[
+                            if (index > 0) const SizedBox(width: 8),
+                            Expanded(
+                              child: Container(
+                                constraints: const BoxConstraints(minHeight: 56),
+                                alignment: Alignment.center,
+                                decoration: BoxDecoration(
+                                  color: kSurfaceColor,
+                                  borderRadius: BorderRadius.circular(kRadiusMedium),
+                                  border: Border.all(
+                                    color: index < _codeController.text.length
+                                        ? kPrimaryColor
+                                        : kBorderColor,
+                                    width: index < _codeController.text.length ? 1.5 : 1,
+                                  ),
+                                ),
+                                child: Text(
+                                  index < _codeController.text.length
+                                      ? _codeController.text[index]
+                                      : '',
+                                  style: Theme.of(context).textTheme.headlineMedium,
+                                ),
+                              ),
                             ),
-                          ),
-                          child: Text(
-                            index < _codeController.text.length ? _codeController.text[index] : '',
-                            style: const TextStyle(
-                              fontSize: 22,
-                              fontWeight: FontWeight.bold,
-                              color: kTextColor,
-                            ),
-                          ),
-                        ),
+                          ],
+                        ],
                       ),
-                    ],
-                  ],
-                ),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  TextField(
+                    key: const ValueKey<String>('prototype-code-input'),
+                    controller: _codeController,
+                    keyboardType: TextInputType.number,
+                    textInputAction: TextInputAction.done,
+                    autofillHints: const [AutofillHints.oneTimeCode],
+                    inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                    maxLength: 6,
+                    autofocus: true,
+                    textAlign: TextAlign.center,
+                    onChanged: (_) => setState(() => _invalidCode = false),
+                    onSubmitted: (_) => _verify(),
+                    decoration: InputDecoration(
+                      labelText: l10n.codeLabel,
+                      hintText: '000000',
+                      errorText: _invalidCode ? l10n.protoInvalidCode : null,
+                      counterText: '',
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  ProtoButton(
+                    key: const ValueKey<String>('prototype-verify-code'),
+                    text: l10n.verifyCodeButton,
+                    icon: Icons.verified_outlined,
+                    onPressed: _verify,
+                    fullWidth: true,
+                  ),
+                  const SizedBox(height: 12),
+                  Text(
+                    l10n.protoResendIn(_secondsLeft),
+                    textAlign: TextAlign.center,
+                    style: Theme.of(context).textTheme.bodyMedium,
+                  ),
+                  const SizedBox(height: 8),
+                  TextButton(
+                    onPressed: () => context.go(ProtoRoutes.login),
+                    child: Text(l10n.protoBack),
+                  ),
+                ],
               ),
-              const SizedBox(height: 20),
-              TextField(
-                key: const ValueKey('prototype-code-input'),
-                controller: _codeController,
-                keyboardType: TextInputType.number,
-                textInputAction: TextInputAction.done,
-                autofillHints: const [AutofillHints.oneTimeCode],
-                inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                maxLength: 6,
-                autofocus: true,
-                style: const TextStyle(fontSize: 22, color: kTextColor),
-                textAlign: TextAlign.center,
-                onChanged: (_) => setState(() => _invalidCode = false),
-                onSubmitted: (_) => _verify(),
-                decoration: InputDecoration(
-                  labelText: l10n.codeLabel,
-                  hintText: '000000',
-                  hintStyle: const TextStyle(color: kTextSecondaryColor),
-                  errorText: _invalidCode ? l10n.protoInvalidCode : null,
-                  errorMaxLines: 3,
-                  counterText: '',
-                ),
-              ),
-              const SizedBox(height: 28),
-              ProtoButton(
-                text: l10n.verifyCodeButton,
-                icon: Icons.verified_outlined,
-                onPressed: _verify,
-                fullWidth: true,
-              ),
-              const SizedBox(height: 16),
-              Text(l10n.protoResendIn(_secondsLeft), textAlign: TextAlign.center),
-              const SizedBox(height: 16),
-              ProtoButton(
-                text: l10n.protoBack,
-                icon: Icons.arrow_back,
-                onPressed: () => context.go(ProtoRoutes.login),
-                fullWidth: true,
-                secondary: true,
-              ),
-            ],
+            ),
           ),
         ),
       ),

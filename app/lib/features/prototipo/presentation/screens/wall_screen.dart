@@ -7,7 +7,7 @@ import 'package:vecinal/features/prototipo/presentation/widgets/proto_button.dar
 import 'package:vecinal/features/prototipo/presentation/widgets/proto_post_card.dart';
 import 'package:vecinal/l10n/app_localizations.dart';
 
-/// Pantalla del muro (home). Muestra publicaciones y permite publicar.
+/// Muro de publicaciones del prototipo.
 class WallScreen extends StatefulWidget {
   const WallScreen({super.key});
 
@@ -20,93 +20,99 @@ class _WallScreenState extends State<WallScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     final posts = mockPosts;
-
     return Scaffold(
-      backgroundColor: kBackgroundColor,
       appBar: AppBar(
-        backgroundColor: kSurfaceColor,
-        elevation: 0,
-        title: const Text(
-          'Muro',
-          style: TextStyle(color: kTextColor, fontWeight: FontWeight.bold),
-        ),
-        centerTitle: true,
+        title: Text(l10n.wallTitle),
         actions: [
-          IconButton(
-            tooltip: AppLocalizations.of(context).actionsToReview,
-            icon: const Icon(Icons.notifications_outlined, color: kTextColor),
-            onPressed: () => ProtoNavigation.open(context, ProtoRoutes.toReview),
+          Badge(
+            isLabelVisible: pending > 0,
+            label: Text('$pending'),
+            child: IconButton(
+              key: const ValueKey<String>('wall-review'),
+              tooltip: l10n.actionsToReview,
+              icon: const Icon(Icons.inbox_outlined),
+              onPressed: () => ProtoNavigation.open(context, ProtoRoutes.toReview),
+            ),
           ),
-          const SizedBox(width: 8),
           IconButton(
-            tooltip: AppLocalizations.of(context).accountTitle,
+            key: const ValueKey<String>('wall-account'),
+            tooltip: l10n.accountTitle,
             icon: const Icon(Icons.person_outline),
             onPressed: () => ProtoNavigation.open(context, ProtoRoutes.account),
           ),
-          const SizedBox(width: 8),
         ],
       ),
       body: SafeArea(
         child: Column(
           children: [
             if (pending > 0)
-              Container(
-                width: double.infinity,
-                padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 16),
-                color: kWarningColor.withValues(alpha: 0.1),
-                child: Row(
-                  children: [
-                    const Icon(Icons.schedule, size: 16, color: kWarningColor),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      child: Text(
-                        '$pending publicación${pending > 1 ? 'es' : ''} guardada${pending > 1 ? 's' : ''} en tu celular',
-                        style: TextStyle(
-                          fontSize: 13,
-                          fontWeight: FontWeight.w500,
-                          color: kWarningColor,
+              Material(
+                color: kWarningColor.withValues(alpha: 0.08),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                  child: Semantics(
+                    liveRegion: true,
+                    child: Row(
+                      children: [
+                        const Icon(Icons.cloud_off_outlined, color: kWarningColor),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Text(
+                            l10n.pushPending,
+                            style: Theme.of(context).textTheme.bodyMedium,
+                          ),
                         ),
-                      ),
+                      ],
                     ),
-                  ],
+                  ),
                 ),
               ),
-            const SizedBox(height: 10),
             Expanded(
               child: posts.isEmpty
                   ? Center(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(Icons.note_add, size: 64, color: Colors.grey.shade300),
-                          const SizedBox(height: 16),
-                          Text(
-                            'Aún no hay publicaciones en tu zona.',
-                            style: TextStyle(fontSize: 16, color: Colors.grey.shade600),
-                          ),
-                        ],
+                      child: Padding(
+                        padding: const EdgeInsets.all(24),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(Icons.forum_outlined, size: 48, color: kPrimaryColor),
+                            const SizedBox(height: 16),
+                            Text(
+                              l10n.wallEmpty,
+                              textAlign: TextAlign.center,
+                              style: Theme.of(context).textTheme.titleMedium,
+                            ),
+                            const SizedBox(height: 16),
+                            ProtoButton(
+                              text: l10n.publishAction,
+                              icon: Icons.add,
+                              onPressed: () => context.go(ProtoRoutes.publish),
+                            ),
+                          ],
+                        ),
                       ),
                     )
                   : ListView.builder(
+                      key: const PageStorageKey<String>('prototype-wall-screen'),
+                      padding: const EdgeInsets.fromLTRB(16, 8, 16, 100),
                       itemCount: posts.length,
-                      itemBuilder: (context, index) {
-                        return ProtoPostCard(
-                          post: posts[index],
-                          onTap: () =>
-                              ProtoNavigation.open(context, '/publicaciones/${posts[index].id}'),
-                        );
-                      },
+                      itemBuilder: (context, index) => ProtoPostCard(
+                        post: posts[index],
+                        onTap: () =>
+                            ProtoNavigation.open(context, '/publicaciones/${posts[index].id}'),
+                      ),
                     ),
             ),
           ],
         ),
       ),
       floatingActionButton: ProtoButton(
-        text: 'Publicar',
+        key: const ValueKey<String>('wall-publish'),
+        text: l10n.publishAction,
         icon: Icons.add,
-        onPressed: () => context.go('/publicar'),
-        fullWidth: false,
+        onPressed: () => context.go(ProtoRoutes.publish),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
     );

@@ -6,6 +6,12 @@
   },
   "wallTitle": "Muro de favores",
   "wallEmpty": "Todavía no hay publicaciones en tu zona.",
+  "wallLoading": "Cargando publicaciones",
+  "wallLoadError": "No se pudo cargar el muro. Revisa tu conexión e inténtalo otra vez.",
+  "refreshWall": "Actualizar publicaciones",
+  "moreOptions": "Más opciones",
+  "simpleModeEnabledLabel": "Modo sencillo activado",
+  "simpleModeDisabledLabel": "Modo sencillo desactivado",
   "publishAction": "Publicar",
   "takeFavorAction": "Tomar favor",
   "statusSavedOnPhone": "Guardado en tu celular",
@@ -72,6 +78,9 @@
     "description": "Etiqueta del campo de descripción opcional"
   },
   "descriptionHint": "Más detalles (opcional)",
+  "categoryRequiredError": "Elige una categoría.",
+  "descriptionTooLongError": "La descripción no puede pasar de 2000 caracteres.",
+  "titleLengthError": "El título debe tener entre 3 y 120 caracteres.",
   "@descriptionHint": {
     "description": "Placeholder del campo de descripción opcional"
   },
@@ -195,6 +204,16 @@
     "description": "Subtítulo de la pantalla de ingreso"
   },
   "phoneLabel": "Número celular",
+  "phoneInvalidError": "Ingresa un número celular peruano válido.",
+  "authTryAgainError": "No se pudo completar. Revisa tu conexión e inténtalo otra vez.",
+  "waitBeforeRetry": "Demasiados intentos. Prueba de nuevo en {seconds} segundos.",
+  "@waitBeforeRetry": {
+    "placeholders": {
+      "seconds": {
+        "type": "int"
+      }
+    }
+  },
   "@phoneLabel": {
     "description": "Etiqueta del campo de teléfono"
   },
@@ -390,6 +409,12 @@
   "protoTagline": "Servicios, solidaridad y emergencias para tu barrio",
   "protoMapHeading": "Mapa de tu zona",
   "protoNearbyPosts": "Publicaciones cerca de ti",
+  "protoPostDescription": "Detalles para coordinar con los vecinos sobre: {title}.",
+  "@protoPostDescription": {
+    "placeholders": {
+      "title": { "type": "String" }
+    }
+  },
   "protoMapPlaceholder": "Próximamente con zonas offline",
   "protoDemoZone": "Zona: La Victoria · Lima",
   "protoPublishTitle": "¿Qué quieres compartir?",
@@ -419,6 +444,7 @@
   "protoPolice": "105 · Policía",
   "protoAmbulance": "106 · Ambulancia / SAMU",
   "protoWelcomeHeading": "Bienvenido a Winki",
+  "protoEnterAsVisitor": "Entrar como visitante",
   "protoThreeTapsTitle": "Publicar en 3 toques",
   "protoThreeTapsHint": "1. Toca Publicar en la barra inferior. 2. Elige un tipo. 3. Toca Publicar. El título se completa automáticamente; editarlo o añadir una descripción es opcional.",
   "protoTakeFavorTitle": "Tomar un favor",

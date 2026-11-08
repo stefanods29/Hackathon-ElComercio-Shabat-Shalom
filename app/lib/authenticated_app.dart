@@ -140,6 +140,9 @@ class _AuthenticatedAppState extends State<AuthenticatedApp> {
       return MaterialApp(
         theme: AccessibleTheme.light(),
         darkTheme: AccessibleTheme.dark(),
+        highContrastTheme: AccessibleTheme.highContrastLight(),
+        highContrastDarkTheme: AccessibleTheme.highContrastDark(),
+        themeMode: ThemeMode.system,
         locale: const Locale('es'),
         localizationsDelegates: AppLocalizations.localizationsDelegates,
         supportedLocales: AppLocalizations.supportedLocales,

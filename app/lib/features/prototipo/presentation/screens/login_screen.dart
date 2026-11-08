@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:vecinal/features/prototipo/presentation/navigation/proto_navigation.dart';
 import 'package:vecinal/features/prototipo/presentation/theme/app_theme.dart';
 import 'package:vecinal/features/prototipo/presentation/widgets/proto_button.dart';
-import 'package:vecinal/features/prototipo/presentation/widgets/proto_text_field.dart';
 import 'package:vecinal/l10n/app_localizations.dart';
 
-/// Pantalla de inicio de sesión por teléfono (+51 por defecto).
+/// Pantalla de ingreso por teléfono del prototipo.
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
 
@@ -14,110 +14,94 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  final phoneController = TextEditingController();
-  String? error;
+  final _phoneController = TextEditingController();
+  final _formKey = GlobalKey<FormState>();
 
   @override
   void dispose() {
-    phoneController.dispose();
+    _phoneController.dispose();
     super.dispose();
   }
 
   void _sendCode() {
-    final phone = phoneController.text.trim();
-    if (phone.isEmpty || phone.length < 8) {
-      setState(() => error = 'Ingresa un número válido de 9 dígitos.');
-      return;
-    }
-    setState(() => error = null);
-    context.go('/ingresar/codigo', extra: phone);
+    if (!(_formKey.currentState?.validate() ?? false)) return;
+    FocusScope.of(context).unfocus();
+    context.go('/ingresar/codigo', extra: '+51${_phoneController.text.trim()}');
   }
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Scaffold(
-      backgroundColor: kBackgroundColor,
       appBar: AppBar(
-        backgroundColor: kSurfaceColor,
-        elevation: 0,
-        title: const Text('Ingresar', style: TextStyle(color: kTextColor)),
-        centerTitle: true,
+        title: Text(l10n.signInTitle),
         leading: IconButton(
-          tooltip: AppLocalizations.of(context).protoBack,
+          tooltip: l10n.protoBack,
           icon: const Icon(Icons.arrow_back),
-          onPressed: () => context.go('/'),
+          onPressed: () => context.go(ProtoRoutes.welcome),
         ),
       ),
       body: SafeArea(
         child: Center(
-          child: Padding(
-            padding: const EdgeInsets.all(24),
-            child: SingleChildScrollView(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.stretch,
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 560),
+            child: Form(
+              key: _formKey,
+              child: ListView(
+                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
                 children: [
-                  const Text(
-                    'Ingresa tu número',
-                    style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: kTextColor),
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    'Te enviaremos un código de 6 dígitos para entrar a la app.',
-                    style: TextStyle(fontSize: 15, color: Colors.grey.shade600),
-                  ),
-                  const SizedBox(height: 32),
-                  Row(
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 16),
-                        decoration: BoxDecoration(
-                          color: Colors.grey.shade100,
-                          borderRadius: BorderRadius.circular(12),
-                          border: Border.all(color: Colors.grey.shade300),
-                        ),
-                        child: const Text(
-                          '+51',
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w600,
-                            color: kTextColor,
+                  DecoratedBox(
+                    decoration: BoxDecoration(
+                      color: kPrimaryColor.withValues(alpha: 0.07),
+                      borderRadius: BorderRadius.circular(kRadiusCardLarge),
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.all(24),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Icon(Icons.sms_outlined, size: 32, color: kPrimaryColor),
+                          const SizedBox(height: 16),
+                          Text(
+                            l10n.signInWelcome,
+                            style: Theme.of(context).textTheme.headlineLarge,
                           ),
-                        ),
+                          const SizedBox(height: 8),
+                          Text(l10n.signInSubtitle, style: Theme.of(context).textTheme.bodyLarge),
+                        ],
                       ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: ProtoTextField(
-                          label: 'Teléfono',
-                          hint: '987 654 321',
-                          controller: phoneController,
-                          keyboardType: TextInputType.phone,
-                          errorText: error,
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 16),
-                  Text(
-                    'Usaremos tu número solo para que entres a la app.',
-                    style: const TextStyle(fontSize: 14, color: kTextSecondaryColor),
+                    ),
                   ),
                   const SizedBox(height: 24),
+                  TextFormField(
+                    controller: _phoneController,
+                    keyboardType: TextInputType.phone,
+                    autofillHints: const [AutofillHints.telephoneNumber],
+                    textInputAction: TextInputAction.done,
+                    onFieldSubmitted: (_) => _sendCode(),
+                    decoration: InputDecoration(labelText: l10n.phoneLabel, prefixText: '+51  '),
+                    validator: (value) {
+                      final digits = (value ?? '').replaceAll(RegExp(r'[^0-9]'), '');
+                      return RegExp(r'^9[0-9]{8}$').hasMatch(digits)
+                          ? null
+                          : l10n.phoneInvalidError;
+                    },
+                  ),
+                  const SizedBox(height: 12),
+                  Text(l10n.privacyNotice, style: Theme.of(context).textTheme.bodySmall),
+                  const SizedBox(height: 24),
                   ProtoButton(
-                    text: 'Enviar código',
-                    icon: Icons.send,
+                    key: const ValueKey<String>('prototype-send-code'),
+                    text: l10n.sendCode,
+                    icon: Icons.arrow_forward,
                     onPressed: _sendCode,
                     fullWidth: true,
                   ),
                   const SizedBox(height: 16),
-                  ProtoButton(
-                    text: 'Volver',
-                    icon: Icons.arrow_back,
-                    onPressed: () => context.go('/'),
-                    fullWidth: true,
-                    secondary: true,
+                  TextButton(
+                    onPressed: () => context.go(ProtoRoutes.welcome),
+                    child: Text(l10n.protoBack),
                   ),
-                  const SizedBox(height: 24),
                 ],
               ),
             ),

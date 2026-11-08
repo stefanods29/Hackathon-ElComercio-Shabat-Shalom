@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:vecinal/features/avisos/data/providers.dart';
+import 'package:vecinal/core/theme/vecinal_tokens.dart';
 import 'package:vecinal/features/avisos/data/push_service.dart';
 import 'package:vecinal/l10n/app_localizations.dart';
 
@@ -35,6 +36,7 @@ class _PushSettingsPageState extends ConsumerState<PushSettingsPage> with Widget
   @override
   Widget build(BuildContext context) {
     final texts = AppLocalizations.of(context);
+    final tokens = context.vecinalTokens;
     final status = ref.watch(pushControllerProvider);
     final description = switch (status) {
       PushStatus.disabled => texts.pushDisabled,
@@ -50,7 +52,7 @@ class _PushSettingsPageState extends ConsumerState<PushSettingsPage> with Widget
       appBar: AppBar(title: Text(texts.pushTitle)),
       body: SafeArea(
         child: ListView(
-          padding: const EdgeInsets.all(24),
+          padding: EdgeInsets.all(tokens.spaceXl),
           children: [
             Icon(
               status == PushStatus.ready
@@ -59,14 +61,14 @@ class _PushSettingsPageState extends ConsumerState<PushSettingsPage> with Widget
               size: 56,
               color: Theme.of(context).colorScheme.primary,
             ),
-            const SizedBox(height: 24),
+            SizedBox(height: tokens.spaceXl),
             Text(texts.pushHeading, style: Theme.of(context).textTheme.headlineSmall),
-            const SizedBox(height: 12),
+            SizedBox(height: tokens.spaceSm),
             Semantics(liveRegion: true, child: Text(description)),
-            const SizedBox(height: 16),
+            SizedBox(height: tokens.spaceLg),
             Text(texts.pushPrivacy),
             if (status != PushStatus.disabled && status != PushStatus.loading) ...[
-              const SizedBox(height: 24),
+              SizedBox(height: tokens.spaceXl),
               FilledButton(
                 onPressed: ref.read(pushControllerProvider.notifier).enable,
                 child: Text(
