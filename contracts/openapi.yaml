@@ -32,6 +32,8 @@ tags:
     description: Categorías, perfiles de proveedor y servicios vecinales.
   - name: reputacion
     description: Reseñas y Visto Bueno vecinal.
+  - name: moderacion
+    description: Denuncias, cola de revisión y decisiones.
   - name: solidaridad
     description: Muro de favores.
   - name: operacion
@@ -526,6 +528,121 @@ paths:
         '401': { $ref: '#/components/responses/NoAutenticado' }
         '409': { $ref: '#/components/responses/Conflicto' }
         '422': { $ref: '#/components/responses/NoProcesable' }
+
+  /v1/denuncias:
+    post:
+      tags: [moderacion]
+      operationId: denunciarContenido
+      summary: Denunciar contenido para revisión humana
+      parameters:
+        - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/NuevaDenuncia' }
+      responses:
+        '201':
+          description: Denuncia registrada y caso pendiente de revisión.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/DenunciaPropia' }
+        '200':
+          description: La misma denuncia ya estaba registrada.
+          headers:
+            Idempotent-Replayed: { $ref: '#/components/headers/IdempotentReplayed' }
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/DenunciaPropia' }
+        '400': { $ref: '#/components/responses/SolicitudInvalida' }
+        '401': { $ref: '#/components/responses/NoAutenticado' }
+        '404': { $ref: '#/components/responses/NoEncontrado' }
+        '409': { $ref: '#/components/responses/Conflicto' }
+        '422': { $ref: '#/components/responses/NoProcesable' }
+
+  /v1/moderacion/casos:
+    get:
+      tags: [moderacion]
+      operationId: listarCasosDeModeracion
+      summary: Listar casos como moderador sin exponer datos de contacto
+      parameters:
+        - name: estado
+          in: query
+          schema: { $ref: '#/components/schemas/EstadoDeCaso' }
+          description: Si se omite, muestra solo los casos pendientes.
+        - name: cursor
+          in: query
+          schema: { type: string, minLength: 1, maxLength: 256 }
+          description: Cursor opaco de la página anterior, para el mismo estado.
+        - name: limite
+          in: query
+          schema: { type: integer, minimum: 1, maximum: 50, default: 20 }
+      responses:
+        '200':
+          description: Casos ordenados de más antiguos a más recientes.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/PaginaDeCasos' }
+        '400': { $ref: '#/components/responses/SolicitudInvalida' }
+        '401': { $ref: '#/components/responses/NoAutenticado' }
+        '403': { $ref: '#/components/responses/Prohibido' }
+
+  /v1/moderacion/casos/{id}/decision:
+    post:
+      tags: [moderacion]
+      operationId: decidirCasoDeModeracion
+      summary: Registrar una decisión auditada como moderador
+      description: Publicar, ocultar o restaurar el contenido se aplica mediante un trabajo.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+        - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/DecisionDeModeracion' }
+      responses:
+        '200':
+          description: Decisión registrada y caso resuelto.
+          headers:
+            Idempotent-Replayed: { $ref: '#/components/headers/IdempotentReplayed' }
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/CasoDeModeracion' }
+        '400': { $ref: '#/components/responses/SolicitudInvalida' }
+        '401': { $ref: '#/components/responses/NoAutenticado' }
+        '403': { $ref: '#/components/responses/Prohibido' }
+        '404': { $ref: '#/components/responses/NoEncontrado' }
+        '409': { $ref: '#/components/responses/Conflicto' }
+        '422': { $ref: '#/components/responses/NoProcesable' }
+
+  /v1/moderacion/metricas:
+    get:
+      tags: [moderacion]
+      operationId: consultarMetricasDeModeracion
+      summary: Consultar el tiempo hasta la primera revisión humana como administrador
+      description: Selecciona por fecha de creación del caso. Por defecto abarca los últimos siete días.
+      parameters:
+        - name: desde
+          in: query
+          schema: { type: string, format: date-time }
+          description: Inicio inclusivo.
+        - name: hasta
+          in: query
+          schema: { type: string, format: date-time }
+          description: Fin exclusivo.
+      responses:
+        '200':
+          description: Totales del periodo y percentil 90 de los casos con primera revisión.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/MetricasDeModeracion' }
+        '400': { $ref: '#/components/responses/SolicitudInvalida' }
+        '401': { $ref: '#/components/responses/NoAutenticado' }
+        '403': { $ref: '#/components/responses/Prohibido' }
 
   /v1/operacion/metricas:
     get:
@@ -1203,7 +1320,7 @@ components:
       description: |
         El vecino no puede hacer esto. `nivel_de_confianza_insuficiente` incluye `nivelActual` y
         `nivelRequerido`; `rol_requerido` incluye `rolesRequeridos`. Otros códigos posibles son
-        `fuera_de_tu_zona`, `no_eres_el_autor`, `no_eres_el_dueno` y `sin_zona`.
+        `fuera_de_tu_zona`, `no_eres_el_autor`, `no_eres_el_dueno`, `sin_zona` y `cuenta_suspendida`.
       content:
         application/problem+json:
           schema: { $ref: '#/components/schemas/Problema' }
@@ -1512,6 +1629,91 @@ components:
         endpoint: { type: string, format: uri, description: URL del servicio de PowerSync. }
         token: { type: string, description: 'JWT ES256, audiencia powersync, claims sub y zona.' }
         expiraEn: { type: string, format: date-time }
+
+    TipoDeContenidoModerado:
+      type: string
+      enum: [publicacion, resena, servicio, foto, proveedor]
+
+    MotivoDeDenuncia:
+      type: string
+      enum: [spam, ofensivo, informacion_falsa, datos_personales, peligroso, otro]
+
+    NuevaDenuncia:
+      type: object
+      additionalProperties: false
+      required: [id, tipoContenido, contenidoId, motivo]
+      properties:
+        id: { type: string, format: uuid, description: UUIDv7 generado por el celular. }
+        tipoContenido: { $ref: '#/components/schemas/TipoDeContenidoModerado' }
+        contenidoId: { type: string, format: uuid }
+        motivo: { $ref: '#/components/schemas/MotivoDeDenuncia' }
+        detalle: { type: string, maxLength: 500 }
+
+    DenunciaPropia:
+      type: object
+      required: [id, casoId, tipoContenido, contenidoId, motivo, creadaEn]
+      properties:
+        id: { type: string, format: uuid }
+        casoId: { type: string, format: uuid }
+        tipoContenido: { $ref: '#/components/schemas/TipoDeContenidoModerado' }
+        contenidoId: { type: string, format: uuid }
+        motivo: { $ref: '#/components/schemas/MotivoDeDenuncia' }
+        creadaEn: { type: string, format: date-time }
+
+    EstadoDeCaso:
+      type: string
+      enum: [pendiente, resuelto]
+
+    AccionDeModeracion:
+      type: string
+      enum: [publicar, ocultar, restaurar, descartar, sancionar]
+
+    DecisionDeModeracion:
+      type: object
+      additionalProperties: false
+      required: [accion, motivo]
+      properties:
+        accion: { $ref: '#/components/schemas/AccionDeModeracion' }
+        motivo: { type: string, minLength: 1, maxLength: 500 }
+
+    CasoDeModeracion:
+      type: object
+      required: [id, tipoContenido, contenidoId, estado, motivo, ultimaAccion, creadoEn, actualizadoEn, primeraRevisionEn]
+      properties:
+        id: { type: string, format: uuid }
+        tipoContenido: { $ref: '#/components/schemas/TipoDeContenidoModerado' }
+        contenidoId: { type: string, format: uuid }
+        estado: { $ref: '#/components/schemas/EstadoDeCaso' }
+        motivo: { type: string, description: Código del motivo en la cola, sin texto libre ni datos de contacto. }
+        ultimaAccion:
+          anyOf:
+            - $ref: '#/components/schemas/AccionDeModeracion'
+            - type: 'null'
+        creadoEn: { type: string, format: date-time }
+        actualizadoEn: { type: string, format: date-time }
+        primeraRevisionEn: { type: [string, 'null'], format: date-time }
+
+    PaginaDeCasos:
+      type: object
+      required: [datos, siguienteCursor]
+      properties:
+        datos:
+          type: array
+          items: { $ref: '#/components/schemas/CasoDeModeracion' }
+        siguienteCursor: { type: [string, 'null'] }
+
+    MetricasDeModeracion:
+      type: object
+      required: [desde, hasta, totalCasos, pendientes, p90PrimeraRevisionSegundos]
+      properties:
+        desde: { type: string, format: date-time }
+        hasta: { type: string, format: date-time }
+        totalCasos: { type: integer, minimum: 0 }
+        pendientes: { type: integer, minimum: 0 }
+        p90PrimeraRevisionSegundos:
+          type: [integer, 'null']
+          minimum: 0
+          description: Percentil redondeado hacia arriba, o nulo si no hubo revisiones humanas.
 
     NuevaResena:
       type: object
