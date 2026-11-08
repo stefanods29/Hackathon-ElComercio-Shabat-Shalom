@@ -1,0 +1,40 @@
+{
+  "version": 1,
+  "distrito": "Perú · números nacionales",
+  "generadoEn": "2026-11-07T12:00:00Z",
+  "entradas": [
+    {
+      "id": "bomberos",
+      "tipo": "numero",
+      "nombre": "Bomberos Voluntarios del Perú",
+      "telefono": "116",
+      "fuente": {
+        "nombre": "Ministerio de Transportes y Comunicaciones (gob.pe)",
+        "url": "https://www.gob.pe/institucion/mtc/contacto-y-numeros-de-emergencias"
+      },
+      "verificadoEn": "2026-11-07"
+    },
+    {
+      "id": "policia",
+      "tipo": "numero",
+      "nombre": "Policía Nacional del Perú",
+      "telefono": "105",
+      "fuente": {
+        "nombre": "Policía Nacional del Perú (gob.pe)",
+        "url": "https://www.gob.pe/institucion/pnp/contacto-y-numeros-de-emergencias"
+      },
+      "verificadoEn": "2026-11-07"
+    },
+    {
+      "id": "samu",
+      "tipo": "numero",
+      "nombre": "SAMU · emergencias médicas",
+      "telefono": "106",
+      "fuente": {
+        "nombre": "Ministerio de Transportes y Comunicaciones (gob.pe)",
+        "url": "https://www.gob.pe/institucion/mtc/contacto-y-numeros-de-emergencias"
+      },
+      "verificadoEn": "2026-11-07"
+    }
+  ]
+}

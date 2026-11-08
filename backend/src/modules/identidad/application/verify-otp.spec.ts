@@ -58,10 +58,15 @@ describe('VerifyOtp', () => {
           return user;
         },
       ),
-      assignZone: async () => null,
     };
     tokens = new TokenService(config, clock);
-    const createSession = new CreateSession(new InMemorySessionRepository(), tokens, config, clock);
+    const createSession = new CreateSession(
+      new InMemorySessionRepository(),
+      tokens,
+      config,
+      clock,
+      users,
+    );
     verifyOtp = new VerifyOtp(unitOfWork, codes, users, createSession, config, clock);
     const requestOtp = new RequestOtp(unitOfWork, codes, provider, config, clock);
     await requestOtp.execute({ phone, channel: 'sms', ip: '192.0.2.10' });

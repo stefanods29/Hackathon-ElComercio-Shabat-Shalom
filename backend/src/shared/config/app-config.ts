@@ -21,7 +21,32 @@ export const configSchema = z
     ENABLE_DEV_SESSION: z.stringbool().default(false),
     NOTIFICATION_DRIVER: z.enum(['fake', 'fcm']).default('fake'),
     FIREBASE_SERVICE_ACCOUNT_BASE64: z.string().optional(),
+    MEDIA_DRIVER: z.enum(['disabled', 'fake', 's3']).default('disabled'),
+    MEDIA_BUCKET: z.preprocess(
+      (value) => (value === '' ? undefined : value),
+      z.string().min(3).optional(),
+    ),
+    MEDIA_REGION: z.string().default('auto'),
+    MEDIA_ENDPOINT: z.preprocess((value) => (value === '' ? undefined : value), z.url().optional()),
+    MEDIA_ACCESS_KEY_ID: z.string().optional(),
+    MEDIA_SECRET_ACCESS_KEY: z.string().optional(),
+    MEDIA_FORCE_PATH_STYLE: z.stringbool().default(false),
+    CLOUD_SQL_INSTANCE: z.preprocess(
+      (value) => (value === '' ? undefined : value),
+      z
+        .string()
+        .regex(/^[a-z0-9-]+:[a-z0-9-]+:[a-z0-9-]+$/)
+        .optional(),
+    ),
+    APP_ENVIRONMENT: z.enum(['dev', 'staging', 'prod', 'test']).default('dev'),
+    OTEL_EXPORTER_OTLP_ENDPOINT: z.preprocess(
+      (value) => (value === '' ? undefined : value),
+      z.url().optional(),
+    ),
+    SENTRY_DSN: z.preprocess((value) => (value === '' ? undefined : value), z.url().optional()),
     IDEMPOTENCY_RETENTION_HOURS: z.coerce.number().int().min(1).default(168),
+    MIN_ACCOUNT_AGE_HOURS_TO_REVIEW: z.coerce.number().int().min(0).default(72),
+    MAX_REVIEWS_PER_DAY: z.coerce.number().int().min(1).default(5),
     MAX_POSTS_PER_DAY: z.coerce.number().int().min(1).default(10),
     TRUST_PROXY_HOPS: z.coerce.number().int().min(0).default(0),
     OTP_PROVIDER: z.enum(['fake', 'twilio', 'firebase']).default('fake'),
@@ -46,6 +71,38 @@ export const configSchema = z
     JOB_QUEUE_DRIVER: z.enum(['memory', 'pgboss']).default('pgboss'),
   })
   .superRefine((config, ctx) => {
+    if (config.NODE_ENV === 'production' && config.MEDIA_DRIVER === 'fake') {
+      ctx.addIssue({
+        code: 'custom',
+        path: ['MEDIA_DRIVER'],
+        message: 'fake no puede usarse en producción',
+      });
+    }
+    if (config.MEDIA_DRIVER === 's3' && !config.MEDIA_BUCKET) {
+      ctx.addIssue({
+        code: 'custom',
+        path: ['MEDIA_BUCKET'],
+        message: 'se requiere un bucket privado',
+      });
+    }
+    if (Boolean(config.MEDIA_ACCESS_KEY_ID) !== Boolean(config.MEDIA_SECRET_ACCESS_KEY)) {
+      ctx.addIssue({
+        code: 'custom',
+        path: ['MEDIA_ACCESS_KEY_ID'],
+        message: 'las credenciales S3 deben configurarse juntas',
+      });
+    }
+    if (
+      config.NODE_ENV === 'production' &&
+      config.MEDIA_ENDPOINT &&
+      !config.MEDIA_ENDPOINT.startsWith('https://')
+    ) {
+      ctx.addIssue({
+        code: 'custom',
+        path: ['MEDIA_ENDPOINT'],
+        message: 'se requiere HTTPS en producción',
+      });
+    }
     if (config.JOB_QUEUE_DRIVER === 'memory' && config.NODE_ENV !== 'test') {
       ctx.addIssue({
         code: 'custom',

@@ -5,7 +5,9 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
-import type { AuthenticatedRequest } from './actor.js';
+import { AuthenticationFailure } from '../domain/errors.js';
+import { AccountAccess } from './account-access.js';
+import type { Actor, AuthenticatedRequest } from './actor.js';
 import { PUBLIC_METADATA } from './decorators.js';
 import { TokenService } from './token.service.js';
 
@@ -15,6 +17,7 @@ export class AuthGuard implements CanActivate {
   constructor(
     private readonly reflector: Reflector,
     private readonly tokens: TokenService,
+    private readonly accounts: AccountAccess,
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
@@ -30,11 +33,15 @@ export class AuthGuard implements CanActivate {
     if (scheme?.toLowerCase() !== 'bearer' || !token) {
       throw new UnauthorizedException('Falta el token de acceso.');
     }
+    let claims: Actor;
     try {
-      request.actor = await this.tokens.verifyAccess(token);
-      return true;
+      claims = await this.tokens.verifyAccess(token);
     } catch {
       throw new UnauthorizedException('El token de acceso no es válido o ya venció.');
     }
+    const actor = await this.accounts.resolve(claims);
+    if (!actor) throw new AuthenticationFailure('sesion_revocada', 'La cuenta ya no está activa.');
+    request.actor = actor;
+    return true;
   }
 }

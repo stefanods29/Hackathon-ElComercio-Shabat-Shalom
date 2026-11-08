@@ -54,9 +54,8 @@ describe('RefreshSession', () => {
       findOrCreateByPhone: async () => {
         throw new Error('No debe registrar al renovar');
       },
-      assignZone: async () => null,
     };
-    const create = new CreateSession(sessions, tokens, config, clock);
+    const create = new CreateSession(sessions, tokens, config, clock, users);
     refresh = new RefreshSession(unitOfWork, sessions, users, create, config, clock);
     original = await create.inTransaction(transaction, user, 'dispositivo de prueba');
   });

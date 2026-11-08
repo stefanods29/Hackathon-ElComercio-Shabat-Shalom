@@ -37,12 +37,26 @@ class SubmissionStatusChip extends StatelessWidget {
     return Semantics(
       label: label,
       excludeSemantics: true,
-      child: Chip(
-        avatar: Icon(icon, color: foreground, size: 20),
-        label: Text(label),
-        labelStyle: TextStyle(color: foreground, fontWeight: FontWeight.w600),
-        backgroundColor: background,
-        side: BorderSide.none,
+      // A row instead of Chip: the label wraps at 200 % text and the widget still reports its
+      // intrinsic size, which dialogs need.
+      child: DecoratedBox(
+        decoration: BoxDecoration(color: background, borderRadius: BorderRadius.circular(8)),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(icon, color: foreground, size: 20),
+              const SizedBox(width: 8),
+              Flexible(
+                child: Text(
+                  label,
+                  style: TextStyle(color: foreground, fontWeight: FontWeight.w600),
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }

@@ -14,7 +14,12 @@ final secureStoreProvider = Provider<SecureStore>((ref) => const SystemSecureSto
 
 /// The neighbor's session on the phone. The real one (OTP + tokens) arrives with Lots A and B.
 class LocalSession {
-  const LocalSession({required this.neighborId, required this.zoneId, required this.displayName});
+  const LocalSession({
+    required this.neighborId,
+    required this.zoneId,
+    required this.displayName,
+    this.trustLevel = 0,
+  });
 
   /// Neighbor from the backend seed (`backend/scripts/seed-data.ts`).
   static const demo = LocalSession(
@@ -26,6 +31,7 @@ class LocalSession {
   final String neighborId;
   final String zoneId;
   final String displayName;
+  final int trustLevel;
 }
 
 final sessionProvider = Provider<LocalSession>((ref) => LocalSession.demo);

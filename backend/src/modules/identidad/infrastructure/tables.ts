@@ -1,3 +1,4 @@
+import type { ConsentPurpose } from '../domain/consents.js';
 import type { NullableTimestamp, Timestamp, WithDefault } from '../../../shared/db/types.js';
 import type { SessionRevocationReason } from '../application/session-ports.js';
 
@@ -14,9 +15,10 @@ export interface ZonesTable {
 
 export interface UsersTable {
   id: WithDefault<string>;
-  telefono: string;
+  telefono: string | null;
   nombre_visible: string;
   zona_id: string | null;
+  zona_elegida_en: NullableTimestamp;
   nivel_confianza: WithDefault<number>;
   roles: WithDefault<string[]>;
   creado_en: WithDefault<Date>;
@@ -58,6 +60,38 @@ export interface SessionsTable {
   motivo: SessionRevocationReason | null;
 }
 
+export interface ConsentsTable {
+  id: WithDefault<string>;
+  usuario_id: string;
+  finalidad: ConsentPurpose;
+  version: number;
+  aceptado: boolean;
+  decidido_en: Timestamp;
+}
+
+export interface PresencesTable {
+  usuario_id: string;
+  fecha: string;
+  dentro_de_la_zona: boolean;
+}
+
+export interface EndorsementsTable {
+  vecino_id: string;
+  avalista_id: string;
+  zona_id: string;
+  creado_en: Timestamp;
+}
+
+export interface ConfirmationsTable {
+  id: WithDefault<string>;
+  vecino_id: string;
+  moderador_id: string;
+  zona_id: string;
+  motivo: string;
+  nivel: 1 | 2;
+  creada_en: Timestamp;
+}
+
 /** Tables of the `identidad` schema. Only the Identity module queries them. */
 export interface IdentityTables {
   'identidad.zonas': ZonesTable;
@@ -65,4 +99,8 @@ export interface IdentityTables {
   'identidad.codigos_otp': OtpCodesTable;
   'identidad.limites_otp': OtpLimitsTable;
   'identidad.sesiones': SessionsTable;
+  'identidad.consentimientos': ConsentsTable;
+  'identidad.presencias': PresencesTable;
+  'identidad.avales': EndorsementsTable;
+  'identidad.confirmaciones': ConfirmationsTable;
 }

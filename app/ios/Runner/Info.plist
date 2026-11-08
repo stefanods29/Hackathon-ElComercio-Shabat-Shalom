@@ -2,6 +2,12 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+    <key>NSSpeechRecognitionUsageDescription</key>
+    <string>Convierte tu voz en el comentario de una reseña cuando eliges dictar.</string>
+    <key>NSMicrophoneUsageDescription</key>
+    <string>Permite dictar el comentario de tu reseña.</string>
+    <key>NSPhotoLibraryUsageDescription</key>
+    <string>Permite seleccionar hasta tres fotos para tu reseña.</string>
 	<key>FirebaseMessagingAutoInitEnabled</key>
 	<false/>
 	<key>FirebaseMessagingInstallationIdEnabled</key>
@@ -31,7 +37,9 @@
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>NSLocalNetworkUsageDescription</key>
-	<string>Permite mostrar y descargar mapas desde la red local.</string>
+	<string>Permite mostrar mapas y subir fotos al servidor de la red local.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Permite elegir una foto para adjuntarla a tus publicaciones.</string>
 	<key>NSAppTransportSecurity</key>
 	<dict>
 		<key>NSAllowsLocalNetworking</key>

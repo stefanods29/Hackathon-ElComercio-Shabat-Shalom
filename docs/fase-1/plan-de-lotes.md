@@ -41,7 +41,7 @@ despliegue de la Fase 0 (acción 7 de la [revisión del 7 de noviembre](../fase-
 | **H3 · Piloto listo** | B4–B5, C3–C5, D4–D5 y A3–A4 aprobadas; staging y producción desplegados |
 | **H4 · Salida de la Fase 1** | A5 y A6 aprobadas y los criterios de salida con evidencia |
 
-## Changes de OpenSpec (se crean al abrir la fase)
+## Changes de OpenSpec (creados al abrir la fase)
 
 | Lote | Change | Capacidades nuevas o modificadas |
 |---|---|---|

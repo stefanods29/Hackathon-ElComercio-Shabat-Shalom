@@ -27,6 +27,36 @@ abstract interface class AuthRepository {
 
   /// Cierra la sesión en todos los dispositivos (perdí mi teléfono).
   Future<void> signOutEverywhere();
+
+  /// Cambia la zona de un vecino que ya tenía una (`PUT /v1/yo/zona`, contrato del Lote B).
+  ///
+  /// Lanza [ZoneChangeTooSoon] si el servidor responde 409 `cambio_de_zona_muy_pronto` y
+  /// [AuthFailure] sin conexión. Con éxito, la app borra los datos de la zona anterior y
+  /// sincroniza los de la nueva. Quien llama comprueba antes que la cola esté vacía
+  /// (`ChangeZone`).
+  Future<void> changeZone(String zoneId);
+
+  /// Borra la cuenta en el servidor (`DELETE /v1/yo`) y, cuando lo confirma, todos los datos
+  /// de la cuenta en el celular. Sin conexión lanza [AuthFailure] y no borra nada.
+  Future<void> deleteAccount();
+}
+
+/// Optional A4 capability. Existing authentication implementations stay source compatible.
+abstract interface class AccountLifecycle {
+  /// Completes only after server acknowledgement and the implementation's safe local purge.
+  Future<void> deleteAccount();
+
+  /// Checks outstanding commands and replaces the zone's local data after acknowledgement.
+  Future<void> changeZone(String zoneId);
+}
+
+extension AuthAccountLifecycle on AuthRepository {
+  /// Every implementation has the lifecycle since Lot A (part 4) added it to the port.
+  bool get supportsAccountLifecycle => true;
+}
+
+class AccountCapabilityUnavailable implements Exception {
+  const AccountCapabilityUnavailable();
 }
 
 /// Respuesta de solicitud de código.
@@ -49,6 +79,28 @@ final class AuthFailure implements Exception {
 
 final class InvalidCode implements Exception {
   const InvalidCode();
+}
+
+/// 409 `cambio_de_zona_muy_pronto`: la zona se puede volver a cambiar desde [availableFrom].
+final class ZoneChangeTooSoon implements Exception {
+  const ZoneChangeTooSoon(this.availableFrom);
+
+  /// Null si el servidor no informó la fecha.
+  final DateTime? availableFrom;
+}
+
+/// Quedan acciones "Guardado en tu celular": deben enviarse antes de cambiar de zona, para que
+/// ninguna se pierda ni llegue a la zona equivocada.
+final class PendingUploadsBlockZoneChange implements Exception {
+  const PendingUploadsBlockZoneChange(this.pendingUploads);
+
+  final int pendingUploads;
+
+  String get message =>
+      'Tienes acciones guardadas en tu celular. Espera a que se envíen para cambiar de zona.';
+
+  @override
+  String toString() => message;
 }
 
 final class TooManyAttempts implements Exception {

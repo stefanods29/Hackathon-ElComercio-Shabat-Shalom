@@ -21,6 +21,10 @@ abstract interface class SyncService {
 
   Future<void> connect();
 
+  /// Actions in the local queue right now, read from the database rather than from the last
+  /// status (it decides whether the zone can change).
+  Future<int> pendingUploads();
+
   /// Sign-out or a lost phone report: wipes the local database completely (section 8.4).
   Future<void> disconnectAndWipeLocalData();
 }
@@ -45,6 +49,9 @@ class FakeSyncService implements SyncService {
     yield _current;
     yield* _changes.stream;
   }
+
+  @override
+  Future<int> pendingUploads() async => _current.pendingUploads;
 
   @override
   Future<void> connect() async {

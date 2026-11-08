@@ -9,6 +9,7 @@ class AppEnvironment {
     required this.apiBaseUrl,
     required this.powersyncUrl,
     this.mapStyleUrl = 'http://10.0.2.2:8090/estilos/vecinal.json',
+    this.cdnBaseUrl = 'http://10.0.2.2:8090',
     this.mapBounds = pilotMapBounds,
     this.enablePush = false,
     this.phoneAuth = 'api',
@@ -16,6 +17,12 @@ class AppEnvironment {
     this.firebaseAppId = '',
     this.firebaseSenderId = '',
     this.firebaseProjectId = '',
+    this.appVersion = '0.1.0+1',
+    this.enablePhotos = false,
+    this.mediaStorageOrigin = 'http://10.0.2.2:9000',
+    this.publicAppUrl = '',
+    this.sentryDsn = '',
+    this.environmentName = 'dev',
   });
 
   // Same demonstration rectangle as infra/cdn/district.config.json; not an administrative boundary.
@@ -30,10 +37,20 @@ class AppEnvironment {
     firebaseAppId: String.fromEnvironment('FIREBASE_APP_ID'),
     firebaseSenderId: String.fromEnvironment('FIREBASE_SENDER_ID'),
     firebaseProjectId: String.fromEnvironment('FIREBASE_PROJECT_ID'),
+    enablePhotos: bool.fromEnvironment('ENABLE_PHOTOS'),
+    mediaStorageOrigin: String.fromEnvironment(
+      'MEDIA_STORAGE_ORIGIN',
+      defaultValue: 'http://10.0.2.2:9000',
+    ),
+    publicAppUrl: String.fromEnvironment('PUBLIC_APP_URL'),
+    sentryDsn: String.fromEnvironment('SENTRY_DSN'),
+    environmentName: String.fromEnvironment('APP_ENVIRONMENT', defaultValue: 'dev'),
     mapStyleUrl: String.fromEnvironment(
       'MAP_STYLE_URL',
       defaultValue: 'http://10.0.2.2:8090/estilos/vecinal.json',
     ),
+    cdnBaseUrl: String.fromEnvironment('CDN_BASE_URL', defaultValue: 'http://10.0.2.2:8090'),
+    appVersion: String.fromEnvironment('APP_VERSION', defaultValue: '0.1.0+1'),
   );
 
   final String apiBaseUrl;
@@ -41,6 +58,9 @@ class AppEnvironment {
   /// Debug override for reaching the local service from an emulator or another device.
   final String powersyncUrl;
   final String mapStyleUrl;
+
+  /// Public CDN of the environment: review photos (`media/…`) and the emergency directory.
+  final String cdnBaseUrl;
   final MapBounds mapBounds;
   final bool enablePush;
 
@@ -53,5 +73,13 @@ class AppEnvironment {
   final String firebaseSenderId;
   final String firebaseProjectId;
 
+  /// Version reported with the sync counters (`APP_VERSION`, the one in `pubspec.yaml` by default).
+  final String appVersion;
+
   bool get phoneAuthWithFirebase => phoneAuth == 'firebase';
+  final bool enablePhotos;
+  final String mediaStorageOrigin;
+  final String publicAppUrl;
+  final String sentryDsn;
+  final String environmentName;
 }

@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+import { NotificationPersonalData } from './infrastructure/notification-personal-data.kysely.js';
 import { APP_CONFIG, type AppConfig } from '../../shared/config/app-config.js';
 import { DevicesController } from './api/devices.controller.js';
 import {
@@ -18,6 +19,7 @@ import { FcmNotificationAdapter } from './infrastructure/notification.fcm.js';
 @Module({
   controllers: [DevicesController],
   providers: [
+    NotificationPersonalData,
     { provide: DEVICE_REGISTRATION, useClass: DeviceRepository },
     { provide: NOTIFICATION_DELIVERY, useClass: DeliveryRepository },
     NotificationHandlers,

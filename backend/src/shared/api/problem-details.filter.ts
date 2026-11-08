@@ -11,6 +11,7 @@ import {
   toProblemDetails,
   type ProblemDetails,
 } from './problem-details.js';
+import { reportServerFailure } from '../observability/telemetry.js';
 
 /** Every error response goes out as `application/problem+json` (RFC 9457). */
 @Catch()
@@ -35,6 +36,7 @@ export class ProblemDetailsFilter implements ExceptionFilter {
         metodo: request.method,
         estado: problem.status,
       });
+      reportServerFailure(error, request.route?.path);
     }
 
     if (response.headersSent) {

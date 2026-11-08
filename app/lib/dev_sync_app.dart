@@ -13,8 +13,12 @@ import 'package:vecinal/core/sync/local_sync_database.dart';
 import 'package:vecinal/core/sync/powersync_sync_service.dart';
 import 'package:vecinal/core/sync/vecinal_connector.dart';
 import 'package:vecinal/core/theme/accessible_theme.dart';
+import 'package:vecinal/features/directorio/data/powersync_service_directory_repository.dart';
+import 'package:vecinal/features/directorio/data/providers.dart';
 import 'package:vecinal/features/emergencias/assigned_case_cache.dart';
 import 'package:vecinal/features/emergencias/assigned_case_provider.dart';
+import 'package:vecinal/features/reputacion/data/powersync_reputation_repository.dart';
+import 'package:vecinal/features/reputacion/data/providers.dart';
 import 'package:vecinal/features/solidaridad/data/powersync_post_repository.dart';
 import 'package:vecinal/features/solidaridad/data/providers.dart';
 import 'package:vecinal/l10n/app_localizations.dart';
@@ -179,6 +183,20 @@ class _DevSyncAppState extends State<DevSyncApp> {
         syncServiceProvider.overrideWithValue(sync),
         syncedPostRepositoryProvider.overrideWithValue(
           PowerSyncPostRepository(
+            local.database,
+            neighborId: _account.neighborId,
+            zoneId: _account.zoneId,
+          ),
+        ),
+        syncedServiceDirectoryRepositoryProvider.overrideWithValue(
+          PowerSyncServiceDirectoryRepository(
+            local.database,
+            neighborId: _account.neighborId,
+            zoneId: _account.zoneId,
+          ),
+        ),
+        syncedReputationRepositoryProvider.overrideWithValue(
+          PowerSyncReputationRepository(
             local.database,
             neighborId: _account.neighborId,
             zoneId: _account.zoneId,

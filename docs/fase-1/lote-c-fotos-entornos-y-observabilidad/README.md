@@ -4,7 +4,7 @@
 |---|---|
 | Dificultad | ★★ Media |
 | Área | `backend/src/modules/media/`, `app/lib/features/fotos/` (nuevo), `infra/tofu/` (nuevo), `infra/docker-compose.yml`, `.github/workflows/`, configuración nativa de `app/android` y `app/ios` |
-| Change de OpenSpec | `fase-1-lote-c-fotos-entornos-y-observabilidad` (se crea al abrir la fase) |
+| Change de OpenSpec | `openspec/changes/fase-1-lote-c-fotos-entornos-y-observabilidad/` (proposal, design, specs, tasks) |
 | Partes | 5. Fotos (1–2), enlaces (3) e infraestructura (4–5) avanzan en paralelo |
 | Depende de | Moderación de B (parte 5) para las imágenes; métricas de A (parte 3) para los tableros |
 

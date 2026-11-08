@@ -144,9 +144,26 @@ class HttpAuthRepository implements AuthRepository {
   }
 
   @override
-  Future<void> chooseZone(String zoneId) => _serialize(() async {
+  Future<void> chooseZone(String zoneId) =>
+      _serialize(() => _putZone(zoneId, noSession: 'Vuelve a ingresar para elegir tu zona.'));
+
+  /// Same route as [chooseZone] for a neighbor who already has a zone (Lot B contract). The new
+  /// access token carries the new zone, so `activate` purges and reopens the account database.
+  @override
+  Future<void> changeZone(String zoneId) => _serialize(() async {
+    final session = _session;
+    if (session == null) throw const AuthFailure('Vuelve a ingresar para cambiar de zona.');
+    if (_user(session).zoneId == zoneId) return;
+    try {
+      await _putZone(zoneId, noSession: 'Vuelve a ingresar para cambiar de zona.');
+    } on DioException {
+      throw const AuthFailure('Necesitas conexión para cambiar de zona.');
+    }
+  });
+
+  Future<void> _putZone(String zoneId, {required String noSession}) async {
     final token = await _getToken();
-    if (token == null) throw const AuthFailure('Vuelve a ingresar para elegir tu zona.');
+    if (token == null) throw AuthFailure(noSession);
     final accountId = _user(_session!).neighborId;
     final savedChoice = await _store.read(_zoneChoiceKey);
     final choice = savedChoice == null ? null : jsonDecode(savedChoice) as Map;
@@ -163,12 +180,21 @@ class HttpAuthRepository implements AuthRepository {
       options: Options(headers: {'Authorization': 'Bearer $token', 'Idempotency-Key': key}),
     );
     if (response.statusCode == 401) await _rejectSession(_session!);
+    final body = response.data;
+    if (response.statusCode == 409 &&
+        body is Map &&
+        body['codigo'] == 'cambio_de_zona_muy_pronto') {
+      // The server would replay this stored 409 for the same key: the next attempt uses a new one.
+      await _store.delete(_zoneChoiceKey);
+      final availableFrom = body['disponibleDesde'];
+      throw ZoneChangeTooSoon(availableFrom is String ? DateTime.tryParse(availableFrom) : null);
+    }
     _require(response, 200);
     // This endpoint issues access credentials only; retain the current refresh token.
     await _save({..._session!, ...Map<String, Object?>.from(response.data as Map)});
     await _store.delete(_zoneChoiceKey);
     await _activateAndEmit(_session!);
-  });
+  }
 
   Future<String?> getToken() => _serialize(_getToken);
 
@@ -239,6 +265,39 @@ class HttpAuthRepository implements AuthRepository {
     await _clear(_user(session).neighborId);
   });
 
+  /// Deletes the account on the server and, once it confirms (202), everything on the phone.
+  /// Without a connection nothing is deleted yet.
+  @override
+  Future<void> deleteAccount() => _serialize(() async {
+    final session = _session;
+    if (session == null) return;
+    final response = await _requestDeletion();
+    if (response.statusCode == 401) {
+      await _rejectSession(session);
+      throw const AuthFailure(_signInToDelete);
+    }
+    if (response.statusCode != 202 && response.statusCode != 204) _require(response, 202);
+    await _clear(_user(session).neighborId);
+  });
+
+  static const _signInToDelete = 'Vuelve a ingresar para borrar tu cuenta.';
+
+  Future<Response<Object?>> _requestDeletion() async {
+    try {
+      final token = await _getToken();
+      if (token == null) throw const AuthFailure(_signInToDelete);
+      final response = await _api.delete<Object?>(
+        '/v1/yo',
+        options: Options(
+          headers: {'Authorization': 'Bearer $token', 'Idempotency-Key': const Uuid().v4()},
+        ),
+      );
+      return response;
+    } on DioException {
+      throw const AuthFailure('Necesitas conexión para borrar tu cuenta.');
+    }
+  }
+
   Future<void> _clear(String accountId) async {
     await _store.write(purgeKey, accountId);
     _session = null;
@@ -273,6 +332,7 @@ class HttpAuthRepository implements AuthRepository {
       neighborId: row['id'] as String,
       displayName: row['nombreVisible'] as String,
       zoneId: row['zonaId'] as String?,
+      trustLevel: row['nivel'] is int ? row['nivel'] as int : 0,
     );
   }
 

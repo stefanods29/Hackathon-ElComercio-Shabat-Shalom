@@ -21,6 +21,7 @@ export interface PostsTable {
   creado_en: Timestamp;
   actualizado_en: Timestamp;
   eliminado_en: NullableTimestamp;
+  oculta_en: NullableTimestamp;
 }
 
 /** Tables of the `solidaridad` schema. Only the Solidarity module queries them. */

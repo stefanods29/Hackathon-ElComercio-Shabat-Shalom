@@ -4,7 +4,7 @@
 |---|---|
 | Dificultad | ★ La más accesible para empezar |
 | Área | `app/lib/features/directorio/`, `reputacion/`, `emergencias/`, `onboarding/`, `cuenta/`, `app/lib/l10n/app_es.arb`, `app/test/` |
-| Change de OpenSpec | `fase-1-lote-d-pantallas-del-piloto` (se crea al abrir la fase) |
+| Change de OpenSpec | `openspec/changes/fase-1-lote-d-pantallas-del-piloto/` (proposal, design, specs, tasks) |
 | Partes | 5. Todas pueden empezar con repositorios en memoria |
 | Depende de | Contratos de B, repositorios de A, fotos y compartir de C |
 
@@ -12,13 +12,29 @@
 
 | Parte | Qué entrega | Estado | Responsable | PR |
 |---|---|---|---|---|
-| 1 | Directorio: buscar servicios cerca | Pendiente | Por asignar | — |
-| 2 | Perfil del proveedor y "Ofrezco un servicio" | Pendiente | Por asignar | — |
-| 3 | Reseñas con fotos, Visto Bueno y denuncias | Pendiente | Por asignar | — |
-| 4 | "Estoy en emergencia" y tutorial actualizado | Pendiente | Por asignar | — |
-| 5 | Consentimiento, "Mis datos" y niveles | Pendiente | Por asignar | — |
+| 1 | Directorio: buscar servicios cerca | En curso | stefanods29 | — |
+| 2 | Perfil del proveedor y "Ofrezco un servicio" | En curso | stefanods29 | — |
+| 3 | Reseñas con fotos, Visto Bueno y denuncias | En curso | stefanods29 | — |
+| 4 | "Estoy en emergencia" y tutorial actualizado | En curso | stefanods29 | — |
+| 5 | Consentimiento, "Mis datos" y niveles | En curso | stefanods29 | — |
 
 Estados posibles: **Pendiente**, **En curso** o **Hecha** (integrada en `main`).
+
+La implementación de las cinco partes se prepara en la rama
+`f1-lote-d/pantallas-del-piloto`, en una copia separada basada en la entrega A1 que define
+los repositorios públicos. Por decisión del usuario se omite la prueba presencial de
+adultos mayores y se ejecuta el [recorrido local con perfiles simulados](../evidencias/usabilidad.md).
+La [revisión de textos](../evidencias/textos-piloto.md) conserva su evidencia independiente.
+
+El código de las cinco partes está preparado. Por instrucción posterior del usuario no
+se ejecutaron nuevas pruebas, análisis, compilaciones ni CI para cerrar esta entrega.
+Se conservan las pruebas escritas previamente, con dos fallos de localización de controles
+en su última ejecución y sin revalidación posterior. Las partes mantienen el estado
+**En curso** hasta su verificación e integración.
+
+Las operaciones reales de cuenta y privacidad requieren A4/B4; la subida de fotos y los
+enlaces públicos requieren C2/C3. Las pantallas usan puertos sustituibles y explican la
+indisponibilidad, sin dar por realizadas operaciones que el servidor no confirmó.
 
 ---
 
@@ -61,7 +77,7 @@ completas y búsqueda con datos en memoria.
 - "Ofrezco un servicio" desde el botón "+" en 3 toques: **(1)** "+" → **(2)** "Ofrezco" → **(3)**
   formulario mínimo prellenado (categoría y ubicación sugeridas) y "Publicar".
 - Editar y retirar un servicio, mostrando el motivo si el servidor rechaza el cambio (por ejemplo,
-  `version_desactualizada`).
+  `conflicto_de_version`).
 
 Pruebas: el flujo de 3 toques con una prueba de widget que cuente los toques, y el estado
 "Guardado en tu celular" sin señal.

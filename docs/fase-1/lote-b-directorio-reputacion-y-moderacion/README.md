@@ -4,7 +4,7 @@
 |---|---|
 | Dificultad | ★★★ Media-alta |
 | Área | `backend/src/modules/directorio/`, `reputacion/`, `moderacion/`, `identidad/`, `contracts/openapi.yaml`, `backend/src/workers/` |
-| Change de OpenSpec | `fase-1-lote-b-directorio-reputacion-y-moderacion` (se crea al abrir la fase) |
+| Change de OpenSpec | `openspec/changes/fase-1-lote-b-directorio-reputacion-y-moderacion/` (proposal, design, specs, tasks) |
 | Partes | 5. La 1 va primero; la 4 y la 5 pueden avanzar en paralelo con la 2 y la 3 |
 | Depende de | Precisión de ubicación (A parte 1), archivos de C (parte 1) para las fotos |
 
@@ -12,13 +12,21 @@
 
 | Parte | Qué entrega | Estado | Responsable | PR |
 |---|---|---|---|---|
-| 1 | Directorio: categorías, proveedores y servicios | Pendiente | Por asignar | — |
-| 2 | Búsqueda por cercanía y texto | Pendiente | Por asignar | — |
-| 3 | Reseñas, Visto Bueno y ranking | Pendiente | Por asignar | — |
-| 4 | Identidad del piloto: niveles, zona y privacidad | Pendiente | Por asignar | — |
-| 5 | Moderación | Pendiente | Por asignar | — |
+| 1 | Directorio: categorías, proveedores y servicios | Lista para revisión | JDiazD33 | — |
+| 2 | Búsqueda por cercanía y texto | Lista para revisión | JDiazD33 | — |
+| 3 | Reseñas, Visto Bueno y ranking | Lista para revisión | JDiazD33 | — |
+| 4 | Identidad del piloto: niveles, zona y privacidad | Lista para revisión | JDiazD33 | [Entrega](parte-4.md) |
+| 5 | Moderación | Lista para revisión | JDiazD33 | [Entrega](parte-5.md) |
 
-Estados posibles: **Pendiente**, **En curso** o **Hecha** (integrada en `main`).
+Estados posibles: **Pendiente**, **En curso**, **Lista para revisión** (código entregado,
+comprobaciones y aprobación a cargo del supervisor) o **Hecha** (integrada en `main`).
+
+La Parte 1 se entrega en `f1-lote-b/parte-1-directorio`, sin PR ni integración. Su alcance,
+cobertura escrita y comandos pendientes están en [el informe de la parte](parte-1.md).
+La Parte 2 se entrega en `f1-lote-b/parte-2-busqueda`, desde la punta de la Parte 1;
+ver [su informe](parte-2.md) y la [consulta de EXPLAIN](../evidencias/busqueda.md).
+La Parte 3 se entrega en `f1-lote-b/parte-3-resenas`, desde la punta de la Parte 2;
+ver [su informe](parte-3.md).
 
 ---
 
@@ -55,7 +63,7 @@ Rutas:
 | `GET /v1/categorias` | Lista de categorías | Pública con token |
 | `PUT /v1/yo/proveedor` | Crea o actualiza mi perfil de proveedor | `@Idempotent()`, nivel 1 |
 | `POST /v1/servicios` | Publica un servicio | `@Idempotent()`, nivel 1; evento `directorio.servicio_publicado` |
-| `PUT /v1/servicios/{id}` | Edita con `version` | 409 `version_desactualizada` si cambió |
+| `PUT /v1/servicios/{id}` | Edita con `version` | 409 `conflicto_de_version` si cambió (el código que ya traduce la app) |
 | `DELETE /v1/servicios/{id}` | Borrado lógico | Solo el dueño; idempotente |
 | `GET /v1/proveedores/{id}` | Perfil con sus servicios | Sin teléfono ni ubicación exacta |
 

@@ -1,0 +1,43 @@
+name: Fase 1 C · Archivos e infraestructura
+on:
+  pull_request:
+    paths:
+      [
+        "infra/cloud/**",
+        "infra/media/**",
+        "infra/observability/**",
+        "infra/compose.media.yml",
+        "backend/**",
+        ".github/workflows/fase-1-c.yml",
+      ]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  infrastructure:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: opentofu/setup-opentofu@v1
+        with:
+          tofu_version: 1.13.9
+      - run: tofu -chdir=infra/cloud fmt -check -recursive
+      - run: tofu -chdir=infra/cloud init -backend=false -input=false
+      - run: tofu -chdir=infra/cloud validate
+      - run: tofu -chdir=infra/cloud test
+      - run: docker compose -f infra/docker-compose.yml -f infra/compose.media.yml config --quiet
+      - run: docker compose -f infra/docker-compose.yml -f infra/compose.media.yml run --rm --no-deps telemetry validate --config=/etc/otel/config.yaml
+  local-storage:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v7
+      - run: docker compose -f infra/docker-compose.yml -f infra/compose.media.yml up --build --wait --wait-timeout 180 object-storage
+      - if: always()
+        run: docker compose -f infra/docker-compose.yml -f infra/compose.media.yml down --volumes
+  backend-image:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - run: docker build -t vecinal-backend:revision backend
+      - run: docker run --rm --entrypoint node vecinal-backend:revision --check dist/modules/media/media-worker.js

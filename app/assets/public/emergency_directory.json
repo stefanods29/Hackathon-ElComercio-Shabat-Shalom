@@ -1,0 +1,10 @@
+{
+  "version": 1,
+  "distrito": "Respaldo nacional",
+  "generadoEn": "2026-11-07T00:00:00Z",
+  "entradas": [
+    {"id":"bomberos","tipo":"numero","nombre":"Bomberos","telefono":"116","fuente":{"nombre":"Plataforma del Estado Peruano · Teléfonos de emergencia","url":"https://www.gob.pe/547"},"verificadoEn":"2026-11-07"},
+    {"id":"policia","tipo":"numero","nombre":"Policía","telefono":"105","fuente":{"nombre":"Plataforma del Estado Peruano · Teléfonos de emergencia","url":"https://www.gob.pe/547"},"verificadoEn":"2026-11-07"},
+    {"id":"samu","tipo":"numero","nombre":"SAMU","telefono":"106","fuente":{"nombre":"Ministerio de Salud · Contacto y números de emergencias","url":"https://www.gob.pe/institucion/minsa/contacto-y-numeros-de-emergencias"},"verificadoEn":"2026-11-07"}
+  ]
+}

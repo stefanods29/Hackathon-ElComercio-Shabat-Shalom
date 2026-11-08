@@ -1,7 +1,42 @@
 import 'package:vecinal/core/submissions/submission_status.dart';
 
-/// Kind of queued action; it defines which API endpoint receives it.
-enum SubmissionKind { publish, takeFavor, helpRequest }
+/// Kind of queued action; it defines which API endpoint receives it (`core/sync/command_routes.dart`).
+///
+/// The names are stored in the local `comandos` and `envios` tables: never rename one.
+enum SubmissionKind {
+  /// Wall: publish a post.
+  publish,
+
+  /// Wall: take a favor.
+  takeFavor,
+
+  /// Directory: publish a service.
+  publishService,
+
+  /// Directory: edit one of my services with the version I was looking at.
+  updateService,
+
+  /// Directory: withdraw one of my services.
+  withdrawService,
+
+  /// Directory: create or update my provider profile.
+  upsertProvider,
+
+  /// Reputation: write a review.
+  writeReview,
+
+  /// Reputation: give my Visto Bueno to a service.
+  giveEndorsement,
+
+  /// Reputation: withdraw my Visto Bueno.
+  withdrawEndorsement,
+
+  /// Moderation: report a post, review, service, photo or provider.
+  report,
+
+  /// Emergencies: request help.
+  helpRequest,
+}
 
 /// A neighbor's action in the local upload queue (the phone's outbox).
 class Submission {

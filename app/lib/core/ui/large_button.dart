@@ -36,7 +36,13 @@ class LargeButton extends StatelessWidget {
           children: [
             Icon(icon, size: 24),
             const SizedBox(width: 12),
-            Text(label, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600)),
+            Flexible(
+              child: Text(
+                label,
+                textAlign: TextAlign.center,
+                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+              ),
+            ),
           ],
         ),
       ),

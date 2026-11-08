@@ -4,9 +4,10 @@ import { TokenService } from '../../../shared/auth/token.service.js';
 import { APP_CONFIG, type AppConfig } from '../../../shared/config/app-config.js';
 import type { TransactionContext } from '../../../shared/db/unit-of-work.js';
 import { CLOCK, type Clock } from '../../../shared/domain/clock.js';
+import { AuthenticationFailure } from '../../../shared/domain/errors.js';
 import { newId } from '../../../shared/domain/ids.js';
 import type { IssuedSession } from './issue-credentials.js';
-import type { RegisteredUser } from './ports.js';
+import { USER_REPOSITORY, type RegisteredUser, type UserRepository } from './ports.js';
 import { SESSION_REPOSITORY, type SessionRepository } from './session-ports.js';
 
 export interface IssuedRefreshSession extends IssuedSession {
@@ -25,16 +26,19 @@ export class CreateSession {
     private readonly tokens: TokenService,
     @Inject(APP_CONFIG) private readonly config: AppConfig,
     @Inject(CLOCK) private readonly clock: Clock,
+    @Inject(USER_REPOSITORY) private readonly users: UserRepository,
   ) {}
 
   /** Shares the caller's transaction: OTP consumption or rotation rolls back if issuing fails. */
   async inTransaction(
     transaction: TransactionContext,
-    user: RegisteredUser,
+    candidate: RegisteredUser,
     device: string | null,
     familyId = newId(),
   ): Promise<IssuedRefreshSession> {
-    await this.sessions.lockUser(transaction, user.id);
+    await this.sessions.lockUser(transaction, candidate.id);
+    const user = await this.users.findById(candidate.id, transaction);
+    if (!user) throw new AuthenticationFailure('sesion_revocada', 'La cuenta ya no está activa.');
     const now = this.clock.now();
     const refreshToken = randomBytes(32).toString('base64url');
     const refreshExpiresAt = new Date(now.getTime() + this.config.REFRESH_TOKEN_DAYS * 86_400_000);

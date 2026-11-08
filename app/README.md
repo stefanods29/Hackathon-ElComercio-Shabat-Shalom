@@ -18,8 +18,16 @@ Las carpetas `android/` e `ios/` se generan con `flutter create` la primera vez 
 ## Mapas del Lote C
 
 El botón de mapa del muro abre `/mapa`. La región del piloto se puede descargar por Wi-Fi,
-cancelar y borrar. La configuración del servidor es `--dart-define=MAP_STYLE_URL=...`;
+cancelar y borrar. La configuración del servidor es `--dart-define=MAP_STYLE_URL=...`
+(y `--dart-define=CDN_BASE_URL=...` para las fotos de las reseñas y el directorio de emergencia);
 ver `lib/features/mapa/README.md` y `../infra/cdn/README.md` antes de probar en un teléfono.
+
+## Métricas de sincronización
+
+Una vez al día la app envía contadores anónimos de la cola y la conexión a
+`POST /v1/telemetria/sincronizacion` (`lib/core/sync/sync_telemetry_reporter.dart`). La versión
+que reporta es `--dart-define=APP_VERSION=...` (por defecto la de `pubspec.yaml`). Los campos y su
+revisión de privacidad están en `../docs/fase-1/evidencias/sincronizacion.md`.
 
 La integración `maplibre_gl` 0.28 requiere JDK 21, Android API 24+ e iOS 15.5+. El CI verifica
 Android e iOS en las solicitudes de revisión. No se necesita habilitar la ubicación del vecino.
@@ -81,4 +89,15 @@ En el backend usar `NOTIFICATION_DRIVER=fcm` y la cuenta de servicio en el entor
 La recepción dirigida requiere que A conecte su sesión real a `pushCredentialsProvider`; no se
 usa la cuenta de demostración para registrar dispositivos. El enlace completo y los requisitos
 de cierre de sesión están en `lib/features/avisos/README.md`.
+
+## Fotos y compartir (Fase 1 C)
+
+Activar la galería con `--dart-define=ENABLE_PHOTOS=true`; sin sesión real conserva borradores
+privados en el teléfono. La cola, sus componentes y la integración con A/B/D están descritos en
+`lib/features/media/README.md`. Configuración del servidor local: `../infra/media/README.md`.
+
+Compartir usa el selector del teléfono, incluido WhatsApp si está disponible. Requiere un origen
+real en `PUBLIC_APP_URL` y una publicación confirmada. Consultar `lib/features/compartir/README.md`.
+`SENTRY_DSN` es opcional; sin él no se inicializa Sentry. El informe de implementación y sus
+comprobaciones están en `../docs/fase-1/evidencias/lote-c.md`.
 

@@ -1,13 +1,20 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { createHash } from 'node:crypto';
 import { type Kysely, sql } from 'kysely';
+import { AccountAccess } from '../../../shared/auth/account-access.js';
+import { UNIT_OF_WORK, type UnitOfWork } from '../../../shared/db/unit-of-work.js';
+import { asKysely } from '../../../shared/db/unit-of-work.kysely.js';
 import { KYSELY } from '../../../shared/db/connection.js';
 
 import type { DeviceRegistration, DeviceRegistrationResult } from '../application/ports.js';
 
 @Injectable()
 export class DeviceRepository implements DeviceRegistration {
-  constructor(@Inject(KYSELY) private readonly db: Kysely<unknown>) {}
+  constructor(
+    @Inject(KYSELY) private readonly db: Kysely<unknown>,
+    @Inject(UNIT_OF_WORK) private readonly unitOfWork: UnitOfWork,
+    private readonly accounts: AccountAccess,
+  ) {}
 
   async register(
     userId: string,
@@ -15,14 +22,17 @@ export class DeviceRepository implements DeviceRegistration {
     platform: 'android' | 'ios',
   ): Promise<DeviceRegistrationResult> {
     const hash = createHash('sha256').update(token).digest();
-    const result = await sql<{ id: string; plataforma: 'android' | 'ios'; creado_en: Date }>`
+    const result = await this.unitOfWork.run(async (tx) => {
+      await this.accounts.requireActiveWrite(tx, userId);
+      return sql<{ id: string; plataforma: 'android' | 'ios'; creado_en: Date }>`
       INSERT INTO notificaciones.dispositivos (usuario_id, token, token_hash, plataforma)
       VALUES (${userId}::uuid, ${token}, ${hash}, ${platform})
       ON CONFLICT (token_hash) DO UPDATE SET usuario_id = EXCLUDED.usuario_id,
         plataforma = EXCLUDED.plataforma, actualizado_en = now(), dado_de_baja_en = NULL
       WHERE notificaciones.dispositivos.token = EXCLUDED.token
       RETURNING id, plataforma, creado_en
-    `.execute(this.db);
+    `.execute(asKysely(tx));
+    });
     const device = result.rows[0];
     if (!device) throw new Error('No se pudo registrar el dispositivo');
     return {

@@ -4,6 +4,22 @@ import {
   up as createSessions,
   down as dropSessions,
 } from '../../src/modules/identidad/infrastructure/migrations/202611070200_identidad_sesiones.js';
+import {
+  up as createResidence,
+  down as dropResidence,
+} from '../../src/modules/identidad/infrastructure/migrations/202611080300_identidad_residencia_y_privacidad.js';
+import {
+  up as createModeration,
+  down as dropModeration,
+} from '../../src/modules/moderacion/infrastructure/migrations/202611080400_moderacion_denuncias_decisiones_y_sanciones.js';
+import {
+  up as addWallVisibility,
+  down as dropWallVisibility,
+} from '../../src/modules/solidaridad/infrastructure/migrations/202611080410_solidaridad_visibilidad_moderacion.js';
+import {
+  up as addServiceVisibility,
+  down as dropServiceVisibility,
+} from '../../src/modules/directorio/infrastructure/migrations/202611080420_directorio_visibilidad_individual.js';
 import { createKysely } from '../../src/shared/db/connection.js';
 
 describe('Migraciones de todos los módulos', () => {
@@ -24,13 +40,16 @@ describe('Migraciones de todos los módulos', () => {
 
     const { rows } = await sql<{ schema_name: string }>`
       SELECT schema_name FROM information_schema.schemata
-      WHERE schema_name IN ('compartido', 'emergencias', 'identidad', 'solidaridad')
+      WHERE schema_name IN ('compartido', 'directorio', 'emergencias', 'identidad', 'moderacion', 'reputacion', 'solidaridad')
       ORDER BY schema_name
     `.execute(db);
     expect(rows.map((row) => row.schema_name)).toEqual([
       'compartido',
+      'directorio',
       'emergencias',
       'identidad',
+      'moderacion',
+      'reputacion',
       'solidaridad',
     ]);
   });
@@ -61,15 +80,100 @@ describe('Migraciones de todos los módulos', () => {
     ).rejects.toBe(rollback);
   });
 
+  it('revierte y reaplica las tablas privadas de residencia sin recuperar un teléfono borrado', async () => {
+    expect(inject('appliedMigrations')).toContain('202611080300_identidad_residencia_y_privacidad');
+    const rollback = new Error('revertir prueba de migración');
+    await expect(
+      db.transaction().execute(async (transaction) => {
+        const id = (
+          await sql<{ id: string }>`
+          INSERT INTO identidad.usuarios (telefono, nombre_visible, eliminado_en)
+          VALUES (NULL, 'Cuenta eliminada', now()) RETURNING id
+        `.execute(transaction)
+        ).rows[0]!.id;
+
+        await dropResidence(transaction);
+        const removed = await sql<{ table_name: string }>`
+          SELECT table_name FROM information_schema.tables WHERE table_schema = 'identidad'
+          AND table_name IN ('consentimientos', 'presencias', 'avales', 'confirmaciones')
+        `.execute(transaction);
+        expect(removed.rows).toEqual([]);
+        const tombstone = await sql<{ telefono: string; eliminado_en: Date }>`
+          SELECT telefono, eliminado_en FROM identidad.usuarios WHERE id = ${id}
+        `.execute(transaction);
+        expect(tombstone.rows[0]).toMatchObject({
+          telefono: expect.stringMatching(/^\+999[0-9]{12}$/),
+          eliminado_en: expect.any(Date),
+        });
+
+        await createResidence(transaction);
+        const restored = await sql<{ table_name: string }>`
+          SELECT table_name FROM information_schema.tables WHERE table_schema = 'identidad'
+          AND table_name IN ('consentimientos', 'presencias', 'avales', 'confirmaciones') ORDER BY 1
+        `.execute(transaction);
+        expect(restored.rows.map((row) => row.table_name)).toEqual([
+          'avales',
+          'confirmaciones',
+          'consentimientos',
+          'presencias',
+        ]);
+        throw rollback;
+      }),
+    ).rejects.toBe(rollback);
+  });
+
+  it('revierte y reaplica moderación sin publicar sus tablas privadas', async () => {
+    expect(inject('appliedMigrations')).toEqual(
+      expect.arrayContaining([
+        '202611080400_moderacion_denuncias_decisiones_y_sanciones',
+        '202611080410_solidaridad_visibilidad_moderacion',
+        '202611080420_directorio_visibilidad_individual',
+      ]),
+    );
+    const rollback = new Error('revertir prueba de migración');
+    await expect(
+      db.transaction().execute(async (tx) => {
+        await dropServiceVisibility(tx);
+        await dropWallVisibility(tx);
+        await dropModeration(tx);
+        const read = () =>
+          sql<{ denuncias: string | null; muro: boolean; servicios: boolean }>`
+        SELECT to_regclass('moderacion.denuncias')::text AS denuncias,
+          EXISTS (SELECT 1 FROM information_schema.columns
+            WHERE table_schema = 'solidaridad' AND table_name = 'publicaciones' AND column_name = 'oculta_en') AS muro,
+          EXISTS (SELECT 1 FROM information_schema.columns
+            WHERE table_schema = 'directorio' AND table_name = 'servicios' AND column_name = 'oculto_individual_en') AS servicios
+      `.execute(tx);
+        expect((await read()).rows).toEqual([{ denuncias: null, muro: false, servicios: false }]);
+        await createModeration(tx);
+        await addWallVisibility(tx);
+        await addServiceVisibility(tx);
+        expect((await read()).rows).toEqual([
+          { denuncias: 'moderacion.denuncias', muro: true, servicios: true },
+        ]);
+        const published = await sql`SELECT tablename FROM pg_publication_tables
+        WHERE pubname = 'powersync' AND schemaname = 'moderacion'`.execute(tx);
+        expect(published.rows).toEqual([]);
+        throw rollback;
+      }),
+    ).rejects.toBe(rollback);
+  });
+
   it('la publicación de PowerSync incluye solo las tablas que deben llegar a los celulares', async () => {
     const { rows } = await sql<{ table_name: string }>`
       SELECT schemaname || '.' || tablename AS table_name FROM pg_publication_tables
       WHERE pubname = 'powersync' ORDER BY 1
     `.execute(db);
     expect(rows.map((row) => row.table_name)).toEqual([
+      'directorio.categorias',
+      'directorio.proveedores',
+      'directorio.servicios',
       'emergencias.asignaciones',
       'emergencias.pedidos_ayuda',
       'identidad.zonas',
+      'reputacion.resena_fotos',
+      'reputacion.resenas',
+      'reputacion.vistos_buenos',
       'solidaridad.publicaciones',
     ]);
   });

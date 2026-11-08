@@ -1,0 +1,11 @@
+{
+  "version": 1,
+  "steps": [
+    {"destination":"directory"},
+    {"destination":"publish"},
+    {"destination":"review"},
+    {"destination":"actions"},
+    {"destination":"emergency"},
+    {"destination":"privacy"}
+  ]
+}

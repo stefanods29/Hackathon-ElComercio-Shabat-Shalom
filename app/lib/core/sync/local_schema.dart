@@ -1,5 +1,8 @@
 import 'package:powersync/powersync.dart';
 
+/// Local tables. Synced tables have the same columns as their Sync Streams
+/// (`infra/powersync/sync-config.yaml`); `comandos` is the upload queue and `envios` keeps the
+/// visible state of every command on this phone only.
 const localSchema = Schema([
   Table('zonas', [Column.text('nombre'), Column.text('distrito'), Column.text('actualizado_en')]),
   Table('publicaciones', [
@@ -18,6 +21,61 @@ const localSchema = Schema([
     Column.text('creado_en'),
     Column.text('actualizado_en'),
   ]),
+  // Directory (Phase 1, Lot A part 1). Locations are the public copy (ADR 0010).
+  Table('categorias', [
+    Column.text('nombre'),
+    Column.text('icono'),
+    Column.integer('util_en_emergencia'),
+    Column.integer('orden'),
+  ]),
+  Table('servicios', [
+    Column.text('proveedor_id'),
+    Column.text('zona_id'),
+    Column.text('categoria_id'),
+    Column.text('titulo'),
+    Column.text('descripcion'),
+    Column.real('lat'),
+    Column.real('lng'),
+    Column.integer('radio_cobertura_m'),
+    Column.integer('disponible_en_emergencia'),
+    Column.text('atributos'),
+    Column.integer('total_resenas'),
+    Column.real('promedio'),
+    Column.real('puntaje_ranking'),
+    Column.integer('vistos_buenos_de_la_zona'),
+    Column.integer('version'),
+    Column.text('actualizado_en'),
+  ]),
+  Table('proveedores', [
+    Column.text('nombre_publico'),
+    Column.text('descripcion'),
+    Column.text('actualizado_en'),
+  ]),
+  // Reputation: published reviews never carry their author.
+  Table('resenas', [
+    Column.text('servicio_id'),
+    Column.integer('calificacion'),
+    Column.text('comentario'),
+    Column.text('publicada_en'),
+  ]),
+  Table('fotos_resena', [
+    Column.text('resena_id'),
+    Column.text('archivo_id'),
+    Column.integer('orden'),
+    Column.integer('ancho'),
+    Column.integer('alto'),
+    Column.text('blurhash'),
+  ]),
+  Table('mis_resenas', [
+    Column.text('servicio_id'),
+    Column.integer('calificacion'),
+    Column.text('comentario'),
+    Column.text('estado'),
+    Column.text('motivo_estado'),
+    Column.text('creado_en'),
+    Column.text('actualizado_en'),
+  ]),
+  Table('mis_vistos_buenos', [Column.text('servicio_id'), Column.text('creado_en')]),
   Table.insertOnly('comandos', [
     Column.text('tipo'),
     Column.text('recurso_id'),
@@ -37,5 +95,7 @@ const localSchema = Schema([
     Column.text('motivo_titulo'),
     Column.text('motivo_detalle'),
     Column.text('publicacion_optimista'),
+    // Optimistic row of directory and reputation commands (JSON); cleared on a final answer.
+    Column.text('optimista'),
   ]),
 ]);

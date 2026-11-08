@@ -1,4 +1,6 @@
 import { Inject, Injectable } from '@nestjs/common';
+import { PublicationPolicy } from '../../moderacion/index.js';
+import { AccountAccess } from '../../../shared/auth/account-access.js';
 import { type Kysely, type Selectable, sql } from 'kysely';
 import { KYSELY } from '../../../shared/db/connection.js';
 import { asKysely } from '../../../shared/db/unit-of-work.kysely.js';
@@ -49,11 +51,16 @@ const COLUMNS = [
   'creado_en',
   'actualizado_en',
   'eliminado_en',
+  'oculta_en',
 ] as const;
 
 @Injectable()
 export class KyselyPostRepository implements PostRepository, NearbyPostReader {
-  constructor(@Inject(KYSELY) private readonly db: Kysely<SolidarityTables>) {}
+  constructor(
+    @Inject(KYSELY) private readonly db: Kysely<SolidarityTables>,
+    private readonly accounts: AccountAccess,
+    private readonly publication: PublicationPolicy,
+  ) {}
 
   async lockAuthor(transaction: TransactionContext, authorId: string): Promise<void> {
     await sql`SELECT pg_advisory_xact_lock(hashtextextended(${`solidaridad:publicaciones:autor:${authorId}`}, 0))`.execute(
@@ -83,7 +90,7 @@ export class KyselyPostRepository implements PostRepository, NearbyPostReader {
       const anchor = await sql<{
         distance: number;
       }>`SELECT ST_Distance(ubicacion, ${point}) AS distance
-        FROM solidaridad.publicaciones WHERE id = ${query.cursor.id} AND zona_id = ${query.zoneId}
+        FROM solidaridad.publicaciones WHERE id = ${query.cursor.id} AND zona_id = ${query.zoneId} AND oculta_en IS NULL
           AND ubicacion IS NOT NULL AND ST_DWithin(ubicacion, ${point}, ${query.radius})`.execute(
         this.db,
       );
@@ -95,7 +102,7 @@ export class KyselyPostRepository implements PostRepository, NearbyPostReader {
       WITH cercanas AS (
         SELECT p.*, ST_Distance(p.ubicacion, ${point}) AS distancia
         FROM solidaridad.publicaciones p
-        WHERE p.zona_id = ${query.zoneId} AND p.estado = 'abierta' AND p.eliminado_en IS NULL
+        WHERE p.zona_id = ${query.zoneId} AND p.estado = 'abierta' AND p.eliminado_en IS NULL AND p.oculta_en IS NULL
           AND p.ubicacion IS NOT NULL AND (p.vence_en IS NULL OR p.vence_en > ${query.now})
           AND ST_DWithin(p.ubicacion, ${point}, ${query.radius})
       )
@@ -115,6 +122,8 @@ export class KyselyPostRepository implements PostRepository, NearbyPostReader {
   }
   async insertIfAbsent(transaction: TransactionContext, post: Post): Promise<boolean> {
     const p = post.snapshot();
+    await this.accounts.requireActiveWrite(transaction, p.authorId);
+    await this.publication.requirePublication(transaction, p.authorId, p.createdAt);
     const inserted = await asKysely<SolidarityTables>(transaction)
       .insertInto('solidaridad.publicaciones')
       .values({
@@ -149,6 +158,7 @@ export class KyselyPostRepository implements PostRepository, NearbyPostReader {
       .select(COLUMNS)
       .where('id', '=', id)
       .where('eliminado_en', 'is', null)
+      .where('oculta_en', 'is', null)
       .executeTakeFirst();
     return row ? toPost({ ...row, ubicacion: null }) : null;
   }
@@ -159,6 +169,8 @@ export class KyselyPostRepository implements PostRepository, NearbyPostReader {
     previousVersion: number,
   ): Promise<boolean> {
     const p = post.snapshot();
+    if (p.status === 'en_curso' && p.takenById)
+      await this.accounts.requireActiveWrite(transaction, p.takenById);
     const result = await asKysely<SolidarityTables>(transaction)
       .updateTable('solidaridad.publicaciones')
       .set({
@@ -170,6 +182,7 @@ export class KyselyPostRepository implements PostRepository, NearbyPostReader {
       .where('id', '=', p.id)
       .where('version', '=', previousVersion)
       .where('eliminado_en', 'is', null)
+      .where('oculta_en', 'is', null)
       .executeTakeFirst();
     return Number(result.numUpdatedRows) === 1;
   }

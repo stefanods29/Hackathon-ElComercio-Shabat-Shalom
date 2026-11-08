@@ -84,7 +84,7 @@ void main() {
     await tester.enterText(find.byType(TextFormField), '123456');
     await tester.tap(find.text('Verificar código'));
     await tester.pumpAndSettle();
-    expect(find.textContaining('No se pudo verificar.'), findsWidgets);
+    expect(find.textContaining('No se pudo completar.'), findsWidgets);
     await tester.tap(find.text('Verificar código'));
     await tester.pumpAndSettle();
     expect(find.text('Muro de favores'), findsOneWidget);

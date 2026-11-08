@@ -380,5 +380,294 @@
   "pushTitle": "Avisos",
   "pushGenericUpdate": "Tienes una actualización en Vecinal",
   "mapAreaLabel": "TU ZONA",
-  "pushReady": "Avisos activados para tu cuenta y tu zona."
+  "pushReady": "Avisos activados para tu cuenta y tu zona.",
+  "emergencyDirectoryTitle": "Números y lugares de emergencia",
+  "emergencyDirectoryBackupTitle": "Números nacionales",
+  "emergencyDirectoryBackup": "Es la copia incluida en la app. Cuando haya conexión se guardan los datos de tu distrito.",
+  "emergencyDirectorySaved": "Guardado en tu celular. Publicado el {date}.",
+  "@emergencyDirectorySaved": {
+    "description": "Directorio descargado de la CDN. {date} es la fecha de publicación, por ejemplo '07/11/2026'.",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "emergencyDirectoryUnavailable": "No se pudo abrir el directorio. Si hay riesgo para la vida, llama al 116, 105 o 106.",
+  "emergencySourceAndDate": "Fuente: {source}. Verificado el {date}.",
+  "@emergencySourceAndDate": {
+    "description": "Fuente y fecha de verificación de un dato de emergencia.",
+    "placeholders": {
+      "source": {
+        "type": "String"
+      },
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "emergencyPossiblyOutdated": "Posiblemente desactualizado: su última verificación es antigua.",
+  "emergencyTypeNumber": "Número de emergencia",
+  "emergencyTypeMeetingPoint": "Punto de encuentro",
+  "emergencyTypeHealthCenter": "Centro de salud",
+  "emergencyTypeShelter": "Albergue",
+  "emergencyPhoneLabel": "Teléfono {phone}",
+  "@emergencyPhoneLabel": {
+    "description": "Etiqueta del lector de pantalla para un número de emergencia.",
+    "placeholders": {
+      "phone": {
+        "type": "String"
+      }
+    }
+  },
+  "directoryTitle": "Servicios cerca",
+  "searchServices": "Buscar un servicio",
+  "clearFilters": "Ver todas las categorías",
+  "usefulInEmergency": "Útil en emergencia",
+  "directoryUnavailable": "No se pudo abrir el directorio. Vuelve a intentarlo.",
+  "directoryEmpty": "No hay servicios para esta búsqueda. Si nunca descargaste el directorio, conéctate una vez para descargar los servicios; después podrás verlos sin señal.",
+  "approximateDistance": "Aproximadamente a {meters} m del centro de tu zona",
+  "@approximateDistance": {
+    "placeholders": {
+      "meters": {
+        "type": "int"
+      }
+    }
+  },
+  "serviceRating": "{rating} de 5 estrellas · {count} reseñas",
+  "@serviceRating": {
+    "placeholders": {
+      "rating": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "zoneEndorsements": "Visto Bueno de tu zona: {count}",
+  "@zoneEndorsements": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "viewService": "Ver servicio",
+  "publicApproximateLocation": "Ubicación pública aproximada; no es la ubicación exacta.",
+  "offerService": "Ofrezco un servicio",
+  "serviceUnavailable": "Este servicio no está disponible en tu celular. Revisa el directorio cuando tengas conexión.",
+  "providerTitle": "Perfil del proveedor",
+  "providerUnavailable": "El perfil no está disponible en tu celular.",
+  "viewProvider": "Ver perfil del proveedor",
+  "shareAction": "Compartir",
+  "editService": "Editar servicio",
+  "withdrawService": "Retirar servicio",
+  "withdrawServiceBody": "El servicio dejará de mostrarse. La solicitud queda guardada hasta que vuelva la conexión.",
+  "serviceTitleSuggested": "Servicio de gasfitería",
+  "serviceLocationSuggested": "Se sugiere el centro de tu zona. Solo se mostrará una ubicación aproximada; puedes revisarla en el mapa.",
+  "latitudeLabel": "Latitud aproximada",
+  "longitudeLabel": "Longitud aproximada",
+  "serviceNameLabel": "Nombre visible del proveedor",
+  "saveChanges": "Guardar cambios",
+  "invalidServiceTitle": "El título debe tener entre 3 y 120 caracteres.",
+  "invalidProviderName": "El nombre debe tener entre 2 y 60 caracteres.",
+  "invalidDescription": "La descripción no puede pasar de 2000 caracteres.",
+  "invalidLocation": "Revisa la latitud y la longitud.",
+  "actionFailed": "No se pudo completar. Revisa los datos y vuelve a intentarlo.",
+  "writeReview": "Escribir una reseña",
+  "reviewsTitle": "Reseñas",
+  "noReviews": "Todavía no hay reseñas publicadas.",
+  "reviewInReview": "En revisión",
+  "reviewHidden": "Reseña oculta",
+  "myReview": "Mi reseña",
+  "starsLabel": "{count} de 5 estrellas",
+  "@starsLabel": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "commentLabel": "Comentario (opcional)",
+  "dictateComment": "Dictar comentario",
+  "stopDictation": "Terminar dictado",
+  "dictationHelp": "El dictado necesita permiso de micrófono y reconocimiento de voz. El servicio de tu teléfono puede usar internet para reconocer tu voz.",
+  "dictationDenied": "No se pudo usar el micrófono o el dictado. Puedes escribir el comentario o habilitar el permiso en los ajustes de tu teléfono.",
+  "addPhotos": "Agregar fotos",
+  "photoLimit": "Puedes agregar hasta 3 fotos.",
+  "photosPending": "Las fotos seleccionadas están solo en este formulario. La subida todavía no está disponible; puedes enviar la reseña sin fotos o conservar el formulario hasta que esté disponible.",
+  "removePhoto": "Quitar foto {number}",
+  "@removePhoto": {
+    "placeholders": {
+      "number": {
+        "type": "int"
+      }
+    }
+  },
+  "photoSelected": "Foto seleccionada {number}",
+  "@photoSelected": {
+    "placeholders": {
+      "number": {
+        "type": "int"
+      }
+    }
+  },
+  "sendWithoutPhotos": "Enviar sin fotos",
+  "submitReview": "Guardar reseña",
+  "endorsementAction": "Dar Visto Bueno",
+  "endorsementGiven": "Ya diste tu Visto Bueno",
+  "withdrawEndorsement": "Retirar mi Visto Bueno",
+  "endorsementHelp": "El Visto Bueno recomienda un servicio a tu zona. Solo cuenta desde el nivel 2, cuando eres vecino verificado.",
+  "endorsementRecorded": "Tu Visto Bueno quedó registrado. Contará cuando seas vecino verificado.",
+  "reportAction": "Denunciar",
+  "reportTitle": "Denunciar contenido",
+  "reportReason": "Motivo de la denuncia",
+  "reportSpam": "Publicidad repetida",
+  "reportOffensive": "Contenido ofensivo",
+  "reportFalse": "Información falsa",
+  "reportPersonalData": "Datos personales",
+  "reportDangerous": "Contenido peligroso",
+  "reportOther": "Otro motivo",
+  "reportThanks": "Gracias, lo revisaremos",
+  "reportDetail": "Más información (opcional)",
+  "duplicateReview": "Ya reseñaste este servicio",
+  "openPreviousReview": "Ver mi reseña anterior",
+  "selfReview": "No puedes reseñar tu propio servicio. Puedes compartirlo con otros vecinos.",
+  "newAccount": "Tu cuenta es muy nueva. Espera a que cumpla el tiempo requerido y vuelve a intentarlo.",
+  "outsideZoneService": "Solo puedes hacer esta acción en tu zona. Busca un servicio de tu zona.",
+  "dailyLimit": "Llegaste al límite diario. Vuelve a intentarlo mañana.",
+  "suspendedAccount": "Tu cuenta está suspendida. Consulta a un moderador de tu zona.",
+  "serviceConflict": "El servicio cambió. Revísalo y vuelve a intentarlo.",
+  "reviewPhoto": "Foto de la reseña",
+  "emergencyTitle": "Estoy en emergencia",
+  "callAction": "Llamar",
+  "callFailed": "No se pudo abrir el marcador. Marca el número desde la aplicación de teléfono.",
+  "emergencyBackup": "Copia de respaldo incluida en tu celular.",
+  "emergencyStale": "Posiblemente desactualizado",
+  "sourceAndDate": "Fuente: {source} · Verificado: {date}",
+  "@sourceAndDate": {
+    "placeholders": {
+      "source": {
+        "type": "String"
+      },
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "firefighters": "Bomberos",
+  "police": "Policía",
+  "samu": "SAMU",
+  "emergencyNoLocations": "Esta copia no incluye puntos de encuentro, centros de salud ni albergues verificados para tu zona. Consulta a las autoridades locales.",
+  "emergencyUpdated": "Directorio público descargado.",
+  "openOnMap": "Ver en el mapa sin conexión",
+  "practiceMode": "Modo práctica",
+  "practiceHelp": "Lo que hagas aquí se queda en datos de práctica; no se envía a vecinos ni modifica tu cuenta.",
+  "finishTutorial": "Terminar tutorial",
+  "tutorialDirectoryStep": "Busca gasfiter, incluso sin tildes. El directorio muestra distancia aproximada y recomendaciones.",
+  "tutorialReviewPilotStep": "Califica un servicio con estrellas. Tu reseña queda en revisión antes de publicarse.",
+  "tutorialPrivacyStep": "En Mis datos eliges las finalidades opcionales y puedes corregir tu nombre.",
+  "openStep": "Abrir esta pantalla",
+  "tutorialFallback": "Pasos incluidos en el celular; también funcionan sin internet.",
+  "privacyTitle": "Mis datos",
+  "consentTitle": "Tú decides sobre tus datos",
+  "consentService": "Usar mis datos para prestar el servicio",
+  "consentServiceHelp": "Necesario para iniciar sesión y guardar tus acciones en tu zona.",
+  "consentPresence": "Confirmar residencia por presencia (opcional)",
+  "consentPresenceHelp": "Permite informar presencia aproximada para confirmar tu residencia. Puedes rechazarlo y seguir usando la app.",
+  "consentRequired": "Acepta el uso necesario para continuar.",
+  "continueAction": "Continuar",
+  "privacyUnavailable": "Esta función de cuenta todavía no está disponible en esta versión. Tus datos y tu sesión se conservan.",
+  "exportData": "Exportar mis datos",
+  "exportReady": "Se abrió un archivo JSON con tus datos para guardarlo o compartirlo.",
+  "exportDismissed": "No se compartió el archivo. Puedes volver a exportarlo cuando quieras.",
+  "visibleName": "Nombre visible",
+  "correctName": "Corregir nombre",
+  "nameSaved": "Nombre corregido",
+  "deleteAccount": "Borrar mi cuenta",
+  "deleteAccountBody": "Se solicitará borrar tu perfil, tus datos personales y tus sesiones. Las publicaciones sujetas a conservación legal se tratarán según la política del servicio. El celular solo se limpiará cuando el servidor confirme el borrado.",
+  "deleteConfirm": "Confirmo que quiero borrar mi cuenta",
+  "onlineRequired": "Necesitas conexión. Tu sesión y tus datos se conservan; vuelve a intentarlo con internet.",
+  "levelsTitle": "Cómo subir de nivel",
+  "currentLevel": "Tu nivel actual: {level}",
+  "@currentLevel": {
+    "placeholders": {
+      "level": {
+        "type": "int"
+      }
+    }
+  },
+  "levelZero": "Nivel 0: puedes consultar. Confirma tu residencia por presencia, si lo autorizas, o con un moderador de tu zona para publicar.",
+  "levelOne": "Nivel 1: puedes publicar y reseñar según los requisitos de tu cuenta. Pide un aval a un vecino verificado o a un moderador.",
+  "levelTwo": "Nivel 2: vecino verificado. Tu Visto Bueno cuenta para recomendar servicios de tu zona.",
+  "changeZone": "Cambiar de zona",
+  "pendingZoneWarning": "Tienes acciones pendientes de envío. Resuélvelas antes de cambiar de zona para no perderlas.",
+  "changeZoneBody": "Al cambiar de zona se descargarán los datos de la nueva zona. Necesitas conexión y no tener acciones pendientes.",
+  "consentSaved": "Preferencias guardadas",
+  "privacyDemo": "Datos de práctica. No pertenecen a tu cuenta real.",
+  "dataField": "{name}: {value}",
+  "@dataField": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "permissionPhotos": "No se pudieron seleccionar las fotos. Puedes seguir sin fotos o revisar el permiso en Ajustes.",
+  "loadingAction": "Guardando…",
+  "practiceOffHelp": "Con el modo práctica apagado usas tu cuenta habitual. Tus acciones pueden guardarse y enviarse a otros vecinos.",
+  "exitPractice": "Salir de práctica",
+  "syntheticProfilesHelp": "Cinco perfiles ficticios para explorar la app con datos locales. No representan personas ni resultados de una prueba de usabilidad.",
+  "syntheticProfile": "Perfil de práctica",
+  "consentTextVersion": "Versión del texto: {version}",
+  "@consentTextVersion": {
+    "placeholders": {
+      "version": {
+        "type": "String"
+      }
+    }
+  },
+  "consentVersionChanged": "El texto de consentimiento cambió. Vuelve a revisarlo y decide de nuevo antes de continuar.",
+  "registerPrivacyAction": "Para registrarte: decide sobre tus datos",
+  "commentTooLong": "El comentario no puede pasar de 2000 caracteres.",
+  "reportClose": "Cerrar",
+  "levelThree": "Nivel 3: colaboras con la moderación según el rol asignado en tu zona.",
+  "editServiceAlternative": "Ver servicios actualizados",
+  "photosPreview": "Vista previa de tu foto",
+  "photosPrivacy": "Elegir una foto no la publica. Quitamos los datos de ubicación y guardamos una copia cifrada en tu celular.",
+  "photosProcessing": "Foto enviada. Preparando la vista previa.",
+  "photosDelete": "Eliminar foto",
+  "photosSelectionFailed": "No se pudo preparar la foto. Prueba con una imagen más pequeña o comprueba el permiso para elegir fotos.",
+  "@sharePublicPost": {
+    "placeholders": {
+      "link": {
+        "type": "String"
+      }
+    }
+  },
+  "photosEmpty": "Tus fotos aparecerán aquí. Puedes prepararlas incluso sin conexión.",
+  "shareUnavailable": "Compartir no está disponible en esta versión.",
+  "photosRemoving": "Eliminación pendiente. Se completará al recuperar la conexión.",
+  "photosChoose": "Elegir una foto",
+  "photosDeleteExplanation": "Se eliminará este borrador de tu celular y se solicitará su retiro del servidor. No cambia otras publicaciones.",
+  "photosHeading": "Fotos para tus publicaciones",
+  "photosTitle": "Mis fotos",
+  "sharePublicPost": "Mira esta publicación en Vecinal: {link}",
+  "photosDisabled": "Las fotos todavía no están habilitadas en esta versión.",
+  "photosUploading": "Subiendo foto…",
+  "photosReady": "Foto procesada y privada. Todavía no está publicada.",
+  "photosStorageFailed": "No se pudieron leer tus fotos. Cierra esta pantalla y vuelve a intentarlo.",
+  "photosFailed": "No se pudo completar. Revisa la foto y vuelve a intentarlo.",
+  "photosPreparing": "Preparando foto…",
+  "photosRetry": "Reintentar",
+  "photosKeep": "Conservar foto",
+  "photosLocalOnly": "Puedes preparar tus fotos aquí. Para subirlas, necesitas iniciar sesión con tu cuenta.",
+  "photosQueued": "Guardado en tu celular. Todavía no se envió.",
+  "shareNotSent": "Primero envía la publicación. Todavía está guardada solo en tu celular.",
+  "photosAttach": "Adjuntar esta foto",
+  "photosPrepareFirst": "Prepara una foto en Mis fotos antes de adjuntarla."
 }

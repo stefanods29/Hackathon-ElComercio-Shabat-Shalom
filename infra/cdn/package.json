@@ -13,7 +13,8 @@
     "build:tiles": "node scripts/build-district-tiles.mjs",
     "test": "node --test test/*.test.mjs",
     "verify": "node scripts/verify.mjs",
-    "format:check": "prettier --check scripts test publico/visor.html publico/visor.js package.json district.config.json"
+    "format:check": "prettier --check scripts test publico/visor.html publico/visor.js package.json district.config.json emergencia.config.json",
+    "emergencia:indice": "node scripts/build-emergency-index.mjs"
   },
   "dependencies": {
     "@protomaps/basemaps": "5.7.2",
@@ -21,6 +22,8 @@
   },
   "devDependencies": {
     "@maplibre/maplibre-gl-style-spec": "26.5.1",
+    "ajv": "8.20.0",
+    "ajv-formats": "3.0.1",
     "fflate": "0.8.2",
     "prettier": "3.9.10"
   }

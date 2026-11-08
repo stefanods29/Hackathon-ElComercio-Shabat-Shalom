@@ -1,4 +1,5 @@
 import { type Kysely, sql } from 'kysely';
+import { publicLocation } from '../src/modules/directorio/index.js';
 
 /**
  * Demo data for development and tests. Ids are fixed so the app, the tests and the docs can
@@ -64,7 +65,40 @@ export const NEIGHBORS = {
   },
 } as const;
 
-/** Inserts (or updates) the demo zones and neighbors. Idempotent. */
+export const DEMO_SERVICES = [
+  {
+    id: '01970000-0000-7000-8000-000000000101',
+    providerId: NEIGHBORS.beto.id,
+    zoneId: PILOT_ZONE.id,
+    publicName: 'Gasfitería Beto (demo)',
+    categoryId: 'gasfiteria',
+    title: 'Gasfitero a domicilio (demo)',
+    location: { lat: -12.085678, lng: -77.034567 },
+    availableInEmergency: true,
+  },
+  {
+    id: '01970000-0000-7000-8000-000000000102',
+    providerId: NEIGHBORS.ana.id,
+    zoneId: PILOT_ZONE.id,
+    publicName: 'Clases de Ana (demo)',
+    categoryId: 'clases',
+    title: 'Clases de matemática (demo)',
+    location: { lat: -12.083456, lng: -77.032345 },
+    availableInEmergency: false,
+  },
+  {
+    id: '01970000-0000-7000-8000-000000000103',
+    providerId: NEIGHBORS.elena.id,
+    zoneId: NEIGHBOR_ZONE.id,
+    publicName: 'Electricidad Elena (demo)',
+    categoryId: 'electricidad',
+    title: 'Electricista de la zona vecina (demo)',
+    location: { lat: -12.079876, lng: -77.050432 },
+    availableInEmergency: true,
+  },
+] as const;
+
+/** Inserts (or updates) demo zones, neighbors and services. Idempotent. */
 export async function seed(db: Kysely<unknown>): Promise<void> {
   for (const zone of [PILOT_ZONE, NEIGHBOR_ZONE]) {
     await sql`
@@ -84,6 +118,31 @@ export async function seed(db: Kysely<unknown>): Promise<void> {
         SET telefono = EXCLUDED.telefono, nombre_visible = EXCLUDED.nombre_visible,
             zona_id = EXCLUDED.zona_id, nivel_confianza = EXCLUDED.nivel_confianza,
             roles = EXCLUDED.roles, actualizado_en = now(), eliminado_en = NULL
+    `.execute(db);
+  }
+  await seedDirectory(db);
+}
+
+/** Uses the same privacy rule as the domain; these are fictional services. */
+async function seedDirectory(db: Kysely<unknown>): Promise<void> {
+  for (const service of DEMO_SERVICES) {
+    const location = publicLocation(service.location, false);
+    await sql`
+      INSERT INTO directorio.proveedores (id, zona_id, nombre_publico, descripcion)
+      VALUES (${service.providerId}, ${service.zoneId}, ${service.publicName}, 'Perfil de demostración.')
+      ON CONFLICT (id) DO NOTHING
+    `.execute(db);
+    await sql`
+      INSERT INTO directorio.servicios (
+        id, proveedor_id, zona_id, categoria_id, titulo, descripcion, ubicacion,
+        lat_publica, lng_publica, muestra_ubicacion_exacta, radio_cobertura_m,
+        disponible_en_emergencia, atributos
+      ) VALUES (
+        ${service.id}, ${service.providerId}, ${service.zoneId}, ${service.categoryId},
+        ${service.title}, 'Servicio ficticio para recorrer el directorio.',
+        ST_SetSRID(ST_MakePoint(${service.location.lng}, ${service.location.lat}), 4326)::geography,
+        ${location.lat}, ${location.lng}, false, 2000, ${service.availableInEmergency}, '{}'::jsonb
+      ) ON CONFLICT (id) DO NOTHING
     `.execute(db);
   }
 }

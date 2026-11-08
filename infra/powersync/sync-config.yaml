@@ -1,6 +1,6 @@
 # yaml-language-server: $schema=https://unpkg.com/@powersync/service-sync-rules@latest/schema/sync_rules.json
 #
-# Sync Streams de la Fase 0 (sección 3.4 y 8 de la arquitectura).
+# Sync Streams de las Fases 0 y 1 (secciones 3.4 y 8 de la arquitectura, ADR 0010).
 # Regla de oro: a cada celular llega SOLO lo que le corresponde.
 #   - Datos públicos de la zona → streams con auto_subscribe (llegan al conectar).
 #   - Datos sensibles → NUNCA en streams automáticos; solo streams bajo demanda por caso (Lote A).
@@ -8,6 +8,10 @@
 # Claims del JWT que usan los streams (los emite la API en GET /v1/sync/credenciales):
 #   sub   → auth.user_id()          id del vecino
 #   zona  → auth.parameter('zona')  id de su zona
+#
+# Datos públicos: solo la copia pública de una ubicación (3 decimales, ADR 0010). Nunca la columna
+# privada `ubicacion`, teléfonos ni el autor de una reseña pública. Lo borrado u oculto por
+# moderación sale de los streams. Las pruebas de acceso están en backend/test/sync/.
 #
 # Valida antes de subir:  cd backend && npm run sync:validate
 # El servicio no recarga este archivo solo: reinicia el contenedor de PowerSync tras cambiarlo.
@@ -30,7 +34,7 @@ streams:
       SELECT id, autor_id, zona_id, tipo, categoria, titulo, descripcion, lat, lng, estado,
              tomada_por_id, version, vence_en, creado_en, actualizado_en
       FROM solidaridad.publicaciones
-      WHERE zona_id = auth.parameter('zona') AND eliminado_en IS NULL
+      WHERE zona_id = auth.parameter('zona') AND eliminado_en IS NULL AND oculta_en IS NULL
 
   # Lo que el vecino publicó, aunque luego se haya mudado de zona.
   mis_publicaciones:
@@ -40,7 +44,82 @@ streams:
       SELECT id, autor_id, zona_id, tipo, categoria, titulo, descripcion, lat, lng, estado,
              tomada_por_id, version, vence_en, creado_en, actualizado_en
       FROM solidaridad.publicaciones
-      WHERE autor_id = auth.user_id() AND eliminado_en IS NULL
+      WHERE autor_id = auth.user_id() AND eliminado_en IS NULL AND oculta_en IS NULL
+
+  # Categorías del directorio: iguales para todas las zonas.
+  categorias:
+    auto_subscribe: true
+    priority: 1
+    query: |
+      SELECT id, nombre, icono, util_en_emergencia, orden
+      FROM directorio.categorias
+
+  # Servicios vigentes de la zona, con la copia pública de su ubicación (ADR 0010).
+  servicios_de_mi_zona:
+    auto_subscribe: true
+    priority: 2
+    query: |
+      SELECT id, proveedor_id, zona_id, categoria_id, titulo, descripcion,
+             lat_publica AS lat, lng_publica AS lng, radio_cobertura_m, disponible_en_emergencia,
+             atributos, total_resenas, promedio, puntaje_ranking, vistos_buenos_de_la_zona,
+             version, actualizado_en
+      FROM directorio.servicios
+      WHERE zona_id = auth.parameter('zona') AND eliminado_en IS NULL AND oculto_en IS NULL
+
+  # Perfiles públicos de los proveedores de la zona: sin teléfono ni ubicación.
+  proveedores_de_mi_zona:
+    auto_subscribe: true
+    priority: 2
+    query: |
+      SELECT id, nombre_publico, descripcion, actualizado_en
+      FROM directorio.proveedores
+      WHERE zona_id = auth.parameter('zona') AND eliminado_en IS NULL AND oculto_en IS NULL
+
+  # Reseñas publicadas de los servicios vigentes de la zona, sin su autor.
+  resenas_publicadas:
+    auto_subscribe: true
+    priority: 3
+    query: |
+      SELECT id, servicio_id, calificacion, comentario, publicada_en
+      FROM reputacion.resenas AS resenas
+      WHERE estado = 'publicada' AND servicio_id IN (
+        SELECT id FROM directorio.servicios
+        WHERE zona_id = auth.parameter('zona') AND eliminado_en IS NULL AND oculto_en IS NULL
+      )
+
+  # Fotos visibles de esas reseñas. La app arma su URL con la plantilla pública de la CDN.
+  fotos_de_resenas_publicadas:
+    auto_subscribe: true
+    priority: 3
+    query: |
+      SELECT id, resena_id, archivo_id, orden, ancho, alto, blurhash
+      FROM reputacion.resena_fotos AS fotos_resena
+      WHERE oculta_en IS NULL AND resena_id IN (
+        SELECT id FROM reputacion.resenas
+        WHERE estado = 'publicada' AND servicio_id IN (
+          SELECT id FROM directorio.servicios
+          WHERE zona_id = auth.parameter('zona') AND eliminado_en IS NULL AND oculto_en IS NULL
+        )
+      )
+
+  # Todas las reseñas del vecino, en cualquier estado, en su propia tabla local.
+  mis_resenas:
+    auto_subscribe: true
+    priority: 2
+    query: |
+      SELECT id, servicio_id, calificacion, comentario, estado, motivo_estado, creado_en,
+             actualizado_en
+      FROM reputacion.resenas AS mis_resenas
+      WHERE autor_id = auth.user_id()
+
+  # Los Visto Bueno del vecino. Los de los demás solo viajan como contador del servicio.
+  mis_vistos_buenos:
+    auto_subscribe: true
+    priority: 2
+    query: |
+      SELECT id, servicio_id, creado_en
+      FROM reputacion.vistos_buenos AS mis_vistos_buenos
+      WHERE vecino_id = auth.user_id()
 
   # El celular solicita un caso concreto. El servidor confirma la asignación activa.
   caso_asignado:

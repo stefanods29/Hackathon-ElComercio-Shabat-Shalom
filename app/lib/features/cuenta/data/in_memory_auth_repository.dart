@@ -9,7 +9,7 @@ import 'package:vecinal/features/cuenta/domain/zone.dart';
 /// Por defecto arranca en `SignedIn` con la sesión de demostración (Beto, zona piloto)
 /// para que el resto de la app y las pruebas actuales sigan igual. Las pruebas de este
 /// flujo lo crean en `SignedOut`.
-class InMemoryAuthRepository implements AuthRepository {
+class InMemoryAuthRepository implements AuthRepository, AccountLifecycle {
   InMemoryAuthRepository({this.startSignedOut = false}) {
     if (startSignedOut) {
       _state = const SignedOut();
@@ -108,6 +108,43 @@ class InMemoryAuthRepository implements AuthRepository {
   @override
   Future<void> signOutEverywhere() async {
     await Future.delayed(const Duration(milliseconds: 400));
+    _state = const SignedOut();
+    _controller.add(_state);
+  }
+
+  /// Simulates no connection in [changeZone] and [deleteAccount].
+  bool offline = false;
+
+  /// While set, [changeZone] answers like the 409 `cambio_de_zona_muy_pronto` of the server.
+  DateTime? zoneChangeAvailableFrom;
+
+  @override
+  Future<void> changeZone(String zoneId) async {
+    await Future<void>.delayed(const Duration(milliseconds: 200));
+    if (offline) throw const AuthFailure('Necesitas conexión para cambiar de zona.');
+    final blockedUntil = zoneChangeAvailableFrom;
+    if (blockedUntil != null) throw ZoneChangeTooSoon(blockedUntil);
+    _zones.firstWhere(
+      (z) => z.id == zoneId,
+      orElse: () => throw ArgumentError('Zona no encontrada'),
+    );
+    final state = _state;
+    if (state is! SignedIn) throw const AuthFailure('Vuelve a ingresar para cambiar de zona.');
+    _state = SignedIn(
+      LocalUser(
+        neighborId: state.user.neighborId,
+        displayName: state.user.displayName,
+        zoneId: zoneId,
+        trustLevel: state.user.trustLevel,
+      ),
+    );
+    _controller.add(_state);
+  }
+
+  @override
+  Future<void> deleteAccount() async {
+    await Future<void>.delayed(const Duration(milliseconds: 300));
+    if (offline) throw const AuthFailure('Necesitas conexión para borrar tu cuenta.');
     _state = const SignedOut();
     _controller.add(_state);
   }
