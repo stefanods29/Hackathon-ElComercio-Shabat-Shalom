@@ -11,12 +11,13 @@ Fase 1 cumple sus [criterios de salida](../fase-1/criterios-de-salida.md) y term
 
 | Carpeta | Qué es | Dificultad | Responsable | Estado |
 |---|---|---|---|---|
-| [`lote-a-pedidos-offline-y-modo-operativo/`](lote-a-pedidos-offline-y-modo-operativo/) | Pedidos de ayuda sin conexión, streams por asignación, modo operativo protegido, tablero offline, seguridad e integración | ★★★★ | `JDiazD33` | En curso (0 de 6 partes integradas) |
-| [`lote-b-modulo-emergencias/`](lote-b-modulo-emergencias/) | Eventos, pedidos con estados, asignaciones, escalamiento, recursos críticos, roles y auditoría | ★★★ | Por asignar | Pendiente (0 de 5 partes) |
-| [`lote-c-consola-web-y-avisos-urgentes/`](lote-c-consola-web-y-avisos-urgentes/) | Consola web de operación y avisos urgentes con SMS de respaldo | ★★ | Por asignar | Pendiente (0 de 4 partes) |
-| [`lote-d-tablero-de-emergencia/`](lote-d-tablero-de-emergencia/) | Tablero de emergencia, "Necesito ayuda", "Puedo ayudar", recursos y contactos | ★ | Por asignar | Pendiente (0 de 4 partes) |
+| [`lote-a-pedidos-offline-y-modo-operativo/`](lote-a-pedidos-offline-y-modo-operativo/) | Pedidos de ayuda sin conexión, streams por asignación, modo operativo protegido, tablero offline, seguridad e integración | ★★★★ | `JDiazD33` | En curso: partes 1–4 integradas en `main`; faltan celulares, PowerSync en vivo, CI y las partes 5 y 6 |
+| [`lote-b-modulo-emergencias/`](lote-b-modulo-emergencias/) | Eventos, pedidos con estados, asignaciones, escalamiento, recursos críticos, roles y auditoría | ★★★ | Por asignar | En curso: 5 partes integradas en `main` y probadas por la API; falta la CI |
+| [`lote-c-consola-web-y-avisos-urgentes/`](lote-c-consola-web-y-avisos-urgentes/) | Consola web de operación y avisos urgentes con SMS de respaldo | ★★ | stefanods29 | En curso: 4 partes integradas en `main` y conectadas a B; faltan CI, proveedor de SMS y nube |
+| [`lote-d-tablero-de-emergencia/`](lote-d-tablero-de-emergencia/) | Tablero de emergencia, "Necesito ayuda", "Puedo ayudar", recursos y contactos | ★ | stefanods29 | En curso: 4 partes integradas en `main` con el puerto real; faltan pruebas de widgets y accesibilidad |
 
-El estado de cada parte está en la tabla "Estado del lote" de cada guía.
+El estado de cada parte está en la tabla "Estado del lote" de cada guía. Cómo se unieron los lotes,
+qué se decidió entre ellos y qué falta: [`integracion.md`](integracion.md).
 
 ## Antes de abrir la fase
 
@@ -52,5 +53,6 @@ Además de las de las fases anteriores:
 | Documento | Para qué sirve |
 |---|---|
 | [`plan-de-lotes.md`](plan-de-lotes.md) | Los 4 lotes, cómo encajan y los hitos |
+| [`integracion.md`](integracion.md) | La integración en `main`: conexiones, decisiones, verificación y pendientes |
 | [`criterios-de-salida.md`](criterios-de-salida.md) | Cuándo hay cobertura operativa real |
 | [`evidencias/`](evidencias/) | Resultados del simulacro y de las pruebas de seguridad |

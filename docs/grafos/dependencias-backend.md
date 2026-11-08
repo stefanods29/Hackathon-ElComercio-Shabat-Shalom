@@ -11,6 +11,7 @@ subgraph src["src"]
   src_app_module_ts["app.module.ts"]
   src_main_ts["main.ts"]
   subgraph src_modules["modules"]
+    src_modules_curaduria["curaduria"]
     src_modules_directorio["directorio"]
     src_modules_emergencias["emergencias"]
     src_modules_identidad["identidad"]
@@ -40,6 +41,7 @@ subgraph src["src"]
     src_workers_workers_module_ts["workers.module.ts"]
   end
 end
+src_app_module_ts-->src_modules_curaduria
 src_app_module_ts-->src_modules_directorio
 src_app_module_ts-->src_modules_emergencias
 src_app_module_ts-->src_modules_identidad
@@ -53,6 +55,13 @@ src_app_module_ts-->src_shared_db
 src_app_module_ts-->src_shared_shared_module_ts
 src_main_ts-->src_app_module_ts
 src_main_ts-->src_shared_config
+src_main_ts-->src_shared_observability
+src_modules_curaduria-->src_shared_config
+src_modules_curaduria-->src_shared_api
+src_modules_curaduria-->src_shared_auth
+src_modules_curaduria-->src_shared_idempotency
+src_modules_curaduria-->src_shared_db
+src_modules_curaduria-->src_shared_domain
 src_modules_directorio-->src_shared_db
 src_modules_directorio-->src_shared_api
 src_modules_directorio-->src_shared_auth
@@ -83,6 +92,13 @@ src_modules_identidad-->src_shared_idempotency
 src_modules_identidad-->src_shared_outbox
 src_modules_identidad-->src_shared_privacy
 src_modules_identidad-->src_shared_queues
+src_modules_media-->src_shared_auth
+src_modules_media-->src_shared_domain
+src_modules_media-->src_shared_config
+src_modules_media-->src_shared_idempotency
+src_modules_media-->src_shared_db
+src_modules_media-->src_app_module_ts
+src_modules_media-->src_shared_observability
 src_modules_moderacion-->src_shared_moderation
 src_modules_moderacion-->src_shared_db
 src_modules_moderacion-->src_modules_identidad
@@ -94,8 +110,11 @@ src_modules_moderacion-->src_shared_outbox
 src_modules_moderacion-->src_shared_queues
 src_modules_moderacion-->src_shared_privacy
 src_modules_notificaciones-->src_shared_config
+src_modules_notificaciones-->src_modules_identidad
 src_modules_notificaciones-->src_shared_auth
 src_modules_notificaciones-->src_shared_idempotency
+src_modules_notificaciones-->src_shared_api
+src_modules_notificaciones-->src_shared_domain
 src_modules_notificaciones-->src_shared_queues
 src_modules_notificaciones-->src_shared_db
 src_modules_notificaciones-->src_shared_privacy
@@ -140,6 +159,7 @@ src_shared_idempotency-->src_shared_observability
 src_shared_moderation-->src_shared_db
 src_shared_moderation-->src_shared_domain
 src_shared_observability-->src_shared_domain
+src_shared_observability-->src_shared_config
 src_shared_observability-->src_shared_idempotency
 src_shared_observability-->src_shared_api
 src_shared_observability-->src_shared_auth

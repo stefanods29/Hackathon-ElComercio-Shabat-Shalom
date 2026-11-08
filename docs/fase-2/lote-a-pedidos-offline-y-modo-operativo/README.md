@@ -4,7 +4,7 @@
 |---|---|
 | Dificultad | ★★★★ Alta (datos sensibles en el celular; integra la fase) |
 | Área | `infra/powersync/sync-config.yaml`, `app/lib/core/sync/`, `app/lib/core/security/` (nuevo), `app/lib/features/emergencias/`, configuración nativa de `app/android` y `app/ios` |
-| Change de OpenSpec | `fase-2-lote-a-pedidos-offline-y-modo-operativo` (se crea al abrir la fase) |
+| Change de OpenSpec | [`fase-2-lote-a-pedidos-offline-y-modo-operativo`](../../../openspec/changes/fase-2-lote-a-pedidos-offline-y-modo-operativo/) |
 | Partes | 6. La 1 y la 3 pueden empezar con dobles; la 2 y la 4 necesitan las tablas de B |
 | Depende de | Tablas y máquina de estados de B (partes 1–4) y pantallas de D |
 
@@ -12,12 +12,12 @@
 
 | Parte | Qué entrega | Estado | Responsable | PR |
 |---|---|---|---|---|
-| 1 | Pedidos de ayuda sin conexión | En curso (verificación local; integración con B y D pendiente) | `JDiazD33` | — |
-| 2 | Streams bajo demanda por asignación | En curso | `JDiazD33` | — |
-| 3 | Modo operativo protegido | En curso (verificación nativa y CI pendientes) | `JDiazD33` | — |
-| 4 | Tablero sin conexión: agregados y recursos | En curso (integración con D y CI pendientes) | `JDiazD33` | — |
+| 1 | Pedidos de ayuda sin conexión | En curso: integrada en `main` y conectada a B y D; faltan la prueba en modo avión (1.5) y la CI | `JDiazD33` | — |
+| 2 | Streams bajo demanda por asignación | En curso: integrada; B concede el permiso auditado; faltan PowerSync en vivo con dos cuentas y la CI | `JDiazD33` | — |
+| 3 | Modo operativo protegido | En curso: integrada; faltan los celulares reales (3.2) y la CI | `JDiazD33` | — |
+| 4 | Tablero sin conexión: agregados y recursos | En curso: integrada y conectada al tablero de D; faltan reloj y modo avión (4.2) y la CI | `JDiazD33` | — |
 | 5 | Seguridad y pruebas de campo | Pendiente | `JDiazD33` | — |
-| 6 | Integración de la Fase 2 y simulacro | Pendiente | `JDiazD33` | — |
+| 6 | Integración de la Fase 2 y simulacro | En curso: lotes unidos en `main` ([integración](../integracion.md)); faltan el simulacro y la revisión | `JDiazD33` | — |
 
 Estados posibles: **Pendiente**, **En curso** o **Hecha** (integrada en `main`).
 

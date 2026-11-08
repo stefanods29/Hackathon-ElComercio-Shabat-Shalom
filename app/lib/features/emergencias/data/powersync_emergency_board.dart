@@ -23,7 +23,7 @@ class PowerSyncEmergencyBoard implements EmergencyBoardRepository {
           final resources = await tx.getAll(
             '''
           SELECT id, tipo, cantidad, celda, reportado_en, umbral_segundos, verificacion,
-                 confirmaciones, etiqueta_publica, fuente_url, oficial
+                 confirmaciones, etiqueta_publica, fuente_url, oficial, verificado_en
           FROM recursos_publicos WHERE zona_id = ? ORDER BY reportado_en DESC, id
           ''',
             [zoneId],
@@ -82,6 +82,7 @@ class PowerSyncEmergencyBoard implements EmergencyBoardRepository {
       label: row['etiqueta_publica'] as String?,
       source: safeSource ? source : null,
       official: safeSource && row['oficial'] == 1,
+      verifiedAt: DateTime.tryParse(row['verificado_en'] as String? ?? ''),
     );
   }
 }

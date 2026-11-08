@@ -11,6 +11,8 @@ Las tareas 1.1–1.3 forman el primer incremento con datos ficticios. La integra
 - [ ] 1.5 Conectar el repositorio al puerto de D y validar en sus pantallas un pedido en modo avión, el mensaje de que nadie lo recibió, las alternativas oficiales y la reconciliación de un cierre o derivación al recuperar la señal. Verificar que el modo de práctica permanece aislado del flujo real.
 - [ ] 1.6 Compilar y depurar la parte. Ejecutar `tool/verify.sh` desde `app/`, las comprobaciones de Sync Streams del backend y `openspec validate --all --strict`. Verificar CI en verde y adjuntar el resultado.
 
+**Integración en `main` (8 de noviembre de 2026).** La carga usa la ruta y los errores de B, `mi_pedido` lee la copia `emergencias.historial_para_autor` y el tablero de D usa este repositorio ([integración](../../../docs/fase-2/integracion.md)). Falta aprobar el contrato con el equipo, probar con PowerSync en vivo y en modo avión y ver la CI.
+
 **Pendiente de verificar.** La [evidencia de laboratorio e integración local](../../../docs/fase-2/evidencias/pedidos-offline-laboratorio.md) cubre la cola, la purga, el acceso al stream con filas ficticias y la reconciliación. Para 1.4 falta aprobar y probar B con PowerSync y su API. Para 1.5 falta conectar el puerto de D y validar sus pantallas en modo avión. Para 1.6 queda pendiente el CI del commit de entrega.
 
 ## 2. Parte 2 · Streams bajo demanda por asignación
@@ -21,6 +23,8 @@ Depende de las tablas y transiciones de B2–B3 y del mecanismo de auditoría de
 - [ ] 2.2 Integrar la autorización auditada de la apertura con B. Verificar que el backend registra actor, fecha y caso, y que una suscripción directa fuera de ese flujo no puede obtener el detalle.
 - [ ] 2.3 Actualizar el caché del caso para la revocación y el cierre. Verificar reasignación con dos cuentas y purga en la siguiente sincronización, incluidos el detalle en memoria y la ubicación exacta.
 - [ ] 2.4 Compilar y depurar los cambios de app y backend. Ejecutar `npm run verify`, las pruebas de integración con PowerSync y `tool/verify.sh` desde `app/`. Verificar CI en verde.
+
+**Integración en `main` (8 de noviembre de 2026).** B implementa `POST /v1/pedidos-ayuda/{id}/accesos-sincronizacion`, la tabla `autorizaciones_stream` con su revocación al terminar la asignación y la copia `ubicaciones_en_camino`; la prueba de integración del backend lo recorre con PostgreSQL. Falta PowerSync en vivo con dos cuentas.
 
 **Pendiente de verificar.** El [informe de laboratorio](../../../docs/fase-2/evidencias/streams-por-asignacion.md) registra el evaluador de Sync Streams, la sesión firmada y la purga local con dos cuentas ficticias. Para 2.1–2.3 falta el acuerdo de B y la prueba de autorización, retiro y reasignación con PowerSync en vivo. Para 2.4 queda pendiente registrar el CI del commit de entrega.
 
@@ -44,7 +48,7 @@ Depende de agregados y recursos de B4, del tablero de D y del directorio curado 
 - [x] 4.3 Priorizar los datos críticos y desactivar las imágenes en modo emergencia. Verificar la prioridad configurada y la ausencia de solicitudes de imágenes al recuperar señal con tráfico pendiente.
 - [ ] 4.4 Compilar y depurar app y configuración de sincronización. Ejecutar `npm run verify` en backend y `tool/verify.sh` desde `app/`. Verificar CI en verde.
 
-El [informe de la Parte 4](../../../docs/fase-2/evidencias/tablero-offline.md) registra la verificación de 4.1 con el SQL de B y de 4.3 con el evaluador de streams y la cola de fotos en reconexión. Para 4.2 falta conectar el tablero de D y recibir la fecha de verificación oficial de B. Para 4.4 queda pendiente el CI de la entrega.
+En la integración B publica `verificado_en` y el tablero de D muestra los recursos del stream con su fuente verificada; falta la verificación con reloj de prueba y modo avión de 4.2. El [informe de la Parte 4](../../../docs/fase-2/evidencias/tablero-offline.md) registra la verificación de 4.1 con el SQL de B y de 4.3 con el evaluador de streams y la cola de fotos en reconexión. Para 4.2 falta conectar el tablero de D y recibir la fecha de verificación oficial de B. Para 4.4 queda pendiente el CI de la entrega.
 
 ## 5. Parte 5 · Seguridad y pruebas de campo
 

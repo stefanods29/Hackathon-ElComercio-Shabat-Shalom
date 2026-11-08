@@ -6,7 +6,14 @@ las ramas independientes de C/D ni se modificó la entrega anterior del Lote C.
 
 **Se desarrolló sin compilar ni ejecutar pruebas**, por indicación del usuario. Tampoco se
 ejecutaron migraciones, servicios, simulacros, despliegues ni envíos reales de avisos/SMS.
-El código queda para revisión y verificación posterior; no se afirma que el CI esté verde.
+
+> **Integración en `main` (8 de noviembre de 2026).** El módulo compila, sus migraciones corren y
+> la prueba `backend/test/integration/emergencies.int-spec.ts` recorre el hito H2 por la API. La
+> integración agregó la migración `202611160100_emergencias_streams_operativos` (copias mínimas
+> para los streams de A y permisos auditados), la ruta
+> `POST /v1/pedidos-ayuda/{id}/accesos-sincronizacion` y la fecha `verificado_en` de los recursos;
+> el aviso público de zona quedó solo en C. Detalle en [la integración](../integracion.md). La CI
+> todavía no se vio en verde.
 
 ## Partes implementadas
 

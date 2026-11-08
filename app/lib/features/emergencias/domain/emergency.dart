@@ -131,11 +131,19 @@ class ResourceReportDraft {
     required this.idempotencyKey,
     required this.kind,
     required this.description,
+    this.quantity,
+    this.location,
   });
   final String id;
   final String idempotencyKey;
   final ResourceKind kind;
+
+  /// Practice only: Lot B accepts no free text from the reporter.
   final String description;
+
+  /// Lot B: the report carries type, quantity and an approximate point.
+  final int? quantity;
+  final GeoPoint? location;
 }
 
 /// Values are illustrative freshness hints, not response-time commitments.

@@ -1,0 +1,53 @@
+name: Consola
+
+# Fase 2 · Lote C, parte 1. Verifica la consola web en cada cambio. El despliegue a Cloudflare
+# Pages (staging con cada integración y producción con una etiqueta consola-v*) queda para cuando
+# existan los secretos CLOUDFLARE_API_TOKEN y CLOUDFLARE_ACCOUNT_ID; ver
+# docs/fase-2/lote-c-consola-web-y-avisos-urgentes/integracion.md.
+
+on:
+  push:
+    branches: [main]
+    paths: ['consola/**', '.github/workflows/consola.yml']
+  pull_request:
+    paths: ['consola/**', '.github/workflows/consola.yml']
+  workflow_dispatch:
+
+concurrency:
+  group: consola-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+env:
+  FLUTTER_VERSION: '3.47.9'
+
+jobs:
+  verificar:
+    name: Análisis, pruebas, formato y build web
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: consola
+    steps:
+      - uses: actions/checkout@v7
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          cache: true
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '26'
+      - run: flutter --version
+      - run: flutter pub get
+      - run: flutter gen-l10n
+      - run: flutter analyze
+      - run: flutter test
+      - name: Formato
+        run: dart format --output=none --set-exit-if-changed lib test
+      - name: MapLibre GL JS desde el propio sitio
+        run: tool/vendor_maplibre.sh
+      - name: Build web con datos de demostración
+        run: flutter build web --release --no-web-resources-cdn --dart-define=CONSOLE_DATA=demo

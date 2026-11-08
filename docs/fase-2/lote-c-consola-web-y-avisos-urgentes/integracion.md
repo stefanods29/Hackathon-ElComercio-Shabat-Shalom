@@ -17,10 +17,17 @@ El diseño está en el change de OpenSpec
 | 3 · Celdas, turnos y curaduría | Mapa de celdas con tabla equivalente, turnos con la regla de cobertura, moderación de la Fase 1 y módulo `curaduria` con versiones y publicación | `consola/lib/features/{celdas,turnos,moderacion,curaduria}/`, `backend/src/modules/curaduria/` |
 | 4 · Avisos urgentes | Aviso por push con SMS de respaldo (solo el adaptador falso), topes de gasto, aviso público de zona, confirmación en la app y en la consola, medición | `backend/src/modules/notificaciones/`, `app/lib/features/avisos/`, `consola/lib/features/avisos_urgentes/` |
 
-## Lo que falta del Lote B (Fase 2)
+## Conexión con el Lote B (Fase 2)
 
-La consola habla con Emergencias solo a través de tres puertos. Sus fábricas operativas son nulas:
-sin ellas, cada pantalla explica que el módulo todavía no está en la API.
+> **Integrado en `main` (8 de noviembre de 2026).** `consola/lib/main.dart` inyecta
+> `HttpCasesRepository`, `HttpCellsRepository` y `HttpShiftsRepository`, que usan las rutas de B
+> (`contracts/emergencias.openapi.json`). Diferencias con lo que se esperaba abajo: B no publica
+> totales por celda (la consola no los muestra), asignar una brigadista deja el caso *visto* y quien
+> no tiene un caso lo toma antes de cambiarlo. El flujo `.github/workflows/consola.yml` ya existe;
+> el despliegue espera los secretos. Ver [la integración de la fase](../integracion.md).
+
+La consola habla con Emergencias solo a través de tres puertos. Antes de la integración sus
+fábricas operativas eran nulas y cada pantalla explicaba que el módulo todavía no estaba en la API.
 
 ```mermaid
 flowchart LR

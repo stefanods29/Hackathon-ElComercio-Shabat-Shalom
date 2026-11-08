@@ -10,8 +10,9 @@ context: |
   suposición. Las correcciones posteriores viven en docs/adr/.
   Fase actual: Fase 1 · Piloto en un barrio (sección 12), dividida en los Lotes A, B, C y D
   (docs/fase-1/plan-de-lotes.md). Cada lote es un change de OpenSpec. La Fase 0 está cerrada.
-  Implementación local de Fase 2 B autorizada: módulo Emergencias, sin compilar ni ejecutar pruebas.
-  La habilitación operativa real y los criterios de salida de Fase 1 siguen sujetos a revisión.
+  Fase 2 · Emergencias con operación (docs/fase-2/plan-de-lotes.md): los cuatro lotes están unidos en
+  main (docs/fase-2/integracion.md). La habilitación operativa real sigue sujeta a los aliados,
+  los tiempos acordados y la evaluación de impacto.
   Promesas que ningún change puede romper:
   - Sin conexión se consulta lo descargado y las acciones quedan en cola; nada se envía y la app
     lo dice ("Guardado en tu celular"). Nunca prometer envíos inmediatos en segundo plano.

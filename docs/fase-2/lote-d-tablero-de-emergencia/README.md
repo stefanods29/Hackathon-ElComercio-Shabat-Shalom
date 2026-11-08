@@ -4,7 +4,7 @@
 |---|---|
 | Dificultad | ★ La más accesible para empezar |
 | Área | `app/lib/features/emergencias/`, `app/lib/core/router/`, `app/lib/l10n/app_es.arb`, `app/test/` |
-| Change de OpenSpec | `fase-2-lote-d-tablero-de-emergencia` (se crea al abrir la fase) |
+| Change de OpenSpec | [`fase-2-lote-d-tablero-de-emergencia`](../../../openspec/changes/fase-2-lote-d-tablero-de-emergencia/) |
 | Partes | 4. Todas pueden empezar con repositorios en memoria |
 | Depende de | Repositorios de A y contrato de B |
 
@@ -12,10 +12,10 @@
 
 | Parte | Qué entrega | Estado | Responsable | PR |
 |---|---|---|---|---|
-| 1 | Inicio en modo emergencia | En curso | stefanods29 | — |
-| 2 | "Necesito ayuda" y el estado de mi pedido | En curso | stefanods29 | — |
-| 3 | "Puedo ayudar" y recursos | En curso | stefanods29 | — |
-| 4 | Contactos de emergencia y accesibilidad | En curso | stefanods29 | — |
+| 1 | Inicio en modo emergencia | En curso: integrada en `main` con el puerto real; faltan pruebas de widgets | stefanods29 | — |
+| 2 | "Necesito ayuda" y el estado de mi pedido | En curso: integrada en `main` con el puerto real; faltan pruebas de widgets | stefanods29 | — |
+| 3 | "Puedo ayudar" y recursos | En curso: integrada en `main` con el puerto real; faltan pruebas de widgets | stefanods29 | — |
+| 4 | Contactos de emergencia y accesibilidad | En curso: integrada en `main` con el puerto real; faltan pruebas de widgets, accesibilidad y la prueba con vecinos | stefanods29 | — |
 
 Estados posibles: **Pendiente**, **En curso** o **Hecha** (integrada en `main`).
 

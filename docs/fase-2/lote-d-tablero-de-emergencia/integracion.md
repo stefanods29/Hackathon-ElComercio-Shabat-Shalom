@@ -33,6 +33,13 @@ La fábrica real es nula por defecto. Sin ella, el tablero mantiene las alternat
 oficiales y explica que no existe coordinación disponible. La práctica usa memoria
 aislada y conserva los pedidos como locales; no simula un acuse del servidor.
 
+**Integrado en `main` (8 de noviembre de 2026).** `AuthenticatedApp` inyecta
+`OperationalEmergencyRepository` para la cuenta y la zona de la sesión: el pedido va por la cola
+cifrada de A a la API de B, el estado vuelve por el stream `mi_pedido`, la cobertura sale de
+`GET /v1/zonas/{id}/cobertura` y queda en la base de la cuenta, y los recursos vienen del stream
+público de la zona. El reporte de un recurso lleva tipo y cantidad, sin texto libre, y las ofertas
+quedan en el celular porque B no tiene su ruta. Ver [la integración de la fase](../integracion.md).
+
 ## Contactos personales
 
 `emergency_contacts.dart` almacena los contactos en `SecureStore`, separado por cuenta.

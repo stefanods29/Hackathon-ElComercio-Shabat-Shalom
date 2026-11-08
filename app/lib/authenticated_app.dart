@@ -21,11 +21,16 @@ import 'package:vecinal/features/cuenta/data/http_auth_repository.dart';
 import 'package:vecinal/features/cuenta/data/providers.dart';
 import 'package:vecinal/features/cuenta/domain/auth_state.dart';
 import 'package:vecinal/features/directorio/data/providers.dart';
+import 'package:vecinal/features/directorio/domain/directory.dart';
+import 'package:vecinal/features/directorio/presentation/directory_page.dart';
 import 'package:vecinal/features/emergencias/assigned_case_provider.dart';
 import 'package:vecinal/features/emergencias/data/emergency_contacts.dart';
 import 'package:vecinal/features/emergencias/data/emergency_directory_repository.dart';
 import 'package:vecinal/features/emergencias/data/emergency_directory_store.dart';
+import 'package:vecinal/features/emergencias/data/emergency_providers.dart';
+import 'package:vecinal/features/emergencias/data/operational_emergency_repository.dart';
 import 'package:vecinal/features/emergencias/data/providers.dart';
+import 'package:vecinal/features/emergencias/domain/emergency.dart';
 import 'package:vecinal/features/reputacion/data/providers.dart';
 import 'package:vecinal/features/solidaridad/data/providers.dart';
 import 'package:vecinal/l10n/app_localizations.dart';
@@ -195,6 +200,22 @@ class _AuthenticatedAppState extends State<AuthenticatedApp> {
               assignedCaseCacheProvider.overrideWithValue(session.cases),
               ownHelpRequestRepositoryProvider.overrideWithValue(session.helpRequests),
               emergencyBoardRepositoryProvider.overrideWithValue(session.emergencyBoard),
+              // Lot D's dashboard over A's queue and streams and B's API, only for this account.
+              operationalEmergencyFactoryProvider.overrideWith(
+                (ref) =>
+                    (scope) =>
+                        scope.accountId == session.user.neighborId &&
+                            scope.zoneId == session.user.zoneId
+                        ? OperationalEmergencyRepository(
+                            scope: scope,
+                            local: session.local,
+                            requests: session.helpRequests,
+                            board: session.emergencyBoard,
+                            api: session.api,
+                            fallbackLocation: ref.read<GeoPoint>(directoryOriginProvider),
+                          )
+                        : const UnavailableEmergencyRepository(),
+              ),
               pushCredentialsProvider.overrideWithValue(
                 PushCredentials(
                   userId: session.user.neighborId,

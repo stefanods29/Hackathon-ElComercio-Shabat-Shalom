@@ -1,7 +1,10 @@
 # Tasks
 
-Entrega de código sin pruebas, análisis, compilación ni CI, por indicación del responsable. Las
-tareas de implementación están marcadas; las de verificación quedan abiertas.
+La rama se entregó sin pruebas, análisis, compilación ni CI. Las tareas de implementación están
+marcadas; las de verificación quedan abiertas. En la integración en `main` la consola pasó
+`flutter analyze`, `flutter build web` y 7 pruebas de sus adaptadores HTTP, el backend pasó
+`npm run verify` y `npm run test:integration`, y se creó `.github/workflows/consola.yml`
+(`docs/fase-2/integracion.md`). Falta verlo todo en la CI.
 
 ## 1. Parte 1 · Base de la consola web
 
@@ -10,7 +13,7 @@ tareas de implementación están marcadas; las de verificación quedan abiertas.
 - [x] 1.3 Ingreso con OTP (API o Firebase), solo para roles operativos, y cierre por inactividad con aviso; verificar con pruebas de widgets (sin rol operativo, inactividad)
 - [x] 1.4 CORS por `CONSOLE_ORIGINS` y `Cache-Control: no-store` en las rutas operativas de la API; verificar con una prueba de integración de los encabezados
 - [x] 1.5 Módulo `infra/cloud/modules/console-site` (Cloudflare Pages, dominio y DNS) y `consola/tool/write_headers.sh` (CSP e `index.html` sin caché); verificar con `tofu validate`
-- [ ] 1.6 Flujo `.github/workflows/consola.yml` según el esquema de `integracion.md`; verificar con la CI en verde
+- [ ] 1.6 Flujo `.github/workflows/consola.yml` según el esquema de `integracion.md`; verificar con la CI en verde. Creado en la integración sin el despliegue, que espera los secretos; falta la CI en verde
 - [ ] 1.7 Verificar: `flutter analyze`, pruebas de widgets, `flutter build web`, `tofu validate` y CI en verde
 
 ## 2. Parte 2 · Cola de casos y asignación
@@ -19,7 +22,7 @@ tareas de implementación están marcadas; las de verificación quedan abiertas.
 - [x] 2.2 Puerto `CasesRepository` con fábrica operativa nula y doble de demostración; verificar con pruebas de la cola con el doble
 - [x] 2.3 Cola con refresco y detalle minimizado: asignación, cambio de estado con motivo e historial; verificar con pruebas de widgets al 200 % y con teclado
 - [x] 2.4 Errores de la API explicados según su `codigo`; verificar con pruebas de cada código conocido
-- [ ] 2.5 Conectar el puerto al contrato de Emergencias del Lote B cuando exista; verificar con pruebas de integración contra la API
+- [ ] 2.5 Conectar el puerto al contrato de Emergencias del Lote B cuando exista; verificar con pruebas de integración contra la API. Conectado en la integración y probado con respuestas simuladas; falta la prueba contra la API real
 - [ ] 2.6 Verificar: `flutter analyze`, pruebas y CI en verde
 
 ## 3. Parte 3 · Mapa de celdas, turnos y curaduría

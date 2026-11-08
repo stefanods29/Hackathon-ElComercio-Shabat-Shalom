@@ -13,10 +13,10 @@
 
 | Parte | Qué entrega | Estado | Responsable | PR |
 |---|---|---|---|---|
-| 1 | Base de la consola web | En curso: código sin validar, falta el flujo de CI | stefanods29 | — |
-| 2 | Cola de casos y asignación | En curso: código sin validar, espera el contrato de B | stefanods29 | — |
-| 3 | Mapa de celdas, turnos y curaduría | En curso: código sin validar; celdas y turnos esperan a B | stefanods29 | — |
-| 4 | Avisos urgentes con SMS de respaldo | En curso: código sin validar, solo el SMS falso | stefanods29 | — |
+| 1 | Base de la consola web | En curso: integrada; analiza y compila; flujo de CI creado, falta verlo en verde | stefanods29 | — |
+| 2 | Cola de casos y asignación | En curso: integrada y conectada a B; falta la prueba contra la API real | stefanods29 | — |
+| 3 | Mapa de celdas, turnos y curaduría | En curso: integrada; celdas y turnos conectados a B; falta el adaptador de la nube | stefanods29 | — |
+| 4 | Avisos urgentes con SMS de respaldo | En curso: integrada; solo el SMS falso; falta el proveedor real | stefanods29 | — |
 
 Estados posibles: **Pendiente**, **En curso** o **Hecha** (integrada en `main`).
 

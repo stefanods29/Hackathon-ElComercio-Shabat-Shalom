@@ -6,6 +6,8 @@ import 'package:vecinal/core/network/idempotency.dart';
 import 'package:vecinal/core/time/time_ago.dart';
 import 'package:vecinal/core/ui/large_button.dart';
 import 'package:vecinal/core/ui/submission_status_chip.dart';
+import 'package:vecinal/features/directorio/domain/directory.dart';
+import 'package:vecinal/features/directorio/presentation/directory_page.dart';
 import 'package:vecinal/features/emergencias/data/emergency_providers.dart';
 import 'package:vecinal/features/emergencias/domain/emergency.dart';
 import 'package:vecinal/features/emergencias/presentation/emergency_widgets.dart';
@@ -146,6 +148,7 @@ class _Resources extends ConsumerStatefulWidget {
 class _ResourcesState extends ConsumerState<_Resources> {
   final _form = GlobalKey<FormState>();
   final _text = TextEditingController();
+  final _quantity = TextEditingController();
   final _id = newLocalId();
   final _idempotencyKey = newLocalId();
   ResourceKind _kind = ResourceKind.water;
@@ -155,6 +158,7 @@ class _ResourcesState extends ConsumerState<_Resources> {
   @override
   void dispose() {
     _text.dispose();
+    _quantity.dispose();
     super.dispose();
   }
 
@@ -199,8 +203,10 @@ class _ResourcesState extends ConsumerState<_Resources> {
                 itemHeight: null,
                 decoration: InputDecoration(labelText: t.emergencyResourceType),
                 items: [
+                  // Lot B has no "other" type: outside practice every report has a known type.
                   for (final kind in ResourceKind.values)
-                    DropdownMenuItem(value: kind, child: Text(resourceLabel(t, kind))),
+                    if (widget.scope.practice || kind != ResourceKind.other)
+                      DropdownMenuItem(value: kind, child: Text(resourceLabel(t, kind))),
                 ],
                 onChanged: _busy || _saved
                     ? null
@@ -208,16 +214,31 @@ class _ResourcesState extends ConsumerState<_Resources> {
                         if (value != null) setState(() => _kind = value);
                       },
               ),
-              TextFormField(
-                controller: _text,
-                enabled: !_busy && !_saved,
-                minLines: 2,
-                maxLines: 5,
-                maxLength: 300,
-                decoration: InputDecoration(labelText: t.emergencyResourceDescription),
-                validator: (value) =>
-                    value == null || value.trim().isEmpty ? t.emergencyRequired : null,
-              ),
+              // Lot B accepts no free text from the reporter: the real report is type and quantity.
+              if (widget.scope.practice)
+                TextFormField(
+                  controller: _text,
+                  enabled: !_busy && !_saved,
+                  minLines: 2,
+                  maxLines: 5,
+                  maxLength: 300,
+                  decoration: InputDecoration(labelText: t.emergencyResourceDescription),
+                  validator: (value) =>
+                      value == null || value.trim().isEmpty ? t.emergencyRequired : null,
+                )
+              else
+                TextFormField(
+                  controller: _quantity,
+                  enabled: !_busy && !_saved,
+                  keyboardType: TextInputType.number,
+                  decoration: InputDecoration(labelText: t.emergencyResourceQuantity),
+                  validator: (value) {
+                    final quantity = int.tryParse(value?.trim() ?? '');
+                    return quantity == null || quantity < 0 || quantity > 1000000
+                        ? t.emergencyResourceQuantityInvalid
+                        : null;
+                  },
+                ),
             ],
           ),
         ),
@@ -256,6 +277,8 @@ class _ResourcesState extends ConsumerState<_Resources> {
               idempotencyKey: _idempotencyKey,
               kind: _kind,
               description: _text.text.trim(),
+              quantity: int.tryParse(_quantity.text.trim()),
+              location: ref.read<GeoPoint>(directoryOriginProvider).approximate(),
             ),
           );
       if (mounted && ref.read(emergencyScopeProvider)?.key == widget.scope.key) {

@@ -1,5 +1,7 @@
-Las casillas reflejan implementación, no validación ni aceptación. Por instrucción del usuario
-no se ejecutan compilaciones ni pruebas. Los controles de cada parte quedan pendientes para revisión.
+Las casillas reflejan implementación, no validación ni aceptación. La rama se escribió sin compilar
+ni probar. En la integración en `main` el módulo compiló, pasó `npm run verify` y la prueba de
+integración del hito H2 por la API (`docs/fase-2/integracion.md`); las tareas de CI siguen abiertas
+hasta verla en verde.
 
 ## 1. Parte 1 · Eventos
 - [x] 1.1 Definir contrato, cobertura y puerto de alertas oficiales.

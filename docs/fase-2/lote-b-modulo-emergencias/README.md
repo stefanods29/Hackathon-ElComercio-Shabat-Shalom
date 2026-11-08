@@ -4,7 +4,7 @@
 |---|---|
 | Dificultad | ★★★ Media-alta |
 | Área | `backend/src/modules/emergencias/`, `identidad/`, `notificaciones/`, `backend/src/workers/`, `contracts/openapi.yaml` |
-| Change de OpenSpec | `fase-2-lote-b-modulo-emergencias` (se crea al abrir la fase) |
+| Change de OpenSpec | [`fase-2-lote-b-modulo-emergencias`](../../../openspec/changes/fase-2-lote-b-modulo-emergencias/) |
 | Partes | 5. La 1 y la 2 van primero (contrato y máquina de estados) |
 | Depende de | Plantillas de aviso de C (parte 4); los streams de A usan estas tablas |
 
@@ -12,17 +12,18 @@
 
 | Parte | Qué entrega | Estado | Responsable | PR |
 |---|---|---|---|---|
-| 1 | Eventos y activación del modo emergencia | En curso: código sin verificar | Por asignar | — |
-| 2 | Pedidos de ayuda y su máquina de estados | En curso: código sin verificar | Por asignar | — |
-| 3 | Asignaciones, escalamiento y turnos | En curso: código sin verificar | Por asignar | — |
-| 4 | Recursos críticos y reportes verificables | En curso: código sin verificar | Por asignar | — |
-| 5 | Roles operativos, auditoría y cierre del evento | En curso: código sin verificar | Por asignar | — |
+| 1 | Eventos y activación del modo emergencia | En curso: integrada en `main` y probada por la API; falta la CI | Por asignar | — |
+| 2 | Pedidos de ayuda y su máquina de estados | En curso: integrada en `main` y probada por la API; falta la CI | Por asignar | — |
+| 3 | Asignaciones, escalamiento y turnos | En curso: integrada en `main` y probada por la API; falta la CI | Por asignar | — |
+| 4 | Recursos críticos y reportes verificables | En curso: integrada en `main` y probada por la API; falta la CI | Por asignar | — |
+| 5 | Roles operativos, auditoría y cierre del evento | En curso: integrada y probada por la API; faltan la CI y revisar las migraciones | Por asignar | — |
 
 Estados posibles: **Pendiente**, **En curso** o **Hecha** (integrada en `main`).
 
-Implementación preparada en `f2-lote-b/modulo-emergencias`, sin compilar ni ejecutar pruebas
-por indicación del usuario. Configuración, alcance y conexiones con A/C/D en
-[entrega.md](entrega.md). No se habilitó una operación real ni se aplicaron migraciones.
+La rama `f2-lote-b/modulo-emergencias` se escribió sin compilar ni probar. La integración en
+`main` la dejó compilando y la probó por la API con PostgreSQL (hito H2), además de agregar lo que
+necesitaban los streams de A ([integración](../integracion.md)). Configuración, alcance y
+conexiones con A/C/D en [entrega.md](entrega.md). No se habilitó una operación real.
 
 ---
 

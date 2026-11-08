@@ -25,6 +25,7 @@ class PublicCriticalResource {
     required this.official,
     this.label,
     this.source,
+    this.verifiedAt,
   });
 
   final String id;
@@ -38,6 +39,9 @@ class PublicCriticalResource {
   final bool official;
   final String? label;
   final Uri? source;
+
+  /// Human verification of the source (Lot B); null while it was not verified.
+  final DateTime? verifiedAt;
 
   DateTime get staleAt => reportedAt.add(staleAfter);
 

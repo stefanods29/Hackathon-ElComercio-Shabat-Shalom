@@ -168,7 +168,13 @@ class VecinalConnector extends PowerSyncBackendConnector {
     }
     if (result is Rejected) {
       // Do not keep free text returned by the server. It may quote the request payload.
-      const knownCodes = {'zona_sin_cobertura', 'ubicacion_fuera_de_zona', 'validacion'};
+      const knownCodes = {
+        'zona_sin_cobertura',
+        'ubicacion_fuera_de_zona',
+        'validacion',
+        'riesgo_vital',
+        'evento_no_activo',
+      };
       final code = result.reason.code;
       return Rejected(
         RejectionReason(

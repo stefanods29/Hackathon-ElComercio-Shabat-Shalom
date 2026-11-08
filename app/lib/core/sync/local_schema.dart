@@ -95,6 +95,15 @@ const localSchema = Schema([
     Column.text('etiqueta_publica'),
     Column.text('fuente_url'),
     Column.integer('oficial'),
+    Column.text('verificado_en'),
+  ]),
+  // Coverage of the zone as the API last confirmed it (Lot B): it lets the neighbor write a request
+  // without signal. It lives in the account's encrypted database and goes with it.
+  Table.localOnly('cobertura_zona', [
+    Column.text('evento_id'),
+    Column.integer('habilitada'),
+    Column.text('modo'),
+    Column.text('revisada_en'),
   ]),
   Table('mis_pedidos_ayuda', [
     Column.text('estado'),
