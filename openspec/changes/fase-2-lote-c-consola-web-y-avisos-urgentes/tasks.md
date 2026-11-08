@@ -9,8 +9,9 @@ tareas de implementación están marcadas; las de verificación quedan abiertas.
 - [x] 1.2 Proyecto `consola/` con tema accesible, textos en ARB, cliente HTTP con Problem Details y sesión solo en memoria; verificar con `flutter analyze` y `flutter build web`
 - [x] 1.3 Ingreso con OTP (API o Firebase), solo para roles operativos, y cierre por inactividad con aviso; verificar con pruebas de widgets (sin rol operativo, inactividad)
 - [x] 1.4 CORS por `CONSOLE_ORIGINS` y `Cache-Control: no-store` en las rutas operativas de la API; verificar con una prueba de integración de los encabezados
-- [x] 1.5 Módulo `infra/tofu/modules/console-site` y flujo `.github/workflows/consola.yml`; verificar con `tofu validate` y la CI en verde
-- [ ] 1.6 Verificar: `flutter analyze`, pruebas de widgets, `flutter build web`, `tofu validate` y CI en verde
+- [x] 1.5 Módulo `infra/cloud/modules/console-site` (Cloudflare Pages, dominio y DNS) y `consola/tool/write_headers.sh` (CSP e `index.html` sin caché); verificar con `tofu validate`
+- [ ] 1.6 Flujo `.github/workflows/consola.yml` según el esquema de `integracion.md`; verificar con la CI en verde
+- [ ] 1.7 Verificar: `flutter analyze`, pruebas de widgets, `flutter build web`, `tofu validate` y CI en verde
 
 ## 2. Parte 2 · Cola de casos y asignación
 

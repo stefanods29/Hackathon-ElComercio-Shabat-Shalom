@@ -53,8 +53,8 @@ Fuera de alcance:
 
 ## Impact
 
-- `consola/` (nuevo proyecto Flutter web), `.github/workflows/consola.yml` e
-  `infra/tofu/modules/console-site/` (nuevos).
+- `consola/` (nuevo proyecto Flutter web) e `infra/cloud/modules/console-site/` (nuevos). El
+  flujo `.github/workflows/consola.yml` queda descrito para crearlo después.
 - Backend:
   - `backend/src/modules/notificaciones/` (avisos urgentes, SMS y aviso de zona);
   - `backend/src/modules/curaduria/` (nuevo);

@@ -42,6 +42,7 @@ Lo que ya existe:
 
 - Cada pantalla nueva necesita su revisión con un lector de pantalla en el navegador (NVDA o
   VoiceOver), porque Flutter web no es HTML nativo.
-- `flutter build web` entra a la CI con su propio flujo (`.github/workflows/consola.yml`).
+- `flutter build web` entra a la CI con su propio flujo (`.github/workflows/consola.yml`, descrito
+  en la integración del lote).
 - Si la revisión de accesibilidad de la parte 2 no llega a WCAG 2.2 AA, este ADR se revisa y React
   pasa a ser la opción. Los puertos y el dominio de la consola no dependen del framework de vista.

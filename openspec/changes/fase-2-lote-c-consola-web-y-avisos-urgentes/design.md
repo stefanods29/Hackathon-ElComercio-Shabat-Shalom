@@ -241,14 +241,20 @@ confirmación (p50 y p95), SMS enviados y gasto del día y del mes frente a sus 
 
 ### 8. Despliegue
 
-- **Build:** `flutter build web --release` con los `--dart-define` del entorno.
-- **Sitio estático:** el módulo `infra/tofu/modules/console-site` crea el bucket, el dominio en la
-  CDN y los encabezados de seguridad:
-  - CSP;
-  - `index.html` sin caché;
-  - recursos con hash de larga caché.
-- **CI:** `.github/workflows/consola.yml` analiza y compila en cada PR, despliega staging con cada
-  integración a `main` y producción con una etiqueta `consola-v*`.
+- **Build:** `flutter build web --release --no-web-resources-cdn` con los `--dart-define` del
+  entorno. MapLibre GL JS y CanvasKit se sirven desde el propio sitio, así la CSP solo permite
+  `'self'` para el código.
+- **Sitio estático:** el módulo `infra/cloud/modules/console-site`, junto al OpenTofu de la Fase 1
+  (Lote C), crea el proyecto de Cloudflare Pages, su dominio y el registro DNS.
+- **Encabezados:** `consola/tool/write_headers.sh` escribe el `_headers` del build para cada
+  entorno:
+  - CSP con los orígenes de la API y de la CDN del entorno;
+  - `index.html` con `Cache-Control: no-store`;
+  - el resto se revalida en cada visita (Flutter web no pone hash en los nombres de archivo).
+- **CI:** pendiente. El flujo `.github/workflows/consola.yml` (analizar y compilar en cada PR,
+  desplegar staging con cada integración a `main` y producción con una etiqueta `consola-v*`) está
+  descrito en `docs/fase-2/lote-c-consola-web-y-avisos-urgentes/integracion.md` para crearlo
+  después.
 
 ## Lo que la consola necesita del Lote B
 
