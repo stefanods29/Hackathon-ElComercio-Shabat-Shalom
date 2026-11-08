@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:vecinal/features/prototipo/data/mock_data.dart';
+import 'package:vecinal/features/prototipo/presentation/theme/app_theme.dart';
 import 'package:vecinal/features/prototipo/presentation/widgets/proto_button.dart';
 import 'package:vecinal/features/prototipo/presentation/widgets/proto_text_field.dart';
 
@@ -37,9 +38,10 @@ class _PublishScreenState extends State<PublishScreen> {
     }
     setState(() => error = null);
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Publicación guardada en tu celular.'),
-        backgroundColor: Color(0xFFFFAB00),
+      SnackBar(
+        content: const Text('Publicación guardada en tu celular.'),
+        backgroundColor: kSuccessColor,
+        behavior: SnackBarBehavior.floating,
       ),
     );
     context.go('/');
@@ -48,43 +50,63 @@ class _PublishScreenState extends State<PublishScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Publicar')),
+      backgroundColor: kBackgroundColor,
+      appBar: AppBar(
+        backgroundColor: kSurfaceColor,
+        elevation: 0,
+        title: const Text('Publicar', style: TextStyle(color: kTextColor, fontWeight: FontWeight.bold)),
+        centerTitle: true,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: kTextColor),
+          onPressed: () => context.go('/'),
+        ),
+      ),
       body: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.all(20),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               const Text(
                 '¿Qué quieres compartir?',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+                style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: kTextColor),
               ),
               const SizedBox(height: 8),
-              const Text(
+              Text(
                 'Elige el tipo y los datos se prellenan.',
-                style: TextStyle(fontSize: 14, color: Colors.grey),
+                style: TextStyle(fontSize: 15, color: Colors.grey.shade600),
               ),
-              const SizedBox(height: 16),
-              // Grilla de tipos (toque 2)
+              const SizedBox(height: 24),
               Wrap(
-                spacing: 8,
-                runSpacing: 8,
+                spacing: 10,
+                runSpacing: 10,
                 children: mockPublishTypes.map((t) {
                   final isSelected = selectedType == t['value'];
                   return ChoiceChip(
-                    label: Text(t['label']!),
+                    label: Text(
+                      t['label']!,
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w500,
+                        color: isSelected ? Colors.white : kTextColor,
+                      ),
+                    ),
                     selected: isSelected,
                     onSelected: (_) => setState(() => selectedType = t['value']),
-                    labelStyle: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w500,
-                      color: isSelected ? Colors.white : Colors.black87,
+                    selectedColor: kPrimaryColor,
+                    backgroundColor: kSurfaceColor,
+                    labelPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      side: BorderSide(
+                        color: isSelected ? kPrimaryColor : Colors.grey.shade300,
+                      ),
                     ),
-                    selectedColor: const Color(0xFF0B5FAD),
+                    elevation: 0,
                   );
                 }).toList(),
               ),
-              const SizedBox(height: 24),
+              const SizedBox(height: 28),
               ProtoTextField(
                 label: 'Título',
                 hint: 'Necesito ayuda con...',
@@ -92,7 +114,7 @@ class _PublishScreenState extends State<PublishScreen> {
                 maxLength: 120,
                 errorText: error,
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: 20),
               ProtoTextField(
                 label: 'Descripción (opcional)',
                 hint: 'Más detalles sobre lo que ofreces o necesitas',
@@ -100,7 +122,7 @@ class _PublishScreenState extends State<PublishScreen> {
                 maxLength: 2000,
                 maxLines: 3,
               ),
-              const SizedBox(height: 24),
+              const SizedBox(height: 28),
               ProtoButton(
                 text: 'Publicar',
                 icon: Icons.publish,
@@ -108,7 +130,13 @@ class _PublishScreenState extends State<PublishScreen> {
                 fullWidth: true,
               ),
               const SizedBox(height: 16),
-              TextButton(onPressed: () => context.go('/'), child: const Text('Cancelar')),
+              ProtoButton(
+                text: 'Cancelar',
+                icon: Icons.close,
+                onPressed: () => context.go('/'),
+                fullWidth: true,
+                secondary: true,
+              ),
             ],
           ),
         ),

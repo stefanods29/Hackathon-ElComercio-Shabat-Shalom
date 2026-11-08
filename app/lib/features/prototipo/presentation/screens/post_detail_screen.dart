@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:vecinal/features/prototipo/data/mock_data.dart';
+import 'package:vecinal/features/prototipo/presentation/theme/app_theme.dart';
 import 'package:vecinal/features/prototipo/presentation/widgets/proto_button.dart';
 
 /// Pantalla de detalle de una publicación.
@@ -12,70 +14,110 @@ class PostDetailScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final post = mockPosts.firstWhere((p) => p.id == postId,
         orElse: () => mockPosts.first);
+    final statusColor = _statusColor(post.status);
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Detalle')),
+      backgroundColor: kBackgroundColor,
+      appBar: AppBar(
+        backgroundColor: kSurfaceColor,
+        elevation: 0,
+        title: const Text('Detalle', style: TextStyle(color: kTextColor, fontWeight: FontWeight.bold)),
+        centerTitle: true,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: kTextColor),
+          onPressed: () => context.go('/'),
+        ),
+      ),
       body: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.all(20),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                 decoration: BoxDecoration(
-                  color: _statusColor(post.status).withValues(alpha: 0.15),
-                  borderRadius: BorderRadius.circular(8),
+                  color: statusColor.withValues(alpha: 0.12),
+                  borderRadius: BorderRadius.circular(10),
                 ),
                 child: Text(
                   post.typeLabel,
                   style: TextStyle(
                     fontSize: 12,
-                    fontWeight: FontWeight.w600,
-                    color: _statusColor(post.status),
+                    fontWeight: FontWeight.w700,
+                    color: statusColor,
                   ),
                 ),
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: 20),
               Text(
                 post.title,
-                style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w600),
+                style: const TextStyle(fontSize: 26, fontWeight: FontWeight.bold, color: kTextColor),
               ),
-              const SizedBox(height: 12),
+              const SizedBox(height: 16),
               Row(
                 children: [
-                  const Icon(Icons.person_outline, size: 16, color: Colors.grey),
-                  const SizedBox(width: 6),
-                  Text(post.author, style: const TextStyle(fontSize: 14, color: Colors.grey)),
+                  Container(
+                    width: 40,
+                    height: 40,
+                    decoration: BoxDecoration(
+                      color: Colors.grey.shade100,
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: const Icon(Icons.person_outline, size: 20, color: Color(0xFF9CA3AF)),
+                  ),
                   const SizedBox(width: 12),
-                  const Icon(Icons.location_on_outlined, size: 16, color: Colors.grey),
-                  const SizedBox(width: 6),
-                  Text(post.zone, style: const TextStyle(fontSize: 14, color: Colors.grey)),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(post.author, style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600, color: kTextColor)),
+                        const SizedBox(height: 2),
+                        Text(post.zone, style: TextStyle(fontSize: 13, color: Colors.grey.shade600)),
+                      ],
+                    ),
+                  ),
                 ],
               ),
               const SizedBox(height: 8),
-              Text(post.ago, style: const TextStyle(fontSize: 12, color: Colors.grey)),
+              Row(
+                children: [
+                  const Icon(Icons.access_time, size: 16, color: Color(0xFF9CA3AF)),
+                  const SizedBox(width: 8),
+                  Text(post.ago, style: TextStyle(fontSize: 13, color: Colors.grey.shade600)),
+                ],
+              ),
               const SizedBox(height: 24),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                width: double.infinity,
+                padding: const EdgeInsets.all(20),
                 decoration: BoxDecoration(
-                  color: Colors.grey.shade100,
-                  borderRadius: BorderRadius.circular(12),
+                  color: kSurfaceColor,
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(color: Colors.grey.shade200),
                 ),
-                child: Text(
-                  post.title.length > 50
-                      ? 'Descripción detallada de "${post.title}" — más información sobre esta publicación estaría aquí en una versión completa de la app.'
-                      : 'Descripción de "${post.title}" — más información sobre esta publicación estaría aquí en una versión completa de la app.',
-                  style: const TextStyle(fontSize: 14, color: Colors.grey),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text('Descripción', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: Color(0xFF6B7280))),
+                    const SizedBox(height: 8),
+                    Text(
+                      post.title.length > 50
+                          ? 'Descripción detallada de "${post.title}" — más información sobre esta publicación estaría aquí en una versión completa de la app.'
+                          : 'Descripción de "${post.title}" — más información sobre esta publicación estaría aquí en una versión completa de la app.',
+                      style: TextStyle(fontSize: 15, color: Colors.grey.shade700, height: 1.5),
+                    ),
+                  ],
                 ),
               ),
               const Spacer(),
               ProtoButton(
                 text: 'Volver al muro',
                 icon: Icons.arrow_back,
-                onPressed: () => Navigator.pop(context),
+                onPressed: () => context.go('/'),
                 fullWidth: true,
               ),
+              const SizedBox(height: 20),
             ],
           ),
         ),
@@ -86,13 +128,13 @@ class PostDetailScreen extends StatelessWidget {
   Color _statusColor(String status) {
     switch (status) {
       case 'savedOnPhone':
-        return const Color(0xFFFFAB00);
+        return kStatusSavedColor;
       case 'accepted':
-        return const Color(0xFF2E7D32);
+        return kStatusAcceptedColor;
       case 'rejected':
-        return const Color(0xFFC62828);
+        return kStatusRejectedColor;
       default:
-        return Colors.grey;
+        return kSecondaryColor;
     }
   }
 }

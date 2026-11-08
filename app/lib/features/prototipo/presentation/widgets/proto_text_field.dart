@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:vecinal/features/prototipo/presentation/theme/app_theme.dart';
 
 /// Campo de texto con estilo accesible del prototipo.
 class ProtoTextField extends StatelessWidget {
@@ -28,7 +29,14 @@ class ProtoTextField extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(label, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500)),
+        Text(
+          label,
+          style: const TextStyle(
+            fontSize: 14,
+            fontWeight: FontWeight.w600,
+            color: kTextColor,
+          ),
+        ),
         const SizedBox(height: 8),
         TextField(
           controller: controller,
@@ -36,29 +44,12 @@ class ProtoTextField extends StatelessWidget {
           obscureText: obscureText,
           maxLength: maxLength,
           maxLines: maxLines,
-          style: const TextStyle(fontSize: 16),
+          style: const TextStyle(fontSize: 16, color: kTextColor),
           decoration: InputDecoration(
             hintText: hint,
+            hintStyle: TextStyle(color: Colors.grey.shade400),
             errorText: errorText,
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: const BorderSide(color: Color(0xFFE0E0E0)),
-            ),
-            enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: const BorderSide(color: Color(0xFFE0E0E0)),
-            ),
-            focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: const BorderSide(color: Color(0xFF0B5FAD), width: 2),
-            ),
-            errorBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: const BorderSide(color: Colors.red, width: 1),
-            ),
-            filled: true,
-            fillColor: Colors.grey.shade50,
-            contentPadding: const EdgeInsets.symmetric(vertical: 14, horizontal: 16),
+            errorStyle: const TextStyle(color: kErrorColor, fontSize: 12),
           ),
         ),
       ],

@@ -6,8 +6,8 @@ import 'package:vecinal/features/prototipo/presentation/screens/emergency_screen
 import 'package:vecinal/features/prototipo/presentation/screens/login_screen.dart';
 import 'package:vecinal/features/prototipo/presentation/screens/map_screen.dart';
 import 'package:vecinal/features/prototipo/presentation/screens/post_detail_screen.dart';
-import 'package:vecinal/features/prototipo/presentation/screens/publish_screen.dart';
 import 'package:vecinal/features/prototipo/presentation/screens/push_settings_screen.dart';
+import 'package:vecinal/features/prototipo/presentation/screens/publish_screen.dart';
 import 'package:vecinal/features/prototipo/presentation/screens/tutorial_screen.dart';
 import 'package:vecinal/features/prototipo/presentation/screens/wall_screen.dart';
 import 'package:vecinal/features/prototipo/presentation/screens/welcome_screen.dart';
