@@ -231,6 +231,24 @@ describe('Emergencias por HTTP y PostgreSQL', () => {
     expect(summary.status).toBe(200);
     expect(summary.body).toMatchObject({ pedidoId: requestId, alcance: 'resumen' });
     expect((await openAccess('resumen')).body.autorizacionId).toBe(summary.body.autorizacionId);
+    const path = `/v1/pedidos-ayuda/${requestId}/accesos-sincronizacion`;
+    const key = newId();
+    const payload = { alcance: 'resumen' };
+    const first = await post(path, await brigadeMember(), payload, key).expect(200);
+    const retry = await post(path, await brigadeMember(), payload, key).expect(200);
+    expect(retry.headers['idempotent-replayed']).toBe('true');
+    expect(retry.body).toEqual(first.body);
+
+    const otherSession = await tokens.issueAccess({
+      id: brigade.id,
+      zoneId: PILOT_ZONE.id,
+      trustLevel: 3,
+      roles: ['brigadista'],
+      sessionId: newId(),
+    });
+    const denied = await post(path, otherSession.token, payload, key).expect(422);
+    expect(denied.headers['idempotent-replayed']).toBeUndefined();
+    expect(denied.body).not.toHaveProperty('autorizacionId');
     const early = await openAccess('exacta');
     expect(early.status).toBe(409);
     expect(early.body.codigo).toBe('ubicacion_no_disponible');

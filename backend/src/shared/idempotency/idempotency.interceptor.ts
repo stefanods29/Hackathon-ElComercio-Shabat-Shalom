@@ -24,7 +24,7 @@ import {
   type IdempotencyStore,
   type IdempotentRequest,
 } from './idempotency-store.js';
-import { IDEMPOTENT_METADATA } from './idempotent.decorator.js';
+import { IDEMPOTENT_METADATA, type IdempotencyPolicy } from './idempotent.decorator.js';
 import { IdempotencyCounters } from '../observability/idempotency-counters.js';
 
 /** Visible ASCII characters; a UUIDv7 generated on the phone is recommended. */
@@ -54,11 +54,11 @@ export class IdempotencyInterceptor implements NestInterceptor {
   ) {}
 
   async intercept(context: ExecutionContext, next: CallHandler): Promise<Observable<unknown>> {
-    const required = this.reflector.getAllAndOverride<boolean | undefined>(IDEMPOTENT_METADATA, [
-      context.getHandler(),
-      context.getClass(),
-    ]);
-    if (!required || context.getType() !== 'http') {
+    const policy = this.reflector.getAllAndOverride<IdempotencyPolicy | undefined>(
+      IDEMPOTENT_METADATA,
+      [context.getHandler(), context.getClass()],
+    );
+    if (!policy || context.getType() !== 'http') {
       return next.handle();
     }
 
@@ -78,12 +78,14 @@ export class IdempotencyInterceptor implements NestInterceptor {
       ]);
     }
 
+    const fingerprintBody =
+      policy === 'session-bound' ? [request.actor?.sessionId ?? null, request.body] : request.body;
     const idempotentRequest: IdempotentRequest = {
       scope: request.actor?.id ?? 'anonimo',
       key,
       method: request.method,
       path: request.originalUrl,
-      fingerprint: computeFingerprint(request.method, request.originalUrl, request.body),
+      fingerprint: computeFingerprint(request.method, request.originalUrl, fingerprintBody),
     };
 
     const reservation = await this.store.reserve(idempotentRequest, this.clock.now());
