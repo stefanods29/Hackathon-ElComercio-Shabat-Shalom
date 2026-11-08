@@ -4,6 +4,10 @@ import {
   up,
   down,
 } from '../../src/modules/directorio/infrastructure/migrations/202611080100_directorio_base.js';
+import {
+  up as createSearch,
+  down as dropSearch,
+} from '../../src/modules/directorio/infrastructure/migrations/202611080110_directorio_busqueda.js';
 import { createKysely } from '../../src/shared/db/connection.js';
 
 const TABLES = ['categorias', 'proveedores', 'servicios'];
@@ -40,6 +44,7 @@ describe('Migración del directorio', () => {
     const rollback = new Error('revertir la prueba de migración');
     await expect(
       db.transaction().execute(async (transaction) => {
+        await dropSearch(transaction);
         await down(transaction);
         const absent = await sql<{ name: string | null }>`
         SELECT to_regclass('directorio.servicios')::text AS name
@@ -51,6 +56,7 @@ describe('Migración del directorio', () => {
       `.execute(transaction);
         expect(publication.rows[0]?.count).toBe(0);
         await up(transaction);
+        await createSearch(transaction);
         const categories = await sql<{ id: string; icono: string; util_en_emergencia: boolean }>`
         SELECT id, icono, util_en_emergencia FROM directorio.categorias WHERE id = 'gasfiteria'
       `.execute(transaction);

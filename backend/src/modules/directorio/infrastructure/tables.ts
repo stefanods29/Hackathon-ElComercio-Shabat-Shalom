@@ -1,3 +1,4 @@
+import type { GeneratedAlways } from 'kysely';
 import type { Jsonb, NullableTimestamp, Timestamp, WithDefault } from '../../../shared/db/types.js';
 
 export interface CategoriesTable {
@@ -45,6 +46,7 @@ export interface ServicesTable {
   actualizado_en: Timestamp;
   eliminado_en: NullableTimestamp;
   oculto_en: NullableTimestamp;
+  busqueda: GeneratedAlways<string>;
 }
 
 export interface DirectoryTables {
