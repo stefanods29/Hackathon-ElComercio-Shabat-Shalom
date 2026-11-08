@@ -1,0 +1,920 @@
+{
+  "@@locale": "es",
+  "consoleTitle": "Vecinal · Consola de operación",
+  "titleWithNotices": "({count}) Vecinal · Consola de operación",
+  "@titleWithNotices": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "loading": "Cargando",
+  "refresh": "Actualizar",
+  "retry": "Volver a intentar",
+  "cancel": "Cancelar",
+  "sending": "Enviando…",
+  "loadMore": "Cargar más",
+  "reloadList": "Recargar la lista",
+  "goHome": "Ir al inicio de la consola",
+  "notFoundTitle": "No encontramos esta página",
+  "notFoundBody": "El enlace no es válido o ya no existe. Vuelve a la lista y elige de nuevo.",
+  "updatedAt": "Actualizado a las {time}",
+  "@updatedAt": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "updatedAtEvery": "Actualizado a las {time}. Se actualiza solo cada {seconds} segundos.",
+  "@updatedAtEvery": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      },
+      "seconds": {
+        "type": "int"
+      }
+    }
+  },
+  "signOut": "Cerrar sesión",
+  "signedInAs": "{name} · {roles}",
+  "@signedInAs": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "roles": {
+        "type": "String"
+      }
+    }
+  },
+  "navigationLabel": "Secciones de la consola",
+  "demoStrip": "Datos de demostración: nada de lo que ves es real y nada se envía a la API.",
+  "mapAttribution": "© colaboradores de OpenStreetMap",
+  "durationUnderAMinute": "menos de 1 min",
+  "durationMinutes": "{minutes} min",
+  "@durationMinutes": {
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "durationHours": "{hours} h",
+  "@durationHours": {
+    "placeholders": {
+      "hours": {
+        "type": "int"
+      }
+    }
+  },
+  "durationHoursMinutes": "{hours} h {minutes} min",
+  "@durationHoursMinutes": {
+    "placeholders": {
+      "hours": {
+        "type": "int"
+      },
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "navCases": "Cola de casos",
+  "navCells": "Mapa de celdas",
+  "navShifts": "Turnos y cobertura",
+  "navModeration": "Moderación",
+  "navCuration": "Directorio de emergencia",
+  "navUrgentNotices": "Avisos urgentes",
+  "roleCoordinator": "Coordinación",
+  "roleBrigadist": "Brigadista",
+  "roleModerator": "Moderación",
+  "roleAdministrator": "Administración",
+  "roleCurator": "Curaduría",
+  "roleNeighbor": "Vecino o vecina",
+  "roleSystem": "Sistema",
+  "inactivityWarningTitle": "Tu sesión se cerrará pronto por inactividad.",
+  "inactivityWarningCountdown": "Se cerrará en {seconds} s. Mueve el mouse o presiona una tecla para seguir.",
+  "@inactivityWarningCountdown": {
+    "placeholders": {
+      "seconds": {
+        "type": "int"
+      }
+    }
+  },
+  "inactivityStay": "Seguir en la consola",
+  "signInTitle": "Consola de operación",
+  "signInIntro": "Para coordinación, brigadas, moderación y curaduría. Funciona solo en línea y no guarda datos en este navegador: si recargas la página, vuelves a ingresar.",
+  "signedOutInactivity": "Cerramos tu sesión por inactividad. Vuelve a ingresar para seguir.",
+  "signedOutExpired": "Tu sesión venció. Vuelve a ingresar para seguir.",
+  "signedOutManually": "Cerraste tu sesión.",
+  "signInNotOperational": "Esta consola es solo para roles operativos (coordinación, brigadas, moderación, administración o curaduría). Tu cuenta no tiene ninguno, así que cerramos la sesión. Usa la app.",
+  "signInPhoneLabel": "Número de celular",
+  "signInPhoneHint": "987 654 321",
+  "signInPhoneHelper": "El mismo número con el que ingresas a la app. Te enviaremos un código por SMS.",
+  "signInPhoneInvalid": "Escribe un número de celular válido, por ejemplo 987 654 321.",
+  "signInSendCode": "Enviar código",
+  "signInCodeSentTo": "Enviamos un código al {phone}.",
+  "@signInCodeSentTo": {
+    "placeholders": {
+      "phone": {
+        "type": "String"
+      }
+    }
+  },
+  "signInCodeLabel": "Código del SMS",
+  "signInCodeInvalid": "Escribe el código que llegó por SMS (solo números).",
+  "signInEnter": "Ingresar",
+  "signInResend": "Reenviar código",
+  "signInResendIn": "Reenviar código en {seconds} s",
+  "@signInResendIn": {
+    "placeholders": {
+      "seconds": {
+        "type": "int"
+      }
+    }
+  },
+  "signInChangePhone": "Cambiar de número",
+  "signInInvalidCode": "El código no es correcto o ya venció. Revísalo o pide uno nuevo.",
+  "signInTooManyAttempts": "Hiciste muchos intentos. Espera {seconds} segundos y vuelve a intentarlo.",
+  "@signInTooManyAttempts": {
+    "placeholders": {
+      "seconds": {
+        "type": "int"
+      }
+    }
+  },
+  "signInInvalidPhone": "Revisa el número de celular.",
+  "signInSendFailed": "No se pudo enviar el código. Vuelve a intentarlo.",
+  "signInCheckFailed": "No se pudo confirmar tu número. Pide un código nuevo.",
+  "signInQuotaExceeded": "Por ahora no se pueden enviar más códigos. Prueba más tarde.",
+  "signInNetwork": "No hay conexión con el servidor. Revisa tu conexión y vuelve a intentarlo.",
+  "demoSignInTitle": "Datos de demostración",
+  "demoSignInBody": "Esta versión no usa la API: elige un rol para ver la consola con datos ficticios.",
+  "demoEnterAs": "Entrar como {role}",
+  "@demoEnterAs": {
+    "placeholders": {
+      "role": {
+        "type": "String"
+      }
+    }
+  },
+  "problemCode": "Código del error: {code}",
+  "@problemCode": {
+    "placeholders": {
+      "code": {
+        "type": "String"
+      }
+    }
+  },
+  "problemField": "{field}: {message}",
+  "@problemField": {
+    "placeholders": {
+      "field": {
+        "type": "String"
+      },
+      "message": {
+        "type": "String"
+      }
+    }
+  },
+  "problemGenericAction": "Vuelve a intentarlo. Si sigue pasando, avisa a quien administra la plataforma con el código del error.",
+  "problemConnectionTitle": "No hay conexión con la API",
+  "problemConnectionAction": "Revisa tu conexión a internet y vuelve a intentarlo. Lo que escribiste sigue aquí.",
+  "problemUnexpectedTitle": "La API respondió algo inesperado",
+  "problemUnexpectedAction": "Recarga la página. Si sigue pasando, avisa a quien administra la plataforma.",
+  "problemUnknownTitle": "Algo salió mal",
+  "problemUnknownAction": "Vuelve a intentarlo. Si sigue pasando, recarga la página.",
+  "problemVersionConflictTitle": "Otra persona cambió esto mientras lo veías",
+  "problemVersionConflictAction": "Recarga para ver el estado actual. Lo que escribiste se mantiene.",
+  "problemInvalidTransitionTitle": "El caso ya no permite esta acción",
+  "problemInvalidTransitionAction": "Su estado cambió. Recarga el caso para ver qué se puede hacer ahora.",
+  "problemUnauthenticatedTitle": "Tu sesión ya no es válida",
+  "problemUnauthenticatedAction": "Vuelve a ingresar para seguir.",
+  "problemForbiddenTitle": "Tu rol no permite esta acción",
+  "problemForbiddenAction": "Si crees que deberías poder hacerlo, pide el rol a quien administra la plataforma.",
+  "problemNotFoundTitle": "No existe o ya no tienes acceso",
+  "problemNotFoundAction": "Vuelve a la lista y actualízala.",
+  "problemValidationTitle": "Hay datos que revisar",
+  "problemValidationAction": "Corrige los campos indicados y vuelve a enviar.",
+  "problemInvalidDirectoryTitle": "El directorio tiene datos que no cumplen el formato",
+  "problemInvalidDirectoryAction": "Revisa cada entrada marcada y vuelve a publicar.",
+  "problemNoCoverageTitle": "La zona no tiene cobertura operativa",
+  "problemNoCoverageAction": "Hacen falta al menos 2 coordinadores activos y un turno vigente. Revisa la sección de turnos.",
+  "problemTooManyTitle": "Demasiados intentos seguidos",
+  "problemTooManyAction": "Espera un momento y vuelve a intentarlo.",
+  "problemTooManyActionSeconds": "Espera {seconds} segundos y vuelve a intentarlo.",
+  "@problemTooManyActionSeconds": {
+    "placeholders": {
+      "seconds": {
+        "type": "int"
+      }
+    }
+  },
+  "problemUnavailableTitle": "Este servicio no está disponible en este entorno",
+  "problemUnavailableAction": "Avisa a quien administra la plataforma. Lo que escribiste sigue aquí.",
+  "problemKeyReusedTitle": "Este envío ya se usó con otros datos",
+  "problemKeyReusedAction": "Recarga y vuelve a enviar el cambio.",
+  "problemInProgressTitle": "Este mismo envío todavía se está procesando",
+  "problemInProgressAction": "Espera unos segundos y actualiza para ver el resultado.",
+  "moduleUnavailableTitle": "Esta sección todavía no está disponible",
+  "moduleUnavailableHint": "Se activará cuando el módulo de emergencias publique su parte de la API. Mientras tanto, los pedidos de riesgo de vida van al 116, 105 o 106.",
+  "casesTitle": "Cola de casos",
+  "myCasesTitle": "Mis casos asignados",
+  "casesUnavailable": "La cola de casos usa el módulo de emergencias (Fase 2, Lote B), que aún no está en la API.",
+  "casesEmpty": "No hay pedidos abiertos en la zona.",
+  "noZoneTitle": "Tu cuenta no tiene zona",
+  "noZoneBody": "La cola, las celdas y los turnos son por zona. Pide a quien administra la plataforma que te asigne una.",
+  "lifeRiskReminder": "Si hay riesgo de vida, no esperes a la cola: deriva al 116 (Bomberos), 105 (Policía) o 106 (SAMU).",
+  "priorityGroup": "{priority} · {count, plural, =1{1 pedido} other{{count} pedidos}}",
+  "@priorityGroup": {
+    "placeholders": {
+      "priority": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "caseCardTitle": "{need} · {status}",
+  "@caseCardTitle": {
+    "placeholders": {
+      "need": {
+        "type": "String"
+      },
+      "status": {
+        "type": "String"
+      }
+    }
+  },
+  "caseCell": "Celda pública: {cell}",
+  "@caseCell": {
+    "placeholders": {
+      "cell": {
+        "type": "String"
+      }
+    }
+  },
+  "caseAssignedTo": "Asignado a {name} ({kind})",
+  "@caseAssignedTo": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "kind": {
+        "type": "String"
+      }
+    }
+  },
+  "caseDetailTitle": "Detalle del pedido",
+  "caseDetailTitleWithNeed": "Pedido · {need}",
+  "@caseDetailTitleWithNeed": {
+    "placeholders": {
+      "need": {
+        "type": "String"
+      }
+    }
+  },
+  "caseUpdatedAt": "Último cambio: {moment}",
+  "@caseUpdatedAt": {
+    "placeholders": {
+      "moment": {
+        "type": "String"
+      }
+    }
+  },
+  "backToQueue": "Volver a la cola",
+  "reloadCase": "Recargar el caso",
+  "caseDataTitle": "Datos del pedido",
+  "caseNeedLabel": "Necesidad",
+  "casePriorityLabel": "Prioridad",
+  "caseCellLabel": "Celda pública",
+  "caseCreatedLabel": "Enviado",
+  "caseReviewLabel": "Primera revisión",
+  "caseAssigneeLabel": "Persona asignada",
+  "caseNobodyAssigned": "Nadie todavía",
+  "caseLocationTitle": "Ubicación",
+  "caseExactLocationLabel": "Ubicación exacta (solo para ti mientras vas en camino)",
+  "caseExactLocationValue": "Latitud {lat}, longitud {lng}",
+  "@caseExactLocationValue": {
+    "placeholders": {
+      "lat": {
+        "type": "String"
+      },
+      "lng": {
+        "type": "String"
+      }
+    }
+  },
+  "caseExactLocationHidden": "La ubicación exacta solo la ve la persona asignada mientras el caso está en camino. Aquí se muestra la celda pública.",
+  "caseActionsTitle": "Acciones",
+  "caseNoActions": "Este caso no tiene acciones desde la consola en su estado actual. «Atendido» lo confirma la persona que pidió ayuda.",
+  "caseHistoryTitle": "Historial",
+  "caseHistoryEmpty": "Todavía no hay cambios registrados.",
+  "historyChange": "Pasó de «{previous}» a «{next}»",
+  "@historyChange": {
+    "placeholders": {
+      "previous": {
+        "type": "String"
+      },
+      "next": {
+        "type": "String"
+      }
+    }
+  },
+  "historyWhenAndWho": "{moment} · {role}",
+  "@historyWhenAndWho": {
+    "placeholders": {
+      "moment": {
+        "type": "String"
+      },
+      "role": {
+        "type": "String"
+      }
+    }
+  },
+  "historyReason": "Motivo: {reason}",
+  "@historyReason": {
+    "placeholders": {
+      "reason": {
+        "type": "String"
+      }
+    }
+  },
+  "priorityHigh": "Prioridad alta",
+  "priorityMedium": "Prioridad media",
+  "priorityLow": "Prioridad baja",
+  "needWater": "Agua",
+  "needFood": "Alimentos",
+  "needMedicine": "Medicinas",
+  "needTransport": "Traslado",
+  "needShelter": "Albergue",
+  "needOther": "Otra necesidad",
+  "statusSent": "Enviado",
+  "statusSeen": "Visto por un coordinador",
+  "statusOnTheWay": "En camino",
+  "statusAttended": "Atendido",
+  "statusReferred": "Derivado a 105 / 116 / 106",
+  "statusClosedUnattended": "Cerrado sin atender",
+  "reviewDone": "Ya tuvo su primera revisión",
+  "reviewWaitingNoLimit": "Lleva {waited} sin revisar · sin límite de tiempo",
+  "@reviewWaitingNoLimit": {
+    "placeholders": {
+      "waited": {
+        "type": "String"
+      }
+    }
+  },
+  "reviewWaitingWithLimit": "Lleva {waited} sin revisar · límite {limit}",
+  "@reviewWaitingWithLimit": {
+    "placeholders": {
+      "waited": {
+        "type": "String"
+      },
+      "limit": {
+        "type": "String"
+      }
+    }
+  },
+  "markAboutToEscalate": "Por escalar",
+  "markOverdue": "Fuera de tiempo",
+  "actionMarkSeen": "Marcar como revisado",
+  "actionAssign": "Asignar",
+  "actionRefer": "Derivar",
+  "actionCloseUnattended": "Cerrar sin atender",
+  "actionMarkSeenHelp": "Quien pidió ayuda verá que una persona revisó su pedido y a qué hora.",
+  "actionAssignHelp": "Elige a una persona disponible. Quien pidió ayuda verá que alguien va en camino, sin sus datos personales.",
+  "actionReferHelp": "Para riesgo de vida o lo que está fuera del alcance vecinal. Quien pidió ayuda verá el motivo y qué hacer ahora.",
+  "actionCloseUnattendedHelp": "Solo cuando no hay recursos. Quien pidió ayuda verá el motivo y las alternativas oficiales.",
+  "actionOverVersion": "Sobre el caso en estado «{status}» (versión {version}).",
+  "@actionOverVersion": {
+    "placeholders": {
+      "status": {
+        "type": "String"
+      },
+      "version": {
+        "type": "int"
+      }
+    }
+  },
+  "actionConfirm": "Confirmar",
+  "actionNoLongerAvailable": "El caso cambió de estado y esta acción ya no está disponible. Cierra y revisa el caso.",
+  "reloadKeepingText": "Recargar el caso sin perder lo escrito",
+  "reasonRequiredLabel": "Motivo (obligatorio)",
+  "reasonOptionalLabel": "Nota (opcional)",
+  "reasonRequiredHelp": "Lo verá quien pidió ayuda: escribe en lenguaje simple y sin datos personales.",
+  "reasonTooShort": "Escribe un motivo de al menos {minimum} caracteres.",
+  "@reasonTooShort": {
+    "placeholders": {
+      "minimum": {
+        "type": "int"
+      }
+    }
+  },
+  "choosePerson": "Elige a una persona",
+  "chooseLine": "Elige a qué línea derivar",
+  "nobodyAvailable": "No hay personas disponibles en la zona.",
+  "personOnShift": "{kind} · en turno",
+  "@personOnShift": {
+    "placeholders": {
+      "kind": {
+        "type": "String"
+      }
+    }
+  },
+  "personOffShift": "{kind} · fuera de turno",
+  "@personOffShift": {
+    "placeholders": {
+      "kind": {
+        "type": "String"
+      }
+    }
+  },
+  "linePolice": "105 · Policía",
+  "lineFirefighters": "116 · Bomberos",
+  "lineAmbulance": "106 · SAMU",
+  "cellsTitle": "Mapa de celdas",
+  "cellsUnavailable": "Los agregados por celda llegan con el módulo de emergencias (Fase 2, Lote B, parte 4).",
+  "cellsPrivacyNote": "Solo hay totales por celda, nunca puntos de personas. Una celda con menos de 3 pedidos dice «menos de 3», sin cifra.",
+  "cellsNeedFilter": "Necesidad que colorea el mapa",
+  "cellsAllNeeds": "Todas",
+  "cellsMapLabel": "Mapa de las celdas de la zona coloreadas por cantidad de pedidos. La tabla de abajo tiene la misma información.",
+  "cellsLegend": "Leyenda del mapa",
+  "cellsFewerThanThree": "menos de 3",
+  "cellsLevelLow": "3 a 9",
+  "cellsLevelMedium": "10 a 24",
+  "cellsLevelHigh": "25 o más",
+  "cellsTableTitle": "Pedidos por celda",
+  "cellsColumnCell": "Celda",
+  "cellsColumnTotal": "Total",
+  "cellsEmpty": "No hay celdas con pedidos en la zona.",
+  "shiftsTitle": "Turnos y cobertura",
+  "shiftsUnavailable": "Los turnos llegan con el módulo de emergencias (Fase 2, Lote B, parte 3).",
+  "shiftsNew": "Nuevo turno",
+  "shiftsOpenTitle": "Turnos vigentes y programados",
+  "shiftsNoneOpen": "No hay turnos vigentes ni programados.",
+  "shiftsFinishedTitle": "Turnos terminados",
+  "shiftsNoneFinished": "Todavía no hay turnos terminados.",
+  "coverageYes": "La zona tiene cobertura operativa",
+  "coverageNo": "La zona no tiene cobertura operativa",
+  "coverageCoordinators": "{active, plural, =0{No hay coordinadores activos} =1{Hay 1 coordinador activo} other{Hay {active} coordinadores activos}}; se necesitan al menos {needed}.",
+  "@coverageCoordinators": {
+    "placeholders": {
+      "active": {
+        "type": "int"
+      },
+      "needed": {
+        "type": "int"
+      }
+    }
+  },
+  "coverageShiftYes": "Hay un turno vigente.",
+  "coverageShiftNo": "No hay un turno vigente.",
+  "coverageGapCoordinators": "Falta: habilitar a otro coordinador en la zona.",
+  "coverageGapShift": "Falta: crear un turno vigente para el evento en curso.",
+  "coverageRuleNote": "Regla de la sección 9.3. La consola solo la muestra: quien la aplica es el módulo de emergencias. Sin cobertura, la app no habilita los pedidos de ayuda en la zona.",
+  "shiftCurrent": "Vigente",
+  "shiftScheduled": "Programado",
+  "shiftFinished": "Terminado",
+  "shiftWindow": "De {start} a {end}",
+  "@shiftWindow": {
+    "placeholders": {
+      "start": {
+        "type": "String"
+      },
+      "end": {
+        "type": "String"
+      }
+    }
+  },
+  "shiftEndedEarly": "Terminado antes de tiempo el {moment}",
+  "@shiftEndedEarly": {
+    "placeholders": {
+      "moment": {
+        "type": "String"
+      }
+    }
+  },
+  "shiftEnd": "Terminar turno",
+  "shiftEndTitle": "¿Terminar este turno?",
+  "shiftEndBody": "El turno de {name} termina ahora. Si la zona se queda sin turno vigente, deja de tener cobertura operativa.",
+  "@shiftEndBody": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "shiftStartLabel": "Inicio",
+  "shiftStartNow": "Ahora",
+  "shiftPickStart": "Elegir día y hora",
+  "shiftDurationLabel": "Duración",
+  "shiftCreate": "Crear turno",
+  "moderationTitle": "Moderación",
+  "moderationFilter": "Casos",
+  "moderationPending": "Pendientes",
+  "moderationResolved": "Resueltos",
+  "moderationEmptyPending": "No hay casos pendientes.",
+  "moderationEmptyResolved": "Todavía no hay casos resueltos.",
+  "moderationCaseTitle": "{content} · {reason}",
+  "@moderationCaseTitle": {
+    "placeholders": {
+      "content": {
+        "type": "String"
+      },
+      "reason": {
+        "type": "String"
+      }
+    }
+  },
+  "moderationCreated": "Caso abierto el {moment}",
+  "@moderationCreated": {
+    "placeholders": {
+      "moment": {
+        "type": "String"
+      }
+    }
+  },
+  "moderationFirstReview": "Primera revisión: {moment}",
+  "@moderationFirstReview": {
+    "placeholders": {
+      "moment": {
+        "type": "String"
+      }
+    }
+  },
+  "moderationLastAction": "Última decisión: {action}",
+  "@moderationLastAction": {
+    "placeholders": {
+      "action": {
+        "type": "String"
+      }
+    }
+  },
+  "moderationContentId": "Contenido {id}",
+  "@moderationContentId": {
+    "placeholders": {
+      "id": {
+        "type": "String"
+      }
+    }
+  },
+  "moderationDecide": "Registrar decisión",
+  "moderationChooseAction": "Elige la decisión",
+  "moderationReasonRequired": "Escribe el motivo de la decisión.",
+  "moderationReasonHelp": "Queda en la auditoría. Sin datos personales.",
+  "moderationSend": "Registrar",
+  "moderationPublish": "Publicar",
+  "moderationHide": "Ocultar",
+  "moderationRestore": "Restaurar",
+  "moderationDismiss": "Descartar la denuncia",
+  "moderationSanction": "Sancionar al autor",
+  "contentPost": "Publicación",
+  "contentReview": "Reseña",
+  "contentService": "Servicio",
+  "contentPhoto": "Foto",
+  "contentProvider": "Proveedor",
+  "reportSpam": "Spam",
+  "reportOffensive": "Ofensivo",
+  "reportFalse": "Información falsa",
+  "reportPersonalData": "Datos personales",
+  "reportDangerous": "Peligroso",
+  "reportOther": "Otro motivo",
+  "reportAutomatic": "Revisión automática ({code})",
+  "@reportAutomatic": {
+    "placeholders": {
+      "code": {
+        "type": "String"
+      }
+    }
+  },
+  "curationTitle": "Directorio de emergencia",
+  "curationSubtitle": "Puntos de encuentro, centros de salud, albergues y números, con fuente y fecha. Cada publicación crea una versión nueva.",
+  "curationEmpty": "Todavía no hay directorios publicados.",
+  "curationVersion": "Versión {version}",
+  "@curationVersion": {
+    "placeholders": {
+      "version": {
+        "type": "int"
+      }
+    }
+  },
+  "curationZones": "{count, plural, =1{1 zona} other{{count} zonas}}",
+  "@curationZones": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "curationHash": "Hash {hash}… · {bytes} bytes",
+  "@curationHash": {
+    "placeholders": {
+      "hash": {
+        "type": "String"
+      },
+      "bytes": {
+        "type": "int"
+      }
+    }
+  },
+  "curationBack": "Volver a los directorios",
+  "curationEditorTitle": "Directorio {file}",
+  "@curationEditorTitle": {
+    "placeholders": {
+      "file": {
+        "type": "String"
+      }
+    }
+  },
+  "curationEditorSubtitle": "Versión publicada {version} · generada el {moment}",
+  "@curationEditorSubtitle": {
+    "placeholders": {
+      "version": {
+        "type": "int"
+      },
+      "moment": {
+        "type": "String"
+      }
+    }
+  },
+  "curationDistrict": "Nombre del distrito",
+  "curationDistrictInvalid": "Escribe el nombre del distrito (2 a 80 caracteres).",
+  "curationUnsaved": "Tienes cambios sin publicar",
+  "curationUnsavedBody": "El borrador vive solo en esta página: si sales, recargas o se cierra la sesión, se pierde.",
+  "curationReplacing": "Tus cambios reemplazarán la versión {version}, que publicó otra persona. Revísala antes de publicar.",
+  "@curationReplacing": {
+    "placeholders": {
+      "version": {
+        "type": "int"
+      }
+    }
+  },
+  "curationEntries": "{count, plural, =1{1 entrada} other{{count} entradas}}",
+  "@curationEntries": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "curationNeedsEntries": "El directorio necesita al menos una entrada.",
+  "curationProblemsBeforePublishing": "{count, plural, =0{Revisa el distrito y las entradas antes de publicar.} =1{Hay 1 entrada con datos por corregir antes de publicar.} other{Hay {count} entradas con datos por corregir antes de publicar.}}",
+  "@curationProblemsBeforePublishing": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "curationPublish": "Publicar la versión {version}",
+  "@curationPublish": {
+    "placeholders": {
+      "version": {
+        "type": "int"
+      }
+    }
+  },
+  "curationPublished": "Publicaste la versión {version}. La app la descarga en su próxima actualización.",
+  "@curationPublished": {
+    "placeholders": {
+      "version": {
+        "type": "int"
+      }
+    }
+  },
+  "curationDiscard": "Descartar mis cambios",
+  "curationDiscardAndReload": "Ver la versión nueva y descartar mis cambios",
+  "curationKeepMine": "Publicar mis cambios sobre la versión nueva",
+  "entryAdd": "Agregar entrada",
+  "entryNew": "Nueva entrada",
+  "entryEdit": "Editar",
+  "entrySave": "Guardar en el borrador",
+  "entryRemove": "Quitar",
+  "entryRemoveTitle": "¿Quitar esta entrada?",
+  "entryRemoveBody": "Se quitará «{name}» del borrador. El cambio solo llega a la app cuando publiques la versión.",
+  "@entryRemoveBody": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "entryMoveUp": "Subir la entrada",
+  "entryMoveDown": "Bajar la entrada",
+  "entryHasProblems": "{count, plural, =1{Hay 1 dato por corregir.} other{Hay {count} datos por corregir.}}",
+  "@entryHasProblems": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "entryProblemsBadge": "{count, plural, =1{1 problema} other{{count} problemas}}",
+  "@entryProblemsBadge": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "entryPosition": "Entrada {position} de {total} · id {id}",
+  "@entryPosition": {
+    "placeholders": {
+      "position": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      },
+      "id": {
+        "type": "String"
+      }
+    }
+  },
+  "entryVerifiedOn": "Verificado el {day}",
+  "@entryVerifiedOn": {
+    "placeholders": {
+      "day": {
+        "type": "String"
+      }
+    }
+  },
+  "entryPhone": "Teléfono: {phone}",
+  "@entryPhone": {
+    "placeholders": {
+      "phone": {
+        "type": "String"
+      }
+    }
+  },
+  "entryCoordinates": "Ubicación: {lat}, {lng}",
+  "@entryCoordinates": {
+    "placeholders": {
+      "lat": {
+        "type": "String"
+      },
+      "lng": {
+        "type": "String"
+      }
+    }
+  },
+  "entrySource": "Fuente: {source}",
+  "@entrySource": {
+    "placeholders": {
+      "source": {
+        "type": "String"
+      }
+    }
+  },
+  "entryTypeNumber": "Número de emergencia",
+  "entryTypeMeetingPoint": "Punto de encuentro",
+  "entryTypeHealthCenter": "Centro de salud",
+  "entryTypeShelter": "Albergue",
+  "entryFieldId": "Identificador",
+  "entryFieldType": "Tipo",
+  "entryFieldName": "Nombre",
+  "entryFieldPhone": "Teléfono",
+  "entryFieldPhoneRequired": "Teléfono (obligatorio para un número)",
+  "entryFieldPhoneOptional": "Teléfono (opcional)",
+  "entryFieldLocation": "Ubicación",
+  "entryFieldLatitude": "Latitud",
+  "entryFieldLongitude": "Longitud",
+  "entryFieldAddress": "Dirección (opcional)",
+  "entryFieldDescription": "Descripción (opcional)",
+  "entryFieldSourceName": "Fuente: institución o aliado",
+  "entryFieldSourceUrl": "Página de la fuente (opcional, https)",
+  "entryFieldVerified": "Fecha de verificación",
+  "entryIdHelp": "Solo minúsculas, números y guiones (2 a 60). No lo cambies si ya está publicado: la app lo usa para reconocer la entrada.",
+  "entryPhoneHelp": "Número institucional para marcar desde el celular, por ejemplo 116 o 01 513 9000.",
+  "entryLocationRequired": "Ubicación (obligatoria para lugares)",
+  "entryLocationOptional": "Ubicación (opcional para un número)",
+  "entrySourceHelp": "Quién publica el dato. Solo información institucional, nunca datos de vecinos.",
+  "entryVerifiedHelp": "Día en que comprobaste el dato en su fuente, en formato AAAA-MM-DD.",
+  "entryVerifiedToday": "Lo verifiqué hoy",
+  "entryVerifiedPick": "Elegir fecha",
+  "entryProblemIdFormat": "Usa solo minúsculas, números y guiones (2 a 60).",
+  "entryProblemIdRepeated": "Ya hay otra entrada con este identificador.",
+  "entryProblemNameLength": "Escribe un nombre de 2 a 120 caracteres.",
+  "entryProblemPhoneRequired": "Un número de emergencia necesita su teléfono.",
+  "entryProblemPhoneFormat": "Escribe solo números y espacios, con + al inicio si hace falta.",
+  "entryProblemLocationRequired": "Un lugar necesita su latitud y longitud.",
+  "entryProblemLatitude": "Escribe una latitud entre -90 y 90.",
+  "entryProblemLongitude": "Escribe una longitud entre -180 y 180.",
+  "entryProblemAddressLength": "La dirección va de 2 a 200 caracteres.",
+  "entryProblemDescriptionLength": "La descripción va de 2 a 300 caracteres.",
+  "entryProblemSourceNameLength": "Escribe la fuente (2 a 120 caracteres).",
+  "entryProblemSourceUrl": "La página de la fuente debe empezar con https://.",
+  "entryProblemVerifiedFormat": "Escribe la fecha como AAAA-MM-DD.",
+  "entryProblemVerifiedFuture": "La fecha de verificación no puede estar en el futuro.",
+  "urgentCaseAssigned": "Te asignaron un caso",
+  "urgentAboutToEscalate": "Un pedido está por escalar",
+  "urgentEscalated": "Un pedido escaló a tu zona",
+  "urgentBannerTitle": "{count, plural, =1{Tienes 1 aviso urgente sin confirmar} other{Tienes {count} avisos urgentes sin confirmar}}",
+  "@urgentBannerTitle": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "urgentNoticeLine": "{text} · {time}",
+  "@urgentNoticeLine": {
+    "placeholders": {
+      "text": {
+        "type": "String"
+      },
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "urgentOpenCase": "Ver el caso",
+  "urgentConfirm": "Confirmar que lo vi",
+  "urgentConfirmFailed": "No se pudo confirmar. Vuelve a intentarlo.",
+  "urgentMore": "{count, plural, =1{Y 1 aviso más.} other{Y {count} avisos más.}}",
+  "@urgentMore": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "urgentSummaryTitle": "Avisos urgentes",
+  "urgentSummarySubtitle": "Cuántos avisos se confirmaron a tiempo, cuántos necesitaron SMS de respaldo y cuánto se gastó frente a los topes.",
+  "urgentPeriod": "Periodo",
+  "urgentPeriodDays": "{days, plural, =1{Último día} other{Últimos {days} días}}",
+  "@urgentPeriodDays": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "urgentRange": "Del {since} al {until}",
+  "@urgentRange": {
+    "placeholders": {
+      "since": {
+        "type": "String"
+      },
+      "until": {
+        "type": "String"
+      }
+    }
+  },
+  "urgentNoticesHeading": "Avisos",
+  "urgentTotal": "Avisos enviados",
+  "urgentConfirmed": "Confirmados",
+  "urgentUnconfirmed": "Sin confirmar",
+  "urgentLatency": "Tiempo hasta confirmar",
+  "urgentLatencyNone": "Todavía no hay confirmaciones en el periodo.",
+  "urgentLatencyValue": "La mitad en {p50} s o menos; el 95 % en {p95} s o menos.",
+  "@urgentLatencyValue": {
+    "placeholders": {
+      "p50": {
+        "type": "int"
+      },
+      "p95": {
+        "type": "int"
+      }
+    }
+  },
+  "urgentSmsHeading": "SMS de respaldo",
+  "urgentProvider": "Proveedor de SMS",
+  "urgentProviderNone": "Ninguno: el respaldo por SMS está apagado",
+  "urgentProviderFake": "De prueba: no envía mensajes reales",
+  "urgentSmsSent": "SMS enviados",
+  "urgentWithoutBackup": "Sin respaldo",
+  "urgentWithoutBackupValue": "Tope de gasto: {cap} · Sin proveedor: {noProvider} · Sin teléfono: {noPhone} · SMS fallido: {failed}",
+  "@urgentWithoutBackupValue": {
+    "placeholders": {
+      "cap": {
+        "type": "int"
+      },
+      "noProvider": {
+        "type": "int"
+      },
+      "noPhone": {
+        "type": "int"
+      },
+      "failed": {
+        "type": "int"
+      }
+    }
+  },
+  "urgentSpendingToday": "Gasto de hoy",
+  "urgentSpendingMonth": "Gasto del mes",
+  "urgentSpendingOf": "{spent} de un tope de {cap}",
+  "@urgentSpendingOf": {
+    "placeholders": {
+      "spent": {
+        "type": "String"
+      },
+      "cap": {
+        "type": "String"
+      }
+    }
+  }
+}

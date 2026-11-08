@@ -1,0 +1,16 @@
+# Flutter / Dart
+.dart_tool/
+.flutter-plugins-dependencies
+.pub-cache/
+.pub/
+build/
+coverage/
+*.iml
+.idea/
+.vscode/
+
+# Código generado por `flutter gen-l10n` (se regenera en cada `flutter pub get` / build)
+lib/l10n/app_localizations*.dart
+
+# MapLibre GL JS copiado por tool/vendor_maplibre.sh (se descarga en cada build)
+web/vendor/
