@@ -125,8 +125,17 @@ export const configSchema = z
             .regex(/^https?:\/\/[A-Za-z0-9.-]+(:[0-9]{1,5})?$/, 'debe ser un origen sin ruta'),
         ),
       ),
-    CURATION_PUBLISH_DRIVER: z.enum(['disabled', 'filesystem']).default('disabled'),
+    CURATION_PUBLISH_DRIVER: z.enum(['disabled', 'filesystem', 's3']).default('disabled'),
     CURATION_PUBLIC_ROOT: z.string().min(1).default('../infra/cdn/publico'),
+    CURATION_BUCKET: z.string().trim().optional(),
+    CURATION_REGION: z.string().trim().default('auto'),
+    CURATION_ENDPOINT: z.preprocess(
+      (value) => (value === '' ? undefined : value),
+      z.url({ protocol: /^https?$/ }).optional(),
+    ),
+    CURATION_ACCESS_KEY_ID: z.string().optional(),
+    CURATION_SECRET_ACCESS_KEY: z.string().optional(),
+    CURATION_FORCE_PATH_STYLE: z.stringbool().default(false),
   })
   .superRefine((config, ctx) => {
     if (config.NODE_ENV === 'production' && config.MEDIA_DRIVER === 'fake') {
@@ -256,6 +265,36 @@ export const configSchema = z
         message:
           'filesystem solo sirve en desarrollo; en producción usa el almacenamiento de la CDN',
       });
+    }
+    if (config.CURATION_PUBLISH_DRIVER === 's3') {
+      for (const variable of [
+        'CURATION_BUCKET',
+        'CURATION_REGION',
+        'CURATION_ACCESS_KEY_ID',
+        'CURATION_SECRET_ACCESS_KEY',
+      ] as const) {
+        if (!config[variable]?.trim()) {
+          ctx.addIssue({
+            code: 'custom',
+            path: [variable],
+            message: 'es obligatoria cuando CURATION_PUBLISH_DRIVER=s3',
+          });
+        }
+      }
+      if (config.MEDIA_BUCKET && config.CURATION_BUCKET === config.MEDIA_BUCKET) {
+        ctx.addIssue({
+          code: 'custom',
+          path: ['CURATION_BUCKET'],
+          message: 'el directorio requiere un bucket separado del de fotos privadas',
+        });
+      }
+      if (config.NODE_ENV === 'production' && config.CURATION_ENDPOINT?.startsWith('http:')) {
+        ctx.addIssue({
+          code: 'custom',
+          path: ['CURATION_ENDPOINT'],
+          message: 'se requiere HTTPS en producción',
+        });
+      }
     }
     if (config.OTP_PROVIDER === 'firebase' && !config.FIREBASE_PROJECT_ID) {
       ctx.addIssue({

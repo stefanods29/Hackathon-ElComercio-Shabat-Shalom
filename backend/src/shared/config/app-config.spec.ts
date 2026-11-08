@@ -45,6 +45,27 @@ describe('loadConfig', () => {
     expect(() => loadConfig({ ...base, NODE_ENV: 'production' })).toThrow(/OTP_PROVIDER/);
   });
 
+  it('requiere un bucket y credenciales propias para publicar el directorio en S3', () => {
+    const s3 = { ...base, CURATION_PUBLISH_DRIVER: 's3' };
+    expect(() => loadConfig(s3)).toThrow(/CURATION_BUCKET/);
+    const withBucket = { ...s3, CURATION_BUCKET: 'directorio-de-prueba' };
+    expect(() => loadConfig(withBucket)).toThrow(/CURATION_ACCESS_KEY_ID/);
+    const configured = {
+      ...withBucket,
+      CURATION_ENDPOINT: 'http://127.0.0.1:9000',
+      CURATION_ACCESS_KEY_ID: 'usuario-de-prueba',
+      CURATION_SECRET_ACCESS_KEY: 'clave-de-prueba',
+      CURATION_FORCE_PATH_STYLE: 'true',
+    };
+    expect(loadConfig(configured)).toMatchObject({
+      CURATION_PUBLISH_DRIVER: 's3',
+      CURATION_FORCE_PATH_STYLE: true,
+    });
+    expect(() => loadConfig({ ...configured, NODE_ENV: 'production' })).toThrow(
+      /CURATION_ENDPOINT/,
+    );
+  });
+
   it('exige todas las credenciales de Twilio cuando se selecciona ese proveedor', () => {
     expect(() => loadConfig({ ...base, OTP_PROVIDER: 'twilio' })).toThrow(/TWILIO_ACCOUNT_SID/);
   });

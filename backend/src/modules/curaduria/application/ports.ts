@@ -26,8 +26,8 @@ export interface DirectoryVersionRecord {
 
 /** Audit of every published version; also the concurrency check between curators. */
 export interface DirectoryVersionStore {
-  /** Serializes publications of the same file until the transaction ends. */
-  lock(transaction: TransactionContext, archivo: string): Promise<void>;
+  /** Serializes publications that update the shared index until the transaction ends. */
+  lockIndex(transaction: TransactionContext): Promise<void>;
   latest(transaction: TransactionContext, archivo: string): Promise<number | null>;
   insert(transaction: TransactionContext, record: DirectoryVersionRecord): Promise<void>;
 }

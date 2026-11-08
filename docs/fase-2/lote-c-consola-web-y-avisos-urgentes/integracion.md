@@ -104,7 +104,7 @@ la consola necesita del Lote B" del `design.md`):
 | Qué | Dónde | Nota |
 |---|---|---|
 | Proveedor real de SMS (decisión 13.3.4) | `backend/src/modules/notificaciones/infrastructure/` | Un adaptador más de `SmsProvider`; `SMS_PROVIDER` hoy admite `none` y `fake` (y `fake` está prohibido en producción) |
-| Publicación del directorio en la nube | `backend/src/modules/curaduria/infrastructure/` | Un adaptador de `PublicContentPublisher` sobre el almacenamiento de la Fase 1 (Lote C). En staging y producción `CURATION_PUBLISH_DRIVER=disabled` responde 503 hasta entonces |
+| Publicación del directorio en la nube | [Curaduría y MinIO local](../../../backend/src/modules/curaduria/README.md#verificación-con-minio-local) | Adaptador compatible con S3. Quedan pendientes la configuración del bucket y de la CDN y la verificación en staging. |
 | Uso del módulo `console-site` | `infra/cloud/main.tf` | Cuando la Fase 1 (Lote C) esté en `main`; ver el README del módulo |
 | Flujo de CI de la consola | `.github/workflows/consola.yml` | Esquema más abajo |
 
@@ -119,8 +119,19 @@ Variables nuevas de la API (documentadas en `backend/.env.example`):
 | `SMS_COST_CENTS` | `5` | Costo estimado de un SMS, en centavos de dólar |
 | `SMS_DAILY_BUDGET_CENTS` / `SMS_MONTHLY_BUDGET_CENTS` | `500` / `5000` | Topes de gasto por día (America/Lima) y por mes |
 | `CONSOLE_ORIGINS` | (vacío) | Orígenes de la consola para CORS, separados por comas (`https://` en producción) |
-| `CURATION_PUBLISH_DRIVER` | `disabled` | `filesystem` escribe en `CURATION_PUBLIC_ROOT` (solo fuera de producción) |
+| `CURATION_PUBLISH_DRIVER` | `disabled` | `filesystem` escribe en `CURATION_PUBLIC_ROOT` fuera de producción. `s3` usa el bucket del directorio. |
 | `CURATION_PUBLIC_ROOT` | `../infra/cdn/publico` | Carpeta pública de la CDN local |
+| `CURATION_BUCKET` | (vacío) | Bucket dedicado al directorio con su prefijo `emergencia/` |
+| `CURATION_ENDPOINT` / `CURATION_REGION` / `CURATION_FORCE_PATH_STYLE` | (vacío) / `auto` / `false` | Conexión al almacenamiento compatible con S3 |
+| `CURATION_ACCESS_KEY_ID` / `CURATION_SECRET_ACCESS_KEY` | (vacío) | Credenciales del bucket del directorio, configuradas fuera del repo |
+
+### Evidencia local de C 3.5
+
+El 8 de noviembre de 2026, la prueba `curation-s3.int-spec.ts` publicó dos distritos
+ficticios en paralelo desde la API con PostgreSQL 18.6 y MinIO en Docker. El índice
+conservó ambas versiones, con el tamaño y SHA-256 de cada archivo y los encabezados de
+caché esperados. Las 10 pruebas de `infra/cdn` pasaron con los archivos de referencia.
+La verificación del bucket y de la ruta pública de staging queda pendiente.
 
 Las de la consola (`--dart-define`) están en [`consola/README.md`](../../../consola/README.md).
 
