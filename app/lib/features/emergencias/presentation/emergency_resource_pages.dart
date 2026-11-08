@@ -300,7 +300,7 @@ class CriticalResourceCard extends ConsumerWidget {
     final t = AppLocalizations.of(context);
     final now = ref.watch(emergencyNowProvider).value ?? ref.watch(clockProvider)();
     final stale = ref.watch(resourceFreshnessPolicyProvider).isStale(resource, now);
-    final source = resource.source;
+    final source = resource.verification == ResourceVerification.verified ? resource.source : null;
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(16),

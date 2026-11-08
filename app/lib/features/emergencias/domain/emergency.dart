@@ -110,6 +110,7 @@ class CriticalResource {
     required this.kind,
     required this.description,
     required this.reportedAt,
+    this.staleAfter,
     this.verification = ResourceVerification.unverified,
     this.confirmations = 0,
     this.source,
@@ -119,6 +120,7 @@ class CriticalResource {
   final ResourceKind kind;
   final String description;
   final DateTime reportedAt;
+  final Duration? staleAfter;
   final ResourceVerification verification;
   final int confirmations;
   final ResourceSource? source;
@@ -159,8 +161,10 @@ class ResourceFreshnessPolicy {
     },
   });
   final Map<ResourceKind, Duration> thresholds;
-  bool isStale(CriticalResource resource, DateTime now) =>
-      now.difference(resource.reportedAt) > (thresholds[resource.kind] ?? const Duration(hours: 2));
+  bool isStale(CriticalResource resource, DateTime now) {
+    final threshold = resource.staleAfter ?? thresholds[resource.kind] ?? const Duration(hours: 2);
+    return now.difference(resource.reportedAt) >= threshold;
+  }
 }
 
 class EmergencySnapshot {

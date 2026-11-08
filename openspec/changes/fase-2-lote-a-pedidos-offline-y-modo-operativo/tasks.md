@@ -48,7 +48,14 @@ Depende de agregados y recursos de B4, del tablero de D y del directorio curado 
 - [x] 4.3 Priorizar los datos críticos y desactivar las imágenes en modo emergencia. Verificar la prioridad configurada y la ausencia de solicitudes de imágenes al recuperar señal con tráfico pendiente.
 - [x] 4.4 Compilar y depurar app y configuración de sincronización. Ejecutar `npm run verify` en backend y `tool/verify.sh` desde `app/`. Verificar CI en verde. Evidencia: [CI de la versión integrada](../../../docs/fase-2/evidencias/ci-integracion.md).
 
-En la integración B publica `verificado_en` y el tablero de D muestra los recursos del stream con su fuente verificada; falta la verificación con reloj de prueba y modo avión de 4.2. El [informe de la Parte 4](../../../docs/fase-2/evidencias/tablero-offline.md) registra la verificación de 4.1 con el SQL de B y de 4.3 con el evaluador de streams y la cola de fotos en reconexión. Para 4.2 falta conectar el tablero de D y recibir la fecha de verificación oficial de B. La CI de 4.4 quedó en verde con la versión integrada.
+Para 4.2, el tablero de D conserva `umbral_segundos` y `verificado_en` del stream. Con reloj de
+prueba se verificó el instante de corte por tipo, la marca de antigüedad y la fuente verificada con
+su fecha e insignia oficial. `tool/verify.sh` desde `app/` pasó con 263 pruebas y 1 omitida.
+Queda pendiente la prueba en modo avión. [Evidencia de frescura](../../../docs/fase-2/lote-d-tablero-de-emergencia/integracion.md#estado-de-validación).
+
+El [informe de la Parte 4](../../../docs/fase-2/evidencias/tablero-offline.md) registra la
+verificación de 4.1 con el SQL de B y de 4.3 con el evaluador de streams y la cola de fotos en
+reconexión. La CI de 4.4 quedó en verde con la versión integrada.
 
 ## 5. Parte 5 · Seguridad y pruebas de campo
 

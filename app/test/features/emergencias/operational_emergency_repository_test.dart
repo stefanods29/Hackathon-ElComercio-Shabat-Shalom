@@ -12,6 +12,7 @@ import 'package:vecinal/core/sync/local_sync_database.dart';
 import 'package:vecinal/features/directorio/domain/directory.dart';
 import 'package:vecinal/features/emergencias/data/operational_emergency_repository.dart';
 import 'package:vecinal/features/emergencias/data/own_help_request_repository.dart';
+import 'package:vecinal/features/emergencias/data/powersync_emergency_board.dart';
 import 'package:vecinal/features/emergencias/domain/emergency.dart';
 
 const _zone = '01970000-0000-7000-8000-000000000001';
@@ -75,7 +76,7 @@ void main() {
       local: local,
       // No PowerSync service in the test: the author's stream rows are written below.
       requests: OwnHelpRequestRepository(local, subscribe: (_) async => () {}),
-      board: null,
+      board: PowerSyncEmergencyBoard(local.database, zoneId: _zone),
       api: Dio(BaseOptions(baseUrl: 'https://api.test'))..httpClientAdapter = fake,
       fallbackLocation: const GeoPoint(-12.085, -77.035),
       clock: () => now,
@@ -188,6 +189,40 @@ void main() {
     expect(confirm.data, {'versionVista': 4, 'estado': 'atendido'});
     expect(confirm.headers[idempotencyKeyHeader], isNotNull);
   });
+
+  test(
+    'el tablero conserva el umbral y la fecha de verificación del recurso sincronizado',
+    () async {
+      final verifiedAt = now.subtract(const Duration(minutes: 2));
+      await local.database.execute(
+        'INSERT INTO ps_data__recursos_publicos (id, data) VALUES (?, ?)',
+        [
+          'recurso-agua',
+          jsonEncode({
+            'zona_id': _zone,
+            'tipo': 'agua',
+            'cantidad': 12,
+            'celda': 'celda-publica',
+            'reportado_en': now.subtract(const Duration(minutes: 5)).toIso8601String(),
+            'umbral_segundos': 300,
+            'verificacion': 'verificado',
+            'etiqueta_publica': 'Punto de agua de prueba',
+            'fuente_url': 'https://example.test/agua',
+            'oficial': 1,
+            'verificado_en': verifiedAt.toIso8601String(),
+          }),
+        ],
+      );
+
+      final snapshot = await snapshotWhere((s) => s.resources.isNotEmpty);
+      final resource = snapshot.resources.single;
+      expect(resource.id, 'recurso-agua');
+      expect(resource.staleAfter, const Duration(minutes: 5));
+      expect(const ResourceFreshnessPolicy().isStale(resource, now), isTrue);
+      expect(resource.source?.verifiedAt, verifiedAt);
+      expect(resource.source?.official, isTrue);
+    },
+  );
 
   test('un recurso viaja con tipo, cantidad y punto; una oferta queda en el celular', () async {
     fake.answers['POST /v1/zonas/$_zone/recursos'] = (200, {});

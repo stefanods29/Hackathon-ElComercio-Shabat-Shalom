@@ -62,12 +62,22 @@ Los teléfonos y puntos de encuentro proceden del directorio público de Fase 1,
 fuente y fecha. Sin un punto verificado disponible, la interfaz debe explicar su
 ausencia. No se agregan ubicaciones operativas ficticias.
 
-`resourceFreshnessPolicyProvider` permite sustituir las caducidades por las acordadas
-con los aliados. Los valores iniciales son ilustrativos y no son tiempos de respuesta.
-Las imágenes se desactivan al usar el modo emergencia para reducir el consumo de datos.
+El tablero de la cuenta usa `umbral_segundos` del stream y marca el recurso como posiblemente
+desactualizado al alcanzar ese límite. La práctica usa los valores ilustrativos de
+`resourceFreshnessPolicyProvider`. La tarjeta muestra la fuente y su fecha de verificación cuando
+el recurso está verificado y añade la insignia si la fuente es oficial. Las imágenes se desactivan
+al usar el modo emergencia para reducir el consumo de datos.
 
 ## Estado de validación
 
-Entrega de código sin pruebas, análisis, compilaciones, CI ni simulacros, por indicación
-del responsable. Quedan pendientes la integración operativa, la validación de
-accesibilidad y los criterios de salida de la Fase 2.
+La verificación de frescura se ejecutó con `tool/verify.sh` desde `app/`. Pasaron el análisis, el
+formato y 263 pruebas. Se omitió la prueba de PowerSync en vivo, que requiere `LIVE_POWERSYNC`.
+
+- [Política de frescura](../../../app/test/features/emergencias/resource_freshness_policy_test.dart).
+  Comprueba los límites de los seis tipos y la precedencia del umbral del servidor.
+- [Tarjeta de recursos](../../../app/test/features/emergencias/critical_resource_card_test.dart).
+  Comprueba la antigüedad con reloj controlado, la marca, la fecha de la fuente verificada y la insignia.
+- [Repositorio operativo](../../../app/test/features/emergencias/operational_emergency_repository_test.dart).
+  Siembra una fila del stream y comprueba que el tablero recibe el umbral y la fecha de verificación.
+
+Quedan pendientes el modo avión para estos recursos, la validación de accesibilidad y el simulacro.
