@@ -17,6 +17,7 @@ class AppEnvironment {
     this.firebaseAppId = '',
     this.firebaseSenderId = '',
     this.firebaseProjectId = '',
+    this.appVersion = '0.1.0+1',
   });
 
   // Same demonstration rectangle as infra/cdn/district.config.json; not an administrative boundary.
@@ -36,6 +37,7 @@ class AppEnvironment {
       defaultValue: 'http://10.0.2.2:8090/estilos/vecinal.json',
     ),
     cdnBaseUrl: String.fromEnvironment('CDN_BASE_URL', defaultValue: 'http://10.0.2.2:8090'),
+    appVersion: String.fromEnvironment('APP_VERSION', defaultValue: '0.1.0+1'),
   );
 
   final String apiBaseUrl;
@@ -57,6 +59,9 @@ class AppEnvironment {
   final String firebaseAppId;
   final String firebaseSenderId;
   final String firebaseProjectId;
+
+  /// Version reported with the sync counters (`APP_VERSION`, the one in `pubspec.yaml` by default).
+  final String appVersion;
 
   bool get phoneAuthWithFirebase => phoneAuth == 'firebase';
 }

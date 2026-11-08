@@ -22,6 +22,13 @@ cancelar y borrar. La configuración del servidor es `--dart-define=MAP_STYLE_UR
 (y `--dart-define=CDN_BASE_URL=...` para las fotos de las reseñas y el directorio de emergencia);
 ver `lib/features/mapa/README.md` y `../infra/cdn/README.md` antes de probar en un teléfono.
 
+## Métricas de sincronización
+
+Una vez al día la app envía contadores anónimos de la cola y la conexión a
+`POST /v1/telemetria/sincronizacion` (`lib/core/sync/sync_telemetry_reporter.dart`). La versión
+que reporta es `--dart-define=APP_VERSION=...` (por defecto la de `pubspec.yaml`). Los campos y su
+revisión de privacidad están en `../docs/fase-1/evidencias/sincronizacion.md`.
+
 La integración `maplibre_gl` 0.28 requiere JDK 21, Android API 24+ e iOS 15.5+. El CI verifica
 Android e iOS en las solicitudes de revisión. No se necesita habilitar la ubicación del vecino.
 
