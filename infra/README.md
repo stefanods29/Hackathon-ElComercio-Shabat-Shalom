@@ -12,3 +12,11 @@ Para trabajar solo los mapas: genera los archivos siguiendo `cdn/README.md` y ej
 Para las fotos de Fase 1 C, usar la composición adicional `compose.media.yml` siguiendo
 `media/README.md`. La propuesta de entornos cloud y su validación sin despliegue están en
 `cloud/README.md`; no requiere ni incorpora credenciales reales para sus pruebas locales.
+
+## Laboratorio de PowerSync en vivo
+
+La composición adicional `compose.powersync-live.yml` fija PowerSync 1.28.1 y apunta el JWKS
+a la API efímera que levanta la prueba en el puerto 3001. Usar un proyecto de Compose separado
+y una base local de laboratorio; los puertos 5432 y 8080 deben estar libres. No ejecutar contra
+datos de personas. Los comandos y el alcance de las comprobaciones están en
+[`powersync-en-vivo.md`](../docs/fase-2/evidencias/powersync-en-vivo.md).
