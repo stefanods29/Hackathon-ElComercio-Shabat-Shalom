@@ -1,17 +1,23 @@
 import { Global, Inject, Module, type OnApplicationShutdown } from '@nestjs/common';
 import type { Kysely } from 'kysely';
-import { APP_CONFIG, type AppConfig } from '../config/app-config.js';
-import { KYSELY, createKysely } from './connection.js';
+import { APP_CONFIG } from '../config/app-config.js';
+import { KYSELY } from './connection.js';
+import {
+  DATABASE_CONNECTION,
+  connectDatabase,
+  type DatabaseConnection,
+} from './configured-connection.js';
 import { UNIT_OF_WORK } from './unit-of-work.js';
 import { KyselyUnitOfWork } from './unit-of-work.kysely.js';
 
 @Global()
 @Module({
   providers: [
+    { provide: DATABASE_CONNECTION, inject: [APP_CONFIG], useFactory: connectDatabase },
     {
       provide: KYSELY,
-      inject: [APP_CONFIG],
-      useFactory: (config: AppConfig) => createKysely(config.DATABASE_URL),
+      inject: [DATABASE_CONNECTION],
+      useFactory: (connection: DatabaseConnection) => connection.db,
     },
     {
       provide: UNIT_OF_WORK,
@@ -22,9 +28,9 @@ import { KyselyUnitOfWork } from './unit-of-work.kysely.js';
   exports: [KYSELY, UNIT_OF_WORK],
 })
 export class DatabaseModule implements OnApplicationShutdown {
-  constructor(@Inject(KYSELY) private readonly db: Kysely<unknown>) {}
+  constructor(@Inject(DATABASE_CONNECTION) private readonly connection: DatabaseConnection) {}
 
   async onApplicationShutdown(): Promise<void> {
-    await this.db.destroy();
+    await this.connection.close();
   }
 }

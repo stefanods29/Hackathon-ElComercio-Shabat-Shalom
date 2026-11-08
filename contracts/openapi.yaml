@@ -42,6 +42,8 @@ tags:
     description: Registro y baja de dispositivos para avisos personales.
   - name: telemetria
     description: Contadores anónimos de la sincronización que envían los celulares.
+  - name: media
+    description: Fotos privadas, subidas firmadas y procesamiento sin EXIF.
 security:
   - tokenDeAcceso: []
 
@@ -1300,6 +1302,109 @@ paths:
         '409': { $ref: '#/components/responses/Conflicto' }
         '422': { $ref: '#/components/responses/NoProcesable' }
 
+  /v1/archivos:
+    post:
+      tags: [media]
+      operationId: registrarArchivo
+      summary: Reservar una foto privada generada en el celular
+      parameters:
+        - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/NuevoArchivo' }
+      responses:
+        '200':
+          description: Archivo reservado o ya existente para el mismo dueño y contenido.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Archivo' }
+        '400': { $ref: '#/components/responses/SolicitudInvalida' }
+        '401': { $ref: '#/components/responses/NoAutenticado' }
+        '403': { $ref: '#/components/responses/Prohibido' }
+        '404': { $ref: '#/components/responses/NoEncontrado' }
+        '409': { $ref: '#/components/responses/Conflicto' }
+        '422': { $ref: '#/components/responses/NoProcesable' }
+  /v1/archivos/{id}:
+    parameters:
+      - $ref: '#/components/parameters/ArchivoId'
+    get:
+      tags: [media]
+      operationId: consultarArchivoPropio
+      summary: Consultar el estado privado y enlaces temporales de una foto propia
+      responses:
+        '200':
+          description: Estado del archivo. Estar listo no equivale a estar publicado ni moderado.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Archivo' }
+        '400': { $ref: '#/components/responses/SolicitudInvalida' }
+        '401': { $ref: '#/components/responses/NoAutenticado' }
+        '404': { $ref: '#/components/responses/NoEncontrado' }
+  /v1/archivos/{id}/subida:
+    parameters:
+      - $ref: '#/components/parameters/ArchivoId'
+    post:
+      tags: [media]
+      operationId: firmarSubidaArchivo
+      summary: Obtener una subida PUT privada de cinco minutos
+      description: La app usa todos los encabezados indicados. Una URL vencida requiere una nueva Idempotency-Key.
+      parameters:
+        - $ref: '#/components/parameters/IdempotencyKey'
+      responses:
+        '200':
+          description: Permiso temporal de subida; no debe guardarse en logs ni compartirse.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [url, encabezados, venceEn]
+                properties:
+                  url: { type: string, format: uri }
+                  encabezados: { type: object, additionalProperties: { type: string } }
+                  venceEn: { type: string, format: date-time }
+        '400': { $ref: '#/components/responses/SolicitudInvalida' }
+        '401': { $ref: '#/components/responses/NoAutenticado' }
+        '404': { $ref: '#/components/responses/NoEncontrado' }
+        '409': { $ref: '#/components/responses/Conflicto' }
+        '422': { $ref: '#/components/responses/NoProcesable' }
+  /v1/archivos/{id}/confirmar:
+    parameters:
+      - $ref: '#/components/parameters/ArchivoId'
+    post:
+      tags: [media]
+      operationId: confirmarSubidaArchivo
+      summary: Confirmar la subida y dejar el procesamiento en cola persistente
+      parameters:
+        - $ref: '#/components/parameters/IdempotencyKey'
+      responses:
+        '200':
+          description: Estado del archivo. El worker verifica la huella y los bytes reales.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Archivo' }
+        '400': { $ref: '#/components/responses/SolicitudInvalida' }
+        '401': { $ref: '#/components/responses/NoAutenticado' }
+        '404': { $ref: '#/components/responses/NoEncontrado' }
+        '409': { $ref: '#/components/responses/Conflicto' }
+        '422': { $ref: '#/components/responses/NoProcesable' }
+  /v1/archivos/{id}/baja:
+    parameters:
+      - $ref: '#/components/parameters/ArchivoId'
+    post:
+      tags: [media]
+      operationId: retirarArchivoPropio
+      summary: Retirar un borrador privado y revocar nuevas lecturas
+      parameters:
+        - $ref: '#/components/parameters/IdempotencyKey'
+      responses:
+        '200': { description: Archivo retirado; el worker elimina sus objetos de forma recuperable. }
+        '400': { $ref: '#/components/responses/SolicitudInvalida' }
+        '401': { $ref: '#/components/responses/NoAutenticado' }
+        '404': { $ref: '#/components/responses/NoEncontrado' }
+        '409': { $ref: '#/components/responses/Conflicto' }
+
 components:
   securitySchemes:
     tokenDeAcceso:
@@ -1308,6 +1413,11 @@ components:
       bearerFormat: JWT ES256 (audiencia vecinal-api, 15 minutos)
 
   parameters:
+    ArchivoId:
+      name: id
+      in: path
+      required: true
+      schema: { type: string, format: uuid }
     IdempotencyKey:
       name: Idempotency-Key
       in: header
@@ -1507,6 +1617,30 @@ components:
           additionalProperties: { type: integer, minimum: 0 }
         segundosDesdeUltimaSincronizacionP95: { type: [number, 'null'], minimum: 0 }
         erroresDeConexion: { type: integer, minimum: 0 }
+    NuevoArchivo:
+      type: object
+      additionalProperties: false
+      required: [id, tipoContenido, bytes, sha256]
+      properties:
+        id: { type: string, format: uuid }
+        tipoContenido: { type: string, enum: [image/jpeg, image/png, image/webp] }
+        bytes: { type: integer, minimum: 1, maximum: 2097152 }
+        sha256: { type: string, pattern: '^[0-9a-f]{64}$' }
+    Archivo:
+      type: object
+      required: [id, estado, bytes, creadoEn]
+      properties:
+        id: { type: string, format: uuid }
+        estado: { type: string, enum: [pendiente_subida, en_cola, procesando, listo, rechazado, eliminado] }
+        bytes: { type: integer }
+        creadoEn: { type: string, format: date-time }
+        ancho: { type: [integer, 'null'] }
+        alto: { type: [integer, 'null'] }
+        blurhash: { type: [string, 'null'] }
+        motivo: { type: [string, 'null'], enum: [imagen_invalida, contenido_distinto, error_de_procesamiento, null] }
+        url: { type: string, format: uri }
+        miniaturaUrl: { type: string, format: uri }
+        urlsVencenEn: { type: string, format: date-time }
     TokenDeDispositivo:
       type: string
       minLength: 1

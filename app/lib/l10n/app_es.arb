@@ -636,5 +636,38 @@
   "commentTooLong": "El comentario no puede pasar de 2000 caracteres.",
   "reportClose": "Cerrar",
   "levelThree": "Nivel 3: colaboras con la moderación según el rol asignado en tu zona.",
-  "editServiceAlternative": "Ver servicios actualizados"
+  "editServiceAlternative": "Ver servicios actualizados",
+  "photosPreview": "Vista previa de tu foto",
+  "photosPrivacy": "Elegir una foto no la publica. Quitamos los datos de ubicación y guardamos una copia cifrada en tu celular.",
+  "photosProcessing": "Foto enviada. Preparando la vista previa.",
+  "photosDelete": "Eliminar foto",
+  "photosSelectionFailed": "No se pudo preparar la foto. Prueba con una imagen más pequeña o comprueba el permiso para elegir fotos.",
+  "@sharePublicPost": {
+    "placeholders": {
+      "link": {
+        "type": "String"
+      }
+    }
+  },
+  "photosEmpty": "Tus fotos aparecerán aquí. Puedes prepararlas incluso sin conexión.",
+  "shareUnavailable": "Compartir no está disponible en esta versión.",
+  "photosRemoving": "Eliminación pendiente. Se completará al recuperar la conexión.",
+  "photosChoose": "Elegir una foto",
+  "photosDeleteExplanation": "Se eliminará este borrador de tu celular y se solicitará su retiro del servidor. No cambia otras publicaciones.",
+  "photosHeading": "Fotos para tus publicaciones",
+  "photosTitle": "Mis fotos",
+  "sharePublicPost": "Mira esta publicación en Vecinal: {link}",
+  "photosDisabled": "Las fotos todavía no están habilitadas en esta versión.",
+  "photosUploading": "Subiendo foto…",
+  "photosReady": "Foto procesada y privada. Todavía no está publicada.",
+  "photosStorageFailed": "No se pudieron leer tus fotos. Cierra esta pantalla y vuelve a intentarlo.",
+  "photosFailed": "No se pudo completar. Revisa la foto y vuelve a intentarlo.",
+  "photosPreparing": "Preparando foto…",
+  "photosRetry": "Reintentar",
+  "photosKeep": "Conservar foto",
+  "photosLocalOnly": "Puedes preparar tus fotos aquí. Para subirlas, necesitas iniciar sesión con tu cuenta.",
+  "photosQueued": "Guardado en tu celular. Todavía no se envió.",
+  "shareNotSent": "Primero envía la publicación. Todavía está guardada solo en tu celular.",
+  "photosAttach": "Adjuntar esta foto",
+  "photosPrepareFirst": "Prepara una foto en Mis fotos antes de adjuntarla."
 }

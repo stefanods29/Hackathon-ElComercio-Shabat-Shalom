@@ -1,0 +1,38 @@
+name: vecinal
+services:
+  object-storage:
+    build: ./media
+    environment:
+      MINIO_ROOT_USER: vecinal-local
+      MINIO_ROOT_PASSWORD: vecinal-local-only-2026
+    ports: ["127.0.0.1:9000:9000", "127.0.0.1:9001:9001"]
+    volumes: ["fotos_locales:/data"]
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "wget",
+          "-q",
+          "-O",
+          "/dev/null",
+          "http://127.0.0.1:9000/minio/health/ready",
+        ]
+      interval: 5s
+      timeout: 3s
+      retries: 30
+  prepare-photos:
+    build: ../backend
+    command: ["node", "/app/init-bucket.mjs"]
+    environment:
+      MEDIA_ACCESS_KEY_ID: vecinal-local
+      MEDIA_SECRET_ACCESS_KEY: vecinal-local-only-2026
+    volumes: ["./media/init-bucket.mjs:/app/init-bucket.mjs:ro"]
+    depends_on:
+      object-storage: { condition: service_healthy }
+  telemetry:
+    image: otel/opentelemetry-collector-contrib:0.148.0
+    command: ["--config=/etc/otel/config.yaml"]
+    volumes: ["./observability/collector.yaml:/etc/otel/config.yaml:ro"]
+    ports: ["127.0.0.1:4318:4318"]
+volumes:
+  fotos_locales:

@@ -32,6 +32,7 @@ import { JOB_QUEUE } from './queues/job-queue.js';
 import { InMemoryJobQueue } from './queues/job-queue.memory.js';
 import { PgBossJobQueue } from './queues/job-queue.pgboss.js';
 import { JobHandlerRegistry } from './queues/job-handler.registry.js';
+import { TelemetryInterceptor } from './observability/telemetry.interceptor.js';
 import { QUEUE_METRICS_READER } from './queues/queue-metrics.js';
 import { IdempotencyCounters } from './observability/idempotency-counters.js';
 import { HttpRequestLogger, RequestIdMiddleware } from './observability/request-id.middleware.js';
@@ -90,6 +91,7 @@ function queueProvider(worker = false) {
     { provide: APP_GUARD, useClass: AuthGuard },
     { provide: APP_GUARD, useClass: AuthorizationGuard },
     { provide: APP_INTERCEPTOR, useClass: IdempotencyInterceptor },
+    { provide: APP_INTERCEPTOR, useClass: TelemetryInterceptor },
   ],
   exports: [
     CLOCK,

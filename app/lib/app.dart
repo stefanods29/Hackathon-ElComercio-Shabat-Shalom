@@ -4,6 +4,7 @@ import 'package:vecinal/core/router/router.dart';
 import 'package:vecinal/core/router/routes.dart';
 import 'package:vecinal/core/theme/accessible_theme.dart';
 import 'package:vecinal/features/avisos/presentation/push_listener.dart';
+import 'package:vecinal/features/media/presentation/photo_runtime.dart';
 import 'package:vecinal/features/onboarding/practice_mode.dart';
 import 'package:vecinal/l10n/app_localizations.dart';
 
@@ -21,7 +22,8 @@ class VecinalApp extends ConsumerWidget {
       supportedLocales: AppLocalizations.supportedLocales,
       localizationsDelegates: AppLocalizations.localizationsDelegates,
       routerConfig: ref.watch(routerProvider),
-      builder: (context, child) => PushListener(
+      builder: (context, child) => PhotoRuntime(
+        child: PushListener(
         child: Column(
           children: [
             if (practice.value == true)
@@ -57,6 +59,7 @@ class VecinalApp extends ConsumerWidget {
             Expanded(child: child!),
           ],
         ),
+      ),
       ),
     );
   }

@@ -16,6 +16,7 @@ import 'package:vecinal/features/directorio/presentation/service_form_page.dart'
 import 'package:vecinal/features/emergencias/emergency_page.dart';
 import 'package:vecinal/features/mapa/presentation/map_page.dart';
 import 'package:vecinal/features/mapa/presentation/map_view.dart';
+import 'package:vecinal/features/media/presentation/photo_library_page.dart';
 import 'package:vecinal/features/onboarding/tutorial_screen.dart';
 import 'package:vecinal/features/publicar/presentation/choose_type_page.dart';
 import 'package:vecinal/features/publicar/presentation/publish_form_page.dart';
@@ -118,6 +119,7 @@ final routerProvider = Provider<GoRouter>((ref) {
         path: Routes.providerProfile,
         builder: (context, state) => ProviderProfilePage(providerId: state.pathParameters['id']!),
       ),
+      GoRoute(path: Routes.photos, builder: (context, state) => const PhotoLibraryPage()),
       GoRoute(path: Routes.pushSettings, builder: (context, state) => const PushSettingsPage()),
       GoRoute(
         path: Routes.postDetail,

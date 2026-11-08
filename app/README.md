@@ -90,3 +90,14 @@ La recepción dirigida requiere que A conecte su sesión real a `pushCredentials
 usa la cuenta de demostración para registrar dispositivos. El enlace completo y los requisitos
 de cierre de sesión están en `lib/features/avisos/README.md`.
 
+## Fotos y compartir (Fase 1 C)
+
+Activar la galería con `--dart-define=ENABLE_PHOTOS=true`; sin sesión real conserva borradores
+privados en el teléfono. La cola, sus componentes y la integración con A/B/D están descritos en
+`lib/features/media/README.md`. Configuración del servidor local: `../infra/media/README.md`.
+
+Compartir usa el selector del teléfono, incluido WhatsApp si está disponible. Requiere un origen
+real en `PUBLIC_APP_URL` y una publicación confirmada. Consultar `lib/features/compartir/README.md`.
+`SENTRY_DSN` es opcional; sin él no se inicializa Sentry. El informe de implementación y sus
+comprobaciones están en `../docs/fase-1/evidencias/lote-c.md`.
+

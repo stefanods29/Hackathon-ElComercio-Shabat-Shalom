@@ -18,6 +18,11 @@ class AppEnvironment {
     this.firebaseSenderId = '',
     this.firebaseProjectId = '',
     this.appVersion = '0.1.0+1',
+    this.enablePhotos = false,
+    this.mediaStorageOrigin = 'http://10.0.2.2:9000',
+    this.publicAppUrl = '',
+    this.sentryDsn = '',
+    this.environmentName = 'dev',
   });
 
   // Same demonstration rectangle as infra/cdn/district.config.json; not an administrative boundary.
@@ -32,6 +37,14 @@ class AppEnvironment {
     firebaseAppId: String.fromEnvironment('FIREBASE_APP_ID'),
     firebaseSenderId: String.fromEnvironment('FIREBASE_SENDER_ID'),
     firebaseProjectId: String.fromEnvironment('FIREBASE_PROJECT_ID'),
+    enablePhotos: bool.fromEnvironment('ENABLE_PHOTOS'),
+    mediaStorageOrigin: String.fromEnvironment(
+      'MEDIA_STORAGE_ORIGIN',
+      defaultValue: 'http://10.0.2.2:9000',
+    ),
+    publicAppUrl: String.fromEnvironment('PUBLIC_APP_URL'),
+    sentryDsn: String.fromEnvironment('SENTRY_DSN'),
+    environmentName: String.fromEnvironment('APP_ENVIRONMENT', defaultValue: 'dev'),
     mapStyleUrl: String.fromEnvironment(
       'MAP_STYLE_URL',
       defaultValue: 'http://10.0.2.2:8090/estilos/vecinal.json',
@@ -64,4 +77,9 @@ class AppEnvironment {
   final String appVersion;
 
   bool get phoneAuthWithFirebase => phoneAuth == 'firebase';
+  final bool enablePhotos;
+  final String mediaStorageOrigin;
+  final String publicAppUrl;
+  final String sentryDsn;
+  final String environmentName;
 }

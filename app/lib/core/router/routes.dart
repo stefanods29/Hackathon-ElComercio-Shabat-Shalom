@@ -25,4 +25,5 @@ abstract final class Routes {
   static const levels = '/cuenta/niveles';
   static const consent = '/consentimiento';
   static const changeZone = '/cuenta/cambiar-zona';
+  static const photos = '/fotos';
 }

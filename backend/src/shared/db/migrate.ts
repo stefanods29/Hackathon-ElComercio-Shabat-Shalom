@@ -4,12 +4,13 @@
  *   npm run db:migrate -- down  → reverts the last one
  */
 import { loadConfig, loadEnvFile } from '../config/app-config.js';
-import { createKysely } from './connection.js';
+import { connectDatabase } from './configured-connection.js';
 import { createMigrator, migrateToLatest } from './migrator.js';
 
 loadEnvFile();
 const config = loadConfig();
-const db = createKysely(config.DATABASE_URL, 1);
+const connection = await connectDatabase(config, 1);
+const db = connection.db;
 
 try {
   if (process.argv[2] === 'down') {
@@ -27,5 +28,5 @@ try {
     );
   }
 } finally {
-  await db.destroy();
+  await connection.close();
 }
