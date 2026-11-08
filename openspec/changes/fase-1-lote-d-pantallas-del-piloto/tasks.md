@@ -38,7 +38,7 @@
 - [ ] 5.2 "Mis datos": ver, exportar como archivo y corregir el nombre visible; verificar con pruebas de widgets
 - [ ] 5.3 "Borrar mi cuenta" con la explicación de lo que se borra, confirmación explícita y uso de `AuthRepository.deleteAccount`; verificar con una prueba de widgets del flujo de borrado y sin conexión
 - [ ] 5.4 "Cómo subir de nivel" con el nivel actual y "Cambiar de zona" con el aviso de acciones pendientes del Lote A; verificar con pruebas de widgets, contraste y tamaños táctiles
-- [ ] 5.5 Prueba de usabilidad con al menos 5 adultos mayores (buscar, reseñar y abrir el directorio de emergencia); registrar el resultado en `docs/fase-1/evidencias/usabilidad.md` sin datos personales
+- [ ] 5.5 Ejecutar localmente buscar, reseñar y abrir el directorio de emergencia con 5 perfiles y datos simulados; registrar el resultado en `docs/fase-1/evidencias/usabilidad.md`. La prueba presencial con adultos mayores se omite por instrucción expresa del usuario del 7 de noviembre de 2026 y no se cuenta como aprobada
 - [ ] 5.6 Compilar y depurar: `tool/verify.sh` y CI en verde
 
 ## Workflow follow-up

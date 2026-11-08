@@ -122,6 +122,7 @@ class _AuthenticatedAppState extends State<AuthenticatedApp> {
                   neighborId: session.user.neighborId,
                   zoneId: session.user.zoneId!,
                   displayName: session.user.displayName,
+                  trustLevel: session.user.trustLevel,
                 ),
               ),
               syncServiceProvider.overrideWithValue(session.sync),

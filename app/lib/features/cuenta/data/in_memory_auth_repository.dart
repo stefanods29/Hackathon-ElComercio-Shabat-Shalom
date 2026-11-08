@@ -9,7 +9,7 @@ import 'package:vecinal/features/cuenta/domain/zone.dart';
 /// Por defecto arranca en `SignedIn` con la sesión de demostración (Beto, zona piloto)
 /// para que el resto de la app y las pruebas actuales sigan igual. Las pruebas de este
 /// flujo lo crean en `SignedOut`.
-class InMemoryAuthRepository implements AuthRepository {
+class InMemoryAuthRepository implements AuthRepository, AccountLifecycle {
   InMemoryAuthRepository({this.startSignedOut = false}) {
     if (startSignedOut) {
       _state = const SignedOut();
@@ -114,5 +114,27 @@ class InMemoryAuthRepository implements AuthRepository {
 
   void close() {
     _controller.close();
+  }
+
+  @override
+  Future<void> deleteAccount() async {
+    _state = const SignedOut();
+    _controller.add(_state);
+  }
+
+  @override
+  Future<void> changeZone(String zoneId) async {
+    _zones.firstWhere((zone) => zone.id == zoneId);
+    final current = _state;
+    if (current is! SignedIn) throw const AccountCapabilityUnavailable();
+    _state = SignedIn(
+      LocalUser(
+        neighborId: current.user.neighborId,
+        displayName: current.user.displayName,
+        zoneId: zoneId,
+        trustLevel: current.user.trustLevel,
+      ),
+    );
+    _controller.add(_state);
   }
 }

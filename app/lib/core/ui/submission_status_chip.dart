@@ -37,12 +37,21 @@ class SubmissionStatusChip extends StatelessWidget {
     return Semantics(
       label: label,
       excludeSemantics: true,
-      child: Chip(
-        avatar: Icon(icon, color: foreground, size: 20),
-        label: Text(label),
-        labelStyle: TextStyle(color: foreground, fontWeight: FontWeight.w600),
-        backgroundColor: background,
-        side: BorderSide.none,
+      child: LayoutBuilder(
+        builder: (context, constraints) => Chip(
+          avatar: Icon(icon, color: foreground, size: 20),
+          label: ConstrainedBox(
+            constraints: BoxConstraints(
+              maxWidth: constraints.hasBoundedWidth
+                  ? (constraints.maxWidth > 64 ? constraints.maxWidth - 64 : 0)
+                  : double.infinity,
+            ),
+            child: Text(label),
+          ),
+          labelStyle: TextStyle(color: foreground, fontWeight: FontWeight.w600),
+          backgroundColor: background,
+          side: BorderSide.none,
+        ),
       ),
     );
   }

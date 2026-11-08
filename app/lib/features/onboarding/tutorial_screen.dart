@@ -1,205 +1,151 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:showcaseview/showcaseview.dart';
 import 'package:vecinal/core/router/routes.dart';
-import 'package:vecinal/core/ui/large_button.dart';
-import 'package:vecinal/core/ui/simple_mode.dart';
+import 'package:vecinal/features/directorio/data/providers.dart';
+import 'package:vecinal/features/directorio/domain/directory.dart';
+import 'package:vecinal/features/onboarding/demo_profiles.dart';
+import 'package:vecinal/features/onboarding/practice_mode.dart';
+import 'package:vecinal/features/onboarding/tutorial_content.dart';
 import 'package:vecinal/features/onboarding/tutorial_provider.dart';
 import 'package:vecinal/l10n/app_localizations.dart';
 
-/// Pantalla de tutorial sobre la pantalla real del muro.
-///
-/// Se muestra la primera vez que se abre la app y se puede repetir desde el menú.
+/// Every step has a real destination and works from the included public asset.
 class TutorialScreen extends ConsumerStatefulWidget {
   const TutorialScreen({super.key});
-
   @override
   ConsumerState<TutorialScreen> createState() => _TutorialScreenState();
 }
 
 class _TutorialScreenState extends ConsumerState<TutorialScreen> {
-  final _publishKey = GlobalKey();
-  final _takeFavorKey = GlobalKey();
-  final _savedKey = GlobalKey();
-  final _reviewKey = GlobalKey();
-  final _emergencyKey = GlobalKey();
-
-  final List<GlobalKey> _steps = [];
-  late final ShowcaseView _showcase;
-
-  @override
-  void initState() {
-    super.initState();
-    _steps.addAll([_publishKey, _takeFavorKey, _savedKey, _reviewKey, _emergencyKey]);
-    _showcase = ShowcaseView.register(onFinish: _finishTutorial);
-  }
-
-  void _startTutorial() {
-    _showcase.startShowCase(_steps);
-  }
-
-  Future<void> _finishTutorial() async {
-    await ref.read(tutorialSeenProvider.notifier).markSeen();
-    if (!mounted) return;
-    context.go(Routes.home);
-  }
-
-  @override
-  void dispose() {
-    _showcase.unregister();
-    super.dispose();
-  }
-
+  bool _started = false;
   @override
   Widget build(BuildContext context) {
-    final texts = AppLocalizations.of(context);
-    final simpleModeAsync = ref.watch(simpleModeProvider);
-    final scale = simpleModeAsync.value == true ? simpleModeTextScale : 1.0;
-
+    final t = AppLocalizations.of(context);
+    final practice = ref.watch(practiceModeProvider);
+    final content = ref.watch(tutorialContentProvider);
     return Scaffold(
-      appBar: AppBar(
-        title: Text(texts.tutorialTitle),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () => context.go(Routes.home),
-        ),
-      ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
+      appBar: AppBar(title: Text(t.tutorialTitle)),
+      body: SafeArea(
+        child: ListView(
+          padding: const EdgeInsets.all(16),
           children: [
-            Icon(Icons.tips_and_updates, size: 64, color: Theme.of(context).colorScheme.primary),
-            const SizedBox(height: 24),
-            Text(
-              texts.tutorialTitle,
-              style: Theme.of(context).textTheme.headlineSmall?.copyWith(fontSize: 24 * scale),
+            Text(t.tutorialSubtitle, style: Theme.of(context).textTheme.titleLarge),
+            Text(t.tutorialFallback),
+            SwitchListTile.adaptive(
+              contentPadding: EdgeInsets.zero,
+              title: Text(t.practiceMode),
+              subtitle: Text(practice.value == true ? t.practiceHelp : t.practiceOffHelp),
+              value: practice.value == true,
+              onChanged: !practice.hasValue
+                  ? null
+                  : (value) => ref.read(practiceModeProvider.notifier).set(value),
             ),
-            const SizedBox(height: 16),
-            Text(
-              texts.tutorialSubtitle,
-              style: Theme.of(context).textTheme.bodyMedium,
-              textAlign: TextAlign.center,
+            if (practice.value == true) ...[
+              Text(t.syntheticProfilesHelp),
+              DropdownButtonFormField<int>(
+                initialValue: ref.watch(demoProfileIndexProvider),
+                isExpanded: true,
+                decoration: InputDecoration(labelText: t.syntheticProfile),
+                items: [
+                  for (var i = 0; i < demoProfiles.length; i++)
+                    DropdownMenuItem(value: i, child: Text(demoProfiles[i].name)),
+                ],
+                onChanged: (value) {
+                  if (value != null) ref.read(demoProfileIndexProvider.notifier).select(value);
+                },
+              ),
+            ],
+            if (!_started)
+              FilledButton.icon(
+                icon: const Icon(Icons.play_arrow),
+                label: Text(t.startTutorial),
+                onPressed: () => setState(() => _started = true),
+              ),
+            if (_started)
+              content.when(
+                loading: () => const Center(child: CircularProgressIndicator()),
+                error: (_, _) => Text(t.actionFailed),
+                data: (data) => Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    for (final step in data.steps)
+                      Card(
+                        child: Padding(
+                          padding: const EdgeInsets.all(16),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: [
+                              Text(
+                                step.title ?? _title(t, step.destination),
+                                style: Theme.of(context).textTheme.titleLarge,
+                              ),
+                              Text(step.body ?? _body(t, step.destination)),
+                              if (step.destination == TutorialDestination.emergency)
+                                Text(t.connectsNeighbors),
+                              OutlinedButton(
+                                onPressed: !practice.hasValue
+                                    ? null
+                                    : () => _open(step.destination),
+                                child: Text(t.openStep),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                  ],
+                ),
+              ),
+            TextButton(
+              onPressed: () async {
+                await ref.read(tutorialSeenProvider.notifier).markSeen();
+                if (context.mounted) context.go(Routes.home);
+              },
+              child: Text(t.finishTutorial),
             ),
-            const SizedBox(height: 32),
-            LargeButton(
-              icon: Icons.play_arrow,
-              label: texts.startTutorial,
-              fullWidth: true,
-              onPressed: _startTutorial,
-            ),
-            const SizedBox(height: 12),
-            TextButton(onPressed: () => context.go(Routes.home), child: Text(texts.skipTutorial)),
           ],
         ),
       ),
     );
   }
-}
 
-/// Paso del tutorial: botón "+" del muro.
-class PublishTutorialStep extends StatelessWidget {
-  const PublishTutorialStep({super.key, required this.child});
-
-  final Widget child;
-
-  @override
-  Widget build(BuildContext context) {
-    return Showcase(
-      key: _publishStepKey,
-      description: AppLocalizations.of(context).tutorialPublishStep,
-      child: child,
-    );
+  String _title(AppLocalizations t, TutorialDestination d) => switch (d) {
+    TutorialDestination.directory => t.directoryTitle,
+    TutorialDestination.publish => t.offerService,
+    TutorialDestination.review => t.writeReview,
+    TutorialDestination.actions => t.actionsToReview,
+    TutorialDestination.emergency => t.emergencyTitle,
+    TutorialDestination.privacy => t.privacyTitle,
+  };
+  String _body(AppLocalizations t, TutorialDestination d) => switch (d) {
+    TutorialDestination.directory => t.tutorialDirectoryStep,
+    TutorialDestination.publish => t.tutorialPublishStep,
+    TutorialDestination.review => t.tutorialReviewPilotStep,
+    TutorialDestination.actions => t.tutorialReviewStep,
+    TutorialDestination.emergency => t.emergencyLifeRisk,
+    TutorialDestination.privacy => t.tutorialPrivacyStep,
+  };
+  void _open(TutorialDestination d) {
+    final service = ref.read(servicesProvider(const ServiceQuery())).value?.firstOrNull;
+    final route = switch (d) {
+      TutorialDestination.directory => Routes.directory,
+      TutorialDestination.publish => Routes.publishService,
+      TutorialDestination.review =>
+        service == null ? Routes.directory : '/servicios/${service.id}/resena',
+      TutorialDestination.actions => Routes.toReview,
+      TutorialDestination.emergency => Routes.emergency,
+      TutorialDestination.privacy => Routes.myData,
+    };
+    context.push(route);
   }
-
-  static final GlobalKey _publishStepKey = GlobalKey();
 }
 
-/// Paso del tutorial: tomar favor en una tarjeta.
-class TakeFavorTutorialStep extends StatelessWidget {
-  const TakeFavorTutorialStep({super.key, required this.child});
-
-  final Widget child;
-
-  @override
-  Widget build(BuildContext context) {
-    return Showcase(
-      key: _takeFavorStepKey,
-      description: AppLocalizations.of(context).tutorialTakeFavorStep,
-      child: child,
-    );
-  }
-
-  static final GlobalKey _takeFavorStepKey = GlobalKey();
-}
-
-/// Paso del tutorial: estado Guardado en tu celular.
-class SavedTutorialStep extends StatelessWidget {
-  const SavedTutorialStep({super.key, required this.child});
-
-  final Widget child;
-
-  @override
-  Widget build(BuildContext context) {
-    return Showcase(
-      key: _savedStepKey,
-      description: AppLocalizations.of(context).tutorialSavedStep,
-      child: child,
-    );
-  }
-
-  static final GlobalKey _savedStepKey = GlobalKey();
-}
-
-/// Paso del tutorial: bandeja Acciones por revisar.
-class ReviewTutorialStep extends StatelessWidget {
-  const ReviewTutorialStep({super.key, required this.child});
-
-  final Widget child;
-
-  @override
-  Widget build(BuildContext context) {
-    return Showcase(
-      key: _reviewStepKey,
-      description: AppLocalizations.of(context).tutorialReviewStep,
-      child: child,
-    );
-  }
-
-  static final GlobalKey _reviewStepKey = GlobalKey();
-}
-
-/// Paso del tutorial: teléfonos de emergencia.
-class EmergencyTutorialStep extends StatelessWidget {
-  const EmergencyTutorialStep({super.key, required this.child});
-
-  final Widget child;
-
-  @override
-  Widget build(BuildContext context) {
-    return Showcase(
-      key: _emergencyStepKey,
-      description:
-          '${AppLocalizations.of(context).tutorialEmergencyStep} '
-          '${AppLocalizations.of(context).tutorialEmergencyNote}',
-      child: child,
-    );
-  }
-
-  static final GlobalKey _emergencyStepKey = GlobalKey();
-}
-
-/// Botón para iniciar el tutorial (usado en el menú de la barra superior).
-class TutorialButton extends ConsumerWidget {
+class TutorialButton extends StatelessWidget {
   const TutorialButton({super.key});
-
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final texts = AppLocalizations.of(context);
-    return TextButton.icon(
-      icon: const Icon(Icons.tips_and_updates),
-      label: Text(texts.viewTutorial),
-      onPressed: () => context.push('/tutorial'),
-    );
-  }
+  Widget build(BuildContext context) => IconButton(
+    tooltip: AppLocalizations.of(context).viewTutorial,
+    icon: const Icon(Icons.tips_and_updates_outlined),
+    onPressed: () => context.push(Routes.tutorial),
+  );
 }

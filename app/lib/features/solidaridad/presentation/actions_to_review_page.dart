@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:vecinal/core/router/routes.dart';
 import 'package:vecinal/core/submissions/submission.dart';
 import 'package:vecinal/core/ui/notice_card.dart';
+import 'package:vecinal/features/reputacion/presentation/rejection_text.dart';
 import 'package:vecinal/features/solidaridad/data/providers.dart';
 import 'package:vecinal/features/solidaridad/domain/post.dart';
 import 'package:vecinal/l10n/app_localizations.dart';
@@ -75,7 +76,7 @@ class _ReviewItem extends ConsumerWidget {
       case 'fuera_de_tu_zona':
         return texts.outsideZoneAlternative;
       default:
-        return texts.reviewAgainAlternative;
+        return pilotRejectionText(texts, code);
     }
   }
 
@@ -102,9 +103,18 @@ class _ReviewItem extends ConsumerWidget {
             const SizedBox(height: 4),
             Text(
               post?.title ??
-                  (action.kind == SubmissionKind.publish
-                      ? texts.publishAction
-                      : texts.takeFavorAction),
+                  switch (action.kind) {
+                    SubmissionKind.publish => texts.publishAction,
+                    SubmissionKind.takeFavor => texts.takeFavorAction,
+                    SubmissionKind.publishService => texts.offerService,
+                    SubmissionKind.updateService => texts.editService,
+                    SubmissionKind.withdrawService => texts.withdrawService,
+                    SubmissionKind.upsertProvider => texts.providerTitle,
+                    SubmissionKind.writeReview => texts.writeReview,
+                    SubmissionKind.giveEndorsement ||
+                    SubmissionKind.withdrawEndorsement => texts.endorsementAction,
+                    SubmissionKind.report => texts.reportAction,
+                  },
               style: Theme.of(context).textTheme.titleMedium,
             ),
             const SizedBox(height: 8),
@@ -117,9 +127,16 @@ class _ReviewItem extends ConsumerWidget {
             ),
             const SizedBox(height: 12),
             Text(
-              _alternativeText(texts, reason.code),
+              action.kind != SubmissionKind.publish && action.kind != SubmissionKind.takeFavor
+                  ? pilotRejectionText(texts, reason.code)
+                  : _alternativeText(texts, reason.code),
               style: Theme.of(context).textTheme.bodyMedium,
             ),
+            if (reason.code == 'resena_duplicada')
+              TextButton(
+                onPressed: () => context.push('/cuenta/mis-resenas'),
+                child: Text(texts.openPreviousReview),
+              ),
             if (reason.code == 'favor_no_disponible') ...[
               const SizedBox(height: 12),
               Align(

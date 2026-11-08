@@ -1,6 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:vecinal/core/di/providers.dart';
 import 'package:vecinal/core/submissions/submission.dart';
+import 'package:vecinal/features/onboarding/demo_profiles.dart';
 import 'package:vecinal/features/onboarding/practice_mode.dart';
 import 'package:vecinal/features/solidaridad/data/in_memory_post_repository.dart';
 import 'package:vecinal/features/solidaridad/domain/post.dart';
@@ -22,7 +22,7 @@ final postRepositoryProvider = Provider<PostRepository>((ref) {
 /// Wall repository. Lot A swaps it for the PowerSync implementation
 /// (encrypted SQLite + upload queue) without touching any screen.
 final practicePostRepositoryProvider = Provider<PostRepository>((ref) {
-  final session = ref.watch(sessionProvider);
+  final session = ref.watch(effectiveSessionProvider);
   final now = DateTime.now();
   final repository = InMemoryPostRepository(
     currentNeighborId: session.neighborId,

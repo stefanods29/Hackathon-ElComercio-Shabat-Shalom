@@ -19,7 +19,7 @@ parte 5).
 | [`lote-a-datos-offline-y-metricas/`](lote-a-datos-offline-y-metricas/) | Streams públicos del directorio y la reputación, directorio de emergencia offline, métricas de sincronización, piloto e integración | ★★★★ | JDiazD33 | Pendiente (0 de 6 partes) |
 | [`lote-b-directorio-reputacion-y-moderacion/`](lote-b-directorio-reputacion-y-moderacion/) | Directorio, búsqueda, reseñas y ranking, identidad del piloto y moderación | ★★★ | Por asignar | Pendiente (0 de 5 partes) |
 | [`lote-c-fotos-entornos-y-observabilidad/`](lote-c-fotos-entornos-y-observabilidad/) | Módulo Media, fotos en la app, compartir por WhatsApp, entornos con OpenTofu y observabilidad | ★★ | Por asignar | Pendiente (0 de 5 partes) |
-| [`lote-d-pantallas-del-piloto/`](lote-d-pantallas-del-piloto/) | Pantallas del directorio, perfil y reseñas, botón de emergencia, consentimiento y derechos ARCO | ★ | Por asignar | Pendiente (0 de 5 partes) |
+| [`lote-d-pantallas-del-piloto/`](lote-d-pantallas-del-piloto/) | Pantallas del directorio, perfil y reseñas, botón de emergencia, consentimiento y derechos ARCO | ★ | stefanods29 | En curso en `f1-lote-d/pantallas-del-piloto`; validación local con perfiles simulados. |
 
 El estado de cada parte está en la tabla "Estado del lote" de cada guía. Los cuatro lotes se
 trabajan en simultáneo; donde uno necesita algo de otro, la guía dice qué doble usar mientras

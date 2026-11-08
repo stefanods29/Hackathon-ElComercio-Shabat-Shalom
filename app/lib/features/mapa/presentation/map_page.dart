@@ -10,8 +10,9 @@ import 'package:vecinal/features/mapa/presentation/map_view.dart';
 import 'package:vecinal/l10n/app_localizations.dart';
 
 class MapPage extends ConsumerStatefulWidget {
-  const MapPage({super.key, this.mapViewBuilder});
+  const MapPage({super.key, this.mapViewBuilder, this.focus});
   final MapViewBuilder? mapViewBuilder;
+  final MapFocus? focus;
 
   @override
   ConsumerState<MapPage> createState() => _MapPageState();
@@ -51,119 +52,144 @@ class _MapPageState extends ConsumerState<MapPage> with WidgetsBindingObserver {
     return Scaffold(
       appBar: AppBar(title: Text(texts.mapTitle)),
       backgroundColor: Theme.of(context).colorScheme.surfaceContainerLow,
-      body: SafeArea(
-        child: Column(
-          children: [
-            Expanded(
-              child: Center(
-                child: ConstrainedBox(
-                  constraints: const BoxConstraints(maxWidth: 760),
-                  child: ListView(
-                    padding: const EdgeInsets.fromLTRB(16, 4, 16, 20),
-                    children: [
-                      Card(
-                        margin: EdgeInsets.zero,
-                        clipBehavior: Clip.antiAlias,
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.stretch,
-                          children: [
-                            Padding(
-                              padding: const EdgeInsets.all(16),
-                              child: Row(
-                                children: [
-                                  DecoratedBox(
-                                    decoration: BoxDecoration(
-                                      color: Theme.of(context).colorScheme.primaryContainer,
-                                      borderRadius: BorderRadius.circular(14),
-                                    ),
-                                    child: Padding(
-                                      padding: const EdgeInsets.all(12),
-                                      child: Icon(
-                                        Icons.near_me_outlined,
-                                        color: Theme.of(context).colorScheme.onPrimaryContainer,
-                                      ),
-                                    ),
-                                  ),
-                                  const SizedBox(width: 12),
-                                  Expanded(
-                                    child: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                      children: [
-                                        Text(
-                                          texts.mapAreaLabel,
-                                          style: Theme.of(
-                                            context,
-                                          ).textTheme.labelSmall?.copyWith(letterSpacing: 1.6),
-                                        ),
-                                        const SizedBox(height: 4),
-                                        Text(
-                                          texts.mapDistrictName,
-                                          style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                                            fontWeight: FontWeight.w700,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            SizedBox(
-                              height: (MediaQuery.sizeOf(context).height * 0.4).clamp(220.0, 360.0),
-                              child: Semantics(
-                                label: texts.mapDistrictName,
-                                child: buildMapView(context, definition),
-                              ),
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.all(16),
-                              child: Text(
-                                texts.mapDemoBoundary,
-                                style: Theme.of(context).textTheme.bodySmall,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-                      Card(
-                        margin: EdgeInsets.zero,
-                        child: Padding(
-                          padding: const EdgeInsets.all(20),
+      body: MapFocusScope(
+        focus: widget.focus,
+        child: SafeArea(
+          child: Column(
+            children: [
+              Expanded(
+                child: Center(
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(maxWidth: 760),
+                    child: ListView(
+                      padding: const EdgeInsets.fromLTRB(16, 4, 16, 20),
+                      children: [
+                        Card(
+                          margin: EdgeInsets.zero,
+                          clipBehavior: Clip.antiAlias,
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.stretch,
                             children: [
-                              Text(
-                                texts.mapOfflineHeading,
-                                style: Theme.of(
-                                  context,
-                                ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700),
-                              ),
-                              const SizedBox(height: 16),
-                              regions.when(
-                                data: (items) => _DownloadControls(
-                                  region: items.single,
-                                  controls: controls,
-                                  supported: supported,
+                              Padding(
+                                padding: const EdgeInsets.all(16),
+                                child: Row(
+                                  children: [
+                                    DecoratedBox(
+                                      decoration: BoxDecoration(
+                                        color: Theme.of(context).colorScheme.primaryContainer,
+                                        borderRadius: BorderRadius.circular(14),
+                                      ),
+                                      child: Padding(
+                                        padding: const EdgeInsets.all(12),
+                                        child: Icon(
+                                          Icons.near_me_outlined,
+                                          color: Theme.of(context).colorScheme.onPrimaryContainer,
+                                        ),
+                                      ),
+                                    ),
+                                    const SizedBox(width: 12),
+                                    Expanded(
+                                      child: Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            texts.mapAreaLabel,
+                                            style: Theme.of(
+                                              context,
+                                            ).textTheme.labelSmall?.copyWith(letterSpacing: 1.6),
+                                          ),
+                                          const SizedBox(height: 4),
+                                          Text(
+                                            texts.mapDistrictName,
+                                            style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                                              fontWeight: FontWeight.w700,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ],
                                 ),
-                                loading: () => Text(texts.mapCheckingDownload),
-                                error: (error, stack) => Text(texts.mapStorageUnavailable),
+                              ),
+                              SizedBox(
+                                height: (MediaQuery.sizeOf(context).height * 0.4).clamp(
+                                  220.0,
+                                  360.0,
+                                ),
+                                child: Semantics(
+                                  label: texts.mapDistrictName,
+                                  child: Builder(
+                                    builder: (context) => buildMapView(context, definition),
+                                  ),
+                                ),
+                              ),
+                              Padding(
+                                padding: const EdgeInsets.all(16),
+                                child: Text(
+                                  texts.mapDemoBoundary,
+                                  style: Theme.of(context).textTheme.bodySmall,
+                                ),
                               ),
                             ],
                           ),
                         ),
-                      ),
-                    ],
+                        const SizedBox(height: 16),
+                        for (final marker in widget.focus?.markers ?? <MapMarker>[])
+                          Card(
+                            child: Padding(
+                              padding: const EdgeInsets.all(16),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    marker.label,
+                                    style: Theme.of(context).textTheme.titleMedium,
+                                  ),
+                                  Text(texts.publicApproximateLocation),
+                                  if (marker.detail != null) Text(marker.detail!),
+                                ],
+                              ),
+                            ),
+                          ),
+                        Card(
+                          margin: EdgeInsets.zero,
+                          child: Padding(
+                            padding: const EdgeInsets.all(20),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.stretch,
+                              children: [
+                                Text(
+                                  texts.mapOfflineHeading,
+                                  style: Theme.of(
+                                    context,
+                                  ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700),
+                                ),
+                                const SizedBox(height: 16),
+                                regions.when(
+                                  data: (items) => _DownloadControls(
+                                    region: items.single,
+                                    controls: controls,
+                                    supported: supported,
+                                  ),
+                                  loading: () => Text(texts.mapCheckingDownload),
+                                  error: (error, stack) => Text(texts.mapStorageUnavailable),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ),
-            ),
-            // Outside the scroll view: visible even when controls or 200% text need scrolling.
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              child: Text(texts.mapAttribution, textAlign: TextAlign.center),
-            ),
-          ],
+              // Outside the scroll view: visible even when controls or 200% text need scrolling.
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                child: Text(texts.mapAttribution, textAlign: TextAlign.center),
+              ),
+            ],
+          ),
         ),
       ),
     );

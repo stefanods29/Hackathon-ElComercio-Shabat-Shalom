@@ -6,6 +6,7 @@ import 'package:vecinal/core/router/routes.dart';
 import 'package:vecinal/core/sync/sync_service.dart';
 import 'package:vecinal/core/time/time_ago.dart';
 import 'package:vecinal/core/ui/connection_banner.dart';
+import 'package:vecinal/features/onboarding/practice_mode.dart';
 import 'package:vecinal/features/onboarding/tutorial_screen.dart';
 import 'package:vecinal/features/solidaridad/data/providers.dart';
 import 'package:vecinal/features/solidaridad/presentation/widgets/post_card.dart';
@@ -74,6 +75,12 @@ class WallPage extends ConsumerWidget {
               tooltip: texts.demoSignOut,
               icon: const Icon(Icons.logout),
               onPressed: () async {
+                if (ref.read(practiceModeProvider).value != false) {
+                  ScaffoldMessenger.of(
+                    context,
+                  ).showSnackBar(SnackBar(content: Text(texts.practiceHelp)));
+                  return;
+                }
                 final confirmed = await showDialog<bool>(
                   context: context,
                   builder: (dialog) => AlertDialog(
@@ -91,7 +98,10 @@ class WallPage extends ConsumerWidget {
                     ],
                   ),
                 );
-                if (confirmed == true && context.mounted) signOut();
+                if (confirmed == true &&
+                    context.mounted &&
+                    ref.read(practiceModeProvider).value == false)
+                  signOut();
               },
             ),
           IconButton(
@@ -105,15 +115,36 @@ class WallPage extends ConsumerWidget {
       body: Column(
         children: [
           const ConnectionBanner(),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+            child: Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: [
+                FilledButton.icon(
+                  onPressed: () => context.push(Routes.emergency),
+                  icon: const Icon(Icons.emergency_outlined),
+                  label: Text(texts.emergencyTitle),
+                ),
+                OutlinedButton.icon(
+                  onPressed: () => context.push(Routes.directory),
+                  icon: const Icon(Icons.handyman_outlined),
+                  label: Text(texts.directoryTitle),
+                ),
+              ],
+            ),
+          ),
           if (lastSyncedAt != null)
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
               child: Row(
                 children: [
-                  Text(
-                    texts.updatedAgo(timeAgo(lastSyncedAt, ref.watch(clockProvider)(), texts)),
-                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  Flexible(
+                    child: Text(
+                      texts.updatedAgo(timeAgo(lastSyncedAt, ref.watch(clockProvider)(), texts)),
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                      ),
                     ),
                   ),
                 ],

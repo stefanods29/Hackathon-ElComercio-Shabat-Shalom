@@ -29,6 +29,34 @@ abstract interface class AuthRepository {
   Future<void> signOutEverywhere();
 }
 
+/// Optional A4 capability. Existing authentication implementations stay source compatible.
+abstract interface class AccountLifecycle {
+  /// Completes only after server acknowledgement and the implementation's safe local purge.
+  Future<void> deleteAccount();
+
+  /// Checks outstanding commands and replaces the zone's local data after acknowledgement.
+  Future<void> changeZone(String zoneId);
+}
+
+extension AuthAccountLifecycle on AuthRepository {
+  bool get supportsAccountLifecycle => this is AccountLifecycle;
+  Future<void> deleteAccount() {
+    final repository = this;
+    if (repository is AccountLifecycle) return repository.deleteAccount();
+    throw const AccountCapabilityUnavailable();
+  }
+
+  Future<void> changeZone(String zoneId) {
+    final repository = this;
+    if (repository is AccountLifecycle) return repository.changeZone(zoneId);
+    throw const AccountCapabilityUnavailable();
+  }
+}
+
+class AccountCapabilityUnavailable implements Exception {
+  const AccountCapabilityUnavailable();
+}
+
 /// Respuesta de solicitud de código.
 final class CodeRequest {
   const CodeRequest({required this.retryAfterSeconds, required this.expiresInSeconds});
