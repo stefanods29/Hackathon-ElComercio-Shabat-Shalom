@@ -14,16 +14,23 @@ const yaml = readFileSync(
 const { config } = parseSyncConfig(yaml, { defaultSchema: 'public' });
 const cases = { connectionTag: 'default', schema: 'emergencias', name: 'pedidos_ayuda' };
 const assignments = { ...cases, name: 'asignaciones' };
+const history = { ...cases, name: 'historial_pedidos' };
+const details = { ...cases, name: 'detalles_pedidos' };
 
 describe('acceso a datos sensibles por Sync Streams', () => {
-  it('solo caso_asignado puede emitir datos de emergencias y exige suscripción explícita', () => {
+  it('los streams de pedidos exigen suscripción explícita y excluyen el detalle privado', () => {
     const emergencySources = config.bucketSources.filter((stream) =>
-      stream.dataSources.some(
-        (source) => source.tableSyncsData(cases) || source.tableSyncsData(assignments),
+      stream.dataSources.some((source) =>
+        [cases, assignments, history, details].some((table) => source.tableSyncsData(table)),
       ),
     );
-    expect(emergencySources.map((stream) => stream.name)).toEqual(['caso_asignado']);
-    expect(emergencySources[0]?.subscribedToByDefault).toBe(false);
+    expect(emergencySources.map((stream) => stream.name)).toEqual(['caso_asignado', 'mi_pedido']);
+    expect(emergencySources.every((stream) => !stream.subscribedToByDefault)).toBe(true);
+    expect(
+      emergencySources.some((stream) =>
+        stream.dataSources.some((source) => source.tableSyncsData(details)),
+      ),
+    ).toBe(false);
   });
 
   it('solo entrega el caso solicitado al usuario asignado y lo revoca al finalizar', async () => {

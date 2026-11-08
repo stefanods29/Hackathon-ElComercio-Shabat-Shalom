@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
@@ -10,9 +11,12 @@ import 'package:vecinal/core/submissions/submission_status.dart';
 import 'package:vecinal/core/sync/local_sync_database.dart';
 import 'package:vecinal/core/sync/vecinal_connector.dart';
 import 'package:vecinal/features/emergencias/data/help_request_queue.dart';
+import 'package:vecinal/features/emergencias/data/own_help_request_repository.dart';
 import 'package:vecinal/features/emergencias/domain/own_help_request_state.dart';
 import 'package:vecinal/features/solidaridad/data/powersync_post_repository.dart';
 import 'package:vecinal/features/solidaridad/domain/post.dart';
+
+import 'help_request_fixture.dart';
 
 void main() {
   const helpPath = '/v1/pedidos-ayuda';
@@ -40,7 +44,7 @@ void main() {
     local = await open();
     now = DateTime.utc(2026, 11, 8);
     api = Dio(BaseOptions(baseUrl: 'https://api.example.test', validateStatus: (_) => true));
-    connector = VecinalConnector(api, clock: () => now, helpRequestPath: helpPath);
+    connector = VecinalConnector(api, clock: () => now);
   });
 
   tearDown(() async {
@@ -67,7 +71,7 @@ void main() {
     final accepted = <String, String>{};
     final attempts = <String, int>{};
     for (final (index, draft) in drafts.indexed) {
-      await queue.save(requestId: draft.id, idempotencyKey: draft.key, body: {'necesidad': 'agua'});
+      await queue.save(requestId: draft.id, idempotencyKey: draft.key, body: helpRequestPayload);
       if (index % 17 == 0) {
         beforeReceipt.add(draft.key);
       } else if (index % 11 == 0) {
@@ -122,7 +126,7 @@ void main() {
       final help = await queue.save(
         requestId: newLocalId(),
         idempotencyKey: newLocalId(),
-        body: {},
+        body: helpRequestPayload,
       );
       final post = await posts.publish(
         const NewPost(type: PostType.lend, category: 'herramientas', title: 'Favor de prueba'),
@@ -166,19 +170,21 @@ void main() {
 
   test('el envío queda pendiente hasta que el acuse confirma el mismo pedido', () async {
     final queue = HelpRequestQueue(local);
-    final draft = await queue.save(requestId: newLocalId(), idempotencyKey: newLocalId(), body: {});
+    final draft = await queue.save(
+      requestId: newLocalId(),
+      idempotencyKey: newLocalId(),
+      body: helpRequestPayload,
+    );
     var attempts = 0;
     api.interceptors.add(
       InterceptorsWrapper(
         onRequest: (request, handler) {
           final id = ++attempts == 1 ? newLocalId() : draft.resourceId;
-          respond(request, handler, 200, {'id': id});
+          respond(request, handler, attempts == 1 ? 200 : 201, {'id': id});
         },
       ),
     );
 
-    await expectLater(VecinalConnector(api).uploadData(local.database), throwsStateError);
-    expect(attempts, 0);
     await expectLater(connector.uploadData(local.database), throwsStateError);
     final pending = OwnHelpRequestState(
       requestId: draft.resourceId,
@@ -197,5 +203,116 @@ void main() {
     expect(sent.received, isTrue);
     expect(sent.sentAt, now);
     expect(attempts, 2);
+  });
+  test('422 es definitivo y descarta el texto libre del servidor', () async {
+    final queue = HelpRequestQueue(local);
+    final draft = await queue.save(
+      requestId: newLocalId(),
+      idempotencyKey: newLocalId(),
+      body: helpRequestPayload,
+    );
+    api.interceptors.add(
+      InterceptorsWrapper(
+        onRequest: (request, handler) {
+          expect(request.method, 'POST');
+          expect(request.path, helpPath);
+          expect(request.headers[idempotencyKeyHeader], draft.idempotencyKey);
+          respond(request, handler, 422, {
+            'codigo': 'validacion',
+            'title': helpRequestPayload.description,
+            'detail': '-12.01234',
+          });
+        },
+      ),
+    );
+    await connector.uploadData(local.database);
+    final rejected = await queue.watch(draft.resourceId).first;
+    expect(rejected?.status, SubmissionStatus.couldNotComplete);
+    expect(rejected?.rejectionReason?.code, 'validacion');
+    expect(rejected?.rejectionReason?.title, 'No se pudo completar');
+    expect(rejected?.rejectionReason?.detail, isNull);
+    expect(await local.database.getNextCrudTransaction(), isNull);
+  });
+
+  test('el cierre sincronizado retira la suscripción y cancela el reintento', () async {
+    final opened = Completer<String>();
+    final unsubscribed = Completer<void>();
+    final repository = OwnHelpRequestRepository(
+      local,
+      subscribe: (id) async {
+        opened.complete(id);
+        return unsubscribed.complete;
+      },
+    );
+    repository.start(onError: (error, _) => fail('$error'));
+    addTearDown(repository.close);
+    final draft = await repository.queue.save(
+      requestId: newLocalId(),
+      idempotencyKey: newLocalId(),
+      body: helpRequestPayload,
+    );
+    final id = draft.resourceId;
+    final updates = StreamIterator(repository.watch(id));
+    addTearDown(updates.cancel);
+    expect(await updates.moveNext(), isTrue);
+    expect(updates.current?.savedOnPhone, isTrue);
+    final closingUpdate = updates.moveNext();
+    expect(await opened.future, id);
+    var attempts = 0;
+    api.interceptors.add(
+      InterceptorsWrapper(
+        onRequest: (request, handler) {
+          attempts++;
+          drop(request, handler);
+        },
+      ),
+    );
+    await expectLater(connector.uploadData(local.database), throwsStateError);
+
+    final closedAt = now.add(const Duration(minutes: 3)).toIso8601String();
+    const reason = 'Derivado al servicio oficial';
+    await local.database.writeTransaction((tx) async {
+      await tx.execute('INSERT INTO ps_data__mis_pedidos_ayuda (id, data) VALUES (?, ?)', [
+        id,
+        jsonEncode({
+          'estado': 'derivado',
+          'version': 4,
+          'creado_en': now.toIso8601String(),
+          'cerrado_en': closedAt,
+        }),
+      ]);
+      await tx.execute('INSERT INTO ps_data__historial_mis_pedidos (id, data) VALUES (?, ?)', [
+        '4',
+        jsonEncode({
+          'pedido_id': id,
+          'hasta': 'derivado',
+          'ocurrido_en': closedAt,
+          'motivo': reason,
+        }),
+      ]);
+    });
+    expect(await closingUpdate, isTrue);
+    // The failed attempt may cause an extra emission before the synced rows arrive.
+    while (updates.current?.latest == null) {
+      expect(await updates.moveNext(), isTrue);
+    }
+    expect(updates.current?.latest?.stage, HelpRequestStage.referred);
+    expect(updates.current?.latest?.version, 4);
+    expect(updates.current?.latest?.reason, reason);
+    await unsubscribed.future;
+    expect(await updates.moveNext(), isFalse);
+    await local.database.execute('DELETE FROM ps_data__mis_pedidos_ayuda WHERE id = ?', [id]);
+    await local.database.execute("DELETE FROM ps_data__historial_mis_pedidos WHERE id = '4'");
+    await reopen();
+    final reopened = OwnHelpRequestRepository(
+      local,
+      subscribe: (_) async {
+        fail('Un pedido cerrado no debe abrir el stream');
+      },
+    );
+    expect((await reopened.watch(id).first)?.latest?.reason, reason);
+    await connector.uploadData(local.database);
+    expect(attempts, 1);
+    expect(await local.database.getNextCrudTransaction(), isNull);
   });
 }

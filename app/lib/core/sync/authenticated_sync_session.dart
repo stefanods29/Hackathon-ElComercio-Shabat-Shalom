@@ -15,6 +15,7 @@ import 'package:vecinal/core/sync/vecinal_connector.dart';
 import 'package:vecinal/features/cuenta/domain/auth_state.dart';
 import 'package:vecinal/features/directorio/data/powersync_service_directory_repository.dart';
 import 'package:vecinal/features/emergencias/assigned_case_cache.dart';
+import 'package:vecinal/features/emergencias/data/own_help_request_repository.dart';
 import 'package:vecinal/features/reputacion/data/powersync_reputation_repository.dart';
 import 'package:vecinal/features/solidaridad/data/powersync_post_repository.dart';
 
@@ -27,6 +28,7 @@ class AuthenticatedSyncSession {
     this.connector,
     this.sync,
     this.cases,
+    this.helpRequests,
     this.posts,
     this.directory,
     this.reputation,
@@ -46,6 +48,7 @@ class AuthenticatedSyncSession {
   final VecinalConnector connector;
   final PowerSyncSyncService sync;
   final AssignedCaseCache cases;
+  final OwnHelpRequestRepository helpRequests;
   final PowerSyncPostRepository posts;
   final PowerSyncServiceDirectoryRepository directory;
   final PowerSyncReputationRepository reputation;
@@ -97,6 +100,7 @@ class AuthenticatedSyncSession {
         connector,
         PowerSyncSyncService(local, connector),
         cases,
+        OwnHelpRequestRepository(local),
         PowerSyncPostRepository(local.database, neighborId: user.neighborId, zoneId: user.zoneId!),
         PowerSyncServiceDirectoryRepository(
           local.database,
@@ -131,7 +135,14 @@ class AuthenticatedSyncSession {
 
   Future<void> _start() async {
     await cases.restore();
-    if (_closing == null) await sync.connect();
+    if (_closing == null) {
+      helpRequests.start(
+        onError: (error, stack) {
+          FlutterError.reportError(FlutterErrorDetails(exception: error, stack: stack));
+        },
+      );
+      await sync.connect();
+    }
     if (_closing == null) _report(telemetry.start());
   }
 
@@ -139,6 +150,7 @@ class AuthenticatedSyncSession {
 
   Future<void> _close(bool purge) async {
     _lifecycle.dispose();
+    await helpRequests.close();
     await telemetry.close();
     connector.stopRefreshing();
     try {

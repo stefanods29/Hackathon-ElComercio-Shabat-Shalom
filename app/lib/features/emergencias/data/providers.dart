@@ -6,6 +6,7 @@ import 'package:vecinal/core/di/providers.dart';
 import 'package:vecinal/core/network/cdn_client.dart';
 import 'package:vecinal/features/emergencias/data/emergency_directory_repository.dart';
 import 'package:vecinal/features/emergencias/data/emergency_directory_store.dart';
+import 'package:vecinal/features/emergencias/data/own_help_request_repository.dart';
 import 'package:vecinal/features/emergencias/domain/emergency_directory.dart';
 
 /// National numbers bundled with the app, shown until the first valid download.
@@ -38,3 +39,6 @@ final emergencyStalenessPolicyProvider = Provider<EmergencyStalenessPolicy>(
 final emergencyDirectoryProvider = StreamProvider<EmergencyDirectory>(
   (ref) => ref.watch(emergencyDirectoryRepositoryProvider).watch(),
 );
+
+// Available only within the authenticated account scope.
+final ownHelpRequestRepositoryProvider = Provider<OwnHelpRequestRepository?>((ref) => null);

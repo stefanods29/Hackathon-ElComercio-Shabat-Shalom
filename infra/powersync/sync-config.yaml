@@ -137,3 +137,19 @@ streams:
           SELECT pedido_id FROM emergencias.asignaciones
           WHERE usuario_id = auth.user_id() AND finalizada_en IS NULL
         )
+
+  # Un pedido concreto del autor. B debe publicar el historial con un motivo apto para el vecino.
+  mi_pedido:
+    auto_subscribe: false
+    priority: 1
+    queries:
+      - |
+        SELECT id, estado, necesidad, prioridad, version, creado_en, cerrado_en
+        FROM emergencias.pedidos_ayuda AS mis_pedidos_ayuda
+        WHERE id = subscription.parameter('pedido_id') AND autor_id = auth.user_id()
+      - |
+        SELECT id, pedido_id, desde, hasta, rol, ocurrido_en, motivo_para_autor AS motivo
+        FROM emergencias.historial_pedidos AS historial_mis_pedidos
+        WHERE pedido_id = subscription.parameter('pedido_id') AND pedido_id IN (
+          SELECT id FROM emergencias.pedidos_ayuda WHERE autor_id = auth.user_id()
+        )

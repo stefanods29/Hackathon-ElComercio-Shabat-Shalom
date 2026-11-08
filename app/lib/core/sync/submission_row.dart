@@ -1,43 +1,5 @@
-import 'dart:convert';
-
-import 'package:sqlite_async/sqlite_async.dart';
 import 'package:vecinal/core/submissions/submission.dart';
 import 'package:vecinal/core/submissions/submission_status.dart';
-
-Future<Submission> enqueueSubmission(
-  SqliteWriteContext tx,
-  Submission submission,
-  Map<String, Object?> body, {
-  Map<String, Object?>? optimisticPost,
-}) async {
-  await tx.execute(
-    'INSERT INTO comandos (id, tipo, recurso_id, cuerpo, clave_idempotencia) VALUES (?, ?, ?, ?, ?)',
-    [
-      submission.id,
-      submission.kind.name,
-      submission.resourceId,
-      jsonEncode(body),
-      submission.idempotencyKey,
-    ],
-  );
-  await tx.execute(
-    '''
-    INSERT INTO envios
-      (id, tipo, recurso_id, clave_idempotencia, estado, intentos, creado_en, publicacion_optimista)
-    VALUES (?, ?, ?, ?, ?, 0, ?, ?)
-    ''',
-    [
-      submission.id,
-      submission.kind.name,
-      submission.resourceId,
-      submission.idempotencyKey,
-      submission.status.name,
-      submission.createdAt.toUtc().toIso8601String(),
-      optimisticPost == null ? null : jsonEncode(optimisticPost),
-    ],
-  );
-  return submission;
-}
 
 Submission submissionFromRow(Map<String, Object?> row) {
   final status = SubmissionStatus.values.byName(row['estado'] as String);

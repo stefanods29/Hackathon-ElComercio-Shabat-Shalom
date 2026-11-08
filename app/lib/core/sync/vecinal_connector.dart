@@ -29,14 +29,12 @@ class VecinalConnector extends PowerSyncBackendConnector {
     this._api, {
     this.endpointOverride,
     this.onSessionRevoked,
-    this.helpRequestPath,
     DateTime Function()? clock,
   }) : _clock = clock ?? DateTime.now;
 
   final Dio _api;
   final String? endpointOverride;
   final void Function()? onSessionRevoked;
-  final String? helpRequestPath;
   final DateTime Function() _clock;
   final _random = Random();
   Timer? _refresh;
@@ -113,18 +111,27 @@ class VecinalConnector extends PowerSyncBackendConnector {
     final submission = submissionFromRow(row);
     // A crash after persisting the answer and before complete() must not repeat a final action.
     if (submission.status.isFinal) return;
+    if (submission.kind == SubmissionKind.helpRequest &&
+        await database.getOptional(
+              'SELECT id FROM mis_pedidos_ayuda WHERE id = ? '
+              'UNION ALL SELECT id FROM pedidos_propios_cerrados WHERE id = ?',
+              [submission.resourceId, submission.resourceId],
+            ) !=
+            null) {
+      // The author's stream can confirm reception before the HTTP retry gets its turn.
+      await _recordResult(database, submission, const Accepted());
+      return;
+    }
     final retryAt = row['reintentar_en'] as String?;
     if (retryAt != null && _clock().isBefore(DateTime.parse(retryAt))) {
       throw StateError('El comando está esperando su próximo reintento.');
     }
     final payload = command.opData!;
     final route = commandRoute(submission.kind, submission.resourceId);
-    final path = submission.kind == SubmissionKind.helpRequest ? helpRequestPath : route.path;
-    if (path == null) throw StateError('El envío de pedidos de ayuda no está configurado.');
     AttemptResult result;
     try {
       final response = await _api.request<Object?>(
-        path,
+        route.path,
         data: route.sendsBody ? payload['cuerpo'] as String? : null,
         options: Options(
           method: route.method,
@@ -154,10 +161,21 @@ class VecinalConnector extends PowerSyncBackendConnector {
       return const TransientFailure('Se necesita una sesión vigente para enviar el comando.');
     }
     final result = classifyResponse(status, body);
-    if (submission.kind == SubmissionKind.helpRequest &&
-        result is Accepted &&
+    if (submission.kind != SubmissionKind.helpRequest) return result;
+    if (result is Accepted &&
         (body is! Map<String, Object?> || body['id'] != submission.resourceId)) {
       return const TransientFailure('La respuesta no confirmó el identificador del pedido.');
+    }
+    if (result is Rejected) {
+      // Do not keep free text returned by the server. It may quote the request payload.
+      const knownCodes = {'zona_sin_cobertura', 'ubicacion_fuera_de_zona', 'validacion'};
+      final code = result.reason.code;
+      return Rejected(
+        RejectionReason(
+          code: knownCodes.contains(code) ? code : 'desconocido',
+          title: 'No se pudo completar',
+        ),
+      );
     }
     return result;
   }

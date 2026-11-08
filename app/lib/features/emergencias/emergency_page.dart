@@ -5,6 +5,7 @@ import 'package:intl/intl.dart';
 import 'package:vecinal/core/di/providers.dart';
 import 'package:vecinal/core/platform/pilot_platforms.dart';
 import 'package:vecinal/core/router/routes.dart';
+import 'package:vecinal/features/emergencias/presentation/own_help_requests.dart';
 import 'package:vecinal/features/emergencias/public_emergency_directory.dart';
 import 'package:vecinal/features/mapa/presentation/map_view.dart';
 import 'package:vecinal/l10n/app_localizations.dart';
@@ -25,6 +26,7 @@ class EmergencyPage extends ConsumerWidget {
             const SizedBox(height: 12),
             Text(t.emergencyLifeRisk, style: Theme.of(context).textTheme.titleMedium),
             const SizedBox(height: 16),
+            const OwnHelpRequests(),
             directory.when(
               loading: () => const Center(child: CircularProgressIndicator()),
               error: (_, _) => Text(t.actionFailed),

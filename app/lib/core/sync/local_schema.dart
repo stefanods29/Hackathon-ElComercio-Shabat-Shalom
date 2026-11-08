@@ -76,6 +76,34 @@ const localSchema = Schema([
     Column.text('actualizado_en'),
   ]),
   Table('mis_vistos_buenos', [Column.text('servicio_id'), Column.text('creado_en')]),
+  Table('mis_pedidos_ayuda', [
+    Column.text('estado'),
+    Column.text('necesidad'),
+    Column.text('prioridad'),
+    Column.integer('version'),
+    Column.text('creado_en'),
+    Column.text('cerrado_en'),
+  ]),
+  Table(
+    'historial_mis_pedidos',
+    [
+      Column.text('pedido_id'),
+      Column.text('desde'),
+      Column.text('hasta'),
+      Column.text('rol'),
+      Column.text('ocurrido_en'),
+      Column.text('motivo'),
+    ],
+    indexes: [
+      Index('pedido', [IndexedColumn('pedido_id')]),
+    ],
+  ),
+  Table.localOnly('pedidos_propios_cerrados', [
+    Column.text('estado'),
+    Column.integer('version'),
+    Column.text('cerrado_en'),
+    Column.text('motivo'),
+  ]),
   Table.insertOnly('comandos', [
     Column.text('tipo'),
     Column.text('recurso_id'),

@@ -11,6 +11,8 @@ Las tareas 1.1–1.3 forman el primer incremento con datos ficticios. La integra
 - [ ] 1.5 Conectar el repositorio al puerto de D y validar en sus pantallas un pedido en modo avión, el mensaje de que nadie lo recibió, las alternativas oficiales y la reconciliación de un cierre o derivación al recuperar la señal. Verificar que el modo de práctica permanece aislado del flujo real.
 - [ ] 1.6 Compilar y depurar la parte. Ejecutar `tool/verify.sh` desde `app/`, las comprobaciones de Sync Streams del backend y `openspec validate --all --strict`. Verificar CI en verde y adjuntar el resultado.
 
+**Pendiente de verificar.** La [evidencia de laboratorio e integración local](../../../docs/fase-2/evidencias/pedidos-offline-laboratorio.md) cubre la cola, la purga, el acceso al stream con filas ficticias y la reconciliación. Para 1.4 falta aprobar y probar B con PowerSync y su API. Para 1.5 falta conectar el puerto de D y validar sus pantallas en modo avión. Para 1.6 queda pendiente el CI del commit de entrega.
+
 ## 2. Parte 2 · Streams bajo demanda por asignación
 
 Depende de las tablas y transiciones de B2–B3 y del mecanismo de auditoría de B5.

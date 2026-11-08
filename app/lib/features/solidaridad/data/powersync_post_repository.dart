@@ -5,6 +5,7 @@ import 'package:sqlite_async/sqlite_async.dart';
 import 'package:vecinal/core/network/idempotency.dart';
 import 'package:vecinal/core/submissions/submission.dart';
 import 'package:vecinal/core/submissions/submission_status.dart';
+import 'package:vecinal/core/sync/command_queue.dart';
 import 'package:vecinal/core/sync/submission_row.dart';
 import 'package:vecinal/features/solidaridad/domain/post.dart';
 import 'package:vecinal/features/solidaridad/domain/post_repository.dart';
@@ -70,7 +71,7 @@ class PowerSyncPostRepository implements PostRepository {
       .watch(
         '''
         SELECT * FROM envios
-        WHERE tipo IN ('publish', 'takeFavor') AND estado = 'couldNotComplete'
+        WHERE tipo != 'helpRequest' AND estado = 'couldNotComplete'
         ORDER BY creado_en DESC, id DESC
         ''',
         triggerOnTables: ['envios'],
@@ -146,14 +147,14 @@ class PowerSyncPostRepository implements PostRepository {
     Map<String, Object?> body,
     Map<String, Object?> optimistic,
   ) {
-    final submission = Submission(
-      id: newLocalId(),
+    return enqueueCommand(
+      tx,
       kind: kind,
       resourceId: resourceId,
-      idempotencyKey: newLocalId(),
-      createdAt: now,
+      now: now,
+      body: body,
+      optimisticPost: optimistic,
     );
-    return enqueueSubmission(tx, submission, body, optimisticPost: optimistic);
   }
 
   Post _post(Map<String, Object?> row, SubmissionStatus status) => Post(

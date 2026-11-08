@@ -13,13 +13,15 @@ Future<Submission> enqueueCommand(
   required String resourceId,
   required DateTime now,
   required Map<String, Object?> body,
+  String? idempotencyKey,
   Map<String, Object?>? optimistic,
+  Map<String, Object?>? optimisticPost,
 }) async {
   final submission = Submission(
     id: newLocalId(),
     kind: kind,
     resourceId: resourceId,
-    idempotencyKey: newLocalId(),
+    idempotencyKey: idempotencyKey ?? newLocalId(),
     createdAt: now,
   );
   await tx.execute(
@@ -28,8 +30,8 @@ Future<Submission> enqueueCommand(
   );
   await tx.execute(
     '''
-    INSERT INTO envios (id, tipo, recurso_id, clave_idempotencia, estado, intentos, creado_en, optimista)
-    VALUES (?, ?, ?, ?, ?, 0, ?, ?)
+    INSERT INTO envios (id, tipo, recurso_id, clave_idempotencia, estado, intentos, creado_en, optimista, publicacion_optimista)
+    VALUES (?, ?, ?, ?, ?, 0, ?, ?, ?)
     ''',
     [
       submission.id,
@@ -39,6 +41,7 @@ Future<Submission> enqueueCommand(
       submission.status.name,
       now.toUtc().toIso8601String(),
       optimistic == null ? null : jsonEncode(optimistic),
+      optimisticPost == null ? null : jsonEncode(optimisticPost),
     ],
   );
   return submission;

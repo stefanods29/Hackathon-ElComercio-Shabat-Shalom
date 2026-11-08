@@ -232,6 +232,54 @@ const sourceRows: Array<[ReturnType<typeof table>, SourceRecord]> = [
       oculta_en: null,
     },
   ],
+  [
+    table('emergencias', 'pedidos_ayuda'),
+    {
+      id: 'pedido-1',
+      autor_id: 'autora',
+      estado: 'derivado',
+      necesidad: 'agua',
+      prioridad: 'alta',
+      version: 4,
+      creado_en: '2026-11-07T11:00:00Z',
+      cerrado_en: HIDDEN_AT,
+      detalle: 'Texto heredado privado',
+      evento_id: 'evento-1',
+      huella: 'privada',
+    },
+  ],
+  [
+    table('emergencias', 'pedidos_ayuda'),
+    { id: 'pedido-2', autor_id: 'autora', estado: 'visto', cerrado_en: null },
+  ],
+  [
+    table('emergencias', 'historial_pedidos'),
+    {
+      id: '1',
+      pedido_id: 'pedido-1',
+      desde: 'visto',
+      hasta: 'derivado',
+      rol: 'coordinador',
+      ocurrido_en: HIDDEN_AT,
+      usuario_id: 'operador',
+      motivo: 'Nota operativa con datos privados',
+      motivo_para_autor: 'Derivado al servicio oficial',
+    },
+  ],
+  [
+    table('emergencias', 'historial_pedidos'),
+    { id: '2', pedido_id: 'pedido-2', hasta: 'visto', usuario_id: 'operador' },
+  ],
+  [
+    table('emergencias', 'detalles_pedidos'),
+    {
+      id: 'pedido-1',
+      pedido_id: 'pedido-1',
+      descripcion: 'Privada',
+      lat: -12.01234,
+      lng: -77.01234,
+    },
+  ],
 ];
 
 const dataRows = sourceRows.flatMap(([sourceTable, record]) =>
@@ -241,12 +289,18 @@ const parameterRows = sourceRows.flatMap(([sourceTable, record]) =>
   rules.evaluateParameterRow(sourceTable, record),
 );
 
-/** `<tabla local>:<id>` of every row the phone of `sub` in `zona` receives. */
-async function delivered(sub: string, zona: string): Promise<string[]> {
+async function deliveredRows(sub: string, zona: string, requestId?: string) {
   const { querier, errors } = rules.getBucketParameterQuerier({
     globalParameters: new RequestParameters(new RequestJwtPayload({ sub, zona, roles: [] }), {}),
     hasDefaultStreams: true,
-    streams: {},
+    streams:
+      requestId === undefined
+        ? {}
+        : {
+            mi_pedido: [
+              { priorityOverride: null, parameters: { pedido_id: requestId }, opaque_id: 0 },
+            ],
+          },
   });
   expect(errors).toEqual([]);
   const dynamic = await querier.queryDynamicBucketDescriptions({
@@ -262,10 +316,12 @@ async function delivered(sub: string, zona: string): Promise<string[]> {
     },
   });
   const buckets = new Set([...querier.staticBuckets, ...dynamic].map((bucket) => bucket.bucket));
-  return dataRows
-    .filter((row) => buckets.has(row.bucket))
-    .map((row) => `${row.table}:${row.id}`)
-    .sort();
+  return dataRows.filter((row) => buckets.has(row.bucket));
+}
+
+/** `<tabla local>:<id>` of every row the phone of `sub` in `zona` receives. */
+async function delivered(sub: string, zona: string): Promise<string[]> {
+  return (await deliveredRows(sub, zona)).map((row) => `${row.table}:${row.id}`).sort();
 }
 
 describe('Sync Streams de datos públicos', () => {
@@ -367,7 +423,48 @@ describe('Sync Streams de datos públicos', () => {
   });
 
   it('todos los streams de datos públicos se suscriben solos', () => {
-    const publicStreams = config.bucketSources.filter((stream) => stream.name !== 'caso_asignado');
+    const privateStreams = new Set(['caso_asignado', 'mi_pedido']);
+    const publicStreams = config.bucketSources.filter((stream) => !privateStreams.has(stream.name));
     expect(publicStreams.every((stream) => stream.subscribedToByDefault)).toBe(true);
+  });
+});
+
+describe('Sync Stream del pedido propio', () => {
+  function emergencyRows(rows: typeof dataRows) {
+    return rows.filter((row) => row.table.includes('pedido'));
+  }
+
+  it('requiere una suscripción explícita y la identidad del autor', async () => {
+    expect(emergencyRows(await deliveredRows('autora', PILOT))).toEqual([]);
+    expect(emergencyRows(await deliveredRows('otra-cuenta', PILOT, 'pedido-1'))).toEqual([]);
+  });
+
+  it('limita las filas y columnas al resumen del pedido y su historial apto para el autor', async () => {
+    const rows = emergencyRows(await deliveredRows('autora', PILOT, 'pedido-1'));
+    expect(rows.map((row) => row.table).sort()).toEqual([
+      'historial_mis_pedidos',
+      'mis_pedidos_ayuda',
+    ]);
+    const request = rows.find((row) => row.table === 'mis_pedidos_ayuda');
+    expect(request?.data).toEqual({
+      id: 'pedido-1',
+      estado: 'derivado',
+      necesidad: 'agua',
+      prioridad: 'alta',
+      version: 4,
+      creado_en: '2026-11-07T11:00:00Z',
+      cerrado_en: HIDDEN_AT,
+    });
+    const history = rows.find((row) => row.table === 'historial_mis_pedidos');
+    expect(history?.data).toEqual({
+      id: '1',
+      pedido_id: 'pedido-1',
+      desde: 'visto',
+      hasta: 'derivado',
+      rol: 'coordinador',
+      ocurrido_en: HIDDEN_AT,
+      motivo: 'Derivado al servicio oficial',
+    });
+    expect(dataRows.some((row) => row.table === 'detalles_pedidos')).toBe(false);
   });
 });

@@ -1,7 +1,20 @@
 import 'package:vecinal/core/submissions/submission.dart';
 import 'package:vecinal/core/submissions/submission_status.dart';
 
-enum HelpRequestStage { sent, seen, onTheWay, attended, referred, closedWithoutAssistance }
+enum HelpRequestStage {
+  sent('enviado'),
+  seen('visto'),
+  onTheWay('en_camino'),
+  attended('atendido'),
+  referred('derivado'),
+  closedWithoutAssistance('cerrado_sin_atender');
+
+  const HelpRequestStage(this.apiValue);
+  final String apiValue;
+
+  static HelpRequestStage? fromApi(Object? value) =>
+      values.where((stage) => stage.apiValue == value).firstOrNull;
+}
 
 class HelpRequestHistoryEntry {
   const HelpRequestHistoryEntry({

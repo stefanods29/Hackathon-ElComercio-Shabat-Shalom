@@ -1,7 +1,7 @@
 import 'package:powersync/powersync.dart';
 import 'package:uuid/uuid.dart';
-import 'package:vecinal/core/network/idempotency.dart';
 import 'package:vecinal/core/submissions/submission.dart';
+import 'package:vecinal/core/sync/command_queue.dart';
 import 'package:vecinal/core/sync/local_sync_database.dart';
 import 'package:vecinal/core/sync/submission_row.dart';
 
@@ -26,7 +26,7 @@ class HelpRequestQueue {
   Future<Submission> save({
     required String requestId,
     required String idempotencyKey,
-    required Map<String, Object?> body,
+    required HelpRequestPayload body,
   }) {
     final id = _canonicalV7(requestId);
     final key = _canonicalV7(idempotencyKey);
@@ -42,16 +42,13 @@ class HelpRequestQueue {
         [key],
       );
       if (reusedKey != null) throw StateError('La clave de envío ya está en uso.');
-      return enqueueSubmission(
+      return enqueueCommand(
         tx,
-        Submission(
-          id: newLocalId(),
-          kind: _kind,
-          resourceId: id,
-          idempotencyKey: key,
-          createdAt: _clock(),
-        ),
-        {...body, 'id': id},
+        kind: _kind,
+        resourceId: id,
+        idempotencyKey: key,
+        now: _clock(),
+        body: body.toJson(id),
       );
     });
   }
@@ -61,5 +58,71 @@ class HelpRequestQueue {
       throw const FormatException('Identificador de pedido inválido.');
     }
     return value.toLowerCase();
+  }
+}
+
+enum HelpRequestNeed {
+  water('agua'),
+  food('alimentos'),
+  medicine('medicamentos'),
+  transport('traslado'),
+  shelter('albergue'),
+  other('otro');
+
+  const HelpRequestNeed(this.apiValue);
+  final String apiValue;
+}
+
+enum HelpRequestPriority {
+  high('alta'),
+  medium('media'),
+  low('baja');
+
+  const HelpRequestPriority(this.apiValue);
+  final String apiValue;
+}
+
+/// Only the encrypted outbox holds this payload. The status repository reads metadata separately.
+class HelpRequestPayload {
+  const HelpRequestPayload({
+    required this.eventId,
+    required this.need,
+    required this.description,
+    required this.latitude,
+    required this.longitude,
+    this.priority = HelpRequestPriority.medium,
+    this.lifeThreatening = false,
+  });
+
+  final String eventId;
+  final HelpRequestNeed need;
+  final String description;
+  final double latitude;
+  final double longitude;
+  final HelpRequestPriority priority;
+  final bool lifeThreatening;
+
+  Map<String, Object?> toJson(String id) {
+    final trimmedDescription = description.trim();
+    if (!Uuid.isValidUUID(fromString: eventId) ||
+        trimmedDescription.isEmpty ||
+        trimmedDescription.runes.length > 2000 ||
+        !latitude.isFinite ||
+        latitude < -90 ||
+        latitude > 90 ||
+        !longitude.isFinite ||
+        longitude < -180 ||
+        longitude > 180) {
+      throw const FormatException('Datos del pedido inválidos.');
+    }
+    return {
+      'id': id,
+      'eventoId': eventId,
+      'necesidad': need.apiValue,
+      'prioridad': priority.apiValue,
+      'descripcion': trimmedDescription,
+      'ubicacion': {'lat': latitude, 'lng': longitude},
+      'riesgoVital': lifeThreatening,
+    };
   }
 }

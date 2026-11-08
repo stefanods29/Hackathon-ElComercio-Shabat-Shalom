@@ -114,6 +114,7 @@ class _ReviewItem extends ConsumerWidget {
                     SubmissionKind.giveEndorsement ||
                     SubmissionKind.withdrawEndorsement => texts.endorsementAction,
                     SubmissionKind.report => texts.reportAction,
+                    SubmissionKind.helpRequest => texts.emergencyHelpRequestTitle,
                   },
               style: Theme.of(context).textTheme.titleMedium,
             ),
