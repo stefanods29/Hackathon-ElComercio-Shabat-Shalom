@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:vecinal_consola/features/casos/domain/emergency_case.dart';
 
 /// Requests in a cell. Below [threshold] it is never a number, so nobody can be singled out
@@ -65,8 +67,16 @@ class CellAggregate {
   final CellCount total;
   final Map<EmergencyNeed, CellCount> byNeed;
 
-  CellCount countFor(EmergencyNeed? need) =>
-      need == null ? total : (byNeed[need] ?? CellCount(null));
+  /// Lot B publishes no totals: a total minus the published needs would reveal a hidden
+  /// "menos de 3". Without one, "all needs" shows the busiest published need, never a sum.
+  bool get totalPublished => !total.isBelowThreshold;
+
+  CellCount countFor(EmergencyNeed? need) {
+    if (need != null) return byNeed[need] ?? CellCount(null);
+    if (totalPublished) return total;
+    final published = [for (final count in byNeed.values) ?count.value];
+    return CellCount(published.isEmpty ? null : published.reduce(max));
+  }
 }
 
 class CellsSnapshot {

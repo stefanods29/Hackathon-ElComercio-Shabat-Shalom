@@ -2,6 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:vecinal_consola/core/config/console_environment.dart';
 import 'package:vecinal_consola/core/network/api_client.dart';
 import 'package:vecinal_consola/core/network/api_errors.dart';
+import 'package:vecinal_consola/core/session/operator.dart';
 import 'package:vecinal_consola/core/session/session_controller.dart';
 import 'package:vecinal_consola/core/time/clock.dart';
 import 'package:vecinal_consola/features/casos/data/demo_cases_repository.dart';
@@ -16,9 +17,8 @@ const queueRefreshInterval = Duration(seconds: 15);
 
 /// Integration seam for Phase 2, Lot B: the real cases API stays off until it is injected here
 /// (see `docs/fase-2/lote-c-consola-web-y-avisos-urgentes/integracion.md`).
-final operationalCasesFactoryProvider = Provider<CasesRepository Function(ConsoleApi api)?>(
-  (ref) => null,
-);
+final operationalCasesFactoryProvider =
+    Provider<CasesRepository Function(ConsoleApi api, Operator viewer)?>((ref) => null);
 
 /// Null when the module is not available: the screens say so instead of inventing cases.
 final casesRepositoryProvider = Provider<CasesRepository?>((ref) {
@@ -27,7 +27,7 @@ final casesRepositoryProvider = Provider<CasesRepository?>((ref) {
   if (ref.watch(demoDataProvider)) {
     return DemoCasesRepository(viewer: user, now: ref.watch(clockProvider));
   }
-  return ref.watch(operationalCasesFactoryProvider)?.call(ref.watch(consoleApiProvider));
+  return ref.watch(operationalCasesFactoryProvider)?.call(ref.watch(consoleApiProvider), user);
 });
 
 class QueueSnapshot {

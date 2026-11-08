@@ -137,6 +137,7 @@ class _CellsTable extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     if (cells.isEmpty) return InfoCard(icon: Icons.grid_off_outlined, title: l10n.cellsEmpty);
+    final totals = cells.any((cell) => cell.totalPublished);
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
       child: DataTable(
@@ -145,7 +146,7 @@ class _CellsTable extends StatelessWidget {
         dataRowMaxHeight: double.infinity,
         columns: [
           DataColumn(label: Text(l10n.cellsColumnCell)),
-          DataColumn(label: Text(l10n.cellsColumnTotal)),
+          if (totals) DataColumn(label: Text(l10n.cellsColumnTotal)),
           for (final need in EmergencyNeed.values) DataColumn(label: Text(needLabel(l10n, need))),
         ],
         rows: [
@@ -153,7 +154,7 @@ class _CellsTable extends StatelessWidget {
             DataRow(
               cells: [
                 DataCell(Text(cell.label)),
-                DataCell(Text(countText(l10n, cell.total))),
+                if (totals) DataCell(Text(countText(l10n, cell.total))),
                 for (final need in EmergencyNeed.values)
                   DataCell(Text(countText(l10n, cell.countFor(need)))),
               ],

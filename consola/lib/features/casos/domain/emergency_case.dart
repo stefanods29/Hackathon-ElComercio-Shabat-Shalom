@@ -185,9 +185,10 @@ Set<CaseAction> actionsFrom(CaseStatus status) => switch (status) {
 bool needsReason(CaseAction action) =>
     action == CaseAction.refer || action == CaseAction.closeUnattended;
 
+/// Assigning keeps the case seen: the brigadist confirms "en camino" from the phone (Lot B).
 CaseStatus resultOf(CaseAction action) => switch (action) {
   CaseAction.markSeen => CaseStatus.seen,
-  CaseAction.assign => CaseStatus.onTheWay,
+  CaseAction.assign => CaseStatus.seen,
   CaseAction.refer => CaseStatus.referred,
   CaseAction.closeUnattended => CaseStatus.closedUnattended,
 };

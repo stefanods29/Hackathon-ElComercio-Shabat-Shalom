@@ -6,6 +6,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:vecinal_consola/app.dart';
 import 'package:vecinal_consola/core/config/console_environment.dart';
 import 'package:vecinal_consola/core/network/api_errors.dart';
+import 'package:vecinal_consola/features/casos/data/cases_providers.dart';
+import 'package:vecinal_consola/features/casos/data/http_cases_repository.dart';
+import 'package:vecinal_consola/features/celdas/data/cells_providers.dart';
+import 'package:vecinal_consola/features/celdas/data/http_cells_repository.dart';
+import 'package:vecinal_consola/features/turnos/data/http_shifts_repository.dart';
+import 'package:vecinal_consola/features/turnos/data/shifts_providers.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -15,7 +21,13 @@ Future<void> main() async {
   if (environment.phoneAuthWithFirebase) await _startFirebase(environment);
   runApp(
     ProviderScope(
-      overrides: [consoleEnvironmentProvider.overrideWithValue(environment)],
+      overrides: [
+        consoleEnvironmentProvider.overrideWithValue(environment),
+        // Emergencias of Phase 2, Lot B. `CONSOLE_DATA=demo` still uses the fictitious data.
+        operationalCasesFactoryProvider.overrideWithValue(HttpCasesRepository.new),
+        operationalCellsFactoryProvider.overrideWithValue(HttpCellsRepository.new),
+        operationalShiftsFactoryProvider.overrideWithValue(HttpShiftsRepository.new),
+      ],
       // Only a lost connection is retried on its own; a Problem Details answer is explained.
       retry: (attempt, error) =>
           error is ConnectionProblem && attempt < 3 ? Duration(seconds: 2 << attempt) : null,
