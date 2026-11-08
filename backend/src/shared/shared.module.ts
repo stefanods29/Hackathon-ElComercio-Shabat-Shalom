@@ -32,6 +32,8 @@ import { IdempotencyCounters } from './observability/idempotency-counters.js';
 import { HttpRequestLogger, RequestIdMiddleware } from './observability/request-id.middleware.js';
 import { OperationalMetrics } from './observability/operational-metrics.js';
 import { MetricsController } from './observability/metrics.controller.js';
+import { SyncTelemetry } from './observability/sync-telemetry.js';
+import { SyncTelemetryController } from './observability/sync-telemetry.controller.js';
 
 function queueProvider(worker = false) {
   return {
@@ -50,7 +52,7 @@ function queueProvider(worker = false) {
  */
 @Global()
 @Module({
-  controllers: [JwksController, HealthController, MetricsController],
+  controllers: [JwksController, HealthController, MetricsController, SyncTelemetryController],
   providers: [
     { provide: CLOCK, useValue: systemClock },
     TokenService,
@@ -67,6 +69,7 @@ function queueProvider(worker = false) {
     HttpRequestLogger,
     RequestIdMiddleware,
     OperationalMetrics,
+    SyncTelemetry,
     {
       provide: QUEUE_METRICS_READER,
       inject: [JOB_QUEUE],

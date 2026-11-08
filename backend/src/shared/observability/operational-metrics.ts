@@ -4,6 +4,7 @@ import { KYSELY } from '../db/connection.js';
 import { CLOCK, type Clock } from '../domain/clock.js';
 import { QUEUE_METRICS_READER, type QueueMetricsReader } from '../queues/queue-metrics.js';
 import { IdempotencyCounters } from './idempotency-counters.js';
+import { SyncTelemetry } from './sync-telemetry.js';
 
 @Injectable()
 export class OperationalMetrics {
@@ -12,11 +13,12 @@ export class OperationalMetrics {
     @Inject(QUEUE_METRICS_READER) private readonly queues: QueueMetricsReader,
     private readonly counters: IdempotencyCounters,
     @Inject(CLOCK) private readonly clock: Clock,
+    private readonly telemetry: SyncTelemetry,
   ) {}
 
   async snapshot() {
     const now = this.clock.now();
-    const [outbox, queues] = await Promise.all([
+    const [outbox, queues, sincronizacion] = await Promise.all([
       sql<{ pending: number; oldestAge: number | null }>`
         SELECT count(*)::int AS pending,
           CASE WHEN min(ocurrido_en) IS NULL THEN NULL ELSE
@@ -24,6 +26,7 @@ export class OperationalMetrics {
           END AS "oldestAge" FROM compartido.outbox WHERE publicado_en IS NULL
       `.execute(this.db),
       this.queues.depths(now),
+      this.telemetry.summary(),
     ]);
     return {
       instanciaId: this.counters.instanceId,
@@ -43,6 +46,7 @@ export class OperationalMetrics {
         criticasPendientes: queue.criticalPending,
         edadCriticaMasAntiguaSegundos: queue.oldestCriticalAgeSeconds,
       })),
+      sincronizacion,
     };
   }
 }
