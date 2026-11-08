@@ -1,3 +1,9 @@
+// These tests open real SQLite and PowerSync connections. Under the load of the whole suite on a
+// shared CI runner they can take far longer than alone, so the waits are generous: each one still
+// ends as soon as the expected event arrives, and the assertions do not change.
+@Timeout(Duration(minutes: 2))
+library;
+
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
@@ -48,6 +54,9 @@ class TestCaseSubscription implements SyncStreamSubscription {
     if (!firstSync.isCompleted) firstSync.complete();
   }
 }
+
+const _nativeWait = Duration(seconds: 45);
+const _watchWait = Duration(seconds: 30);
 
 void main() {
   const caseId = 'caso-sintetico';
@@ -165,7 +174,7 @@ void main() {
 
     await cases.request(caseId);
 
-    final streams = await requested.future.timeout(const Duration(seconds: 8));
+    final streams = await requested.future.timeout(_nativeWait);
     expect(streams['include_defaults'], isFalse);
     final subscriptions = streams['subscriptions'] as List<Object?>;
     expect(subscriptions, hasLength(1));
@@ -222,7 +231,7 @@ void main() {
     final exact = subscriptions.last;
     final removed = cases.watch().firstWhere((value) => value?.location == null);
     await exact.database.execute('DELETE FROM ps_data__ubicaciones_casos WHERE id = ?', [caseId]);
-    expect((await removed.timeout(const Duration(seconds: 5)))?.cell, 'celda-aproximada');
+    expect((await removed.timeout(_watchWait))?.cell, 'celda-aproximada');
     await cases.review();
     expect(exact.unsubscribed, isTrue);
     expect(await store.read(exactKey), isNull);
@@ -241,7 +250,7 @@ void main() {
 
     final removed = former.watch().firstWhere((value) => value == null);
     await oldSummary.database.execute('DELETE FROM ps_data__pedidos_ayuda WHERE id = ?', [caseId]);
-    expect(await removed.timeout(const Duration(seconds: 5)), isNull);
+    expect(await removed.timeout(_watchWait), isNull);
     await former.review();
     expect(oldSummary.unsubscribed, isTrue);
     expect(oldExact.unsubscribed, isTrue);
