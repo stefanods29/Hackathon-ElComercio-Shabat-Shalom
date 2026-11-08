@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:vecinal/core/di/providers.dart';
 import 'package:vecinal/core/submissions/submission_status.dart';
 import 'package:vecinal/core/ui/submission_status_chip.dart';
+import 'package:vecinal/features/compartir/presentation/share_post_button.dart';
 import 'package:vecinal/features/solidaridad/data/providers.dart';
 import 'package:vecinal/features/solidaridad/domain/post.dart';
 import 'package:vecinal/features/solidaridad/domain/use_cases.dart';
@@ -49,6 +50,7 @@ class PostCard extends ConsumerWidget {
                 crossAxisAlignment: WrapCrossAlignment.center,
                 children: [
                   SubmissionStatusChip(status: post.submissionStatus),
+                  SharePostButton(post: post),
                   if (canTake)
                     FilledButton(
                       onPressed: () => _take(context, ref),

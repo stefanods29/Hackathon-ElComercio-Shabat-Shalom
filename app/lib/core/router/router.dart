@@ -4,6 +4,7 @@ import 'package:vecinal/core/router/routes.dart';
 import 'package:vecinal/core/ui/under_construction_screen.dart';
 import 'package:vecinal/features/avisos/presentation/push_settings_page.dart';
 import 'package:vecinal/features/mapa/presentation/map_page.dart';
+import 'package:vecinal/features/media/presentation/photo_library_page.dart';
 import 'package:vecinal/features/solidaridad/presentation/post_detail_page.dart';
 import 'package:vecinal/features/solidaridad/presentation/wall_page.dart';
 
@@ -23,6 +24,7 @@ final routerProvider = Provider<GoRouter>((ref) {
             const UnderConstructionScreen(title: 'Acciones por revisar', lot: 'Lote D'),
       ),
       GoRoute(path: Routes.map, builder: (context, state) => const MapPage()),
+      GoRoute(path: Routes.photos, builder: (context, state) => const PhotoLibraryPage()),
       GoRoute(path: Routes.pushSettings, builder: (context, state) => const PushSettingsPage()),
       GoRoute(
         path: Routes.postDetail,

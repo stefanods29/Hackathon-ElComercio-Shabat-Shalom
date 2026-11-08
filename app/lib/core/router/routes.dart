@@ -8,4 +8,5 @@ abstract final class Routes {
   static const map = '/mapa';
   static const pushSettings = '/avisos';
   static const postDetail = '/publicaciones/:id';
+  static const photos = '/fotos';
 }

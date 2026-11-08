@@ -3,9 +3,11 @@ import { NestFactory } from '@nestjs/core';
 import type { NestExpressApplication } from '@nestjs/platform-express';
 import { AppModule } from './app.module.js';
 import { loadConfig, loadEnvFile } from './shared/config/app-config.js';
+import { startTelemetry } from './shared/observability/telemetry.js';
 
 loadEnvFile();
 const config = loadConfig();
+startTelemetry(config);
 
 const app = await NestFactory.create<NestExpressApplication>(AppModule, {
   logger: new ConsoleLogger({ json: config.NODE_ENV === 'production', prefix: 'vecinal' }),

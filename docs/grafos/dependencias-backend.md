@@ -28,6 +28,7 @@ subgraph src["src"]
     src_shared_domain["domain"]
     src_shared_health["health"]
     src_shared_idempotency["idempotency"]
+    src_shared_observability["observability"]
     src_shared_outbox["outbox"]
     src_shared_queues["queues"]
     src_shared_shared_module_ts["shared.module.ts"]
@@ -46,11 +47,19 @@ src_app_module_ts-->src_shared_db
 src_app_module_ts-->src_shared_shared_module_ts
 src_main_ts-->src_app_module_ts
 src_main_ts-->src_shared_config
+src_main_ts-->src_shared_observability
 src_modules_identidad-->src_shared_auth
 src_modules_identidad-->src_shared_api
 src_modules_identidad-->src_shared_config
 src_modules_identidad-->src_shared_domain
 src_modules_identidad-->src_shared_db
+src_modules_media-->src_shared_auth
+src_modules_media-->src_shared_domain
+src_modules_media-->src_shared_config
+src_modules_media-->src_shared_idempotency
+src_modules_media-->src_shared_db
+src_modules_media-->src_app_module_ts
+src_modules_media-->src_shared_observability
 src_modules_notificaciones-->src_shared_config
 src_modules_notificaciones-->src_shared_auth
 src_modules_notificaciones-->src_shared_idempotency
@@ -62,6 +71,7 @@ src_modules_solidaridad-->src_shared_auth
 src_modules_solidaridad-->src_shared_idempotency
 src_modules_solidaridad-->src_shared_db
 src_modules_solidaridad-->src_shared_outbox
+src_shared_api-->src_shared_observability
 src_shared_api-->src_shared_domain
 src_shared_auth-->src_shared_config
 src_shared_auth-->src_shared_domain
@@ -74,6 +84,7 @@ src_shared_idempotency-->src_shared_db
 src_shared_idempotency-->src_shared_api
 src_shared_idempotency-->src_shared_auth
 src_shared_idempotency-->src_shared_domain
+src_shared_observability-->src_shared_config
 src_shared_outbox-->src_shared_db
 src_shared_outbox-->src_shared_domain
 src_shared_shared_module_ts-->src_shared_api
@@ -83,6 +94,7 @@ src_shared_shared_module_ts-->src_shared_db
 src_shared_shared_module_ts-->src_shared_domain
 src_shared_shared_module_ts-->src_shared_health
 src_shared_shared_module_ts-->src_shared_idempotency
+src_shared_shared_module_ts-->src_shared_observability
 src_shared_shared_module_ts-->src_shared_outbox
 src_shared_shared_module_ts-->src_shared_queues
 ```

@@ -11,6 +11,11 @@ class AppEnvironment {
     this.mapStyleUrl = 'http://10.0.2.2:8090/estilos/vecinal.json',
     this.mapBounds = pilotMapBounds,
     this.enablePush = false,
+    this.enablePhotos = false,
+    this.mediaStorageOrigin = 'http://10.0.2.2:9000',
+    this.publicAppUrl = '',
+    this.sentryDsn = '',
+    this.environmentName = 'dev',
   });
 
   // Same demonstration rectangle as infra/cdn/district.config.json; not an administrative boundary.
@@ -20,6 +25,14 @@ class AppEnvironment {
     apiBaseUrl: String.fromEnvironment('API_BASE_URL', defaultValue: 'http://10.0.2.2:3000'),
     powersyncUrl: String.fromEnvironment('POWERSYNC_URL', defaultValue: 'http://10.0.2.2:8080'),
     enablePush: bool.fromEnvironment('ENABLE_PUSH'),
+    enablePhotos: bool.fromEnvironment('ENABLE_PHOTOS'),
+    mediaStorageOrigin: String.fromEnvironment(
+      'MEDIA_STORAGE_ORIGIN',
+      defaultValue: 'http://10.0.2.2:9000',
+    ),
+    publicAppUrl: String.fromEnvironment('PUBLIC_APP_URL'),
+    sentryDsn: String.fromEnvironment('SENTRY_DSN'),
+    environmentName: String.fromEnvironment('APP_ENVIRONMENT', defaultValue: 'dev'),
     mapStyleUrl: String.fromEnvironment(
       'MAP_STYLE_URL',
       defaultValue: 'http://10.0.2.2:8090/estilos/vecinal.json',
@@ -31,4 +44,9 @@ class AppEnvironment {
   final String mapStyleUrl;
   final MapBounds mapBounds;
   final bool enablePush;
+  final bool enablePhotos;
+  final String mediaStorageOrigin;
+  final String publicAppUrl;
+  final String sentryDsn;
+  final String environmentName;
 }

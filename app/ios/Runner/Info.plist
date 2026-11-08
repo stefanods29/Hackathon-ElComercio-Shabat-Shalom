@@ -31,7 +31,9 @@
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>NSLocalNetworkUsageDescription</key>
-	<string>Permite mostrar y descargar mapas desde la red local.</string>
+	<string>Permite mostrar mapas y subir fotos al servidor de la red local.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Permite elegir una foto para adjuntarla a tus publicaciones.</string>
 	<key>NSAppTransportSecurity</key>
 	<dict>
 		<key>NSAllowsLocalNetworking</key>

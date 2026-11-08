@@ -1,0 +1,15 @@
+project_id = "YOUR_FIREBASE_PROJECT"
+environment = "dev"
+region = "southamerica-west1"
+image = "southamerica-west1-docker.pkg.dev/YOUR_FIREBASE_PROJECT/vecinal-dev/backend@sha256:0000000000000000000000000000000000000000000000000000000000000000"
+powersync_url = "https://YOUR_POWERSYNC_HOST"
+cloudflare_account_id = "00000000000000000000000000000000"
+monthly_budget_reviewed = false
+enable_media_schedule = false
+secrets = {
+  DATABASE_URL = { name = "vecinal-dev-database-url", version = "1" }
+  JWT_PRIVATE_KEY_PEM = { name = "vecinal-dev-jwt-private-key", version = "1" }
+  FIREBASE_SERVICE_ACCOUNT_BASE64 = { name = "vecinal-dev-firebase-admin", version = "1" }
+  MEDIA_ACCESS_KEY_ID = { name = "vecinal-dev-r2-access-key", version = "1" }
+  MEDIA_SECRET_ACCESS_KEY = { name = "vecinal-dev-r2-secret-key", version = "1" }
+}

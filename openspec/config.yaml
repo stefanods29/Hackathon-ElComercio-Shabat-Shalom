@@ -10,6 +10,8 @@ context: |
   suposición. Las correcciones posteriores viven en docs/adr/.
   Fase actual: Fase 0 · Prueba técnica (sección 12), dividida en los Lotes A, B, C y D
   (docs/fase-0/plan-de-lotes.md). Cada lote es un change de OpenSpec.
+  Fase 1 del Lote C autorizada para implementación local: fotos, compartir y propuesta de
+  infraestructura; no implica aceptación de Fase 0 ni autorización de despliegue cloud.
   Promesas que ningún change puede romper:
   - Sin conexión se consulta lo descargado y las acciones quedan en cola; nada se envía y la app
     lo dice ("Guardado en tu celular"). Nunca prometer envíos inmediatos en segundo plano.

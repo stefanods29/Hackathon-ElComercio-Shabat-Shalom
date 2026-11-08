@@ -1,12 +1,11 @@
-import { type ArgumentsHost, Catch, type ExceptionFilter, Logger } from '@nestjs/common';
+import { type ArgumentsHost, Catch, type ExceptionFilter } from '@nestjs/common';
 import type { Request, Response } from 'express';
 import { PROBLEM_CONTENT_TYPE, PrebuiltProblem, toProblemDetails } from './problem-details.js';
+import { reportServerFailure } from '../observability/telemetry.js';
 
 /** Every error response goes out as `application/problem+json` (RFC 9457). */
 @Catch()
 export class ProblemDetailsFilter implements ExceptionFilter {
-  private readonly logger = new Logger('Errors');
-
   catch(error: unknown, host: ArgumentsHost): void {
     const http = host.switchToHttp();
     const response = http.getResponse<Response>();
@@ -18,10 +17,7 @@ export class ProblemDetailsFilter implements ExceptionFilter {
         : toProblemDetails(error, request.originalUrl);
 
     if (problem.status >= 500) {
-      this.logger.error(
-        `${request.method} ${request.originalUrl} → ${problem.status}`,
-        error instanceof Error ? error.stack : String(error),
-      );
+      reportServerFailure(error, request.route?.path);
     }
 
     if (response.headersSent) {
