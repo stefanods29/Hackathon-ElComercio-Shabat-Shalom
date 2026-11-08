@@ -14,7 +14,7 @@ Fase 1 cumple sus [criterios de salida](../fase-1/criterios-de-salida.md) y term
 | [`lote-a-pedidos-offline-y-modo-operativo/`](lote-a-pedidos-offline-y-modo-operativo/) | Pedidos de ayuda sin conexión, streams por asignación, modo operativo protegido, tablero offline, seguridad e integración | ★★★★ | Stefano | Pendiente (0 de 6 partes) |
 | [`lote-b-modulo-emergencias/`](lote-b-modulo-emergencias/) | Eventos, pedidos con estados, asignaciones, escalamiento, recursos críticos, roles y auditoría | ★★★ | Por asignar | Pendiente (0 de 5 partes) |
 | [`lote-c-consola-web-y-avisos-urgentes/`](lote-c-consola-web-y-avisos-urgentes/) | Consola web de operación y avisos urgentes con SMS de respaldo | ★★ | Por asignar | Pendiente (0 de 4 partes) |
-| [`lote-d-tablero-de-emergencia/`](lote-d-tablero-de-emergencia/) | Tablero de emergencia, "Necesito ayuda", "Puedo ayudar", recursos y contactos | ★ | Por asignar | Pendiente (0 de 4 partes) |
+| [`lote-d-tablero-de-emergencia/`](lote-d-tablero-de-emergencia/) | Tablero de emergencia, "Necesito ayuda", "Puedo ayudar", recursos y contactos | ★ | stefanods29 | En curso; código en rama propia, sin validación |
 
 El estado de cada parte está en la tabla "Estado del lote" de cada guía.
 
