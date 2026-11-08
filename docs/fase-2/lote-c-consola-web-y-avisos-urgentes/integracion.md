@@ -130,8 +130,10 @@ Variables nuevas de la API (documentadas en `backend/.env.example`):
 El 8 de noviembre de 2026, la prueba `curation-s3.int-spec.ts` publicó dos distritos
 ficticios en paralelo desde la API con PostgreSQL 18.6 y MinIO en Docker. El índice
 conservó ambas versiones, con el tamaño y SHA-256 de cada archivo y los encabezados de
-caché esperados. Las 10 pruebas de `infra/cdn` pasaron con los archivos de referencia.
-La verificación del bucket y de la ruta pública de staging queda pendiente.
+caché esperados. Se descargaron los archivos de MinIO a una copia temporal para ejecutar
+`npm test` en `infra/cdn` sobre lo publicado (10 de 10). La suite completa del backend
+pasó en Linux (200 de 200). La verificación del bucket y de la ruta pública de staging
+queda pendiente.
 
 Las de la consola (`--dart-define`) están en [`consola/README.md`](../../../consola/README.md).
 
