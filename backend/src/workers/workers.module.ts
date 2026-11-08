@@ -7,6 +7,8 @@ import {
   type OnModuleInit,
 } from '@nestjs/common';
 import { DirectoryModule } from '../modules/directorio/index.js';
+import { ModerationModule } from '../modules/moderacion/index.js';
+import { ReputationModule } from '../modules/reputacion/index.js';
 import { NotificationsModule } from '../modules/notificaciones/index.js';
 import { AppConfigModule } from '../shared/config/app-config.module.js';
 import { DatabaseModule } from '../shared/db/database.module.js';
@@ -58,6 +60,8 @@ export class WorkerRuntime implements OnModuleInit, OnApplicationBootstrap, OnMo
     SharedModule.forWorkers(),
     NotificationsModule,
     DirectoryModule,
+    ReputationModule,
+    ModerationModule,
   ],
   providers: [OutboxRelay, DailyCleanup, WorkerRuntime],
 })
