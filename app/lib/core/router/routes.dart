@@ -18,6 +18,9 @@ abstract final class Routes {
   static const operationalCase = '/emergencia/operacion/:id';
   static const map = '/mapa';
   static const tutorial = '/tutorial';
+  static const tutorialDirectory = '/tutorial/servicios';
+  static const tutorialEmergency = '/tutorial/emergencia';
+  static const wall = '/muro';
   static const signIn = '/ingresar';
   static const signInCode = '/ingresar/codigo';
   static const chooseZone = '/elegir-zona';

@@ -44,17 +44,16 @@ class PostCard extends ConsumerWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Row(
+                Wrap(
+                  spacing: 10,
+                  runSpacing: 4,
+                  crossAxisAlignment: WrapCrossAlignment.center,
                   children: [
                     _TypePill(type: post.type),
-                    const SizedBox(width: 10),
-                    Expanded(
-                      child: Text(
-                        post.category,
-                        overflow: TextOverflow.ellipsis,
-                        style: theme.textTheme.bodyMedium?.copyWith(
-                          color: theme.colorScheme.onSurfaceVariant,
-                        ),
+                    Text(
+                      post.category,
+                      style: theme.textTheme.bodyMedium?.copyWith(
+                        color: theme.colorScheme.onSurfaceVariant,
                       ),
                     ),
                     Text(
@@ -136,26 +135,27 @@ class _TypePill extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
     final (icon, background, foreground) = switch (type) {
       PostType.need => (
         Icons.pan_tool_alt_outlined,
-        const Color(0xFFFFF1CC),
-        const Color(0xFF5B3B00),
+        scheme.tertiaryContainer,
+        scheme.onTertiaryContainer,
       ),
       PostType.offer || PostType.donate => (
         Icons.volunteer_activism_outlined,
-        const Color(0xFFD5F2EE),
-        const Color(0xFF064E47),
+        scheme.primaryContainer,
+        scheme.onPrimaryContainer,
       ),
       PostType.lend || PostType.exchange => (
         Icons.handshake_outlined,
-        const Color(0xFFE3EAF3),
-        const Color(0xFF1E3A5F),
+        scheme.secondaryContainer,
+        scheme.onSecondaryContainer,
       ),
       PostType.ride => (
         Icons.directions_car_outlined,
-        const Color(0xFFEDE9FE),
-        const Color(0xFF4C1D95),
+        scheme.brightness == Brightness.dark ? const Color(0xFF382766) : const Color(0xFFEDE9FE),
+        scheme.brightness == Brightness.dark ? const Color(0xFFDDD6FE) : const Color(0xFF4C1D95),
       ),
     };
     return DecoratedBox(

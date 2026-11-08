@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:vecinal/core/router/routes.dart';
+import 'package:vecinal/core/theme/accessible_theme.dart';
 import 'package:vecinal/core/ui/spaced.dart';
+import 'package:vecinal/core/ui/wrapping_app_bar.dart';
 import 'package:vecinal/features/directorio/data/providers.dart';
 import 'package:vecinal/features/directorio/domain/directory.dart';
 import 'package:vecinal/features/directorio/domain/use_cases.dart';
@@ -58,10 +60,18 @@ class _ServiceFormPageState extends ConsumerState<ServiceFormPage> {
         // Profile must be in the queue before its first service.
         await SaveProviderProfile(repository).execute(publicName: _name.text);
         final submission = await PublishService(repository).execute(draft);
-        if (mounted) context.go('/servicios/${submission.resourceId}');
+        if (mounted && ModalRoute.isCurrentOf(context) == true) {
+          context.pushReplacement('/servicios/${submission.resourceId}');
+        }
       } else {
         await UpdateService(repository).execute(original, draft);
-        if (mounted) context.go('/servicios/${original.id}');
+        if (mounted && ModalRoute.isCurrentOf(context) == true) {
+          if (context.canPop()) {
+            context.pop();
+          } else {
+            context.pushReplacement('/servicios/${original.id}');
+          }
+        }
       }
     } catch (_) {
       if (mounted) setState(() => _error = t.actionFailed);
@@ -94,7 +104,7 @@ class _ServiceFormPageState extends ConsumerState<ServiceFormPage> {
       _emergency = service?.availableInEmergency ?? false;
     }
     return Scaffold(
-      appBar: AppBar(title: Text(service == null ? t.offerService : t.editService)),
+      appBar: wrappingAppBar(context, service == null ? t.offerService : t.editService),
       body: SafeArea(
         child: Form(
           key: _form,
@@ -114,15 +124,32 @@ class _ServiceFormPageState extends ConsumerState<ServiceFormPage> {
                 validator: (v) =>
                     (v!.trim().length < 3 || v.trim().length > 120) ? t.invalidServiceTitle : null,
               ),
-              DropdownButtonFormField<String>(
-                initialValue: _category,
-                isExpanded: true,
-                decoration: InputDecoration(labelText: t.categoryLabel),
-                items: categories
-                    .map((c) => DropdownMenuItem(value: c.id, child: Text(c.name)))
-                    .toList(),
-                onChanged: (value) => setState(() => _category = value),
-                validator: (v) => v == null ? t.categoryLabel : null,
+              ButtonTheme(
+                alignedDropdown: true,
+                child: DropdownButtonFormField<String>(
+                  initialValue: _category,
+                  isExpanded: true,
+                  isDense: false,
+                  itemHeight: null,
+                  menuMaxHeight: 320,
+                  borderRadius: BorderRadius.circular(AccessibleTheme.radiusMedium),
+                  decoration: InputDecoration(labelText: t.categoryLabel),
+                  items: [
+                    for (final category in categories)
+                      DropdownMenuItem(
+                        value: category.id,
+                        child: Row(
+                          spacing: 8,
+                          children: [
+                            Icon(categoryIcon(category.icon), size: 20),
+                            Flexible(child: Text(category.name)),
+                          ],
+                        ),
+                      ),
+                  ],
+                  onChanged: (value) => setState(() => _category = value),
+                  validator: (v) => v == null ? t.categoryLabel : null,
+                ),
               ),
               TextFormField(
                 controller: _description,

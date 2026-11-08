@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:vecinal/core/router/routes.dart';
 import 'package:vecinal/core/submissions/submission.dart';
 import 'package:vecinal/core/ui/notice_card.dart';
+import 'package:vecinal/core/ui/wrapping_app_bar.dart';
 import 'package:vecinal/features/reputacion/presentation/rejection_text.dart';
 import 'package:vecinal/features/solidaridad/data/providers.dart';
 import 'package:vecinal/features/solidaridad/domain/post.dart';
@@ -26,7 +27,7 @@ class ActionsToReviewPage extends ConsumerWidget {
       data: (actions) {
         if (actions.isEmpty) {
           return Scaffold(
-            appBar: AppBar(title: Text(texts.actionsToReview)),
+            appBar: wrappingAppBar(context, texts.actionsToReview),
             body: Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -41,7 +42,7 @@ class ActionsToReviewPage extends ConsumerWidget {
         }
 
         return Scaffold(
-          appBar: AppBar(title: Text(texts.actionsToReview)),
+          appBar: wrappingAppBar(context, texts.actionsToReview),
           body: ListView.builder(
             itemCount: actions.length,
             itemBuilder: (context, index) {
@@ -145,7 +146,7 @@ class _ReviewItem extends ConsumerWidget {
                 child: TextButton.icon(
                   icon: const Icon(Icons.home),
                   label: Text(texts.goToWall),
-                  onPressed: () => context.go(Routes.home),
+                  onPressed: () => context.push(Routes.wall),
                 ),
               ),
             ],

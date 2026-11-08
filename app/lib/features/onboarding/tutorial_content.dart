@@ -8,6 +8,9 @@ class TutorialStep {
   final TutorialDestination destination;
   final String? title;
   final String? body;
+
+  Iterable<String> paragraphs(String fallback) =>
+      (body ?? fallback).split('\n').map((line) => line.trim()).where((line) => line.isNotEmpty);
 }
 
 class TutorialContent {

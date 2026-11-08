@@ -9,6 +9,7 @@ import 'package:vecinal/core/platform/pilot_platforms.dart';
 import 'package:vecinal/core/router/routes.dart';
 import 'package:vecinal/core/ui/large_button.dart';
 import 'package:vecinal/core/ui/simple_mode.dart';
+import 'package:vecinal/core/ui/wrapping_app_bar.dart';
 import 'package:vecinal/features/directorio/domain/directory.dart';
 import 'package:vecinal/features/directorio/domain/search.dart';
 import 'package:vecinal/features/directorio/presentation/directory_page.dart';
@@ -52,15 +53,17 @@ class EmergencyLayout extends ConsumerWidget {
   final List<Widget> children;
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final content = Scaffold(
-      appBar: AppBar(title: Text(title)),
-      body: SafeArea(
-        child: ListView(
-          padding: const EdgeInsets.fromLTRB(20, 8, 20, 32),
-          children: [
-            for (final child in children)
-              Padding(padding: const EdgeInsets.only(bottom: 16), child: child),
-          ],
+    final content = Builder(
+      builder: (context) => Scaffold(
+        appBar: wrappingAppBar(context, title),
+        body: SafeArea(
+          child: ListView(
+            padding: const EdgeInsets.fromLTRB(20, 8, 20, 32),
+            children: [
+              for (final child in children)
+                Padding(padding: const EdgeInsets.only(bottom: 16), child: child),
+            ],
+          ),
         ),
       ),
     );

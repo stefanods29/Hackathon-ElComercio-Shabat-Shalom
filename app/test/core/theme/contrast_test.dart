@@ -49,6 +49,15 @@ void main() {
   });
 
   group('AccessibleTheme dark', () {
-    checkTheme('dark', AccessibleTheme.dark());
+    final theme = AccessibleTheme.dark();
+    checkTheme('dark', theme);
+
+    test('texto secundario, estrellas y bordes mantienen contraste sobre tarjetas', () {
+      final scheme = theme.colorScheme;
+      final surface = scheme.surfaceContainerHigh;
+      expect(contrastRatio(scheme.onSurfaceVariant, surface), greaterThanOrEqualTo(4.5));
+      expect(contrastRatio(AccessibleTheme.ratingColor(scheme), surface), greaterThanOrEqualTo(3));
+      expect(contrastRatio(scheme.outlineVariant, surface), greaterThanOrEqualTo(3));
+    });
   });
 }

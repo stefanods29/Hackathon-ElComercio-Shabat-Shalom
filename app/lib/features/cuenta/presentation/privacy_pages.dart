@@ -5,6 +5,7 @@ import 'package:vecinal/core/di/providers.dart';
 import 'package:vecinal/core/platform/pilot_platforms.dart';
 import 'package:vecinal/core/router/routes.dart';
 import 'package:vecinal/core/ui/spaced.dart';
+import 'package:vecinal/core/ui/wrapping_app_bar.dart';
 import 'package:vecinal/features/cuenta/data/privacy_providers.dart';
 import 'package:vecinal/features/cuenta/data/providers.dart';
 import 'package:vecinal/features/cuenta/domain/auth_repository.dart';
@@ -52,7 +53,7 @@ class _ConsentPageState extends ConsumerState<ConsentPage> {
               versions[DataPurpose.residencePresence];
     }
     return Scaffold(
-      appBar: AppBar(title: Text(t.consentTitle)),
+      appBar: wrappingAppBar(context, t.consentTitle),
       body: SafeArea(
         child: ListView(
           padding: const EdgeInsets.fromLTRB(20, 8, 20, 32),
@@ -376,7 +377,7 @@ class LevelsPage extends ConsumerWidget {
         ? auth.user.trustLevel
         : 0;
     return Scaffold(
-      appBar: AppBar(title: Text(t.levelsTitle)),
+      appBar: wrappingAppBar(context, t.levelsTitle),
       body: SafeArea(
         child: ListView(
           padding: const EdgeInsets.fromLTRB(20, 8, 20, 32),
@@ -413,7 +414,7 @@ class _ChangeZonePageState extends ConsumerState<ChangeZonePage> {
     final repository = ref.watch(accountOperationsRepositoryProvider);
     final ready = sync.hasValue && sync.value!.connected && sync.value!.pendingUploads == 0;
     return Scaffold(
-      appBar: AppBar(title: Text(t.changeZone)),
+      appBar: wrappingAppBar(context, t.changeZone),
       body: SafeArea(
         child: ListView(
           padding: const EdgeInsets.fromLTRB(20, 8, 20, 32),

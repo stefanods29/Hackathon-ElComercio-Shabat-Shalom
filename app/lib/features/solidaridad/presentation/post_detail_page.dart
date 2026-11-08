@@ -37,8 +37,14 @@ class PostDetailPage extends ConsumerWidget {
                     if (matches.isNotEmpty)
                       ReportButton(content: ReportedContent.post, contentId: postId),
                     TextButton(
-                      onPressed: () => context.go(Routes.home),
-                      child: Text(texts.postDetailBack),
+                      onPressed: () {
+                        if (context.canPop()) {
+                          context.pop();
+                        } else {
+                          context.go(Routes.home);
+                        }
+                      },
+                      child: Text(MaterialLocalizations.of(context).backButtonTooltip),
                     ),
                   ]),
                 );

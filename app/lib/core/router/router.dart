@@ -202,6 +202,13 @@ final routerProvider = Provider<GoRouter>((ref) {
         builder: (context, state) => MapPage(focus: state.extra as MapFocus?),
       ),
       GoRoute(path: Routes.tutorial, builder: (context, state) => const TutorialScreen()),
+      // These visits keep the originating page under them, independently of tab navigation.
+      GoRoute(path: Routes.wall, builder: (context, state) => const WallPage()),
+      GoRoute(path: Routes.tutorialDirectory, builder: (context, state) => const DirectoryPage()),
+      GoRoute(
+        path: Routes.tutorialEmergency,
+        builder: (context, state) => const EmergencyDashboardPage(),
+      ),
     ],
   );
   ref.onDispose(() {

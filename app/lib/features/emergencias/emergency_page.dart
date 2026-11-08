@@ -9,6 +9,7 @@ import 'package:vecinal/core/router/routes.dart';
 import 'package:vecinal/core/time/time_ago.dart';
 import 'package:vecinal/core/ui/large_button.dart';
 import 'package:vecinal/core/ui/spaced.dart';
+import 'package:vecinal/core/ui/wrapping_app_bar.dart';
 import 'package:vecinal/features/emergencias/data/providers.dart';
 import 'package:vecinal/features/emergencias/presentation/own_help_requests.dart';
 import 'package:vecinal/features/emergencias/public_emergency_directory.dart';
@@ -27,7 +28,7 @@ class EmergencyPage extends ConsumerWidget {
         ref.watch(emergencyBoardRepositoryProvider) != null &&
         ref.watch(practiceModeProvider).asData?.value == false;
     return Scaffold(
-      appBar: AppBar(title: Text(t.emergencyTitle)),
+      appBar: wrappingAppBar(context, t.emergencyTitle),
       body: SafeArea(
         child: ListView(
           padding: const EdgeInsets.fromLTRB(20, 8, 20, 32),

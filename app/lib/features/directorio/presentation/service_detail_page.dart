@@ -1,9 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:intl/intl.dart';
 import 'package:vecinal/core/platform/pilot_platforms.dart';
 import 'package:vecinal/core/router/routes.dart';
+import 'package:vecinal/core/theme/accessible_theme.dart';
+import 'package:vecinal/core/ui/spaced.dart';
 import 'package:vecinal/core/ui/submission_status_chip.dart';
+import 'package:vecinal/core/ui/wrapping_app_bar.dart';
+import 'package:vecinal/features/cuenta/presentation/profile_page.dart';
 import 'package:vecinal/features/directorio/data/providers.dart';
 import 'package:vecinal/features/directorio/domain/directory.dart';
 import 'package:vecinal/features/directorio/presentation/directory_page.dart';
@@ -59,7 +64,7 @@ class ServiceDetailPage extends ConsumerWidget {
                                 const SizedBox(height: 16),
                                 _DetailFact(
                                   icon: Icons.star_rounded,
-                                  color: const Color(0xFFB7791F),
+                                  color: AccessibleTheme.ratingColor(Theme.of(context).colorScheme),
                                   text: t.serviceRating(
                                     service.averageRating.toStringAsFixed(1),
                                     service.reviewCount,
@@ -159,10 +164,11 @@ class ProviderProfilePage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final t = AppLocalizations.of(context);
-    final items = ref.watch(providerServicesProvider(providerId)).value ?? const <Service>[];
+    final services = ref.watch(providerServicesProvider(providerId));
+    final theme = Theme.of(context);
     final profile = ref.watch(providerProfileProvider(providerId));
     return Scaffold(
-      appBar: AppBar(title: Text(t.providerTitle)),
+      appBar: wrappingAppBar(context, t.providerTitle),
       body: SafeArea(
         child: profile.when(
           loading: () => const Center(child: CircularProgressIndicator()),
@@ -171,17 +177,59 @@ class ProviderProfilePage extends ConsumerWidget {
               ? Center(child: Text(t.providerUnavailable))
               : ListView(
                   padding: const EdgeInsets.fromLTRB(20, 8, 20, 32),
-                  children: [
-                    Text(provider.publicName, style: Theme.of(context).textTheme.headlineSmall),
-                    if (provider.description != null) Text(provider.description!),
+                  children: spaced([
+                    Row(
+                      spacing: 16,
+                      children: [
+                        ProfileAvatar(name: provider.publicName),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            spacing: 4,
+                            children: [
+                              Text(provider.publicName, style: theme.textTheme.headlineSmall),
+                              if (provider.description case final description?) Text(description),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
                     SubmissionStatusChip(status: provider.submissionStatus),
                     Text(
-                      t.serviceRating(
-                        _rating(items).toStringAsFixed(1),
-                        items.fold(0, (n, s) => n + s.reviewCount),
+                      t.providerNeighborSince(
+                        DateFormat.yMMMM(t.localeName).format(provider.updatedAt.toLocal()),
                       ),
                     ),
-                    Text(t.zoneEndorsements(items.fold(0, (n, s) => n + s.zoneEndorsements))),
+                    services.when(
+                      loading: () => const LinearProgressIndicator(),
+                      error: (_, _) => Text(t.serviceUnavailable),
+                      data: (items) => Wrap(
+                        spacing: 16,
+                        runSpacing: 8,
+                        children: [
+                          _DetailFact(
+                            icon: Icons.storefront_outlined,
+                            color: theme.colorScheme.primary,
+                            text: t.providerServiceCount(items.length),
+                          ),
+                          _DetailFact(
+                            icon: Icons.star_rounded,
+                            color: AccessibleTheme.ratingColor(theme.colorScheme),
+                            text: t.serviceRating(
+                              _rating(items).toStringAsFixed(1),
+                              items.fold(0, (n, s) => n + s.reviewCount),
+                            ),
+                          ),
+                          _DetailFact(
+                            icon: Icons.thumb_up_alt_outlined,
+                            color: theme.colorScheme.primary,
+                            text: t.zoneEndorsements(
+                              items.fold(0, (n, s) => n + s.zoneEndorsements),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
                     OutlinedButton.icon(
                       onPressed: () async {
                         try {
@@ -190,7 +238,7 @@ class ProviderProfilePage extends ConsumerWidget {
                               .text(
                                 [
                                   provider.publicName,
-                                  ...items.map((s) => s.title),
+                                  ...services.value?.map((s) => s.title) ?? const <String>[],
                                   if (ref.read(profileShareLinkProvider)(provider.id)
                                       case final link?)
                                     link.toString(),
@@ -208,8 +256,10 @@ class ProviderProfilePage extends ConsumerWidget {
                       icon: const Icon(Icons.share_outlined),
                       label: Text(t.shareAction),
                     ),
-                    for (final service in items) ServiceTile(service: service),
-                  ],
+                    ReportButton(content: ReportedContent.provider, contentId: provider.id),
+                    for (final service in services.value ?? const <Service>[])
+                      ServiceTile(service: service),
+                  ], gap: 12),
                 ),
         ),
       ),
@@ -233,6 +283,7 @@ class _DetailFact extends StatelessWidget {
     padding: const EdgeInsets.symmetric(vertical: 4),
     child: Row(
       crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
       children: [
         Container(
           width: 32,
@@ -241,7 +292,7 @@ class _DetailFact extends StatelessWidget {
           child: Icon(icon, size: 18, color: color),
         ),
         const SizedBox(width: 12),
-        Expanded(
+        Flexible(
           child: Padding(padding: const EdgeInsets.only(top: 5), child: Text(text)),
         ),
       ],

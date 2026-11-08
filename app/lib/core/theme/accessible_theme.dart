@@ -31,6 +31,9 @@ abstract final class AccessibleTheme {
     BoxShadow(color: tint.withValues(alpha: 0.06), blurRadius: 4, offset: const Offset(0, 1)),
   ];
 
+  static Color ratingColor(ColorScheme scheme) =>
+      scheme.brightness == Brightness.dark ? scheme.tertiary : const Color(0xFF956218);
+
   static ThemeData light() => _build(Brightness.light);
 
   static ThemeData dark() => _build(Brightness.dark);
@@ -73,7 +76,38 @@ abstract final class AccessibleTheme {
             surfaceContainerHighest: const Color(0xFFE2E8F0),
             shadow: const Color(0xFF64748B),
           )
-        : generated;
+        : const ColorScheme.dark(
+            primary: Color(0xFF5EEAD4),
+            onPrimary: Color(0xFF042F2E),
+            primaryContainer: Color(0xFF134E4A),
+            onPrimaryContainer: Color(0xFF99F6E4),
+            secondary: Color(0xFF93C5FD),
+            onSecondary: Color(0xFF172554),
+            secondaryContainer: Color(0xFF1E3A5F),
+            onSecondaryContainer: Color(0xFFBFDBFE),
+            tertiary: Color(0xFFF4B942),
+            onTertiary: Color(0xFF422A04),
+            tertiaryContainer: Color(0xFF49320F),
+            onTertiaryContainer: Color(0xFFFFDB87),
+            error: Color(0xFFFCA5A5),
+            onError: Color(0xFF450A0A),
+            errorContainer: Color(0xFF641F26),
+            onErrorContainer: Color(0xFFFECACA),
+            surface: Color(0xFF0F172A),
+            onSurface: Color(0xFFE2E8F0),
+            onSurfaceVariant: Color(0xFF94A3B8),
+            surfaceContainerLowest: Color(0xFF0F172A),
+            surfaceContainerLow: Color(0xFF1E293B),
+            surfaceContainer: Color(0xFF1E293B),
+            surfaceContainerHigh: Color(0xFF273449),
+            surfaceContainerHighest: Color(0xFF273449),
+            outline: Color(0xFF7E90A8),
+            outlineVariant: Color(0xFF71839B),
+            inverseSurface: Color(0xFFE2E8F0),
+            onInverseSurface: Color(0xFF1E293B),
+            inversePrimary: primary,
+            surfaceTint: Color(0xFF5EEAD4),
+          );
     final rounded = RoundedRectangleBorder(borderRadius: BorderRadius.circular(radiusMedium));
     const buttonPadding = EdgeInsets.symmetric(horizontal: 22, vertical: 14);
     final base = ThemeData(colorScheme: scheme, brightness: brightness);
@@ -164,7 +198,7 @@ abstract final class AccessibleTheme {
         ),
       ),
       cardTheme: CardThemeData(
-        color: scheme.surface,
+        color: light ? scheme.surface : scheme.surfaceContainerLow,
         elevation: 3,
         shadowColor: shadowTint.withValues(alpha: 0.35),
         surfaceTintColor: Colors.transparent,

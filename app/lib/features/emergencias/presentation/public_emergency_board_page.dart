@@ -6,6 +6,7 @@ import 'package:go_router/go_router.dart';
 import 'package:vecinal/core/di/providers.dart';
 import 'package:vecinal/core/router/routes.dart';
 import 'package:vecinal/core/time/time_ago.dart';
+import 'package:vecinal/core/ui/wrapping_app_bar.dart';
 import 'package:vecinal/features/emergencias/data/providers.dart';
 import 'package:vecinal/features/emergencias/domain/public_emergency_board.dart';
 import 'package:vecinal/features/onboarding/practice_mode.dart';
@@ -23,7 +24,7 @@ class PublicEmergencyBoardPage extends ConsumerWidget {
     final practice = ref.watch(practiceModeProvider).asData?.value == true;
     final clock = ref.watch(clockProvider);
     return Scaffold(
-      appBar: AppBar(title: Text(texts.emergencyBoardTitle)),
+      appBar: wrappingAppBar(context, texts.emergencyBoardTitle),
       body: SafeArea(
         child: practice
             ? _BoardList(
@@ -120,7 +121,7 @@ class _BoardListState extends State<_BoardList> {
             children: [
               Text(texts.emergencyLifeRisk),
               TextButton(
-                onPressed: () => context.go(Routes.emergency),
+                onPressed: () => context.push(Routes.emergency),
                 child: Text(texts.emergencyTitle),
               ),
               if (widget.loading) const LinearProgressIndicator(),
