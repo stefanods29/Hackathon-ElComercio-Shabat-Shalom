@@ -38,6 +38,11 @@ class WallPage extends ConsumerWidget {
             icon: const Icon(Icons.map_outlined),
             onPressed: () => context.push(Routes.map),
           ),
+          IconButton(
+            tooltip: texts.emergencyDirectoryTitle,
+            icon: const Icon(Icons.local_hospital_outlined),
+            onPressed: () => context.push(Routes.emergency),
+          ),
           Stack(
             children: [
               IconButton(

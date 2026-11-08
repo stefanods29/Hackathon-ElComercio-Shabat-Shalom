@@ -21,6 +21,7 @@ dependencies:
   uuid: ^4.6.0
   flutter_secure_storage: ^11.2.0
   connectivity_plus: ^7.3.2
+  crypto: ^3.0.6
   powersync: 2.6.0
   path: ^1.9.1
   path_provider: ^2.1.6
@@ -43,6 +44,8 @@ dev_dependencies:
 flutter:
   uses-material-design: true
   generate: true
+  assets:
+    - assets/emergencia/respaldo.json
 
 hooks:
   user_defines:

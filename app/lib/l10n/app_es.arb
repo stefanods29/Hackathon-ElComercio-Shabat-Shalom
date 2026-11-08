@@ -380,5 +380,44 @@
   "pushTitle": "Avisos",
   "pushGenericUpdate": "Tienes una actualización en Vecinal",
   "mapAreaLabel": "TU ZONA",
-  "pushReady": "Avisos activados para tu cuenta y tu zona."
+  "pushReady": "Avisos activados para tu cuenta y tu zona.",
+  "emergencyDirectoryTitle": "Números y lugares de emergencia",
+  "emergencyDirectoryBackupTitle": "Números nacionales",
+  "emergencyDirectoryBackup": "Es la copia incluida en la app. Cuando haya conexión se guardan los datos de tu distrito.",
+  "emergencyDirectorySaved": "Guardado en tu celular. Publicado el {date}.",
+  "@emergencyDirectorySaved": {
+    "description": "Directorio descargado de la CDN. {date} es la fecha de publicación, por ejemplo '07/11/2026'.",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "emergencyDirectoryUnavailable": "No se pudo abrir el directorio. Si hay riesgo para la vida, llama al 116, 105 o 106.",
+  "emergencySourceAndDate": "Fuente: {source}. Verificado el {date}.",
+  "@emergencySourceAndDate": {
+    "description": "Fuente y fecha de verificación de un dato de emergencia.",
+    "placeholders": {
+      "source": {
+        "type": "String"
+      },
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "emergencyPossiblyOutdated": "Posiblemente desactualizado: su última verificación es antigua.",
+  "emergencyTypeNumber": "Número de emergencia",
+  "emergencyTypeMeetingPoint": "Punto de encuentro",
+  "emergencyTypeHealthCenter": "Centro de salud",
+  "emergencyTypeShelter": "Albergue",
+  "emergencyPhoneLabel": "Teléfono {phone}",
+  "@emergencyPhoneLabel": {
+    "description": "Etiqueta del lector de pantalla para un número de emergencia.",
+    "placeholders": {
+      "phone": {
+        "type": "String"
+      }
+    }
+  }
 }

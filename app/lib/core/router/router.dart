@@ -2,7 +2,6 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:vecinal/core/router/routes.dart';
-import 'package:vecinal/core/ui/under_construction_screen.dart';
 import 'package:vecinal/features/avisos/presentation/push_settings_page.dart';
 import 'package:vecinal/features/cuenta/data/providers.dart';
 import 'package:vecinal/features/cuenta/domain/auth_state.dart';
@@ -10,6 +9,7 @@ import 'package:vecinal/features/cuenta/presentation/account_page.dart';
 import 'package:vecinal/features/cuenta/presentation/choose_zone_page.dart';
 import 'package:vecinal/features/cuenta/presentation/code_page.dart';
 import 'package:vecinal/features/cuenta/presentation/phone_page.dart';
+import 'package:vecinal/features/emergencias/presentation/emergency_directory_page.dart';
 import 'package:vecinal/features/mapa/presentation/map_page.dart';
 import 'package:vecinal/features/onboarding/tutorial_screen.dart';
 import 'package:vecinal/features/publicar/presentation/choose_type_page.dart';
@@ -31,6 +31,9 @@ final routerProvider = Provider<GoRouter>((ref) {
       final isSignIn = current == Routes.signIn;
       final isSignInCode = current == Routes.signInCode;
       final isChooseZone = current == Routes.chooseZone;
+
+      // Public information: the emergency directory opens with or without a session.
+      if (current == Routes.emergency) return null;
 
       if (authState == null || authState is SignedOut) {
         if (!isSignIn && !isSignInCode) {
@@ -78,11 +81,7 @@ final routerProvider = Provider<GoRouter>((ref) {
         path: Routes.postDetail,
         builder: (context, state) => PostDetailPage(postId: state.pathParameters['id']!),
       ),
-      GoRoute(
-        path: Routes.emergency,
-        builder: (context, state) =>
-            const UnderConstructionScreen(title: 'Modo emergencia', lot: 'equipo en la Fase 1'),
-      ),
+      GoRoute(path: Routes.emergency, builder: (context, state) => const EmergencyDirectoryPage()),
       GoRoute(path: Routes.tutorial, builder: (context, state) => const TutorialScreen()),
     ],
   );
