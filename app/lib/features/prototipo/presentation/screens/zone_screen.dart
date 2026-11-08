@@ -3,7 +3,6 @@ import 'package:go_router/go_router.dart';
 import 'package:vecinal/features/prototipo/data/mock_data.dart';
 import 'package:vecinal/features/prototipo/data/models.dart';
 import 'package:vecinal/features/prototipo/presentation/theme/app_theme.dart';
-import 'package:vecinal/features/prototipo/presentation/widgets/proto_button.dart';
 
 /// Pantalla para elegir la zona del vecino.
 /// Cada zona se muestra como una tarjeta separada con espaciado visual.
@@ -67,15 +66,7 @@ class _ZoneScreenState extends State<ZoneScreen> {
                   },
                 ),
               ),
-              const SizedBox(height: 20),
-              ProtoButton(
-                text: 'Volver',
-                icon: Icons.arrow_back,
-                onPressed: () => context.go('/'),
-                fullWidth: true,
-                secondary: true,
-              ),
-              const SizedBox(height: 20),
+              const SizedBox(height: 24),
             ],
           ),
         ),
