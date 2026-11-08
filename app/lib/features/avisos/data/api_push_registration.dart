@@ -74,10 +74,7 @@ class ApiPushRegistration implements PushRegistration {
             if (item['accion'] == 'alta') 'plataforma': item['plataforma'],
           },
           options: Options(
-            headers: {
-              idempotencyKeyHeader: item['clave'],
-              'Authorization': 'Bearer $token',
-            },
+            headers: {idempotencyKeyHeader: item['clave'], 'Authorization': 'Bearer $token'},
             validateStatus: (_) => true,
           ),
         );
