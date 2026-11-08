@@ -350,6 +350,22 @@ describe('Sync Streams de datos públicos', () => {
     expect(JSON.stringify(service?.data)).not.toContain('034567');
   });
 
+  it('al mudarse de zona conserva sus reseñas, sus Visto Bueno y sus publicaciones propias', async () => {
+    const rows = await delivered('ana', NEIGHBOR);
+    expect(rows).toEqual(
+      expect.arrayContaining([
+        'mis_resenas:r-publicada',
+        'mis_resenas:r-oculta',
+        'mis_vistos_buenos:v-ana',
+        'publicaciones:pub-visible',
+      ]),
+    );
+    for (const id of ['s-piloto', 'p-piloto', 'f-publicada']) {
+      expect(rows.filter((row) => row.endsWith(`:${id}`))).toEqual([]);
+    }
+    expect(rows).not.toContain('resenas:r-publicada');
+  });
+
   it('todos los streams de datos públicos se suscriben solos', () => {
     const publicStreams = config.bucketSources.filter((stream) => stream.name !== 'caso_asignado');
     expect(publicStreams.every((stream) => stream.subscribedToByDefault)).toBe(true);

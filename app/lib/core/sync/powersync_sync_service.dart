@@ -58,6 +58,13 @@ class PowerSyncSyncService implements SyncService {
   }
 
   @override
+  Future<int> pendingUploads() async {
+    if (_wiped) return 0;
+    final row = await _local.database.get('SELECT count(*) AS pending FROM ps_crud');
+    return row['pending'] as int;
+  }
+
+  @override
   Future<void> disconnectAndWipeLocalData() async {
     if (!_wiped) {
       _wiped = true;
