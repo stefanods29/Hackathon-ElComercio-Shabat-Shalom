@@ -18,7 +18,8 @@ Las carpetas `android/` e `ios/` se generan con `flutter create` la primera vez 
 ## Mapas del Lote C
 
 El botón de mapa del muro abre `/mapa`. La región del piloto se puede descargar por Wi-Fi,
-cancelar y borrar. La configuración del servidor es `--dart-define=MAP_STYLE_URL=...`;
+cancelar y borrar. La configuración del servidor es `--dart-define=MAP_STYLE_URL=...`
+(y `--dart-define=CDN_BASE_URL=...` para las fotos de las reseñas y el directorio de emergencia);
 ver `lib/features/mapa/README.md` y `../infra/cdn/README.md` antes de probar en un teléfono.
 
 La integración `maplibre_gl` 0.28 requiere JDK 21, Android API 24+ e iOS 15.5+. El CI verifica

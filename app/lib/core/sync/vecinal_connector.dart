@@ -8,6 +8,7 @@ import 'package:vecinal/core/network/problem_details.dart';
 import 'package:vecinal/core/submissions/retry_policy.dart';
 import 'package:vecinal/core/submissions/submission.dart';
 import 'package:vecinal/core/submissions/submission_status.dart';
+import 'package:vecinal/core/sync/command_routes.dart';
 import 'package:vecinal/core/sync/submission_row.dart';
 
 class SyncCredentialsFailure implements Exception {
@@ -114,16 +115,16 @@ class VecinalConnector extends PowerSyncBackendConnector {
       throw StateError('El comando está esperando su próximo reintento.');
     }
     final payload = command.opData!;
-    final endpoint = switch (submission.kind) {
-      SubmissionKind.publish => '/v1/publicaciones',
-      SubmissionKind.takeFavor => '/v1/publicaciones/${submission.resourceId}/tomar',
-    };
+    final route = commandRoute(submission.kind, submission.resourceId);
     final AttemptResult result;
     try {
-      final response = await _api.post<Object?>(
-        endpoint,
-        data: payload['cuerpo'] as String,
-        options: Options(headers: {'Idempotency-Key': submission.idempotencyKey}),
+      final response = await _api.request<Object?>(
+        route.path,
+        data: route.sendsBody ? payload['cuerpo'] as String? : null,
+        options: Options(
+          method: route.method,
+          headers: {'Idempotency-Key': submission.idempotencyKey},
+        ),
       );
       // An expired access token can be renewed. Keep the command and its key.
       result = response.statusCode == 401
@@ -154,7 +155,8 @@ class VecinalConnector extends PowerSyncBackendConnector {
       UPDATE envios
       SET estado = ?, intentos = ?, ultimo_intento_en = ?, reintentar_en = ?,
           motivo_codigo = ?, motivo_titulo = ?, motivo_detalle = ?,
-          publicacion_optimista = CASE WHEN ? THEN NULL ELSE publicacion_optimista END
+          publicacion_optimista = CASE WHEN ? THEN NULL ELSE publicacion_optimista END,
+          optimista = CASE WHEN ? THEN NULL ELSE optimista END
       WHERE id = ?
       ''',
       [
@@ -165,6 +167,7 @@ class VecinalConnector extends PowerSyncBackendConnector {
         reason?.code,
         reason?.title,
         reason?.detail,
+        update.status.isFinal ? 1 : 0,
         update.status.isFinal ? 1 : 0,
         submission.id,
       ],

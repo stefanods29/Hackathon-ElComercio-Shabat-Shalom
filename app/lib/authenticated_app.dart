@@ -16,7 +16,9 @@ import 'package:vecinal/features/cuenta/data/firebase_phone_verifier.dart';
 import 'package:vecinal/features/cuenta/data/http_auth_repository.dart';
 import 'package:vecinal/features/cuenta/data/providers.dart';
 import 'package:vecinal/features/cuenta/domain/auth_state.dart';
+import 'package:vecinal/features/directorio/data/providers.dart';
 import 'package:vecinal/features/emergencias/assigned_case_provider.dart';
+import 'package:vecinal/features/reputacion/data/providers.dart';
 import 'package:vecinal/features/solidaridad/data/providers.dart';
 import 'package:vecinal/l10n/app_localizations.dart';
 
@@ -124,6 +126,8 @@ class _AuthenticatedAppState extends State<AuthenticatedApp> {
               ),
               syncServiceProvider.overrideWithValue(session.sync),
               syncedPostRepositoryProvider.overrideWithValue(session.posts),
+              syncedServiceDirectoryRepositoryProvider.overrideWithValue(session.directory),
+              syncedReputationRepositoryProvider.overrideWithValue(session.reputation),
               assignedCaseCacheProvider.overrideWithValue(session.cases),
               pushCredentialsProvider.overrideWithValue(
                 PushCredentials(

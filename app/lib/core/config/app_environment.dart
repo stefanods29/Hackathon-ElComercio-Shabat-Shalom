@@ -9,6 +9,7 @@ class AppEnvironment {
     required this.apiBaseUrl,
     required this.powersyncUrl,
     this.mapStyleUrl = 'http://10.0.2.2:8090/estilos/vecinal.json',
+    this.cdnBaseUrl = 'http://10.0.2.2:8090',
     this.mapBounds = pilotMapBounds,
     this.enablePush = false,
     this.phoneAuth = 'api',
@@ -34,6 +35,7 @@ class AppEnvironment {
       'MAP_STYLE_URL',
       defaultValue: 'http://10.0.2.2:8090/estilos/vecinal.json',
     ),
+    cdnBaseUrl: String.fromEnvironment('CDN_BASE_URL', defaultValue: 'http://10.0.2.2:8090'),
   );
 
   final String apiBaseUrl;
@@ -41,6 +43,9 @@ class AppEnvironment {
   /// Debug override for reaching the local service from an emulator or another device.
   final String powersyncUrl;
   final String mapStyleUrl;
+
+  /// Public CDN of the environment: review photos (`media/…`) and the emergency directory.
+  final String cdnBaseUrl;
   final MapBounds mapBounds;
   final bool enablePush;
 
