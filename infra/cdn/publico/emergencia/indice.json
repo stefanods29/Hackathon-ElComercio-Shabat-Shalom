@@ -1,0 +1,16 @@
+{
+  "version": 1,
+  "generadoEn": "2026-11-07T12:00:00Z",
+  "distritos": [
+    {
+      "id": "lince-demo",
+      "archivo": "lince-demo.json",
+      "version": 1,
+      "sha256": "e862dec32d971e9ce75fad03c4ff103a9883bb46ca72bacc5f7bdff34fb131aa",
+      "bytes": 1155,
+      "zonas": [
+        "01970000-0000-7000-8000-000000000001"
+      ]
+    }
+  ]
+}
