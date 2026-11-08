@@ -16,6 +16,7 @@ import 'package:vecinal/features/cuenta/data/providers.dart';
 import 'package:vecinal/features/emergencias/data/emergency_directory_repository.dart';
 import 'package:vecinal/features/emergencias/data/emergency_directory_store.dart';
 import 'package:vecinal/features/emergencias/data/providers.dart';
+import 'package:vecinal/features/emergencias/emergency_page.dart';
 import 'package:vecinal/features/emergencias/presentation/emergency_directory_page.dart';
 import 'package:vecinal/l10n/app_localizations.dart';
 
@@ -149,19 +150,9 @@ void main() {
     expect(tester.takeException(), isNull);
   });
 
-  testWidgets('el muro abre el directorio y el directorio se abre sin sesión', (tester) async {
-    await tester.pumpWidget(
-      ProviderScope(
-        overrides: [emergencyDirectoryRepositoryProvider.overrideWithValue(offlineRepository())],
-        child: const VecinalApp(),
-      ),
-    );
-    await tester.pumpAndSettle();
-    await tester.tap(find.byTooltip('Números y lugares de emergencia'));
-    await tester.pumpAndSettle();
-    expect(find.byType(EmergencyDirectoryPage), findsOneWidget);
-    expect(find.text('116'), findsOneWidget);
-
+  testWidgets('la pantalla de emergencia usa el directorio verificado y se abre sin sesión', (
+    tester,
+  ) async {
     final container = ProviderContainer(
       overrides: [
         authRepositoryProvider.overrideWithValue(InMemoryAuthRepository(startSignedOut: true)),
@@ -175,7 +166,8 @@ void main() {
     await tester.pumpAndSettle();
     container.read(routerProvider).go(Routes.emergency);
     await tester.pumpAndSettle();
-    expect(find.byType(EmergencyDirectoryPage), findsOneWidget);
+    expect(find.byType(EmergencyPage), findsOneWidget);
+    expect(find.textContaining('116'), findsWidgets);
     expect(requests, isEmpty);
   });
 }

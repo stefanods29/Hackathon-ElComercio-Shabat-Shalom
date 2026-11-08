@@ -32,6 +32,10 @@ dependencies:
   firebase_core: ^5.1.0
   firebase_auth: ^7.0.0
   firebase_messaging: ^17.0.1
+  url_launcher: ^6.3.3
+  share_plus: ^13.3.1
+  image_picker: ^1.2.4
+  speech_to_text: ^7.5.0
 
 dev_dependencies:
   flutter_test:
@@ -46,6 +50,8 @@ flutter:
   generate: true
   assets:
     - assets/emergencia/respaldo.json
+    - assets/public/emergency_directory.json
+    - assets/public/tutorial.json
 
 hooks:
   user_defines:

@@ -6,6 +6,7 @@ import 'package:vecinal/core/ui/simple_mode.dart';
 import 'package:vecinal/features/avisos/data/providers.dart';
 import 'package:vecinal/features/cuenta/data/providers.dart';
 import 'package:vecinal/features/cuenta/domain/auth_state.dart';
+import 'package:vecinal/features/onboarding/practice_mode.dart';
 import 'package:vecinal/l10n/app_localizations.dart';
 
 /// Longest wait for the push unregistration before signing out anyway.
@@ -38,6 +39,21 @@ class AccountPage extends ConsumerWidget {
                 subtitle: Text(texts.accountSignedIn),
               ),
               const Divider(),
+              ListTile(
+                leading: const Icon(Icons.privacy_tip_outlined),
+                title: Text(texts.privacyTitle),
+                onTap: () => context.push(Routes.myData),
+              ),
+              ListTile(
+                leading: const Icon(Icons.verified_outlined),
+                title: Text(texts.levelsTitle),
+                onTap: () => context.push(Routes.levels),
+              ),
+              ListTile(
+                leading: const Icon(Icons.location_on_outlined),
+                title: Text(texts.changeZone),
+                onTap: () => context.push(Routes.changeZone),
+              ),
               ListTile(
                 leading: const Icon(Icons.tips_and_updates),
                 title: Text(texts.viewTutorial),
@@ -84,6 +100,12 @@ class AccountPage extends ConsumerWidget {
   }
 
   Future<void> _confirmSignOut(BuildContext context, WidgetRef ref) async {
+    if (ref.read(practiceModeProvider).value != false) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(AppLocalizations.of(context).practiceHelp)));
+      return;
+    }
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
@@ -101,7 +123,7 @@ class AccountPage extends ConsumerWidget {
         ],
       ),
     );
-    if (confirmed == true && context.mounted) {
+    if (confirmed == true && context.mounted && ref.read(practiceModeProvider).value == false) {
       try {
         await _unregisterPush(ref);
         await ref.read(authRepositoryProvider).signOut();
@@ -119,6 +141,12 @@ class AccountPage extends ConsumerWidget {
   }
 
   Future<void> _confirmLostPhone(BuildContext context, WidgetRef ref) async {
+    if (ref.read(practiceModeProvider).value != false) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(AppLocalizations.of(context).practiceHelp)));
+      return;
+    }
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
@@ -136,7 +164,7 @@ class AccountPage extends ConsumerWidget {
         ],
       ),
     );
-    if (confirmed == true && context.mounted) {
+    if (confirmed == true && context.mounted && ref.read(practiceModeProvider).value == false) {
       try {
         await _unregisterPush(ref);
         await ref.read(authRepositoryProvider).signOutEverywhere();

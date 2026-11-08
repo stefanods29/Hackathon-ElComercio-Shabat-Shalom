@@ -19,3 +19,8 @@ anota aquí antes de empezar el piloto.
 
 Si un criterio no se cumple, el equipo decide si se corrige antes de salir o si se acepta el riesgo
 de forma explícita, y lo anota debajo de esta tabla con fecha.
+
+El 7 de noviembre de 2026 el usuario indicó omitir la prueba presencial con adultos
+mayores y validar localmente con perfiles y datos simulados. El resultado se registra en
+`evidencias/usabilidad.md`: se mantiene separada la aceptación automática del recorrido
+de la usabilidad humana, que queda omitida y no se marca aprobada.

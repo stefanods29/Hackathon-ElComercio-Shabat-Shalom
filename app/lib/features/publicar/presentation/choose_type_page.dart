@@ -26,14 +26,23 @@ class ChooseTypePage extends ConsumerWidget {
       body: Center(
         child: Padding(
           padding: const EdgeInsets.all(24),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
+          child: ListView(
+            shrinkWrap: true,
             children: [
               Text(
                 texts.chooseTypeTitle,
                 style: Theme.of(context).textTheme.headlineSmall?.copyWith(fontSize: 24 * scale),
               ),
               const SizedBox(height: 32),
+              Padding(
+                padding: const EdgeInsets.only(bottom: 12),
+                child: LargeButton(
+                  icon: Icons.handyman_outlined,
+                  label: texts.offerService,
+                  fullWidth: true,
+                  onPressed: () => context.push(Routes.publishService),
+                ),
+              ),
               ...publishSuggestions.map((suggestion) {
                 return Padding(
                   padding: const EdgeInsets.only(bottom: 12),

@@ -1,8 +1,8 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:vecinal/core/di/providers.dart';
 import 'package:vecinal/features/directorio/data/in_memory_service_directory_repository.dart';
 import 'package:vecinal/features/directorio/domain/directory.dart';
 import 'package:vecinal/features/directorio/domain/service_directory_repository.dart';
+import 'package:vecinal/features/onboarding/demo_profiles.dart';
 import 'package:vecinal/features/onboarding/practice_mode.dart';
 
 /// Real directory of the signed-in account. `AuthenticatedApp` overrides it with the PowerSync
@@ -25,7 +25,7 @@ final serviceDirectoryRepositoryProvider = Provider<ServiceDirectoryRepository>(
 
 /// In-memory directory for practice mode and for building the screens without a backend.
 final practiceServiceDirectoryRepositoryProvider = Provider<ServiceDirectoryRepository>((ref) {
-  final session = ref.watch(sessionProvider);
+  final session = ref.watch(effectiveSessionProvider);
   final now = DateTime.now();
   final repository = InMemoryServiceDirectoryRepository(
     currentNeighborId: session.neighborId,

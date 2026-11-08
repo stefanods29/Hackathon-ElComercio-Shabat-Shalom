@@ -332,6 +332,7 @@ class HttpAuthRepository implements AuthRepository {
       neighborId: row['id'] as String,
       displayName: row['nombreVisible'] as String,
       zoneId: row['zonaId'] as String?,
+      trustLevel: row['nivel'] is int ? row['nivel'] as int : 0,
     );
   }
 

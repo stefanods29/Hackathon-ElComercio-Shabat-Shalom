@@ -12,13 +12,29 @@
 
 | Parte | Qué entrega | Estado | Responsable | PR |
 |---|---|---|---|---|
-| 1 | Directorio: buscar servicios cerca | Pendiente | Por asignar | — |
-| 2 | Perfil del proveedor y "Ofrezco un servicio" | Pendiente | Por asignar | — |
-| 3 | Reseñas con fotos, Visto Bueno y denuncias | Pendiente | Por asignar | — |
-| 4 | "Estoy en emergencia" y tutorial actualizado | Pendiente | Por asignar | — |
-| 5 | Consentimiento, "Mis datos" y niveles | Pendiente | Por asignar | — |
+| 1 | Directorio: buscar servicios cerca | En curso | stefanods29 | — |
+| 2 | Perfil del proveedor y "Ofrezco un servicio" | En curso | stefanods29 | — |
+| 3 | Reseñas con fotos, Visto Bueno y denuncias | En curso | stefanods29 | — |
+| 4 | "Estoy en emergencia" y tutorial actualizado | En curso | stefanods29 | — |
+| 5 | Consentimiento, "Mis datos" y niveles | En curso | stefanods29 | — |
 
 Estados posibles: **Pendiente**, **En curso** o **Hecha** (integrada en `main`).
+
+La implementación de las cinco partes se prepara en la rama
+`f1-lote-d/pantallas-del-piloto`, en una copia separada basada en la entrega A1 que define
+los repositorios públicos. Por decisión del usuario se omite la prueba presencial de
+adultos mayores y se ejecuta el [recorrido local con perfiles simulados](../evidencias/usabilidad.md).
+La [revisión de textos](../evidencias/textos-piloto.md) conserva su evidencia independiente.
+
+El código de las cinco partes está preparado. Por instrucción posterior del usuario no
+se ejecutaron nuevas pruebas, análisis, compilaciones ni CI para cerrar esta entrega.
+Se conservan las pruebas escritas previamente, con dos fallos de localización de controles
+en su última ejecución y sin revalidación posterior. Las partes mantienen el estado
+**En curso** hasta su verificación e integración.
+
+Las operaciones reales de cuenta y privacidad requieren A4/B4; la subida de fotos y los
+enlaces públicos requieren C2/C3. Las pantallas usan puertos sustituibles y explican la
+indisponibilidad, sin dar por realizadas operaciones que el servidor no confirmó.
 
 ---
 

@@ -79,8 +79,7 @@ class _PhonePageState extends ConsumerState<PhonePage> {
       appBar: AppBar(title: Text(texts.signInTitle)),
       body: Padding(
         padding: const EdgeInsets.all(24),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+        child: ListView(
           children: [
             Text(texts.signInWelcome, style: Theme.of(context).textTheme.headlineSmall),
             const SizedBox(height: 8),
@@ -113,6 +112,16 @@ class _PhonePageState extends ConsumerState<PhonePage> {
             ),
             const SizedBox(height: 16),
             Text(texts.privacyNotice, style: Theme.of(context).textTheme.bodySmall),
+            TextButton(
+              onPressed: () => context.push('${Routes.consent}?registro=1'),
+              child: Text(texts.registerPrivacyAction),
+            ),
+            const SizedBox(height: 16),
+            OutlinedButton.icon(
+              onPressed: () => context.push(Routes.emergency),
+              icon: const Icon(Icons.emergency_outlined),
+              label: Text(texts.emergencyTitle),
+            ),
           ],
         ),
       ),
