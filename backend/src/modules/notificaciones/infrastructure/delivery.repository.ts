@@ -2,15 +2,19 @@ import { Inject, Injectable } from '@nestjs/common';
 import { createHash } from 'node:crypto';
 import { type Kysely, sql } from 'kysely';
 import { KYSELY } from '../../../shared/db/connection.js';
-import type { NotificationDelivery, NotificationPort, PushMessage } from '../application/ports.js';
-import type { SendNotificationJob } from '../application/send-notification.job.js';
+import type {
+  DeliveryRequest,
+  NotificationDelivery,
+  NotificationPort,
+  PushMessage,
+} from '../application/ports.js';
 
 @Injectable()
 export class DeliveryRepository implements NotificationDelivery {
   constructor(@Inject(KYSELY) private readonly db: Kysely<unknown>) {}
 
   async deliver(
-    job: SendNotificationJob,
+    job: DeliveryRequest,
     message: PushMessage,
     push: NotificationPort,
   ): Promise<void> {
@@ -86,5 +90,12 @@ export class DeliveryRepository implements NotificationDelivery {
       WHERE aviso_id = ${job.avisoId}::uuid AND NOT EXISTS (
         SELECT 1 FROM notificaciones.entregas_aviso WHERE aviso_id = ${job.avisoId}::uuid AND estado = 'pendiente'
       )`.execute(this.db);
+  }
+
+  async deliveredCount(avisoId: string): Promise<number> {
+    const result = await sql<{ total: number }>`SELECT count(*)::int AS total
+      FROM notificaciones.entregas_aviso
+      WHERE aviso_id = ${avisoId}::uuid AND estado = 'enviado'`.execute(this.db);
+    return result.rows[0]?.total ?? 0;
   }
 }

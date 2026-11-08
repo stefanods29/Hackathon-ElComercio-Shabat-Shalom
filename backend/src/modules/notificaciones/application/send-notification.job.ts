@@ -7,7 +7,8 @@ export interface SendNotificationJob {
   readonly destino:
     | { readonly tipo: 'usuario'; readonly usuarioId: string }
     | { readonly tipo: 'zona'; readonly zonaId: string };
-  readonly plantilla: 'favor_tomado' | 'aviso_de_zona';
+  /** `modo_emergencia_activado` (Phase 2, Lot C) only goes to a zone topic. */
+  readonly plantilla: 'favor_tomado' | 'aviso_de_zona' | 'modo_emergencia_activado';
   /** Identifiers only: no names, locations, phone numbers or health data. */
   readonly datos: Readonly<Record<string, string>>;
 }
