@@ -22,6 +22,8 @@ export const configSchema = z
     NOTIFICATION_DRIVER: z.enum(['fake', 'fcm']).default('fake'),
     FIREBASE_SERVICE_ACCOUNT_BASE64: z.string().optional(),
     IDEMPOTENCY_RETENTION_HOURS: z.coerce.number().int().min(1).default(168),
+    MIN_ACCOUNT_AGE_HOURS_TO_REVIEW: z.coerce.number().int().min(0).default(72),
+    MAX_REVIEWS_PER_DAY: z.coerce.number().int().min(1).default(5),
     MAX_POSTS_PER_DAY: z.coerce.number().int().min(1).default(10),
     TRUST_PROXY_HOPS: z.coerce.number().int().min(0).default(0),
     OTP_PROVIDER: z.enum(['fake', 'twilio', 'firebase']).default('fake'),
