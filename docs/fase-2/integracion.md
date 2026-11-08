@@ -72,7 +72,7 @@ revocación de los permisos y auditoría sin contenido.
   de D (A 1.5) y la prueba de campo (A 5.2).
 - **Pruebas de D.** Widgets de cada estado, flujo de tres toques contado, golden tests al 200 % y
   accesibilidad.
-- **Consola contra la API real.** Los adaptadores se probaron con respuestas simuladas (C 2.5).
+- ~~Consola contra la API real~~: 7 de 7 con `npm run test:console-contract` ([evidencia](evidencias/consola-contra-api.md)).
 - **Decisiones externas.** Proveedor real de SMS (13.3.4), adaptador de alertas oficiales, tiempos
   acordados con los aliados, publicación del directorio en la nube y la evaluación de impacto.
 - **Puntos a mejorar.** Elegir el punto del pedido en el mapa offline (hoy se usa el de referencia

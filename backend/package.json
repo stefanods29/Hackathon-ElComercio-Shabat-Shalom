@@ -24,6 +24,7 @@
     "test": "vitest run",
     "test:cov": "vitest run --coverage",
     "test:integration": "vitest run --config ./vitest.config.integration.ts",
+    "test:console-contract": "vitest run --config ./vitest.config.contract.ts",
     "db:migrate": "tsx src/shared/db/migrate.ts",
     "db:seed": "tsx scripts/seed.ts",
     "dev:keys": "tsx scripts/generate-keys.ts",

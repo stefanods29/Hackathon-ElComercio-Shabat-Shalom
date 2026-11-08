@@ -22,7 +22,7 @@ marcadas; las de verificación quedan abiertas. En la integración en `main` la 
 - [x] 2.2 Puerto `CasesRepository` con fábrica operativa nula y doble de demostración; verificar con pruebas de la cola con el doble
 - [x] 2.3 Cola con refresco y detalle minimizado: asignación, cambio de estado con motivo e historial; verificar con pruebas de widgets al 200 % y con teclado
 - [x] 2.4 Errores de la API explicados según su `codigo`; verificar con pruebas de cada código conocido
-- [ ] 2.5 Conectar el puerto al contrato de Emergencias del Lote B cuando exista; verificar con pruebas de integración contra la API. Conectado en la integración y probado con respuestas simuladas; falta la prueba contra la API real
+- [x] 2.5 Conectar el puerto al contrato de Emergencias del Lote B cuando exista; verificar con pruebas de integración contra la API. Evidencia: [consola contra la API real](../../../docs/fase-2/evidencias/consola-contra-api.md) (`npm run test:console-contract`, 7 de 7)
 - [ ] 2.6 Verificar: `flutter analyze`, pruebas y CI en verde
 
 ## 3. Parte 3 · Mapa de celdas, turnos y curaduría

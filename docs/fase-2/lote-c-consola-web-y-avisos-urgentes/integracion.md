@@ -174,6 +174,16 @@ Puntos a mirar si algo falla:
   Flutter 3.47 (`WidgetStateProperty`, `Color.withValues`, `Color.toARGB32`).
 - Elementos con `?` en colecciones (Dart 3.8 o superior).
 
+### 3b. Consola contra la API real
+
+```bash
+cd backend
+DATABASE_URL_ADMIN='postgres://…' npm run test:console-contract
+```
+
+Levanta la API con datos ficticios y corre `consola/test/live/` contra ella. Ver la
+[evidencia](../evidencias/consola-contra-api.md).
+
 ### 4. App
 
 ```bash

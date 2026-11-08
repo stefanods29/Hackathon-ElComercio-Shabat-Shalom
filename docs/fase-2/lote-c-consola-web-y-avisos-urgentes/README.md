@@ -14,7 +14,7 @@
 | Parte | Qué entrega | Estado | Responsable | PR |
 |---|---|---|---|---|
 | 1 | Base de la consola web | En curso: integrada; analiza y compila; flujo de CI creado, falta verlo en verde | stefanods29 | — |
-| 2 | Cola de casos y asignación | En curso: integrada y conectada a B; falta la prueba contra la API real | stefanods29 | — |
+| 2 | Cola de casos y asignación | En curso: conectada a B y probada contra la API real; faltan las pruebas de widgets | stefanods29 | — |
 | 3 | Mapa de celdas, turnos y curaduría | En curso: integrada; celdas y turnos conectados a B; falta el adaptador de la nube | stefanods29 | — |
 | 4 | Avisos urgentes con SMS de respaldo | En curso: integrada; solo el SMS falso; falta el proveedor real | stefanods29 | — |
 
