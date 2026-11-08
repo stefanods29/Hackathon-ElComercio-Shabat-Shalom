@@ -219,10 +219,10 @@ List<EntryProblem> validateEntry(
     add('ubicacion', EntryProblemKind.locationRequired);
   }
   if (location != null) {
-    if (location.lat < -90 || location.lat > 90) {
+    if (!location.lat.isFinite || location.lat < -90 || location.lat > 90) {
       add('ubicacion.lat', EntryProblemKind.latitudeRange);
     }
-    if (location.lng < -180 || location.lng > 180) {
+    if (!location.lng.isFinite || location.lng < -180 || location.lng > 180) {
       add('ubicacion.lng', EntryProblemKind.longitudeRange);
     }
   }
@@ -238,7 +238,10 @@ List<EntryProblem> validateEntry(
       add('fuente.url', EntryProblemKind.sourceUrlHttps);
     }
   }
-  if (!_dayPattern.hasMatch(entry.verifiedOn) || DateTime.tryParse(entry.verifiedOn) == null) {
+  final verifiedDate = DateTime.tryParse(entry.verifiedOn);
+  if (!_dayPattern.hasMatch(entry.verifiedOn) ||
+      verifiedDate == null ||
+      verifiedDate.toIso8601String().substring(0, 10) != entry.verifiedOn) {
     add('verificadoEn', EntryProblemKind.verifiedFormat);
   } else if (entry.verifiedOn.compareTo(today) > 0) {
     // ISO dates compare correctly as text.
