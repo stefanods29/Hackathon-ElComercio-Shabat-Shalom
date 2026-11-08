@@ -4,55 +4,117 @@ import 'dart:io';
 import 'package:powersync/powersync.dart';
 import 'package:vecinal/core/storage/secure_store.dart';
 import 'package:vecinal/core/sync/local_sync_database.dart';
+import 'package:vecinal/features/emergencias/domain/own_help_request_state.dart';
 
 const assignedCaseSchema = Schema([
   Table('pedidos_ayuda', [
-    Column.text('detalle'),
+    Column.text('necesidad'),
+    Column.text('prioridad'),
+    Column.text('estado'),
+    Column.integer('version'),
+    Column.text('celda'),
     Column.text('creado_en'),
     Column.text('vence_en'),
   ]),
+  Table.localOnly('acceso_caso', [Column.text('autorizacion_id'), Column.text('vence_en')]),
 ]);
 
-class AssignedCase {
-  const AssignedCase({required this.id, required this.detail, required this.expiresAt});
+const assignedLocationSchema = Schema([
+  Table('ubicaciones_casos', [Column.text('descripcion'), Column.real('lat'), Column.real('lng')]),
+]);
 
-  final String id;
-  final String detail;
-  final DateTime expiresAt;
+enum AssignedCaseScope {
+  summary('resumen', 'caso_asignado'),
+  exactLocation('exacta', 'caso_ubicacion_exacta');
+
+  const AssignedCaseScope(this.apiValue, this.stream);
+  final String apiValue;
+  final String stream;
 }
 
-/// Stores only the case explicitly opened by this account, in a separately encrypted database.
+typedef AssignedCasePermit = ({String authorizationId, DateTime expiresAt});
+
+/// The API must audit the opening before issuing a session-bound permit for the requested scope.
+typedef AuthorizeAssignedCase =
+    Future<AssignedCasePermit?> Function(String caseId, AssignedCaseScope scope);
+
+typedef SubscribeToAssignedCase =
+    Future<SyncStreamSubscription> Function(
+      PowerSyncDatabase database,
+      String stream,
+      Map<String, Object?> parameters,
+    );
+
+typedef AssignedCaseLocation = ({double latitude, double longitude, String description});
+
+class AssignedCase {
+  const AssignedCase({
+    required this.id,
+    required this.need,
+    required this.priority,
+    required this.stage,
+    required this.version,
+    required this.cell,
+    required this.expiresAt,
+    this.location,
+  });
+
+  final String id;
+  final String need;
+  final String priority;
+  final HelpRequestStage stage;
+  final int version;
+  final String? cell;
+  final DateTime expiresAt;
+  final AssignedCaseLocation? location;
+}
+
+/// One explicitly opened case per account. Exact location has its own erasable database and key.
 class AssignedCaseCache {
   AssignedCaseCache({
     required this.path,
     required this.store,
-    required String accountId,
-    required this.connector,
+    required this.accountId,
+    required PowerSyncBackendConnector connector,
     required this.clock,
-  }) : _keyScope = _scope(accountId);
+    this.authorize,
+    this.maxLocalAge = const Duration(hours: 24),
+    SubscribeToAssignedCase? subscribe,
+  }) : _subscribe = subscribe ?? ((db, stream, params) => _connect(db, connector, stream, params));
 
   static String _scope(String accountId) => 'cases.$accountId';
+  static String _exactScope(String accountId) => 'cases.exact.$accountId';
+  static String _exactPath(String path) => '$path.exact';
 
-  /// Finishes a pending purge at startup, before opening a case database.
   static Future<void> discard({
     required String path,
     required SecureStore store,
     required String accountId,
-  }) => LocalSyncDatabase.discard(path: path, store: store, accountId: _scope(accountId));
+  }) async {
+    await Future.wait([
+      LocalSyncDatabase.discard(path: path, store: store, accountId: _scope(accountId)),
+      LocalSyncDatabase.discard(
+        path: _exactPath(path),
+        store: store,
+        accountId: _exactScope(accountId),
+      ),
+    ]);
+  }
 
   final String path;
   final SecureStore store;
-  final PowerSyncBackendConnector connector;
   final DateTime Function() clock;
-  final String _keyScope;
-  static const _caseQuery = 'SELECT id, detalle, vence_en FROM pedidos_ayuda';
+  final AuthorizeAssignedCase? authorize;
+  final Duration maxLocalAge;
+  final String accountId;
+  final SubscribeToAssignedCase _subscribe;
+  static const _summaryQuery = 'SELECT * FROM pedidos_ayuda';
+  static const _exactQuery = 'SELECT * FROM ubicaciones_casos';
   final _changes = StreamController<AssignedCase?>.broadcast();
   Future<void> _operation = Future.value();
-  LocalSyncDatabase? _local;
-  String? _requestedId;
+  _CaseFeed? _summary;
+  _CaseFeed? _exact;
   AssignedCase? _current;
-  StreamSubscription<Object?>? _rows;
-  SyncStreamSubscription? _subscription;
   Timer? _expiryCheck;
   bool _sessionClosed = false;
 
@@ -63,33 +125,89 @@ class AssignedCaseCache {
       onDone: listener.close,
     );
     listener.onCancel = updates.cancel;
-    final value = _current;
-    listener.add(value != null && value.expiresAt.isAfter(clock()) ? value : null);
+    final current = _current;
+    if (current == null || !current.expiresAt.isAfter(clock())) {
+      listener.add(null);
+    } else if (_exact?.permit.expiresAt.isAfter(clock()) == false) {
+      listener.add(_withLocation(current, null));
+    } else {
+      listener.add(current);
+    }
   });
 
-  /// Resume the previously requested stream if the encrypted case has not expired.
+  /// Only the previously authorized summary can resume. Exact access requires a new opening.
   Future<void> restore() => _serialize(() async {
-    if (_sessionClosed || _local != null || !await File(path).exists()) return;
-    final local = await _open();
-    await _review(local, restoring: true);
-    final id = _requestedId;
-    if (id != null) await _subscribe(local, id);
+    if (_sessionClosed || _summary != null) return;
+    await _discardExact();
+    if (!await File(path).exists()) return;
+    if (authorize == null) {
+      await LocalSyncDatabase.discard(path: path, store: store, accountId: _scope(accountId));
+      return;
+    }
+    final local = await _open(exact: false);
+    final permits = await local.database.getAll('SELECT * FROM acceso_caso');
+    final row = permits.singleOrNull;
+    final expiresAt = DateTime.tryParse(row?['vence_en'] as String? ?? '');
+    final permitId = row?['autorizacion_id'] as String?;
+    if (row == null ||
+        permitId == null ||
+        permitId.isEmpty ||
+        expiresAt == null ||
+        !expiresAt.isAfter(clock())) {
+      await local.wipe();
+      return;
+    }
+    final feed = _summary = _CaseFeed(local, row['id'] as String, (
+      authorizationId: permitId,
+      expiresAt: expiresAt,
+    ));
+    await _review(requireSummary: true);
+    if (identical(_summary, feed)) await _start(feed, AssignedCaseScope.summary);
   });
 
   Future<void> request(String caseId) => _serialize(() async {
-    if (_sessionClosed) throw StateError('La sesión ya está cerrada.');
-    if (_requestedId == caseId && _rows != null) return;
-    if (_local != null) await _purge();
-    final local = await _open();
-    _requestedId = caseId;
-    await _subscribe(local, caseId);
+    _requireOpen();
+    await _review();
+    if (_summary?.caseId == caseId) return;
+    await _purge();
+    final permit = await _requirePermit(caseId, AssignedCaseScope.summary);
+    final local = await _open(exact: false);
+    final feed = _summary = _CaseFeed(local, caseId, permit);
+    try {
+      await local.database.execute(
+        'INSERT INTO acceso_caso (id, autorizacion_id, vence_en) VALUES (?, ?, ?)',
+        [caseId, permit.authorizationId, permit.expiresAt.toUtc().toIso8601String()],
+      );
+      await _start(feed, AssignedCaseScope.summary);
+    } catch (_) {
+      await _purge();
+      rethrow;
+    }
   });
 
-  /// Recheck on resume as well as on the timer so a suspended app never displays an expired case.
-  Future<void> review() => _serialize(() async {
-    final local = _local;
-    if (local != null) await _review(local);
+  Future<void> requestExact(String caseId) => _serialize(() async {
+    _requireOpen();
+    await _review();
+    if (_current?.id != caseId || _current?.stage != HelpRequestStage.onTheWay) {
+      throw StateError('La ubicación exacta requiere un caso asignado en camino.');
+    }
+    if (_exact != null) return;
+    final permit = await _requirePermit(caseId, AssignedCaseScope.exactLocation);
+    await _review();
+    if (_current?.id != caseId || _current?.stage != HelpRequestStage.onTheWay) {
+      throw StateError('La ubicación exacta ya no está disponible.');
+    }
+    final local = await _open(exact: true);
+    final feed = _exact = _CaseFeed(local, caseId, permit);
+    try {
+      await _start(feed, AssignedCaseScope.exactLocation);
+    } catch (_) {
+      await _purgeExact();
+      rethrow;
+    }
   });
+
+  Future<void> review() => _serialize(_review);
 
   Future<void> wipeForSignOut() => _serialize(() async {
     _sessionClosed = true;
@@ -97,111 +215,243 @@ class AssignedCaseCache {
   });
 
   Future<void> close() => _serialize(() async {
+    if (_changes.isClosed) return;
     _sessionClosed = true;
-    await _stopWatching();
-    await _local?.close();
-    _local = null;
-    _current = null;
+    _expiryCheck?.cancel();
+    _publish(null);
+    await _purgeExact();
+    final summary = _summary;
+    _summary = null;
+    await summary?.stop();
+    await summary?.local.close();
     unawaited(_changes.close());
   });
 
-  Future<LocalSyncDatabase> _open() async => _local = await LocalSyncDatabase.open(
-    path: path,
+  void _requireOpen() {
+    if (_sessionClosed) throw StateError('La sesión ya está cerrada.');
+  }
+
+  Future<AssignedCasePermit> _requirePermit(String caseId, AssignedCaseScope scope) async {
+    final permit = await authorize?.call(caseId, scope);
+    if (permit == null || permit.authorizationId.isEmpty || !permit.expiresAt.isAfter(clock())) {
+      throw StateError('La apertura del caso no fue autorizada.');
+    }
+    return permit;
+  }
+
+  Future<LocalSyncDatabase> _open({required bool exact}) => LocalSyncDatabase.open(
+    path: exact ? _exactPath(path) : path,
     store: store,
-    accountId: _keyScope,
-    schema: assignedCaseSchema,
+    accountId: exact ? _exactScope(accountId) : _scope(accountId),
+    schema: exact ? assignedLocationSchema : assignedCaseSchema,
   );
 
-  Future<void> _subscribe(LocalSyncDatabase local, String id) async {
-    final db = local.database;
-    final stream = db.syncStream('caso_asignado', {'pedido_id': id});
-    final subscription = await stream.subscribe(ttl: const Duration(minutes: 1));
-    _subscription = subscription;
-    _rows = db
-        .watch(_caseQuery, triggerOnTables: ['pedidos_ayuda'])
+  static Future<SyncStreamSubscription> _connect(
+    PowerSyncDatabase db,
+    PowerSyncBackendConnector connector,
+    String stream,
+    Map<String, Object?> parameters,
+  ) async {
+    final subscription = await db.syncStream(stream, parameters).subscribe(ttl: Duration.zero);
+    try {
+      await db.connect(
+        connector: connector,
+        options: const SyncOptions(includeDefaultStreams: false, enableDiagnostics: false),
+      );
+      return subscription;
+    } catch (_) {
+      subscription.unsubscribe();
+      rethrow;
+    }
+  }
+
+  Future<void> _start(_CaseFeed feed, AssignedCaseScope scope) async {
+    final exact = scope == AssignedCaseScope.exactLocation;
+    final db = feed.local.database;
+    final subscription = await _subscribe(db, scope.stream, {
+      'pedido_id': feed.caseId,
+      'autorizacion_id': feed.permit.authorizationId,
+    });
+    feed.subscription = subscription;
+    feed.rows = db
+        .watch(
+          exact ? _exactQuery : _summaryQuery,
+          triggerOnTables: [exact ? 'ubicaciones_casos' : 'pedidos_ayuda'],
+        )
         .listen(
           (_) => _background(
             _serialize(() async {
-              if (identical(_local, local)) await _review(local);
+              if (identical(exact ? _exact : _summary, feed)) await _review();
             }),
           ),
           onError: _changes.addError,
         );
-    await db.connect(
-      connector: connector,
-      options: const SyncOptions(includeDefaultStreams: false, enableDiagnostics: false),
-    );
+    _scheduleReview();
     _background(
       subscription.waitForFirstSync().then(
         (_) => _serialize(() async {
-          if (identical(_local, local)) await _review(local, firstSyncComplete: true);
+          if (identical(exact ? _exact : _summary, feed)) {
+            await _review(requireSummary: !exact, requireExact: exact);
+          }
         }),
         onError: (Object error, StackTrace stack) {
-          if (identical(_local, local) && _rows != null) _changes.addError(error, stack);
+          if (identical(exact ? _exact : _summary, feed)) _changes.addError(error, stack);
         },
       ),
     );
   }
 
-  Future<void> _review(
-    LocalSyncDatabase local, {
-    bool restoring = false,
-    bool firstSyncComplete = false,
-  }) async {
-    final previous = _current;
-    if (previous != null && !previous.expiresAt.isAfter(clock())) {
+  Future<void> _review({bool requireSummary = false, bool requireExact = false}) async {
+    final summary = _summary;
+    if (summary == null) return;
+    final now = clock();
+    final displayedDeadline = _current?.expiresAt;
+    if (!summary.permit.expiresAt.isAfter(now) ||
+        (displayedDeadline != null && !displayedDeadline.isAfter(now))) {
       await _purge();
       return;
     }
-    final rows = await local.database.getAll(_caseQuery);
-    if (rows.isEmpty) {
-      if (restoring || firstSyncComplete || _current != null) await _purge();
+    final rows = await summary.local.database.getAll(_summaryQuery);
+    if (rows.isEmpty && !requireSummary && _current == null) {
+      _scheduleReview();
       return;
     }
-    final row = rows.first;
-    final id = row['id'] as String?;
-    final detail = row['detalle'] as String?;
-    final expiresAt = DateTime.tryParse(row['vence_en'] as String? ?? '');
-    if (rows.length != 1 ||
-        id == null ||
-        detail == null ||
-        expiresAt == null ||
-        !expiresAt.isAfter(clock()) ||
-        (_requestedId != null && _requestedId != id)) {
+    final row = rows.singleOrNull;
+    final stage = HelpRequestStage.fromApi(row?['estado']);
+    final expires = DateTime.tryParse(row?['vence_en'] as String? ?? '');
+    final localDeadline = DateTime.tryParse(row?['creado_en'] as String? ?? '')?.add(maxLocalAge);
+    final need = row?['necesidad'] as String?;
+    final priority = row?['prioridad'] as String?;
+    final version = row?['version'] as int?;
+    if (row?['id'] != summary.caseId ||
+        need == null ||
+        priority == null ||
+        version == null ||
+        expires == null ||
+        !expires.isAfter(now) ||
+        localDeadline == null ||
+        !localDeadline.isAfter(now) ||
+        (stage != HelpRequestStage.sent &&
+            stage != HelpRequestStage.seen &&
+            stage != HelpRequestStage.onTheWay)) {
       await _purge();
       return;
     }
-    _requestedId = id;
-    if (previous?.id != id || previous?.detail != detail || previous?.expiresAt != expiresAt) {
-      _current = AssignedCase(id: id, detail: detail, expiresAt: expiresAt);
-      _changes.add(_current);
+
+    final deadline = _earlier(localDeadline, _earlier(expires, summary.permit.expiresAt));
+    final exact = _exact;
+    AssignedCaseLocation? location;
+    if (exact != null) {
+      if (stage != HelpRequestStage.onTheWay || !exact.permit.expiresAt.isAfter(now)) {
+        _publish(_current == null ? null : _withLocation(_current!, null));
+        await _purgeExact();
+      } else {
+        final locations = await exact.local.database.getAll(_exactQuery);
+        final detail = locations.singleOrNull;
+        final lat = (detail?['lat'] as num?)?.toDouble();
+        final lng = (detail?['lng'] as num?)?.toDouble();
+        final description = detail?['descripcion'] as String?;
+        if (detail?['id'] == summary.caseId &&
+            lat != null &&
+            lng != null &&
+            lat.isFinite &&
+            lat.abs() <= 90 &&
+            lng.isFinite &&
+            lng.abs() <= 180 &&
+            description != null) {
+          location = (latitude: lat, longitude: lng, description: description);
+        } else if (requireExact || locations.isNotEmpty || _current?.location != null) {
+          _publish(_current == null ? null : _withLocation(_current!, null));
+          await _purgeExact();
+        }
+      }
     }
+    _publish(
+      AssignedCase(
+        id: summary.caseId,
+        need: need,
+        priority: priority,
+        stage: stage!,
+        version: version,
+        cell: row?['celda'] as String?,
+        expiresAt: deadline,
+        location: location,
+      ),
+    );
+    _scheduleReview();
+  }
+
+  static DateTime _earlier(DateTime a, DateTime b) => a.isBefore(b) ? a : b;
+
+  void _scheduleReview() {
     _expiryCheck?.cancel();
-    final remaining = expiresAt.difference(clock());
+    final summary = _summary;
+    if (summary == null) return;
+    var deadline = _current?.expiresAt ?? summary.permit.expiresAt;
+    final exact = _exact;
+    if (exact != null) deadline = _earlier(deadline, exact.permit.expiresAt);
+    final remaining = deadline.difference(clock());
     const interval = Duration(minutes: 1);
     _expiryCheck = Timer(remaining < interval ? remaining : interval, () => _background(review()));
   }
 
-  Future<void> _purge() async {
-    _current = null;
-    _changes.add(null);
-    await _stopWatching();
-    final local = _local;
-    if (local == null) {
-      await LocalSyncDatabase.discard(path: path, store: store, accountId: _keyScope);
-    } else {
-      await local.wipe();
+  static AssignedCase _withLocation(AssignedCase value, AssignedCaseLocation? location) =>
+      AssignedCase(
+        id: value.id,
+        need: value.need,
+        priority: value.priority,
+        stage: value.stage,
+        version: value.version,
+        cell: value.cell,
+        expiresAt: value.expiresAt,
+        location: location,
+      );
+
+  void _publish(AssignedCase? next) {
+    final previous = _current;
+    if (previous?.id == next?.id &&
+        previous?.version == next?.version &&
+        previous?.stage == next?.stage &&
+        previous?.cell == next?.cell &&
+        previous?.need == next?.need &&
+        previous?.priority == next?.priority &&
+        previous?.expiresAt == next?.expiresAt &&
+        previous?.location == next?.location) {
+      return;
     }
-    _local = null;
-    _requestedId = null;
+    _current = next;
+    if (!_changes.isClosed) _changes.add(next);
   }
 
-  Future<void> _stopWatching() async {
+  Future<void> _purge() async {
+    _publish(null);
     _expiryCheck?.cancel();
-    await _rows?.cancel();
-    _rows = null;
-    _subscription?.unsubscribe();
-    _subscription = null;
+    await _purgeExact();
+    final summary = _summary;
+    _summary = null;
+    if (summary == null) {
+      await LocalSyncDatabase.discard(path: path, store: store, accountId: _scope(accountId));
+    } else {
+      await summary.stop();
+      await summary.local.wipe();
+    }
+  }
+
+  Future<void> _discardExact() => LocalSyncDatabase.discard(
+    path: _exactPath(path),
+    store: store,
+    accountId: _exactScope(accountId),
+  );
+
+  Future<void> _purgeExact() async {
+    final exact = _exact;
+    _exact = null;
+    if (exact == null) {
+      await _discardExact();
+    } else {
+      await exact.stop();
+      await exact.local.wipe();
+    }
   }
 
   void _background(Future<void> operation) {
@@ -216,5 +466,19 @@ class AssignedCaseCache {
     final next = _operation.then((_) => action());
     _operation = next.then((_) {}, onError: (Object _, StackTrace _) {});
     return next;
+  }
+}
+
+class _CaseFeed {
+  _CaseFeed(this.local, this.caseId, this.permit);
+  final LocalSyncDatabase local;
+  final String caseId;
+  final AssignedCasePermit permit;
+  StreamSubscription<Object?>? rows;
+  SyncStreamSubscription? subscription;
+
+  Future<void> stop() async {
+    await rows?.cancel();
+    subscription?.unsubscribe();
   }
 }

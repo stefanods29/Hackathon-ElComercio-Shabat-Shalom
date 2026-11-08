@@ -5,11 +5,13 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:vecinal/core/config/app_environment.dart';
 import 'package:vecinal/core/di/providers.dart';
+import 'package:vecinal/core/mode/app_mode.dart';
 import 'package:vecinal/features/media/data/providers.dart';
 import 'package:vecinal/features/media/domain/local_photo.dart';
 import 'package:vecinal/features/media/domain/photo_ports.dart';
 import 'package:vecinal/features/media/presentation/photo_attachment_picker.dart';
 import 'package:vecinal/features/media/presentation/photo_library_page.dart';
+import 'package:vecinal/features/media/presentation/public_photo.dart';
 import 'package:vecinal/l10n/app_localizations.dart';
 
 const _owner = '01970000-0000-7000-8000-0000000000a1';
@@ -73,6 +75,33 @@ Widget _app(Widget child, _SnapshotController controller) => ProviderScope(
 );
 
 void main() {
+  testWidgets('el modo emergencia retira la imagen remota y evita crear otra', (tester) async {
+    final container = ProviderContainer.test();
+    final mode = container.read(appModeProvider.notifier);
+    mode.activateEmergency();
+    await tester.pumpWidget(
+      UncontrolledProviderScope(
+        container: container,
+        child: MaterialApp(
+          home: Scaffold(
+            body: PublicPhoto(
+              url: Uri.parse('https://example.test/foto.jpg'),
+              description: 'Foto ficticia',
+            ),
+          ),
+        ),
+      ),
+    );
+    expect(find.byType(Image), findsNothing);
+    mode.endEvent();
+    await tester.pump();
+    expect(find.byType(Image), findsOneWidget);
+    mode.activateEmergency();
+    await tester.pump();
+    expect(find.byType(Image), findsNothing);
+    await tester.pumpWidget(const SizedBox.shrink());
+  });
+
   testWidgets('la galería explica el modo local y admite letra grande en una pantalla pequeña', (
     tester,
   ) async {

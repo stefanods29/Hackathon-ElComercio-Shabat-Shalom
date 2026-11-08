@@ -193,6 +193,8 @@ class _AuthenticatedAppState extends State<AuthenticatedApp> {
               syncedServiceDirectoryRepositoryProvider.overrideWithValue(session.directory),
               syncedReputationRepositoryProvider.overrideWithValue(session.reputation),
               assignedCaseCacheProvider.overrideWithValue(session.cases),
+              ownHelpRequestRepositoryProvider.overrideWithValue(session.helpRequests),
+              emergencyBoardRepositoryProvider.overrideWithValue(session.emergencyBoard),
               pushCredentialsProvider.overrideWithValue(
                 PushCredentials(
                   userId: session.user.neighborId,

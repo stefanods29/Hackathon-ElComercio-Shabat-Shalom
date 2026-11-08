@@ -9,10 +9,12 @@ class NativePhotoTransfer implements PhotoTransfer {
   NativePhotoTransfer({
     required this.storageOrigin,
     required this.currentOwner,
+    this.networkAllowed,
     FileDownloader? downloader,
   }) : _downloader = downloader ?? FileDownloader();
   final Uri storageOrigin;
   final String? Function() currentOwner;
+  final bool Function()? networkAllowed;
   final FileDownloader _downloader;
   Future<void>? _started;
   static final _id = RegExp(r'^[0-9a-fA-F-]{36}$');
@@ -64,7 +66,10 @@ class NativePhotoTransfer implements PhotoTransfer {
   ) async {
     final generation = _cancellations[photo.ownerId] ?? 0;
     bool active() =>
-        currentOwner() == photo.ownerId && (_cancellations[photo.ownerId] ?? 0) == generation;
+        currentOwner() == photo.ownerId &&
+        (networkAllowed?.call() ?? true) &&
+        (_cancellations[photo.ownerId] ?? 0) == generation;
+    if (!active()) throw _interrupted(photo);
     final url = permission.url;
     final localHttp =
         url.scheme == 'http' && ['10.0.2.2', '127.0.0.1', 'localhost'].contains(url.host);
@@ -78,14 +83,14 @@ class NativePhotoTransfer implements PhotoTransfer {
       throw const PhotoFailure('permiso_invalido');
     }
     await initialize();
-    if (!active()) throw const PhotoFailure('cuenta_distinta', retryable: false);
+    if (!active()) throw _interrupted(photo);
     final base = await getApplicationSupportDirectory();
     final relative = 'media-transfer/${photo.ownerId}';
     final file = File('${base.path}/$relative/${photo.id}.jpg');
     try {
       await file.parent.create(recursive: true);
       await file.writeAsBytes(bytes, flush: true);
-      if (!active()) throw const PhotoFailure('cuenta_distinta', retryable: false);
+      if (!active()) throw _interrupted(photo);
       await _upload(photo, permission, relative, onProgress, active);
     } finally {
       if (await file.exists()) await file.delete();
@@ -116,7 +121,7 @@ class NativePhotoTransfer implements PhotoTransfer {
     final transfer = await _downloader.transfers.getOrStart(task);
     if (!active()) {
       await transfer.cancel();
-      throw const PhotoFailure('cuenta_distinta', retryable: false);
+      throw _interrupted(photo);
     }
     final progress = transfer.progressUpdates.listen((update) {
       if (update.progress >= 0 && update.progress <= 1) onProgress(update.progress);
@@ -137,6 +142,10 @@ class NativePhotoTransfer implements PhotoTransfer {
       await progress.cancel();
     }
   }
+
+  PhotoFailure _interrupted(LocalPhoto photo) => currentOwner() == photo.ownerId
+      ? const PhotoFailure('subida_interrumpida')
+      : const PhotoFailure('cuenta_distinta', retryable: false);
 
   @override
   Future<void> cancelOwner(String ownerId) async {

@@ -14,6 +14,8 @@ abstract final class Routes {
   static const emergencyOffer = '/emergencia/ofrecer';
   static const emergencyResources = '/emergencia/recursos';
   static const emergencyContacts = '/cuenta/contactos-emergencia';
+  static const emergencyBoardData = '/emergencia/datos-de-mi-zona';
+  static const operationalCase = '/emergencia/operacion/:id';
   static const map = '/mapa';
   static const tutorial = '/tutorial';
   static const signIn = '/ingresar';

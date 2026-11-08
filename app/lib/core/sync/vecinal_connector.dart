@@ -4,6 +4,7 @@ import 'dart:math';
 import 'package:dio/dio.dart';
 import 'package:powersync/powersync.dart';
 import 'package:vecinal/core/network/classify_response.dart';
+import 'package:vecinal/core/network/idempotency.dart';
 import 'package:vecinal/core/network/problem_details.dart';
 import 'package:vecinal/core/submissions/retry_policy.dart';
 import 'package:vecinal/core/submissions/submission.dart';
@@ -110,32 +111,73 @@ class VecinalConnector extends PowerSyncBackendConnector {
     final submission = submissionFromRow(row);
     // A crash after persisting the answer and before complete() must not repeat a final action.
     if (submission.status.isFinal) return;
+    if (submission.kind == SubmissionKind.helpRequest &&
+        await database.getOptional(
+              'SELECT id FROM mis_pedidos_ayuda WHERE id = ? '
+              'UNION ALL SELECT id FROM pedidos_propios_cerrados WHERE id = ?',
+              [submission.resourceId, submission.resourceId],
+            ) !=
+            null) {
+      // The author's stream can confirm reception before the HTTP retry gets its turn.
+      await _recordResult(database, submission, const Accepted());
+      return;
+    }
     final retryAt = row['reintentar_en'] as String?;
     if (retryAt != null && _clock().isBefore(DateTime.parse(retryAt))) {
       throw StateError('El comando está esperando su próximo reintento.');
     }
     final payload = command.opData!;
     final route = commandRoute(submission.kind, submission.resourceId);
-    final AttemptResult result;
+    AttemptResult result;
     try {
       final response = await _api.request<Object?>(
         route.path,
         data: route.sendsBody ? payload['cuerpo'] as String? : null,
         options: Options(
           method: route.method,
-          headers: {'Idempotency-Key': submission.idempotencyKey},
+          headers: {idempotencyKeyHeader: submission.idempotencyKey},
         ),
       );
-      // An expired access token can be renewed. Keep the command and its key.
-      result = response.statusCode == 401
-          ? const TransientFailure('Se necesita una sesión vigente para enviar el comando.')
-          : classifyResponse(response.statusCode, response.data);
+      result = _classifyCommandResponse(submission, response.statusCode, response.data);
     } on DioException catch (error) {
-      await _recordResult(database, submission, classifyError(error));
-      rethrow;
+      if (submission.kind != SubmissionKind.helpRequest) {
+        await _recordResult(database, submission, classifyError(error));
+        rethrow;
+      }
+      // Avoid propagating a transport exception that carries the sensitive request body.
+      result = _classifyCommandResponse(
+        submission,
+        error.response?.statusCode,
+        error.response?.data,
+      );
     }
     await _recordResult(database, submission, result);
     if (result is TransientFailure) throw StateError(result.description);
+  }
+
+  AttemptResult _classifyCommandResponse(Submission submission, int? status, Object? body) {
+    // An expired access token can be renewed. Keep the command and its key.
+    if (status == 401) {
+      return const TransientFailure('Se necesita una sesión vigente para enviar el comando.');
+    }
+    final result = classifyResponse(status, body);
+    if (submission.kind != SubmissionKind.helpRequest) return result;
+    if (result is Accepted &&
+        (body is! Map<String, Object?> || body['id'] != submission.resourceId)) {
+      return const TransientFailure('La respuesta no confirmó el identificador del pedido.');
+    }
+    if (result is Rejected) {
+      // Do not keep free text returned by the server. It may quote the request payload.
+      const knownCodes = {'zona_sin_cobertura', 'ubicacion_fuera_de_zona', 'validacion'};
+      final code = result.reason.code;
+      return Rejected(
+        RejectionReason(
+          code: knownCodes.contains(code) ? code : 'desconocido',
+          title: 'No se pudo completar',
+        ),
+      );
+    }
+    return result;
   }
 
   Future<void> _recordResult(

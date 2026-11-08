@@ -5,6 +5,7 @@ import 'package:sqlite_async/sqlite_async.dart';
 import 'package:vecinal/core/network/idempotency.dart';
 import 'package:vecinal/core/submissions/submission.dart';
 import 'package:vecinal/core/submissions/submission_status.dart';
+import 'package:vecinal/core/sync/command_queue.dart';
 import 'package:vecinal/core/sync/submission_row.dart';
 import 'package:vecinal/features/solidaridad/domain/post.dart';
 import 'package:vecinal/features/solidaridad/domain/post_repository.dart';
@@ -30,6 +31,7 @@ class PowerSyncPostRepository implements PostRepository {
         PARTITION BY recurso_id ORDER BY creado_en DESC, id DESC
       ) AS rn
       FROM envios
+      WHERE tipo IN ('publish', 'takeFavor')
     )
     SELECT p.id, p.autor_id, p.zona_id, p.tipo, p.categoria, p.titulo, p.descripcion,
            p.estado, p.tomada_por_id, p.version, p.creado_en, p.actualizado_en,
@@ -67,7 +69,11 @@ class PowerSyncPostRepository implements PostRepository {
   @override
   Stream<List<Submission>> watchActionsToReview() => _database
       .watch(
-        "SELECT * FROM envios WHERE estado = 'couldNotComplete' ORDER BY creado_en DESC, id DESC",
+        '''
+        SELECT * FROM envios
+        WHERE tipo != 'helpRequest' AND estado = 'couldNotComplete'
+        ORDER BY creado_en DESC, id DESC
+        ''',
         triggerOnTables: ['envios'],
       )
       .map((rows) => rows.map(submissionFromRow).toList(growable: false));
@@ -140,35 +146,15 @@ class PowerSyncPostRepository implements PostRepository {
     DateTime now,
     Map<String, Object?> body,
     Map<String, Object?> optimistic,
-  ) async {
-    final submission = Submission(
-      id: newLocalId(),
+  ) {
+    return enqueueCommand(
+      tx,
       kind: kind,
       resourceId: resourceId,
-      idempotencyKey: newLocalId(),
-      createdAt: now,
+      now: now,
+      body: body,
+      optimisticPost: optimistic,
     );
-    await tx.execute(
-      'INSERT INTO comandos (id, tipo, recurso_id, cuerpo, clave_idempotencia) VALUES (?, ?, ?, ?, ?)',
-      [submission.id, kind.name, resourceId, jsonEncode(body), submission.idempotencyKey],
-    );
-    await tx.execute(
-      '''
-      INSERT INTO envios
-        (id, tipo, recurso_id, clave_idempotencia, estado, intentos, creado_en, publicacion_optimista)
-      VALUES (?, ?, ?, ?, ?, 0, ?, ?)
-      ''',
-      [
-        submission.id,
-        kind.name,
-        resourceId,
-        submission.idempotencyKey,
-        submission.status.name,
-        now.toUtc().toIso8601String(),
-        jsonEncode(optimistic),
-      ],
-    );
-    return submission;
   }
 
   Post _post(Map<String, Object?> row, SubmissionStatus status) => Post(

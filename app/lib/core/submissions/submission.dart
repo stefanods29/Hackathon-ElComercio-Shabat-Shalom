@@ -33,6 +33,9 @@ enum SubmissionKind {
 
   /// Moderation: report a post, review, service, photo or provider.
   report,
+
+  /// Emergencies: request help.
+  helpRequest,
 }
 
 /// A neighbor's action in the local upload queue (the phone's outbox).

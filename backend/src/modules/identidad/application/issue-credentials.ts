@@ -81,7 +81,10 @@ export class IssueCredentials {
           'forbidden',
         );
       }
-      const { token, expiresAt } = await this.tokens.issueSync(user);
+      const { token, expiresAt } = await this.tokens.issueSync({
+        ...user,
+        sessionId: actor.sessionId,
+      });
       return { endpoint: this.config.POWERSYNC_URL, token, expiresAt };
     });
   }

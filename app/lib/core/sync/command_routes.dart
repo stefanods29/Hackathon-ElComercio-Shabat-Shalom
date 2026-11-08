@@ -35,4 +35,5 @@ CommandRoute commandRoute(SubmissionKind kind, String resourceId) => switch (kin
     sendsBody: false,
   ),
   SubmissionKind.report => (method: 'POST', path: '/v1/denuncias', sendsBody: true),
+  SubmissionKind.helpRequest => (method: 'POST', path: '/v1/pedidos-ayuda', sendsBody: true),
 };

@@ -12,12 +12,12 @@
 
 | Parte | Qué entrega | Estado | Responsable | PR |
 |---|---|---|---|---|
-| 1 | Pedidos de ayuda sin conexión | Pendiente | Stefano | — |
-| 2 | Streams bajo demanda por asignación | Pendiente | Stefano | — |
-| 3 | Modo operativo protegido | Pendiente | Stefano | — |
-| 4 | Tablero sin conexión: agregados y recursos | Pendiente | Stefano | — |
-| 5 | Seguridad y pruebas de campo | Pendiente | Stefano | — |
-| 6 | Integración de la Fase 2 y simulacro | Pendiente | Stefano | — |
+| 1 | Pedidos de ayuda sin conexión | En curso (verificación local; integración con B y D pendiente) | `JDiazD33` | — |
+| 2 | Streams bajo demanda por asignación | En curso | `JDiazD33` | — |
+| 3 | Modo operativo protegido | En curso (verificación nativa y CI pendientes) | `JDiazD33` | — |
+| 4 | Tablero sin conexión: agregados y recursos | En curso (integración con D y CI pendientes) | `JDiazD33` | — |
+| 5 | Seguridad y pruebas de campo | Pendiente | `JDiazD33` | — |
+| 6 | Integración de la Fase 2 y simulacro | Pendiente | `JDiazD33` | — |
 
 Estados posibles: **Pendiente**, **En curso** o **Hecha** (integrada en `main`).
 
@@ -45,6 +45,9 @@ a los pedidos de ayuda reales.
 Pruebas: cola con 0 pérdidas y 0 duplicados (como la prueba de 500 operaciones de la Fase 0, ahora
 con pedidos), estados con HTTP falso y conflicto de cierre sin conexión.
 
+El [resultado de laboratorio](../evidencias/pedidos-offline-laboratorio.md) cubre la cola, la reconciliación y la purga con pedidos ficticios. Las tareas 1.4–1.6 siguen
+pendientes de verificación con B, D y CI.
+
 ## Parte 2 · Streams bajo demanda por asignación
 
 - El celular de un coordinador o brigadista abre el stream de un caso solo mientras le está
@@ -54,8 +57,20 @@ con pedidos), estados con HTTP falso y conflicto de cierre sin conexión.
   el caso pasa a *en camino*, en un stream aparte que depende del estado.
 - Cada apertura queda auditada en el backend (B, parte 5).
 
-Pruebas de acceso de los streams: un brigadista sin asignación recibe 0 filas; al reasignar el
-caso, sus filas se borran; la ubicación exacta no llega antes de *en camino*.
+El [informe de la Parte 2](../evidencias/streams-por-asignacion.md) documenta las pruebas con
+filas ficticias, la ruta auditada propuesta y las verificaciones pendientes con el backend de B y
+PowerSync en vivo.
+
+### Pedidos para B y D
+
+- **B · Parte 1.** Acordar y publicar `emergencias.historial_pedidos.motivo_para_autor` para los
+  cierres y las derivaciones. El motivo operativo y el usuario del historial quedan fuera de la
+  proyección de PowerSync.
+- **B · Parte 2.** Acordar la autorización auditada ligada a sesión, asignación y alcance. El
+  informe de la Parte 2 especifica la ruta, los campos y la revocación propuestos.
+- **D · Parte 1.** Conectar `operationalEmergencyFactoryProvider` al repositorio de pedidos de
+  la cuenta. Entregar `exactLocation` y `lifeThreatening` desde la pantalla de pedido, y presentar
+  el resumen cuando la descripción y las coordenadas ya se retiraron de la cola.
 
 ## Parte 3 · Modo operativo protegido
 
@@ -66,8 +81,9 @@ caso, sus filas se borran; la ubicación exacta no llega antes de *en camino*.
 - Caducidad local de los datos sensibles (por ejemplo, 24 horas o al cerrar el caso), aunque el
   celular siga sin conexión, sobre la purga de la Fase 0.
 
-Pruebas: unitarias del temporizador y de la caducidad con reloj de prueba, y comprobación en
-Android e iOS reales.
+El [informe de la Parte 3](../evidencias/modo-operativo.md) describe el bloqueo local, la
+caducidad y las pruebas de laboratorio. Las comprobaciones de captura y selector de apps en
+teléfonos reales corresponden a la Parte 5.
 
 ## Parte 4 · Tablero sin conexión: agregados y recursos
 
@@ -78,8 +94,9 @@ Android e iOS reales.
 - En modo emergencia, la sincronización prioriza los datos críticos y desactiva las imágenes
   (ahorro de datos).
 
-Pruebas: pruebas de los streams (sin detalle de pedidos en los agregados) y prueba de la app sin
-señal con datos antiguos.
+El [informe de la Parte 4](../evidencias/tablero-offline.md) documenta el SQL de B verificado
+en PostgreSQL, el tablero local con datos descargados y la pausa de fotos. La conexión con
+las pantallas de D y la fecha oficial de verificación dependen del acuerdo de integración.
 
 ## Parte 5 · Seguridad y pruebas de campo
 
