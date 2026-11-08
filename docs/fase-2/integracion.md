@@ -70,8 +70,9 @@ revocación de los permisos y auditoría sin contenido.
   servicio real ni con dos celulares.
 - **Celulares reales.** Capturas bloqueadas y vista difuminada (A 3.2), modo avión en las pantallas
   de D (A 1.5) y la prueba de campo (A 5.2).
-- **Pruebas de D.** Widgets de cada estado, flujo de tres toques contado, golden tests al 200 % y
-  accesibilidad.
+- **Pruebas de D.** Widgets de cada estado y flujo de tres toques contado. La accesibilidad
+  automática y los golden tests al 200 % ya están ([evidencia](evidencias/accesibilidad-modo-emergencia.md));
+  falta recorrerla con TalkBack y VoiceOver en teléfonos (D 4.5).
 - ~~Consola contra la API real~~: 7 de 7 con `npm run test:console-contract` ([evidencia](evidencias/consola-contra-api.md)).
 - **Decisiones externas.** Proveedor real de SMS (13.3.4), adaptador de alertas oficiales, tiempos
   acordados con los aliados, publicación del directorio en la nube y la evaluación de impacto.

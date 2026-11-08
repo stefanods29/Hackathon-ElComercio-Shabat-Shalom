@@ -15,7 +15,7 @@
 | 1 | Inicio en modo emergencia | En curso: integrada en `main` con el puerto real; faltan pruebas de widgets | stefanods29 | — |
 | 2 | "Necesito ayuda" y el estado de mi pedido | En curso: integrada en `main` con el puerto real; faltan pruebas de widgets | stefanods29 | — |
 | 3 | "Puedo ayudar" y recursos | En curso: integrada en `main` con el puerto real; faltan pruebas de widgets | stefanods29 | — |
-| 4 | Contactos de emergencia y accesibilidad | En curso: integrada en `main` con el puerto real; faltan pruebas de widgets, accesibilidad y la prueba con vecinos | stefanods29 | — |
+| 4 | Contactos de emergencia y accesibilidad | En curso: accesibilidad automática hecha; faltan TalkBack y VoiceOver en teléfonos y la prueba con vecinos | stefanods29 | — |
 
 Estados posibles: **Pendiente**, **En curso** o **Hecha** (integrada en `main`).
 
