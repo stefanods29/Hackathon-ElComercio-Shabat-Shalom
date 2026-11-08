@@ -15,5 +15,6 @@ Consecuencias.
 | [0007](0007-convencion-de-nombres.md) | Código en inglés; contrato, datos y textos en español |
 | [0008](0008-fuente-de-teselas.md) | PMTiles propio y salida XYZ para el mapa offline (Lote C) |
 | [0009](0009-proveedor-de-codigos-firebase.md) | Firebase Authentication envía y comprueba los códigos por SMS (Lote B 1.4) |
+| [0011](0011-confirmacion-de-residencia.md) | Presencia sin coordenadas, confirmación manual y avales del piloto |
 
 La Fase 1 reserva el 0010 para la precisión de la ubicación en los datos públicos (Lote A, parte 1).

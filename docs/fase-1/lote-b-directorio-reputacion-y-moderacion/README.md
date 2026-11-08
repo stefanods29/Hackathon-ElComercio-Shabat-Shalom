@@ -15,7 +15,7 @@
 | 1 | Directorio: categorías, proveedores y servicios | Lista para revisión | JDiazD33 | — |
 | 2 | Búsqueda por cercanía y texto | Lista para revisión | JDiazD33 | — |
 | 3 | Reseñas, Visto Bueno y ranking | Lista para revisión | JDiazD33 | — |
-| 4 | Identidad del piloto: niveles, zona y privacidad | Pendiente | Por asignar | — |
+| 4 | Identidad del piloto: niveles, zona y privacidad | Lista para revisión | JDiazD33 | [Entrega](parte-4.md) |
 | 5 | Moderación | Pendiente | Por asignar | — |
 
 Estados posibles: **Pendiente**, **En curso**, **Lista para revisión** (código entregado,
