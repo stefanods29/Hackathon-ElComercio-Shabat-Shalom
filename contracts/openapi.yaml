@@ -28,6 +28,12 @@ tags:
     description: Salud y claves públicas.
   - name: identidad
     description: Sesión y credenciales de sincronización.
+  - name: directorio
+    description: Categorías, perfiles de proveedor y servicios vecinales.
+  - name: reputacion
+    description: Reseñas y Visto Bueno vecinal.
+  - name: moderacion
+    description: Denuncias, cola de revisión y decisiones.
   - name: solidaridad
     description: Muro de favores.
   - name: operacion
@@ -302,11 +308,12 @@ paths:
     put:
       tags: [identidad]
       operationId: elegirZona
-      summary: Elegir la zona del vecino una sola vez
+      summary: Elegir o cambiar la zona del vecino
       description: |
         Devuelve una sesión con un token de acceso que ya incluye la zona elegida.
         Conserva su familia `sid`; una familia revocada o vencida recibe 401 sesion_revocada.
-        Cambiar de zona llega en la Fase 1. No rota el refresh token.
+        Elegir la misma zona conserva el nivel. Cambiar a otra vuelve al nivel 0 y solo se
+        permite cada 30 días. No rota el refresh token.
       parameters:
         - $ref: '#/components/parameters/IdempotencyKey'
       requestBody:
@@ -325,7 +332,319 @@ paths:
         '400': { $ref: '#/components/responses/SolicitudInvalida' }
         '401': { $ref: '#/components/responses/NoAutenticado' }
         '404': { $ref: '#/components/responses/NoEncontrado' }
+        '409':
+          description: '`cambio_de_zona_muy_pronto` con `disponibleDesde`, o conflicto de idempotencia.'
+          content:
+            application/problem+json:
+              schema: { $ref: '#/components/schemas/Problema' }
+        '422': { $ref: '#/components/responses/NoProcesable' }
+
+  /v1/yo/residencia/presencia:
+    post:
+      tags: [identidad]
+      operationId: informarPresencia
+      summary: Informar si el vecino estuvo dentro de su zona en un día
+      description: Registra una respuesta por fecha local con consentimiento vigente; no recibe coordenadas.
+      parameters:
+        - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/PresenciaDeResidencia' }
+      responses:
+        '200':
+          description: Nivel de confianza después de procesar el informe.
+          headers:
+            Idempotent-Replayed: { $ref: '#/components/headers/IdempotentReplayed' }
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/NivelDeResidencia' }
+        '400': { $ref: '#/components/responses/SolicitudInvalida' }
+        '401': { $ref: '#/components/responses/NoAutenticado' }
+        '403':
+          description: '`consentimiento_requerido` o `zona_requerida`.'
+          content:
+            application/problem+json:
+              schema: { $ref: '#/components/schemas/Problema' }
         '409': { $ref: '#/components/responses/Conflicto' }
+        '422':
+          description: '`fecha_de_presencia_invalida` o clave de idempotencia reutilizada con otro contenido.'
+          content:
+            application/problem+json:
+              schema: { $ref: '#/components/schemas/Problema' }
+
+  /v1/vecinos/{id}/residencia:
+    post:
+      tags: [identidad]
+      operationId: confirmarResidencia
+      summary: Confirmar la residencia de un vecino como moderador
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+        - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/ConfirmacionDeResidencia' }
+      responses:
+        '200':
+          description: Nivel de confianza después de la confirmación.
+          headers:
+            Idempotent-Replayed: { $ref: '#/components/headers/IdempotentReplayed' }
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/NivelDeResidencia' }
+        '400': { $ref: '#/components/responses/SolicitudInvalida' }
+        '401': { $ref: '#/components/responses/NoAutenticado' }
+        '403': { $ref: '#/components/responses/Prohibido' }
+        '404': { $ref: '#/components/responses/NoEncontrado' }
+        '409': { $ref: '#/components/responses/Conflicto' }
+        '422': { $ref: '#/components/responses/NoProcesable' }
+
+  /v1/vecinos/{id}/aval:
+    post:
+      tags: [identidad]
+      operationId: avalarResidencia
+      summary: Avalar a otro vecino de la misma zona desde el nivel 2
+      description: Cada vecino cuenta una vez por residencia; dos avales distintos elevan al vecino confirmado al nivel 2.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+        - $ref: '#/components/parameters/IdempotencyKey'
+      responses:
+        '200':
+          description: Nivel de confianza del vecino avalado.
+          headers:
+            Idempotent-Replayed: { $ref: '#/components/headers/IdempotentReplayed' }
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/NivelDeResidencia' }
+        '400': { $ref: '#/components/responses/SolicitudInvalida' }
+        '401': { $ref: '#/components/responses/NoAutenticado' }
+        '403':
+          description: '`no_puedes_avalarte`, `fuera_de_tu_zona` o `nivel_de_confianza_insuficiente`.'
+          content:
+            application/problem+json:
+              schema: { $ref: '#/components/schemas/Problema' }
+        '404': { $ref: '#/components/responses/NoEncontrado' }
+        '409': { $ref: '#/components/responses/Conflicto' }
+        '422': { $ref: '#/components/responses/NoProcesable' }
+
+  /v1/yo/consentimientos:
+    get:
+      tags: [identidad]
+      operationId: listarConsentimientos
+      summary: Consultar las finalidades, las versiones vigentes y las últimas decisiones
+      responses:
+        '200':
+          description: Finalidades y decisiones del vecino.
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/EstadoDeConsentimiento' }
+        '401': { $ref: '#/components/responses/NoAutenticado' }
+    post:
+      tags: [identidad]
+      operationId: registrarConsentimiento
+      summary: Aceptar o rechazar una finalidad con su versión vigente
+      description: Rechazar la presencia impide nuevos informes y conserva el nivel ya confirmado.
+      parameters:
+        - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/DecisionDeConsentimiento' }
+      responses:
+        '200':
+          description: Decisión registrada.
+          headers:
+            Idempotent-Replayed: { $ref: '#/components/headers/IdempotentReplayed' }
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/EstadoDeConsentimiento' }
+        '400': { $ref: '#/components/responses/SolicitudInvalida' }
+        '401': { $ref: '#/components/responses/NoAutenticado' }
+        '409':
+          description: '`version_de_consentimiento_desactualizada` o conflicto de idempotencia.'
+          content:
+            application/problem+json:
+              schema: { $ref: '#/components/schemas/Problema' }
+        '422': { $ref: '#/components/responses/NoProcesable' }
+
+  /v1/yo/datos:
+    get:
+      tags: [identidad]
+      operationId: exportarDatosPersonales
+      summary: Exportar los datos del vecino que hizo la solicitud
+      responses:
+        '200':
+          description: Datos personales agrupados por módulo. No se almacena en caché.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ExportacionDeDatosPersonales' }
+        '401': { $ref: '#/components/responses/NoAutenticado' }
+
+  /v1/yo:
+    patch:
+      tags: [identidad]
+      operationId: rectificarMiPerfil
+      summary: Rectificar el nombre visible del vecino
+      parameters:
+        - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/RectificacionDePerfil' }
+      responses:
+        '200':
+          description: Nombre visible actualizado.
+          headers:
+            Idempotent-Replayed: { $ref: '#/components/headers/IdempotentReplayed' }
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/RectificacionDePerfil' }
+        '400': { $ref: '#/components/responses/SolicitudInvalida' }
+        '401': { $ref: '#/components/responses/NoAutenticado' }
+        '409': { $ref: '#/components/responses/Conflicto' }
+        '422': { $ref: '#/components/responses/NoProcesable' }
+    delete:
+      tags: [identidad]
+      operationId: cancelarMiCuenta
+      summary: Revocar todas las sesiones y programar la eliminación de la cuenta
+      description: Tras aceptar la solicitud, las credenciales de la cuenta dejan de servir en la API. Las siguientes solicitudes con esas credenciales reciben 401.
+      parameters:
+        - $ref: '#/components/parameters/IdempotencyKey'
+      responses:
+        '202':
+          description: Cancelación aceptada; la eliminación de los datos se completa en segundo plano.
+        '400': { $ref: '#/components/responses/SolicitudInvalida' }
+        '401': { $ref: '#/components/responses/NoAutenticado' }
+        '409': { $ref: '#/components/responses/Conflicto' }
+        '422': { $ref: '#/components/responses/NoProcesable' }
+
+  /v1/denuncias:
+    post:
+      tags: [moderacion]
+      operationId: denunciarContenido
+      summary: Denunciar contenido para revisión humana
+      parameters:
+        - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/NuevaDenuncia' }
+      responses:
+        '201':
+          description: Denuncia registrada y caso pendiente de revisión.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/DenunciaPropia' }
+        '200':
+          description: La misma denuncia ya estaba registrada.
+          headers:
+            Idempotent-Replayed: { $ref: '#/components/headers/IdempotentReplayed' }
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/DenunciaPropia' }
+        '400': { $ref: '#/components/responses/SolicitudInvalida' }
+        '401': { $ref: '#/components/responses/NoAutenticado' }
+        '404': { $ref: '#/components/responses/NoEncontrado' }
+        '409': { $ref: '#/components/responses/Conflicto' }
+        '422': { $ref: '#/components/responses/NoProcesable' }
+
+  /v1/moderacion/casos:
+    get:
+      tags: [moderacion]
+      operationId: listarCasosDeModeracion
+      summary: Listar casos como moderador sin exponer datos de contacto
+      parameters:
+        - name: estado
+          in: query
+          schema: { $ref: '#/components/schemas/EstadoDeCaso' }
+          description: Si se omite, muestra solo los casos pendientes.
+        - name: cursor
+          in: query
+          schema: { type: string, minLength: 1, maxLength: 256 }
+          description: Cursor opaco de la página anterior, para el mismo estado.
+        - name: limite
+          in: query
+          schema: { type: integer, minimum: 1, maximum: 50, default: 20 }
+      responses:
+        '200':
+          description: Casos ordenados de más antiguos a más recientes.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/PaginaDeCasos' }
+        '400': { $ref: '#/components/responses/SolicitudInvalida' }
+        '401': { $ref: '#/components/responses/NoAutenticado' }
+        '403': { $ref: '#/components/responses/Prohibido' }
+
+  /v1/moderacion/casos/{id}/decision:
+    post:
+      tags: [moderacion]
+      operationId: decidirCasoDeModeracion
+      summary: Registrar una decisión auditada como moderador
+      description: Publicar, ocultar o restaurar el contenido se aplica mediante un trabajo.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+        - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/DecisionDeModeracion' }
+      responses:
+        '200':
+          description: Decisión registrada y caso resuelto.
+          headers:
+            Idempotent-Replayed: { $ref: '#/components/headers/IdempotentReplayed' }
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/CasoDeModeracion' }
+        '400': { $ref: '#/components/responses/SolicitudInvalida' }
+        '401': { $ref: '#/components/responses/NoAutenticado' }
+        '403': { $ref: '#/components/responses/Prohibido' }
+        '404': { $ref: '#/components/responses/NoEncontrado' }
+        '409': { $ref: '#/components/responses/Conflicto' }
+        '422': { $ref: '#/components/responses/NoProcesable' }
+
+  /v1/moderacion/metricas:
+    get:
+      tags: [moderacion]
+      operationId: consultarMetricasDeModeracion
+      summary: Consultar el tiempo hasta la primera revisión humana como administrador
+      description: Selecciona por fecha de creación del caso. Por defecto abarca los últimos siete días.
+      parameters:
+        - name: desde
+          in: query
+          schema: { type: string, format: date-time }
+          description: Inicio inclusivo.
+        - name: hasta
+          in: query
+          schema: { type: string, format: date-time }
+          description: Fin exclusivo.
+      responses:
+        '200':
+          description: Totales del periodo y percentil 90 de los casos con primera revisión.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/MetricasDeModeracion' }
+        '400': { $ref: '#/components/responses/SolicitudInvalida' }
+        '401': { $ref: '#/components/responses/NoAutenticado' }
+        '403': { $ref: '#/components/responses/Prohibido' }
 
   /v1/operacion/metricas:
     get:
@@ -386,6 +705,336 @@ paths:
                   recibidoEl: { type: string, format: date, description: Día UTC de recepción. }
         '400': { $ref: '#/components/responses/SolicitudInvalida' }
         '401': { $ref: '#/components/responses/NoAutenticado' }
+        '409': { $ref: '#/components/responses/Conflicto' }
+        '422': { $ref: '#/components/responses/NoProcesable' }
+
+  /v1/categorias:
+    get:
+      tags: [directorio]
+      operationId: listarCategorias
+      summary: Categorías del directorio con sesión
+      responses:
+        '200':
+          description: Categorías ordenadas por orden e id.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [datos]
+                properties:
+                  datos:
+                    type: array
+                    items: { $ref: '#/components/schemas/Categoria' }
+        '401': { $ref: '#/components/responses/NoAutenticado' }
+
+  /v1/yo/proveedor:
+    put:
+      tags: [directorio]
+      operationId: guardarMiPerfilDeProveedor
+      summary: Crear o actualizar mi perfil de proveedor
+      description: Exige nivel 1 y zona (403 nivel_de_confianza_insuficiente o sin_zona).
+      parameters:
+        - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/GuardarProveedor' }
+      responses:
+        '200':
+          description: Perfil guardado; el id es el del vecino.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Proveedor' }
+        '400': { $ref: '#/components/responses/SolicitudInvalida' }
+        '401': { $ref: '#/components/responses/NoAutenticado' }
+        '403': { $ref: '#/components/responses/Prohibido' }
+        '404': { $ref: '#/components/responses/NoEncontrado' }
+        '409': { $ref: '#/components/responses/Conflicto' }
+        '422': { $ref: '#/components/responses/NoProcesable' }
+
+  /v1/servicios:
+    get:
+      tags: [directorio]
+      operationId: buscarServicios
+      summary: Buscar servicios vigentes de mi zona por cercanía y texto
+      description: |
+        Requiere sesión y zona (403 sin_zona). Excluye servicios y proveedores retirados u ocultos.
+        Ordena por vistosBuenosDeLaZona descendente, puntajeRanking descendente e id ascendente.
+        El texto busca en título y descripción en español, sin tildes, y tolera errores leves
+        en el título con similitud de palabras mayor a 0,3.
+        El cursor es opaco y solo contiene los tres valores de orden, nunca coordenadas.
+        Debe reutilizarse con los mismos filtros; el orden es estable mientras no cambien los
+        agregados de reputación. Un cursor inválido responde 400 validacion.
+        Solo devuelve la ubicación pública y distanciaMetros redondeada a múltiplos de 50.
+        No guarda el punto de búsqueda ni requiere Idempotency-Key.
+      parameters:
+        - name: lat
+          in: query
+          required: true
+          schema: { type: number, minimum: -90, maximum: 90 }
+        - name: lng
+          in: query
+          required: true
+          schema: { type: number, minimum: -180, maximum: 180 }
+        - name: radioM
+          in: query
+          schema: { type: integer, minimum: 100, maximum: 20000, default: 2000 }
+        - name: categoriaId
+          in: query
+          schema: { type: string, pattern: '^[a-z0-9-]{2,40}$' }
+        - name: q
+          in: query
+          schema: { type: string, minLength: 1, maxLength: 120 }
+        - name: soloEmergencia
+          in: query
+          schema: { type: boolean, default: false }
+        - name: cursor
+          in: query
+          schema: { type: string, minLength: 1, maxLength: 512 }
+        - name: limite
+          in: query
+          schema: { type: integer, minimum: 1, maximum: 50, default: 20 }
+      responses:
+        '200':
+          description: Página de servicios públicos; siguienteCursor es nulo si no hay más.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/PaginaDeServicios' }
+        '400': { $ref: '#/components/responses/SolicitudInvalida' }
+        '401': { $ref: '#/components/responses/NoAutenticado' }
+        '403': { $ref: '#/components/responses/Prohibido' }
+    post:
+      tags: [directorio]
+      operationId: publicarServicio
+      summary: Publicar un servicio con el id UUIDv7 del celular
+      description: |
+        Exige nivel 1, zona y perfil de proveedor vigente (404 si no existe).
+        Repetir un id propio devuelve el servicio existente, incluso retirado, sin modificarlo
+        ni emitir otro evento. Un id ajeno responde 409 id_en_uso sin revelar su contenido.
+        Categoría inexistente responde 422 categoria_invalida.
+      parameters:
+        - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/NuevoServicio' }
+      responses:
+        '201':
+          description: Servicio publicado en versión 1 con su evento en el outbox.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Servicio' }
+        '200':
+          description: El id ya era del mismo proveedor o se repitió la misma Idempotency-Key.
+          headers:
+            Idempotent-Replayed: { $ref: '#/components/headers/IdempotentReplayed' }
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Servicio' }
+        '400': { $ref: '#/components/responses/SolicitudInvalida' }
+        '401': { $ref: '#/components/responses/NoAutenticado' }
+        '403': { $ref: '#/components/responses/Prohibido' }
+        '404': { $ref: '#/components/responses/NoEncontrado' }
+        '409': { $ref: '#/components/responses/Conflicto' }
+        '422': { $ref: '#/components/responses/NoProcesable' }
+
+  /v1/servicios/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema: { type: string, format: uuid }
+    put:
+      tags: [directorio]
+      operationId: editarServicio
+      summary: Reemplazar los datos de un servicio propio con la versión vista
+      description: |
+        Solo el dueño (403 no_eres_el_dueno). Una versión vieja responde
+        409 conflicto_de_version con versionEsperada y versionActual.
+        Un servicio retirado responde 409 servicio_retirado; una categoría inexistente,
+        422 categoria_invalida. No modifica los agregados de reputación.
+      parameters:
+        - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/EditarServicio' }
+      responses:
+        '200':
+          description: Servicio actualizado y versión incrementada.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Servicio' }
+        '400': { $ref: '#/components/responses/SolicitudInvalida' }
+        '401': { $ref: '#/components/responses/NoAutenticado' }
+        '403': { $ref: '#/components/responses/Prohibido' }
+        '404': { $ref: '#/components/responses/NoEncontrado' }
+        '409': { $ref: '#/components/responses/Conflicto' }
+        '422': { $ref: '#/components/responses/NoProcesable' }
+    delete:
+      tags: [directorio]
+      operationId: retirarServicio
+      summary: Retirar un servicio propio con borrado lógico
+      description: |
+        Solo el dueño (403 no_eres_el_dueno). No requiere cuerpo ni versión.
+        Repetir el retiro con una clave nueva sigue respondiendo 204 y no incrementa la versión.
+        El interceptor compartido responde 200 al repetir la misma Idempotency-Key,
+        como en las demás bajas de la API, con Idempotent-Replayed.
+      parameters:
+        - $ref: '#/components/parameters/IdempotencyKey'
+      responses:
+        '204': { description: Servicio retirado, incluso si ya lo estaba. }
+        '200':
+          description: Reintento con la misma clave de un retiro ya procesado.
+          headers:
+            Idempotent-Replayed: { $ref: '#/components/headers/IdempotentReplayed' }
+        '400': { $ref: '#/components/responses/SolicitudInvalida' }
+        '401': { $ref: '#/components/responses/NoAutenticado' }
+        '403': { $ref: '#/components/responses/Prohibido' }
+        '404': { $ref: '#/components/responses/NoEncontrado' }
+        '409': { $ref: '#/components/responses/Conflicto' }
+        '422': { $ref: '#/components/responses/NoProcesable' }
+
+  /v1/proveedores/{id}:
+    get:
+      tags: [directorio]
+      operationId: obtenerProveedor
+      summary: Perfil público con los servicios vigentes
+      description: |
+        No incluye teléfono ni ubicación privada. Los servicios retirados u ocultos no aparecen;
+        un proveedor retirado u oculto responde 404. Solo viaja la copia pública de la ubicación.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        '200':
+          description: Perfil y servicios públicos.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/PerfilDeProveedor' }
+        '400': { $ref: '#/components/responses/SolicitudInvalida' }
+        '401': { $ref: '#/components/responses/NoAutenticado' }
+        '404': { $ref: '#/components/responses/NoEncontrado' }
+
+  /v1/resenas:
+    post:
+      tags: [reputacion]
+      operationId: escribirResena
+      x-nivel-minimo: 1
+      summary: Registrar una reseña propia en revisión
+      description: |
+        Requiere nivel 1, una cuenta con la antigüedad mínima y un servicio vigente de la misma zona.
+        El UUIDv7 lo genera el celular. Repetir un id propio devuelve la reseña existente sin sumar
+        a la cuota. El registro de la reseña y reputacion.resena_creada se confirman juntos.
+        Las fotos deben ser archivos listos del autor para reseñas y se publican con su contenido.
+      parameters:
+        - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/NuevaResena' }
+      responses:
+        '201':
+          description: Reseña creada en estado en_revision.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ResenaPropia' }
+        '200':
+          description: La reseña propia ya existía o se repitió la misma clave.
+          headers:
+            Idempotent-Replayed: { $ref: '#/components/headers/IdempotentReplayed' }
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ResenaPropia' }
+        '400': { $ref: '#/components/responses/SolicitudInvalida' }
+        '401': { $ref: '#/components/responses/NoAutenticado' }
+        '403':
+          description: nivel_de_confianza_insuficiente, sin_zona, no_puedes_resenarte, fuera_de_tu_zona o cuenta_muy_nueva.
+          content:
+            application/problem+json:
+              schema: { $ref: '#/components/schemas/Problema' }
+        '404': { $ref: '#/components/responses/NoEncontrado' }
+        '409':
+          description: resena_duplicada, id_en_uso o solicitud_en_curso.
+          content:
+            application/problem+json:
+              schema: { $ref: '#/components/schemas/Problema' }
+        '422':
+          description: archivo_no_valido o idempotency_key_reutilizada.
+          content:
+            application/problem+json:
+              schema: { $ref: '#/components/schemas/Problema' }
+        '429':
+          description: limite_diario_alcanzado en la ventana móvil de 24 horas.
+          headers:
+            Retry-After:
+              description: Segundos hasta que la reseña más antigua salga de la ventana.
+              required: true
+              schema: { type: integer, minimum: 1 }
+          content:
+            application/problem+json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Problema'
+                  - type: object
+                    required: [reintentarEnSegundos]
+                    properties:
+                      reintentarEnSegundos: { type: integer, minimum: 1 }
+
+  /v1/servicios/{id}/visto-bueno:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema: { type: string, format: uuid }
+    post:
+      tags: [reputacion]
+      operationId: darVistoBueno
+      x-nivel-minimo: 1
+      summary: Dar un Visto Bueno al servicio de otro vecino de mi zona
+      description: |
+        Registra un único Visto Bueno por vecino y servicio; repetirlo conserva el id y el nivel
+        con el que se otorgó. Solo cuenta para el ranking desde el nivel 2. No requiere cuerpo.
+        Responde 403 sin_zona, fuera_de_tu_zona, no_puedes_resenarte o nivel_de_confianza_insuficiente.
+      parameters:
+        - $ref: '#/components/parameters/IdempotencyKey'
+      responses:
+        '200':
+          description: Visto Bueno registrado o ya existente.
+          headers:
+            Idempotent-Replayed: { $ref: '#/components/headers/IdempotentReplayed' }
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/VistoBuenoPropio' }
+        '400': { $ref: '#/components/responses/SolicitudInvalida' }
+        '401': { $ref: '#/components/responses/NoAutenticado' }
+        '403': { $ref: '#/components/responses/Prohibido' }
+        '404': { $ref: '#/components/responses/NoEncontrado' }
+        '409': { $ref: '#/components/responses/Conflicto' }
+        '422': { $ref: '#/components/responses/NoProcesable' }
+    delete:
+      tags: [reputacion]
+      operationId: quitarVistoBueno
+      x-nivel-minimo: 1
+      summary: Quitar mi Visto Bueno de forma idempotente
+      description: Puede retirar su propio Visto Bueno aunque el servicio ya no esté vigente. No requiere cuerpo.
+      parameters:
+        - $ref: '#/components/parameters/IdempotencyKey'
+      responses:
+        '204': { description: Visto Bueno retirado o ya inexistente. }
+        '200':
+          description: Repetición con la misma clave de un retiro procesado.
+          headers:
+            Idempotent-Replayed: { $ref: '#/components/headers/IdempotentReplayed' }
+        '400': { $ref: '#/components/responses/SolicitudInvalida' }
+        '401': { $ref: '#/components/responses/NoAutenticado' }
+        '403': { $ref: '#/components/responses/Prohibido' }
         '409': { $ref: '#/components/responses/Conflicto' }
         '422': { $ref: '#/components/responses/NoProcesable' }
 
@@ -681,7 +1330,7 @@ components:
         application/problem+json:
           schema: { $ref: '#/components/schemas/ProblemaDeValidacion' }
     NoAutenticado:
-      description: Falta el token o venció (`codigo` = no_autenticado).
+      description: Falta el token, venció (`no_autenticado`) o la sesión fue revocada (`sesion_revocada`).
       content:
         application/problem+json:
           schema: { $ref: '#/components/schemas/Problema' }
@@ -708,7 +1357,7 @@ components:
       description: |
         El vecino no puede hacer esto. `nivel_de_confianza_insuficiente` incluye `nivelActual` y
         `nivelRequerido`; `rol_requerido` incluye `rolesRequeridos`. Otros códigos posibles son
-        `fuera_de_tu_zona` y `no_eres_el_autor`.
+        `fuera_de_tu_zona`, `no_eres_el_autor`, `no_eres_el_dueno`, `sin_zona` y `cuenta_suspendida`.
       content:
         application/problem+json:
           schema: { $ref: '#/components/schemas/Problema' }
@@ -886,6 +1535,14 @@ components:
           minimum: 0
           maximum: 3
           description: Nivel mínimo exigido cuando el código es `nivel_de_confianza_insuficiente`.
+        disponibleDesde:
+          type: string
+          format: date-time
+          description: Próxima fecha de cambio para `cambio_de_zona_muy_pronto`.
+        versionVigente:
+          type: integer
+          minimum: 1
+          description: Versión del texto para `version_de_consentimiento_desactualizada`.
         rolesRequeridos:
           type: array
           items:
@@ -992,6 +1649,74 @@ components:
       properties:
         zonaId: { type: string, format: uuid }
 
+    PresenciaDeResidencia:
+      type: object
+      additionalProperties: false
+      required: [fecha, dentroDeLaZona]
+      properties:
+        fecha: { type: string, format: date, description: Día calendario en America/Lima. }
+        dentroDeLaZona: { type: boolean }
+
+    ConfirmacionDeResidencia:
+      type: object
+      additionalProperties: false
+      required: [motivo]
+      properties:
+        motivo: { type: string, minLength: 1, maxLength: 500 }
+        nivel: { type: integer, enum: [1, 2], default: 1 }
+
+    NivelDeResidencia:
+      type: object
+      required: [nivel]
+      properties:
+        nivel: { type: integer, minimum: 0, maximum: 3 }
+
+    FinalidadDeConsentimiento:
+      type: string
+      enum: [uso_del_servicio, confirmacion_por_presencia]
+
+    DecisionDeConsentimiento:
+      type: object
+      additionalProperties: false
+      required: [finalidad, version, aceptado]
+      properties:
+        finalidad: { $ref: '#/components/schemas/FinalidadDeConsentimiento' }
+        version: { type: integer, minimum: 1, maximum: 2147483647 }
+        aceptado: { type: boolean }
+
+    EstadoDeConsentimiento:
+      type: object
+      required: [finalidad, versionVigente, obligatoria, decision]
+      properties:
+        finalidad: { $ref: '#/components/schemas/FinalidadDeConsentimiento' }
+        versionVigente: { type: integer, minimum: 1 }
+        obligatoria: { type: boolean }
+        decision:
+          type: [object, 'null']
+          required: [version, aceptado, decididoEn]
+          properties:
+            version: { type: integer, minimum: 1 }
+            aceptado: { type: boolean }
+            decididoEn: { type: string, format: date-time }
+
+    RectificacionDePerfil:
+      type: object
+      additionalProperties: false
+      required: [nombreVisible]
+      properties:
+        nombreVisible: { type: string, minLength: 2, maxLength: 60 }
+
+    ExportacionDeDatosPersonales:
+      type: object
+      required: [generadoEn, modulos]
+      properties:
+        generadoEn: { type: string, format: date-time }
+        modulos:
+          type: object
+          description: Cada módulo aporta sus propios registros del vecino, sin credenciales ni datos de terceros.
+          additionalProperties:
+            type: object
+
     Sesion:
       type: object
       required: [tokenDeAcceso, expiraEn, usuario]
@@ -1031,6 +1756,278 @@ components:
         endpoint: { type: string, format: uri, description: URL del servicio de PowerSync. }
         token: { type: string, description: 'JWT ES256, audiencia powersync, claims sub y zona.' }
         expiraEn: { type: string, format: date-time }
+
+    TipoDeContenidoModerado:
+      type: string
+      enum: [publicacion, resena, servicio, foto, proveedor]
+
+    MotivoDeDenuncia:
+      type: string
+      enum: [spam, ofensivo, informacion_falsa, datos_personales, peligroso, otro]
+
+    NuevaDenuncia:
+      type: object
+      additionalProperties: false
+      required: [id, tipoContenido, contenidoId, motivo]
+      properties:
+        id: { type: string, format: uuid, description: UUIDv7 generado por el celular. }
+        tipoContenido: { $ref: '#/components/schemas/TipoDeContenidoModerado' }
+        contenidoId: { type: string, format: uuid }
+        motivo: { $ref: '#/components/schemas/MotivoDeDenuncia' }
+        detalle: { type: string, maxLength: 500 }
+
+    DenunciaPropia:
+      type: object
+      required: [id, casoId, tipoContenido, contenidoId, motivo, creadaEn]
+      properties:
+        id: { type: string, format: uuid }
+        casoId: { type: string, format: uuid }
+        tipoContenido: { $ref: '#/components/schemas/TipoDeContenidoModerado' }
+        contenidoId: { type: string, format: uuid }
+        motivo: { $ref: '#/components/schemas/MotivoDeDenuncia' }
+        creadaEn: { type: string, format: date-time }
+
+    EstadoDeCaso:
+      type: string
+      enum: [pendiente, resuelto]
+
+    AccionDeModeracion:
+      type: string
+      enum: [publicar, ocultar, restaurar, descartar, sancionar]
+
+    DecisionDeModeracion:
+      type: object
+      additionalProperties: false
+      required: [accion, motivo]
+      properties:
+        accion: { $ref: '#/components/schemas/AccionDeModeracion' }
+        motivo: { type: string, minLength: 1, maxLength: 500 }
+
+    CasoDeModeracion:
+      type: object
+      required: [id, tipoContenido, contenidoId, estado, motivo, ultimaAccion, creadoEn, actualizadoEn, primeraRevisionEn]
+      properties:
+        id: { type: string, format: uuid }
+        tipoContenido: { $ref: '#/components/schemas/TipoDeContenidoModerado' }
+        contenidoId: { type: string, format: uuid }
+        estado: { $ref: '#/components/schemas/EstadoDeCaso' }
+        motivo: { type: string, description: Código del motivo en la cola, sin texto libre ni datos de contacto. }
+        ultimaAccion:
+          anyOf:
+            - $ref: '#/components/schemas/AccionDeModeracion'
+            - type: 'null'
+        creadoEn: { type: string, format: date-time }
+        actualizadoEn: { type: string, format: date-time }
+        primeraRevisionEn: { type: [string, 'null'], format: date-time }
+
+    PaginaDeCasos:
+      type: object
+      required: [datos, siguienteCursor]
+      properties:
+        datos:
+          type: array
+          items: { $ref: '#/components/schemas/CasoDeModeracion' }
+        siguienteCursor: { type: [string, 'null'] }
+
+    MetricasDeModeracion:
+      type: object
+      required: [desde, hasta, totalCasos, pendientes, p90PrimeraRevisionSegundos]
+      properties:
+        desde: { type: string, format: date-time }
+        hasta: { type: string, format: date-time }
+        totalCasos: { type: integer, minimum: 0 }
+        pendientes: { type: integer, minimum: 0 }
+        p90PrimeraRevisionSegundos:
+          type: [integer, 'null']
+          minimum: 0
+          description: Percentil redondeado hacia arriba, o nulo si no hubo revisiones humanas.
+
+    NuevaResena:
+      type: object
+      additionalProperties: false
+      required: [id, servicioId, calificacion]
+      properties:
+        id:
+          type: string
+          format: uuid
+          pattern: '^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-7[0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$'
+          description: UUIDv7 generado en el celular.
+        servicioId: { type: string, format: uuid }
+        calificacion: { type: integer, minimum: 1, maximum: 5 }
+        comentario: { type: [string, 'null'], maxLength: 2000 }
+        fotos:
+          type: array
+          maxItems: 3
+          uniqueItems: true
+          default: []
+          items: { type: string, format: uuid, description: Id de un archivo listo del autor. }
+
+    ResenaPropia:
+      type: object
+      required: [id, servicioId, calificacion, comentario, fotos, estado, motivoEstado, creadoEn, actualizadoEn, publicadaEn]
+      properties:
+        id: { type: string, format: uuid }
+        servicioId: { type: string, format: uuid }
+        calificacion: { type: integer, minimum: 1, maximum: 5 }
+        comentario: { type: [string, 'null'], maxLength: 2000 }
+        fotos:
+          type: array
+          maxItems: 3
+          items: { type: string, format: uuid }
+          description: Referencias propias; el estado de la reseña determina si las variantes son públicas.
+        estado: { type: string, enum: [en_revision, publicada, oculta] }
+        motivoEstado: { type: [string, 'null'] }
+        creadoEn: { type: string, format: date-time }
+        actualizadoEn: { type: string, format: date-time }
+        publicadaEn: { type: [string, 'null'], format: date-time }
+
+    VistoBuenoPropio:
+      type: object
+      required: [id, servicioId, creadoEn, cuentaParaRanking]
+      properties:
+        id: { type: string, format: uuid, description: UUIDv7 asignado por el servidor. }
+        servicioId: { type: string, format: uuid }
+        creadoEn: { type: string, format: date-time }
+        cuentaParaRanking: { type: boolean, description: Se otorgó con nivel 2 o superior. }
+
+    Categoria:
+      type: object
+      required: [id, nombre, icono, utilEnEmergencia, orden]
+      properties:
+        id: { type: string, pattern: '^[a-z0-9-]{2,40}$', examples: [gasfiteria] }
+        nombre: { type: string }
+        icono: { type: string, description: Nombre de un ícono de Material. }
+        utilEnEmergencia: { type: boolean }
+        orden: { type: integer }
+
+    GuardarProveedor:
+      type: object
+      additionalProperties: false
+      required: [nombrePublico]
+      properties:
+        nombrePublico: { type: string, minLength: 2, maxLength: 60 }
+        descripcion: { type: [string, 'null'], maxLength: 500 }
+
+    Proveedor:
+      type: object
+      required: [id, nombrePublico, descripcion, actualizadoEn]
+      properties:
+        id: { type: string, format: uuid }
+        nombrePublico: { type: string }
+        descripcion: { type: [string, 'null'] }
+        actualizadoEn: { type: string, format: date-time }
+
+    PerfilDeProveedor:
+      allOf:
+        - $ref: '#/components/schemas/Proveedor'
+        - type: object
+          required: [servicios]
+          properties:
+            servicios:
+              type: array
+              items: { $ref: '#/components/schemas/Servicio' }
+
+    UbicacionDeServicio:
+      type: object
+      additionalProperties: false
+      required: [lat, lng]
+      description: |
+        En la entrada es la ubicación exacta privada para buscar por radio.
+        En las respuestas es solo la copia pública, redondeada a 3 decimales salvo
+        aceptación explícita de muestraUbicacionExacta para un local a la calle.
+      properties:
+        lat: { type: number, minimum: -90, maximum: 90 }
+        lng: { type: number, minimum: -180, maximum: 180 }
+
+    DatosDeServicio:
+      type: object
+      required: [categoriaId, titulo, ubicacion]
+      properties:
+        categoriaId: { type: string, pattern: '^[a-z0-9-]{2,40}$' }
+        titulo: { type: string, minLength: 3, maxLength: 120 }
+        descripcion: { type: [string, 'null'], maxLength: 2000 }
+        ubicacion: { $ref: '#/components/schemas/UbicacionDeServicio' }
+        muestraUbicacionExacta:
+          type: boolean
+          default: false
+          description: Aceptación explícita para publicar la posición exacta del local; desactivada por defecto.
+        radioCoberturaM: { type: integer, minimum: 100, maximum: 20000, default: 2000 }
+        disponibleEnEmergencia: { type: boolean, default: false }
+        atributos:
+          type: object
+          additionalProperties: true
+          default: {}
+          description: Objeto JSON de hasta 4096 bytes serializado en UTF-8.
+
+    NuevoServicio:
+      allOf:
+        - $ref: '#/components/schemas/DatosDeServicio'
+        - type: object
+          required: [id]
+          properties:
+            id:
+              type: string
+              format: uuid
+              pattern: '^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-7[0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$'
+              description: UUIDv7 generado en el celular.
+      unevaluatedProperties: false
+
+    EditarServicio:
+      allOf:
+        - $ref: '#/components/schemas/DatosDeServicio'
+        - type: object
+          required: [versionVista]
+          properties:
+            versionVista: { type: integer, minimum: 1 }
+      unevaluatedProperties: false
+
+    ServicioCercano:
+      allOf:
+        - $ref: '#/components/schemas/Servicio'
+        - type: object
+          required: [distanciaMetros]
+          properties:
+            distanciaMetros:
+              type: integer
+              minimum: 0
+              maximum: 20000
+              multipleOf: 50
+
+    PaginaDeServicios:
+      type: object
+      required: [datos, siguienteCursor]
+      properties:
+        datos:
+          type: array
+          maxItems: 50
+          items: { $ref: '#/components/schemas/ServicioCercano' }
+        siguienteCursor: { type: [string, 'null'], maxLength: 512 }
+
+    Servicio:
+      type: object
+      required:
+        [id, proveedorId, zonaId, categoriaId, titulo, descripcion, ubicacion, radioCoberturaM,
+         disponibleEnEmergencia, atributos, totalResenas, promedio, puntajeRanking,
+         vistosBuenosDeLaZona, version, creadoEn, actualizadoEn, eliminadoEn]
+      properties:
+        id: { type: string, format: uuid }
+        proveedorId: { type: string, format: uuid }
+        zonaId: { type: string, format: uuid }
+        categoriaId: { type: string }
+        titulo: { type: string }
+        descripcion: { type: [string, 'null'] }
+        ubicacion: { $ref: '#/components/schemas/UbicacionDeServicio' }
+        radioCoberturaM: { type: integer, minimum: 100, maximum: 20000 }
+        disponibleEnEmergencia: { type: boolean }
+        atributos: { type: object, additionalProperties: true }
+        totalResenas: { type: integer, minimum: 0 }
+        promedio: { type: number, minimum: 0, maximum: 5 }
+        puntajeRanking: { type: number, minimum: 0, maximum: 5 }
+        vistosBuenosDeLaZona: { type: integer, minimum: 0 }
+        version: { type: integer, minimum: 1 }
+        creadoEn: { type: string, format: date-time }
+        actualizadoEn: { type: string, format: date-time }
+        eliminadoEn: { type: [string, 'null'], format: date-time }
 
     TipoPublicacion:
       type: string

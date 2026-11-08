@@ -9,6 +9,9 @@ import { APP_FILTER, APP_GUARD, APP_INTERCEPTOR, APP_PIPE } from '@nestjs/core';
 import type { Kysely } from 'kysely';
 import { ProblemDetailsFilter } from './api/problem-details.filter.js';
 import { createValidationPipe } from './api/validation.js';
+import { AccountAccess } from './auth/account-access.js';
+import { PersonalDataRegistry } from './privacy/personal-data.registry.js';
+import { SharedPersonalData } from './privacy/shared-personal-data.js';
 import { AuthGuard } from './auth/auth.guard.js';
 import { AuthorizationGuard } from './auth/authorization.guard.js';
 import { JwksController } from './auth/jwks.controller.js';
@@ -21,6 +24,8 @@ import { HealthController } from './health/health.controller.js';
 import { IDEMPOTENCY_STORE } from './idempotency/idempotency-store.js';
 import { PostgresIdempotencyStore } from './idempotency/idempotency-store.postgres.js';
 import { IdempotencyInterceptor } from './idempotency/idempotency.interceptor.js';
+import { ContentModerationRegistry } from './moderation/content-moderation.js';
+import { PublicationPolicy } from './moderation/publication-policy.js';
 import { OUTBOX_WRITER } from './outbox/outbox.js';
 import { PostgresOutboxWriter } from './outbox/outbox.postgres.js';
 import { JOB_QUEUE } from './queues/job-queue.js';
@@ -56,11 +61,16 @@ function queueProvider(worker = false) {
   providers: [
     { provide: CLOCK, useValue: systemClock },
     TokenService,
+    AccountAccess,
+    PersonalDataRegistry,
+    ContentModerationRegistry,
+    PublicationPolicy,
+    SharedPersonalData,
     {
       provide: IDEMPOTENCY_STORE,
-      inject: [KYSELY, APP_CONFIG],
-      useFactory: (db: Kysely<SharedTables>, config: AppConfig) =>
-        new PostgresIdempotencyStore(db, config.IDEMPOTENCY_RETENTION_HOURS),
+      inject: [KYSELY, APP_CONFIG, AccountAccess],
+      useFactory: (db: Kysely<SharedTables>, config: AppConfig, accounts: AccountAccess) =>
+        new PostgresIdempotencyStore(db, config.IDEMPOTENCY_RETENTION_HOURS, accounts),
     },
     { provide: OUTBOX_WRITER, useClass: PostgresOutboxWriter },
     queueProvider(),
@@ -81,7 +91,18 @@ function queueProvider(worker = false) {
     { provide: APP_GUARD, useClass: AuthorizationGuard },
     { provide: APP_INTERCEPTOR, useClass: IdempotencyInterceptor },
   ],
-  exports: [CLOCK, TokenService, IDEMPOTENCY_STORE, OUTBOX_WRITER, JOB_QUEUE, JobHandlerRegistry],
+  exports: [
+    CLOCK,
+    TokenService,
+    AccountAccess,
+    PersonalDataRegistry,
+    ContentModerationRegistry,
+    PublicationPolicy,
+    IDEMPOTENCY_STORE,
+    OUTBOX_WRITER,
+    JOB_QUEUE,
+    JobHandlerRegistry,
+  ],
 })
 export class SharedModule implements NestModule {
   configure(consumer: MiddlewareConsumer): void {
