@@ -16,7 +16,7 @@
 | 2 | Búsqueda por cercanía y texto | Lista para revisión | JDiazD33 | — |
 | 3 | Reseñas, Visto Bueno y ranking | Lista para revisión | JDiazD33 | — |
 | 4 | Identidad del piloto: niveles, zona y privacidad | Lista para revisión | JDiazD33 | [Entrega](parte-4.md) |
-| 5 | Moderación | Pendiente | Por asignar | — |
+| 5 | Moderación | Lista para revisión | JDiazD33 | [Entrega](parte-5.md) |
 
 Estados posibles: **Pendiente**, **En curso**, **Lista para revisión** (código entregado,
 comprobaciones y aprobación a cargo del supervisor) o **Hecha** (integrada en `main`).
