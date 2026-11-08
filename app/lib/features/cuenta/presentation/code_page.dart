@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:vecinal/core/router/routes.dart';
+import 'package:vecinal/core/ui/wrapping_app_bar.dart';
 import 'package:vecinal/features/cuenta/data/providers.dart';
 import 'package:vecinal/features/cuenta/domain/auth_repository.dart';
 import 'package:vecinal/features/cuenta/domain/auth_state.dart';
@@ -117,7 +118,7 @@ class _CodePageState extends ConsumerState<CodePage> {
     final texts = AppLocalizations.of(context);
 
     return Scaffold(
-      appBar: AppBar(title: Text(texts.verifyCodeTitle)),
+      appBar: wrappingAppBar(context, texts.verifyCodeTitle),
       body: Padding(
         padding: const EdgeInsets.all(24),
         child: Column(

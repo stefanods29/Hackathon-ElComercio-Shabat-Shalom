@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:vecinal/core/di/providers.dart';
 import 'package:vecinal/core/router/routes.dart';
+import 'package:vecinal/core/theme/accessible_theme.dart';
 import 'package:vecinal/core/time/time_ago.dart';
 import 'package:vecinal/core/ui/connection_banner.dart';
 import 'package:vecinal/core/ui/image_policy.dart';
@@ -66,7 +67,7 @@ class _DirectoryPageState extends ConsumerState<DirectoryPage> {
     final categories = ref.watch(categoriesProvider).value ?? const <Category>[];
     final synced = ref.watch(syncStatusProvider).value?.lastSyncedAt;
     return Scaffold(
-      appBar: AppBar(title: Text(t.directoryTitle)),
+      appBar: AppBar(title: Text(t.directoryTitle, maxLines: 2, overflow: TextOverflow.clip)),
       body: SafeArea(
         child: ListView(
           padding: const EdgeInsets.fromLTRB(20, 8, 20, 32),
@@ -99,7 +100,7 @@ class _DirectoryPageState extends ConsumerState<DirectoryPage> {
                   for (final category in categories) ...[
                     const SizedBox(width: 8),
                     FilterChip(
-                      avatar: Icon(_categoryIcon(category.icon), size: 18),
+                      avatar: Icon(categoryIcon(category.icon), size: 18),
                       showCheckmark: false,
                       label: Text(category.name),
                       selected: _category == category.id,
@@ -176,14 +177,20 @@ class _DirectoryPageState extends ConsumerState<DirectoryPage> {
       ),
     );
   }
-
-  IconData _categoryIcon(String name) => switch (name) {
-    'plumbing' => Icons.plumbing,
-    'electrical_services' => Icons.electrical_services,
-    'school' => Icons.school,
-    _ => Icons.handyman_outlined,
-  };
 }
+
+IconData categoryIcon(String name) => switch (name) {
+  'plumbing' => Icons.plumbing,
+  'electrical_services' => Icons.electrical_services,
+  'school' => Icons.school,
+  'carpenter' => Icons.carpenter_outlined,
+  'key' => Icons.key_outlined,
+  'content_cut' => Icons.content_cut,
+  'elderly' => Icons.elderly,
+  'pets' => Icons.pets,
+  'local_shipping' => Icons.local_shipping_outlined,
+  _ => Icons.handyman_outlined,
+};
 
 class ServiceTile extends ConsumerWidget {
   const ServiceTile({super.key, required this.service});
@@ -192,6 +199,11 @@ class ServiceTile extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final t = AppLocalizations.of(context);
     final theme = Theme.of(context);
+    final category = ref
+        .watch(categoriesProvider)
+        .value
+        ?.where((category) => category.id == service.categoryId)
+        .firstOrNull;
     final muted = theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.onSurfaceVariant);
     return Card(
       clipBehavior: Clip.antiAlias,
@@ -220,7 +232,15 @@ class ServiceTile extends ConsumerWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(service.title, style: theme.textTheme.titleLarge),
+                        Wrap(
+                          spacing: 8,
+                          runSpacing: 4,
+                          crossAxisAlignment: WrapCrossAlignment.center,
+                          children: [
+                            Text(service.title, style: theme.textTheme.titleLarge),
+                            if (category != null) _CategoryLabel(category: category),
+                          ],
+                        ),
                         const SizedBox(height: 4),
                         Text(
                           t.approximateDistance(
@@ -243,7 +263,7 @@ class ServiceTile extends ConsumerWidget {
                 children: [
                   _Fact(
                     icon: Icons.star_rounded,
-                    color: const Color(0xFFB7791F),
+                    color: AccessibleTheme.ratingColor(theme.colorScheme),
                     text: t.serviceRating(
                       service.averageRating.toStringAsFixed(1),
                       service.reviewCount,
@@ -257,25 +277,59 @@ class ServiceTile extends ConsumerWidget {
                 ],
               ),
               const SizedBox(height: 8),
-              Row(
-                children: [
-                  SubmissionStatusChip(status: service.submissionStatus),
-                  const Spacer(),
-                  TextButton(
-                    onPressed: () => context.push('/servicios/${service.id}'),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text(t.viewService),
-                        const SizedBox(width: 4),
-                        const Icon(Icons.arrow_forward, size: 18),
-                      ],
+              SizedBox(
+                width: double.infinity,
+                child: Wrap(
+                  alignment: WrapAlignment.spaceBetween,
+                  crossAxisAlignment: WrapCrossAlignment.center,
+                  children: [
+                    SubmissionStatusChip(status: service.submissionStatus),
+                    TextButton(
+                      onPressed: () => context.push('/servicios/${service.id}'),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Flexible(child: Text(t.viewService)),
+                          const SizedBox(width: 4),
+                          const Icon(Icons.arrow_forward, size: 18),
+                        ],
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ],
           ),
+        ),
+      ),
+    );
+  }
+}
+
+class _CategoryLabel extends StatelessWidget {
+  const _CategoryLabel({required this.category});
+  final Category category;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final scheme = theme.colorScheme;
+    return DecoratedBox(
+      decoration: ShapeDecoration(color: scheme.secondaryContainer, shape: const StadiumBorder()),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          spacing: 6,
+          children: [
+            Icon(categoryIcon(category.icon), size: 16, color: scheme.onSecondaryContainer),
+            Flexible(
+              child: Text(
+                category.name,
+                style: theme.textTheme.labelMedium?.copyWith(color: scheme.onSecondaryContainer),
+              ),
+            ),
+          ],
         ),
       ),
     );

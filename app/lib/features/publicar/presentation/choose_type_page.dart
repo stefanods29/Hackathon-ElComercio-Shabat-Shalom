@@ -2,10 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:vecinal/core/router/routes.dart';
+import 'package:vecinal/core/theme/accessible_theme.dart';
 import 'package:vecinal/core/ui/simple_mode.dart';
 import 'package:vecinal/features/publicar/domain/suggestions.dart';
 import 'package:vecinal/features/solidaridad/domain/post.dart';
 import 'package:vecinal/l10n/app_localizations.dart';
+
+const _tilePadding = 18.0;
+const _tileLabelSize = 17.0;
 
 /// Pantalla de elección de tipo de publicación (toque 2 del flujo).
 class ChooseTypePage extends ConsumerWidget {
@@ -16,6 +20,7 @@ class ChooseTypePage extends ConsumerWidget {
     final texts = AppLocalizations.of(context);
     final simpleModeAsync = ref.watch(simpleModeProvider);
     final scale = simpleModeAsync.value == true ? simpleModeTextScale : 1.0;
+    final labelSize = _tileLabelSize * scale;
 
     return Scaffold(
       appBar: AppBar(
@@ -33,25 +38,36 @@ class ChooseTypePage extends ConsumerWidget {
           _TypeTile(
             icon: Icons.handyman_outlined,
             label: texts.offerService,
+            labelSize: labelSize,
             highlighted: true,
             onTap: () => context.push(Routes.publishService),
           ),
-          const SizedBox(height: 8),
-          GridView.count(
-            crossAxisCount: 2,
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            mainAxisSpacing: 4,
-            crossAxisSpacing: 12,
-            childAspectRatio: 1.25,
-            children: [
-              for (final suggestion in publishSuggestions)
-                _TypeTile(
-                  icon: _iconForType(suggestion.type),
-                  label: suggestion.type.apiValue.toUpperCase(),
-                  onTap: () => context.push('${Routes.publish}/${suggestion.type.apiValue}'),
-                ),
-            ],
+          const SizedBox(height: 12),
+          LayoutBuilder(
+            builder: (context, constraints) {
+              const gap = 12.0;
+              final width = constraints.maxWidth;
+              final columnWidth = (width - gap) / 2;
+              final scaledLabel = MediaQuery.textScalerOf(context).scale(labelSize);
+              final minTileWidth = 2 * _tilePadding + scaledLabel * 7;
+              final tileWidth = columnWidth >= minTileWidth ? columnWidth : width;
+              return Wrap(
+                spacing: gap,
+                runSpacing: gap,
+                children: [
+                  for (final suggestion in publishSuggestions)
+                    SizedBox(
+                      width: tileWidth,
+                      child: _TypeTile(
+                        icon: _iconForType(suggestion.type),
+                        label: suggestion.type.apiValue.toUpperCase(),
+                        labelSize: labelSize,
+                        onTap: () => context.push('${Routes.publish}/${suggestion.type.apiValue}'),
+                      ),
+                    ),
+                ],
+              );
+            },
           ),
         ],
       ),
@@ -80,26 +96,59 @@ class _TypeTile extends StatelessWidget {
   const _TypeTile({
     required this.icon,
     required this.label,
+    required this.labelSize,
     required this.onTap,
     this.highlighted = false,
   });
   final IconData icon;
   final String label;
+  final double labelSize;
   final VoidCallback onTap;
   final bool highlighted;
 
   @override
   Widget build(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
-    final foreground = highlighted ? scheme.onPrimary : scheme.primary;
+    final theme = Theme.of(context);
+    final scheme = theme.colorScheme;
+    final dark = scheme.brightness == Brightness.dark;
+    final (background, textColor, iconBackground, iconColor) = switch ((dark, highlighted)) {
+      (true, true) => (
+        scheme.primaryContainer,
+        scheme.onPrimaryContainer,
+        scheme.primary,
+        scheme.onPrimary,
+      ),
+      (true, false) => (
+        scheme.surfaceContainerHigh,
+        scheme.onSurface,
+        scheme.secondaryContainer,
+        scheme.onSecondaryContainer,
+      ),
+      (false, true) => (
+        scheme.primary,
+        scheme.onPrimary,
+        scheme.onPrimary.withValues(alpha: 0.2),
+        scheme.onPrimary,
+      ),
+      (false, false) => (
+        theme.cardTheme.color,
+        scheme.onSurface,
+        scheme.primaryContainer,
+        scheme.onPrimaryContainer,
+      ),
+    };
     return Card(
-      color: highlighted ? scheme.primary : null,
-      shadowColor: highlighted ? scheme.primary.withValues(alpha: 0.5) : null,
+      color: background,
+      margin: EdgeInsets.zero,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(AccessibleTheme.radiusCard),
+        side: BorderSide(color: highlighted ? scheme.primary : scheme.outlineVariant),
+      ),
       clipBehavior: Clip.antiAlias,
       child: InkWell(
         onTap: onTap,
         child: Padding(
-          padding: const EdgeInsets.all(18),
+          padding: const EdgeInsets.all(_tilePadding),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -107,18 +156,15 @@ class _TypeTile extends StatelessWidget {
               Container(
                 width: 46,
                 height: 46,
-                decoration: BoxDecoration(
-                  color: foreground.withValues(alpha: highlighted ? 0.2 : 0.1),
-                  shape: BoxShape.circle,
-                ),
-                child: Icon(icon, color: foreground),
+                decoration: BoxDecoration(color: iconBackground, shape: BoxShape.circle),
+                child: Icon(icon, color: iconColor),
               ),
               const SizedBox(height: 14),
               Text(
                 label,
                 style: TextStyle(
-                  color: highlighted ? scheme.onPrimary : scheme.onSurface,
-                  fontSize: 17,
+                  color: textColor,
+                  fontSize: labelSize,
                   fontWeight: FontWeight.w700,
                 ),
               ),

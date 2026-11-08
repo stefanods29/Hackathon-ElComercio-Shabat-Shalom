@@ -366,7 +366,6 @@
   "pushPending": "Guardado en tu celular. Volveremos a intentarlo cuando haya conexión.",
   "pushHeading": "Mantente al tanto de tu barrio",
   "postDetailTitle": "Publicación",
-  "postDetailBack": "Volver al muro",
   "pushDisabled": "Los avisos no están habilitados en esta versión.",
   "pushCheckAgain": "Comprobar de nuevo",
   "pushLoading": "Preparando avisos…",
@@ -581,6 +580,18 @@
   "publicApproximateLocation": "Ubicación pública aproximada; no es la ubicación exacta.",
   "offerService": "Ofrezco un servicio",
   "serviceUnavailable": "Este servicio no está disponible en tu celular. Revisa el directorio cuando tengas conexión.",
+  "providerNeighborSince": "Vecino desde {date}",
+  "@providerNeighborSince": {
+    "placeholders": {
+      "date": {"type": "String"}
+    }
+  },
+  "providerServiceCount": "{count, plural, =0{Sin servicios} =1{1 servicio} other{{count} servicios}}",
+  "@providerServiceCount": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
   "providerTitle": "Perfil del proveedor",
   "providerUnavailable": "El perfil no está disponible en tu celular.",
   "viewProvider": "Ver perfil del proveedor",
@@ -710,6 +721,15 @@
   "wallLatest": "Lo último en tu zona",
   "moreOptions": "Más opciones",
   "practiceHelp": "Lo que hagas aquí se queda en datos de práctica; no se envía a vecinos ni modifica tu cuenta.",
+  "tutorialPrevious": "Anterior",
+  "tutorialNext": "Siguiente",
+  "tutorialProgress": "Paso {current} de {total}",
+  "@tutorialProgress": {
+    "placeholders": {
+      "current": {"type": "int"},
+      "total": {"type": "int"}
+    }
+  },
   "finishTutorial": "Terminar tutorial",
   "tutorialDirectoryStep": "Busca gasfiter, incluso sin tildes. El directorio muestra distancia aproximada y recomendaciones.",
   "tutorialReviewPilotStep": "Califica un servicio con estrellas. Tu reseña queda en revisión antes de publicarse.",
@@ -828,6 +848,7 @@
   "emergencyResources": "Recursos",
   "emergencyUsefulServices": "Servicios útiles en emergencia",
   "emergencyContacts": "Mis contactos de emergencia",
+  "emergencyContactsTitle": "Contactos de emergencia",
   "emergencyMyRequest": "Mi pedido",
   "emergencyImages": "Cargar imágenes",
   "emergencyImagesHelp": "Apagadas por defecto en emergencia para ahorrar datos y batería. Encenderlas puede usar datos móviles.",

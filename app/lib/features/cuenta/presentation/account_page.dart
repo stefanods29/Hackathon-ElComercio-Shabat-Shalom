@@ -58,7 +58,7 @@ class AccountPage extends ConsumerWidget {
                   _Item(
                     icon: Icons.emergency_outlined,
                     title: texts.emergencyDashboard,
-                    color: Theme.of(context).colorScheme.error,
+                    destructive: true,
                     onTap: () => context.go(Routes.emergencyDashboard),
                   ),
                 ],
@@ -172,7 +172,7 @@ class AccountPage extends ConsumerWidget {
                     icon: Icons.phone_missed,
                     title: texts.lostPhone,
                     subtitle: texts.lostPhoneSubtitle,
-                    color: Theme.of(context).colorScheme.error,
+                    destructive: true,
                     onTap: () => _confirmLostPhone(context, ref),
                   ),
                 ],
@@ -361,25 +361,26 @@ class _Item extends StatelessWidget {
     this.subtitle,
     this.trailing,
     this.onTap,
-    this.color,
+    this.destructive = false,
   });
   final IconData icon;
   final String title;
   final String? subtitle;
   final Widget? trailing;
   final VoidCallback? onTap;
-  final Color? color;
+  final bool destructive;
 
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
-    final tint = color ?? scheme.primary;
+    final background = destructive ? scheme.errorContainer : scheme.primaryContainer;
+    final foreground = destructive ? scheme.onErrorContainer : scheme.onPrimaryContainer;
     return ListTile(
       leading: Container(
         width: 42,
         height: 42,
-        decoration: BoxDecoration(color: tint.withValues(alpha: 0.1), shape: BoxShape.circle),
-        child: Icon(icon, color: tint, size: 22),
+        decoration: BoxDecoration(color: background, shape: BoxShape.circle),
+        child: Icon(icon, color: foreground, size: 22),
       ),
       title: Text(title, style: const TextStyle(fontWeight: FontWeight.w600)),
       subtitle: subtitle == null ? null : Text(subtitle!),

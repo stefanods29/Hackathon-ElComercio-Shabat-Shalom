@@ -31,7 +31,7 @@ class WallPage extends ConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(texts.wallTitle),
+        title: Text(texts.wallTitle, maxLines: 2, overflow: TextOverflow.clip),
         actions: [
           IconButton(
             tooltip: texts.mapTitle,
@@ -58,8 +58,8 @@ class WallPage extends ConsumerWidget {
                     constraints: const BoxConstraints(minWidth: 20, minHeight: 20),
                     child: Text(
                       '${syncStatus.pendingUploads}',
-                      style: const TextStyle(
-                        color: Colors.white,
+                      style: TextStyle(
+                        color: theme.colorScheme.onError,
                         fontSize: 10,
                         fontWeight: FontWeight.bold,
                       ),
@@ -157,8 +157,12 @@ class WallPage extends ConsumerWidget {
                         Expanded(
                           child: FilledButton(
                             style: FilledButton.styleFrom(
-                              backgroundColor: theme.colorScheme.error,
-                              foregroundColor: theme.colorScheme.onError,
+                              backgroundColor: theme.brightness == Brightness.dark
+                                  ? theme.colorScheme.errorContainer
+                                  : theme.colorScheme.error,
+                              foregroundColor: theme.brightness == Brightness.dark
+                                  ? theme.colorScheme.onErrorContainer
+                                  : theme.colorScheme.onError,
                               padding: const EdgeInsets.all(16),
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(20),

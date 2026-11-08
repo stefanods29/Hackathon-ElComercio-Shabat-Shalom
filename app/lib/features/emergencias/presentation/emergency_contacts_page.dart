@@ -12,7 +12,7 @@ class EmergencyContactsPage extends StatelessWidget {
   const EmergencyContactsPage({super.key});
   @override
   Widget build(BuildContext context) => EmergencyScopeGate(
-    title: AppLocalizations.of(context).emergencyContacts,
+    title: AppLocalizations.of(context).emergencyContactsTitle,
     builder: (scope) => _Contacts(scope: scope),
   );
 }
@@ -60,7 +60,7 @@ class _ContactsState extends ConsumerState<_Contacts> {
     });
     final canEdit = repository != null && !contacts.isLoading && !contacts.hasError;
     return EmergencyLayout(
-      title: t.emergencyContacts,
+      title: t.emergencyContactsTitle,
       children: [
         Text(widget.scope.practice ? t.emergencyPracticeContacts : t.emergencyContactsPrivacy),
         if (repository == null) Text(t.emergencyContactsUnavailable),

@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:vecinal/core/di/providers.dart';
 import 'package:vecinal/core/ui/notice_card.dart';
 import 'package:vecinal/core/ui/spaced.dart';
+import 'package:vecinal/core/ui/wrapping_app_bar.dart';
 import 'package:vecinal/features/emergencias/data/providers.dart';
 import 'package:vecinal/features/emergencias/domain/emergency_directory.dart';
 import 'package:vecinal/l10n/app_localizations.dart';
@@ -22,7 +23,7 @@ class EmergencyDirectoryPage extends ConsumerWidget {
     final texts = AppLocalizations.of(context);
     final directory = ref.watch(emergencyDirectoryProvider);
     return Scaffold(
-      appBar: AppBar(title: Text(texts.emergencyDirectoryTitle)),
+      appBar: wrappingAppBar(context, texts.emergencyDirectoryTitle),
       body: SafeArea(
         child: directory.when(
           data: (value) => _DirectoryList(directory: value),

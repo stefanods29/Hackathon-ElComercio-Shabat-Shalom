@@ -1,7 +1,11 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:vecinal/app.dart';
 import 'package:vecinal/core/di/providers.dart';
+import 'package:vecinal/core/router/router.dart';
 import 'package:vecinal/core/sync/sync_service.dart';
 import 'package:vecinal/core/theme/accessible_theme.dart';
 import 'package:vecinal/features/directorio/data/in_memory_service_directory_repository.dart';
@@ -34,6 +38,28 @@ void main() {
     await tester.tap(find.widgetWithText(FilterChip, 'Útil en emergencia'));
     await tester.pumpAndSettle();
     expect(find.text('Gasfitero a domicilio'), findsOneWidget);
+  });
+
+  testWidgets('el perfil de práctica muestra reputación y categoría del servicio', (tester) async {
+    tester.view.physicalSize = const Size(390, 700);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+    await tester.pumpWidget(const ProviderScope(child: VecinalApp()));
+    await tester.pumpAndSettle();
+    final container = ProviderScope.containerOf(tester.element(find.byType(VecinalApp)));
+    final router = container.read(routerProvider);
+    unawaited(router.push<void>('/proveedores/01970000-0000-7000-8000-000000000a23'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Noé Arrayán'), findsOneWidget);
+    expect(find.textContaining('Vecino desde'), findsOneWidget);
+    expect(find.text('1 servicio'), findsOneWidget);
+    expect(find.text('Visto Bueno de tu zona: 5'), findsWidgets);
+    expect(find.text('Compartir'), findsOneWidget);
+    expect(find.text('Denunciar'), findsOneWidget);
+    await tester.scrollUntilVisible(find.text('Cerrajería'), 160);
+    expect(find.text('Apertura de puertas'), findsOneWidget);
+    expect(tester.takeException(), isNull);
   });
 
   testWidgets('vacío sin señal explica descargar una vez', (tester) async {
