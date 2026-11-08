@@ -77,9 +77,10 @@ class OperationalEmergencyRepository implements EmergencyRepository {
     ZoneCoverage? coverage;
     var requests = const <OwnHelpRequest>[];
     var resources = const <CriticalResource>[];
-    var ready = false;
+    var coverageLoaded = false;
+    var requestsLoaded = false;
     void emit() {
-      if (!ready || listener.isClosed) return;
+      if (!coverageLoaded || !requestsLoaded || listener.isClosed) return;
       final now = _clock();
       final verified =
           coverage != null &&
@@ -101,11 +102,12 @@ class OperationalEmergencyRepository implements EmergencyRepository {
     final subscriptions = <StreamSubscription<Object?>>[
       _watchCoverage().listen((value) {
         coverage = value;
+        coverageLoaded = true;
         emit();
       }, onError: listener.addError),
       _watchRequests().listen((value) {
         requests = value;
-        ready = true;
+        requestsLoaded = true;
         emit();
       }, onError: listener.addError),
       _offerChanges.stream.listen((_) => emit()),
