@@ -7,6 +7,7 @@ solo importan su `index.ts` o consumen eventos del outbox.
 |---|---|
 | `GET /v1/categorias` | Sesión, categorías ordenadas por `orden` e `id` |
 | `PUT /v1/yo/proveedor` | Sesión, zona, nivel 1, `Idempotency-Key` |
+| `GET /v1/servicios` | Sesión y zona; cercanía, categoría, texto, emergencia y cursor |
 | `POST /v1/servicios` | Perfil vigente de la zona, nivel 1; 201 al crear, 200 para un id propio existente |
 | `PUT /v1/servicios/{id}` | Dueño, `versionVista`, `Idempotency-Key` |
 | `DELETE /v1/servicios/{id}` | Dueño, retiro lógico idempotente, `Idempotency-Key` |
@@ -51,7 +52,23 @@ en `powersync`, con `SELECT` para `powersync_rol` si existe. Siembra seis catego
 texto e iconos Material. `scripts/seed-data.ts` añade tres servicios ficticios en las dos zonas,
 sin publicar coordenadas exactas y sin duplicarlos al repetir la semilla.
 
-La búsqueda de servicios, los índices de texto y `busqueda` quedan para la Parte 2. Los agregados
-se crean en cero; la Parte 3 implementará su recálculo. El límite de esta entrega, las pruebas
-escritas y la verificación pendiente están en
-[`docs/fase-1/lote-b-directorio-reputacion-y-moderacion/parte-1.md`](../../../../docs/fase-1/lote-b-directorio-reputacion-y-moderacion/parte-1.md).
+`GET /v1/servicios` busca exclusivamente servicios y proveedores vigentes de la zona del token.
+Usa `ST_DWithin` con la ubicación privada, texto en español sin tildes sobre título y descripción,
+y similitud de palabras sobre el título para errores leves. El umbral de trigramas es 0,3 dentro
+de la transacción y se restaura al finalizar. No guarda el punto de búsqueda y solo proyecta
+campos públicos y la distancia redondeada a múltiplos de 50 m.
+
+El orden es `vistos_buenos_de_la_zona DESC, puntaje_ranking DESC, id ASC`. El cursor `base64url`
+lleva únicamente esos valores (`v`, `p`, `id`); no busca la fila anterior, por lo que sigue siendo
+usable si esta se retira. Debe conservar los filtros. No ofrece una instantánea ante cambios de
+ranking entre páginas.
+
+`202611080110_directorio_busqueda` añade `sin_tildes` inmutable, el `tsvector` generado
+`busqueda`, dos índices GIN de texto y un índice de zona/orden. Reutiliza el GiST existente y no
+añade tablas a `powersync`. Los agregados siguen en cero hasta el recálculo de la Parte 3.
+La consulta de `EXPLAIN` para el supervisor está en
+[`docs/fase-1/evidencias/busqueda.md`](../../../../docs/fase-1/evidencias/busqueda.md), sin salidas inventadas.
+
+Las entregas y su cobertura están en
+[Parte 1](../../../../docs/fase-1/lote-b-directorio-reputacion-y-moderacion/parte-1.md) y
+[Parte 2](../../../../docs/fase-1/lote-b-directorio-reputacion-y-moderacion/parte-2.md).
