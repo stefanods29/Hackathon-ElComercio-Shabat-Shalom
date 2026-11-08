@@ -14,7 +14,7 @@
 ## 2. Parte 2 · Directorio de emergencia sin conexión
 
 - [ ] 2.1 Escribir `contracts/directorio-emergencia.schema.json` (archivo de distrito e índice) y documentarlo en `contracts/README.md`; verificar que el esquema es JSON válido y que las pruebas de 2.2 y 2.3 lo usan
-- [ ] 2.2 Publicar `infra/cdn/publico/emergencia/lince-demo.json` (116, 105 y 106 con fuente oficial y fecha) y `indice.json`, con un script de `infra/cdn` que recalcula el índice; verificar con `npm test` en `infra/cdn` que cada hash coincide
+- [x] 2.2 Publicar `infra/cdn/publico/emergencia/lince-demo.json` (116, 105 y 106 con fuente oficial y fecha) y `indice.json`, con un script de `infra/cdn` que recalcula el índice; verificar con `npm test` en `infra/cdn` que cada hash coincide
 - [ ] 2.3 Capa de datos en `features/emergencias/data/`: índice, descarga sin token, SHA-256, validación, reemplazo atómico, revisión como máximo diaria y umbrales de antigüedad por tipo; verificar con pruebas unitarias (descarga corrupta, sin cambios, dato viejo) y con una prueba que valida los archivos publicados
 - [ ] 2.4 Copia de respaldo `assets/emergencia/respaldo.json` y pantalla básica `/emergencia` con fuente y fecha de cada dato; verificar con una prueba de widgets sin red que muestra solo el respaldo, con texto al 200 % y objetivos de 48 dp
 - [ ] 2.5 Prueba en un celular en modo avión; registrar el resultado en `docs/fase-1/evidencias/directorio-emergencia.md`
