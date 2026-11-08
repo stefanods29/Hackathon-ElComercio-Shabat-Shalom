@@ -35,6 +35,11 @@ async function validators() {
 
 const json = async (file) => JSON.parse(await readFile(file, "utf8"));
 
+const appBackupPath = path.resolve(
+  path.dirname(fileURLToPath(import.meta.url)),
+  "../../../app/assets/emergencia/respaldo.json",
+);
+
 test("cada distrito publicado cumple el contrato del directorio de emergencia", async () => {
   const { district } = await validators();
   const config = await json(emergencyConfigPath);
@@ -93,5 +98,19 @@ test("no hay archivos de distrito fuera del índice", async () => {
   assert.deepEqual(
     files.filter((file) => !listed.has(file)),
     [],
+  );
+});
+
+test("la copia de respaldo de la app cumple el mismo contrato", async () => {
+  const { district } = await validators();
+  const backup = await json(appBackupPath);
+  assert.equal(
+    district(backup),
+    true,
+    JSON.stringify(district.errors, null, 2),
+  );
+  assert.deepEqual(
+    backup.entradas.map((entry) => entry.telefono),
+    ["116", "105", "106"],
   );
 });
