@@ -59,7 +59,7 @@ class _ZoneScreenState extends State<ZoneScreen> {
                         isSelected: isSelected,
                         onTap: () {
                           setState(() => selectedZone = zone);
-                          context.go('/muro');
+                          context.go('/mapa');
                         },
                       ),
                     );

@@ -53,7 +53,7 @@ class ActionsToReviewScreen extends StatelessWidget {
               ProtoButton(
                 text: 'Volver al muro',
                 icon: Icons.arrow_back,
-                onPressed: () => context.go('/muro'),
+                onPressed: () => context.go('/mapa'),
                 fullWidth: true,
               ),
               const SizedBox(height: 20),
