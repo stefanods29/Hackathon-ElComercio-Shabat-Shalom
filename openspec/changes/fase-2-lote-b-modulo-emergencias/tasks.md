@@ -1,7 +1,7 @@
 Las casillas reflejan implementación, no validación ni aceptación. La rama se escribió sin compilar
 ni probar. En la integración en `main` el módulo compiló, pasó `npm run verify` y la prueba de
-integración del hito H2 por la API (`docs/fase-2/integracion.md`); las tareas de CI siguen abiertas
-hasta verla en verde.
+integración del hito H2 por la API (`docs/fase-2/integracion.md`). La evidencia de 3.3 y 4.3
+corresponde a la verificación local con los comandos de CI.
 
 ## 1. Parte 1 · Eventos
 - [x] 1.1 Definir contrato, cobertura y puerto de alertas oficiales.
@@ -16,12 +16,18 @@ hasta verla en verde.
 ## 3. Parte 3 · Operación
 - [x] 3.1 Implementar habilitaciones, grupos, turnos y asignaciones.
 - [x] 3.2 Implementar escalamiento durable y recuperación de trabajos.
-- [ ] 3.3 Compilar, depurar y verificar tiempos y reintentos en CI.
+- [x] 3.3 Compilar, depurar y verificar tiempos y reintentos en CI.
+  [Pruebas de tiempos y reintentos](../../../backend/test/integration/emergency-escalation.int-spec.ts).
+  Desde `backend/`, `npm run verify` pasó con 246 pruebas y `npm run test:integration` con
+  207 usando PostgreSQL local con PostGIS mediante `DATABASE_URL_ADMIN`.
 
 ## 4. Parte 4 · Recursos
 - [x] 4.1 Implementar reportes, confirmación única y verificación.
 - [x] 4.2 Implementar frescura y agregados con umbral mínimo de tres.
-- [ ] 4.3 Compilar, depurar y verificar concurrencia y supresión en CI.
+- [x] 4.3 Compilar, depurar y verificar concurrencia y supresión en CI.
+  [Pruebas de concurrencia y supresión](../../../backend/test/integration/emergency-resources.int-spec.ts).
+  Desde `backend/`, `npm run verify` pasó con 246 pruebas y `npm run test:integration` con
+  207 usando PostgreSQL local con PostGIS mediante `DATABASE_URL_ADMIN`.
 
 ## 5. Parte 5 · Privacidad y cierre
 - [x] 5.1 Implementar requisitos operativos, auditoría y anonimización por lotes.
