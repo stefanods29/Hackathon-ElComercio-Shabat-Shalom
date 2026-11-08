@@ -58,13 +58,25 @@ jobs:
           name: parche-formato
           path: ${{ runner.temp }}/formato.patch
           if-no-files-found: ignore
-      - run: flutter build apk --debug
+      - name: APK normal (necesita la API) y APK de demostración (modo práctica, sin servidor)
+        run: |
+          mkdir -p build/entrega
+          flutter build apk --debug
+          cp build/app/outputs/flutter-apk/app-debug.apk build/entrega/vecinal-debug.apk
+          flutter build apk --debug -t tool/phone_practice.dart
+          cp build/app/outputs/flutter-apk/app-debug.apk build/entrega/vecinal-demo.apk
       - name: APK para la revisión en dispositivo
         uses: actions/upload-artifact@v7
         with:
           name: app-android-debug
-          path: app/build/app/outputs/flutter-apk/app-debug.apk
+          path: app/build/entrega/vecinal-debug.apk
           retention-days: 7
+      - name: APK de demostración sin servidor
+        uses: actions/upload-artifact@v7
+        with:
+          name: app-android-demo
+          path: app/build/entrega/vecinal-demo.apk
+          retention-days: 30
 
   ios:
     name: Build de iOS (sin firma)
