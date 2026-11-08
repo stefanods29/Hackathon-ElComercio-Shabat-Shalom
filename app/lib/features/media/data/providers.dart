@@ -5,6 +5,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:vecinal/core/di/providers.dart';
+import 'package:vecinal/core/ui/image_policy.dart';
 import 'package:vecinal/features/media/application/photo_queue.dart';
 import 'package:vecinal/features/media/data/api_photo_client.dart';
 import 'package:vecinal/features/media/data/device_photo_picker.dart';
@@ -29,6 +30,7 @@ final photoPickerProvider = Provider<PhotoPicker>((ref) => DevicePhotoPicker());
 final photoTransferProvider = Provider<PhotoTransfer>(
   (ref) => NativePhotoTransfer(
     currentOwner: () => ref.read(mediaCredentialsProvider)?.userId,
+    networkAllowed: () => ref.read(imagesEnabledProvider),
     storageOrigin: Uri.parse(ref.watch(environmentProvider).mediaStorageOrigin),
   ),
 );
@@ -70,12 +72,20 @@ class PhotoController extends AsyncNotifier<List<LocalPhoto>> {
       transfer: transfer,
       api: userId == null
           ? null
-          : ApiPhotoClient(dio: dio, getCredentials: () => ref.read(mediaCredentialsProvider)),
+          : ApiPhotoClient(
+              dio: dio,
+              getCredentials: () =>
+                  ref.read(imagesEnabledProvider) ? ref.read(mediaCredentialsProvider) : null,
+            ),
       onChanged: (photos) {
         if (ref.mounted && generation == _generation) state = AsyncData(photos);
       },
     );
     _queue = queue;
+    ref.listen(imagesEnabledProvider, (_, enabled) {
+      unawaited(queue.setPaused(!enabled));
+    });
+    unawaited(queue.setPaused(!ref.read(imagesEnabledProvider)));
     final subscription = ref.watch(photoConnectionProvider).listen((online) {
       if (online) unawaited(queue.sync());
     });

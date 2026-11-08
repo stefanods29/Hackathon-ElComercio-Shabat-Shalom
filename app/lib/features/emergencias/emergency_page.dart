@@ -3,11 +3,14 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:vecinal/core/di/providers.dart';
+import 'package:vecinal/core/mode/app_mode.dart';
 import 'package:vecinal/core/platform/pilot_platforms.dart';
 import 'package:vecinal/core/router/routes.dart';
+import 'package:vecinal/features/emergencias/data/providers.dart';
 import 'package:vecinal/features/emergencias/presentation/own_help_requests.dart';
 import 'package:vecinal/features/emergencias/public_emergency_directory.dart';
 import 'package:vecinal/features/mapa/presentation/map_view.dart';
+import 'package:vecinal/features/onboarding/practice_mode.dart';
 import 'package:vecinal/l10n/app_localizations.dart';
 
 class EmergencyPage extends ConsumerWidget {
@@ -16,6 +19,10 @@ class EmergencyPage extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final t = AppLocalizations.of(context);
     final directory = ref.watch(publicEmergencyDirectoryProvider);
+    final emergency = ref.watch(appModeProvider) == AppMode.emergency;
+    final boardAvailable =
+        ref.watch(emergencyBoardRepositoryProvider) != null &&
+        ref.watch(practiceModeProvider).asData?.value == false;
     return Scaffold(
       appBar: AppBar(title: Text(t.emergencyTitle)),
       body: SafeArea(
@@ -26,6 +33,24 @@ class EmergencyPage extends ConsumerWidget {
             const SizedBox(height: 12),
             Text(t.emergencyLifeRisk, style: Theme.of(context).textTheme.titleMedium),
             const SizedBox(height: 16),
+            OutlinedButton(
+              onPressed: () {
+                final mode = ref.read(appModeProvider.notifier);
+                if (emergency) {
+                  mode.endEvent();
+                  mode.closeRecovery();
+                } else {
+                  mode.activateEmergency();
+                }
+              },
+              child: Text(emergency ? t.emergencyBoardExitMode : t.emergencyBoardActivateMode),
+            ),
+            if (emergency) Text(t.emergencyBoardImagesPaused),
+            if (boardAvailable)
+              OutlinedButton(
+                onPressed: () => context.push(Routes.emergencyBoardData),
+                child: Text(t.emergencyBoardTitle),
+              ),
             const OwnHelpRequests(),
             directory.when(
               loading: () => const Center(child: CircularProgressIndicator()),

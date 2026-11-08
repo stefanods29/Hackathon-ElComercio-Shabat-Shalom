@@ -39,10 +39,12 @@ El [informe de la Parte 3](../../../docs/fase-2/evidencias/modo-operativo.md) re
 
 Depende de agregados y recursos de B4, del tablero de D y del directorio curado cuando C lo publique.
 
-- [ ] 4.1 Configurar los streams públicos de agregados y recursos por zona. Verificar con datos sembrados de B que no se replica el grupo de dos pedidos, que el de tres llega solo como agregado y que el stream no incluye detalle ni filas de otra zona.
+- [x] 4.1 Configurar los streams públicos de agregados y recursos por zona. Verificar con datos sembrados de B que no se replica el grupo de dos pedidos, que el de tres llega solo como agregado y que el stream no incluye detalle ni filas de otra zona.
 - [ ] 4.2 Conectar frescura y fuentes al tablero de D. Verificar con reloj de prueba y modo avión los límites por tipo, la indicación de datos antiguos y la fuente de recursos oficiales.
-- [ ] 4.3 Priorizar los datos críticos y desactivar las imágenes en modo emergencia. Verificar la prioridad configurada y la ausencia de solicitudes de imágenes al recuperar señal con tráfico pendiente.
+- [x] 4.3 Priorizar los datos críticos y desactivar las imágenes en modo emergencia. Verificar la prioridad configurada y la ausencia de solicitudes de imágenes al recuperar señal con tráfico pendiente.
 - [ ] 4.4 Compilar y depurar app y configuración de sincronización. Ejecutar `npm run verify` en backend y `tool/verify.sh` desde `app/`. Verificar CI en verde.
+
+El [informe de la Parte 4](../../../docs/fase-2/evidencias/tablero-offline.md) registra la verificación de 4.1 con el SQL de B y de 4.3 con el evaluador de streams y la cola de fotos en reconexión. Para 4.2 falta conectar el tablero de D y recibir la fecha de verificación oficial de B. Para 4.4 queda pendiente el CI de la entrega.
 
 ## 5. Parte 5 · Seguridad y pruebas de campo
 

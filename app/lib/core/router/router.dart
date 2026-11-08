@@ -15,6 +15,7 @@ import 'package:vecinal/features/directorio/presentation/service_detail_page.dar
 import 'package:vecinal/features/directorio/presentation/service_form_page.dart';
 import 'package:vecinal/features/emergencias/emergency_page.dart';
 import 'package:vecinal/features/emergencias/presentation/operational_case_page.dart';
+import 'package:vecinal/features/emergencias/presentation/public_emergency_board_page.dart';
 import 'package:vecinal/features/mapa/presentation/map_page.dart';
 import 'package:vecinal/features/mapa/presentation/map_view.dart';
 import 'package:vecinal/features/media/presentation/photo_library_page.dart';
@@ -128,6 +129,10 @@ final routerProvider = Provider<GoRouter>((ref) {
         builder: (context, state) => PostDetailPage(postId: state.pathParameters['id']!),
       ),
       GoRoute(path: Routes.emergency, builder: (context, state) => const EmergencyPage()),
+      GoRoute(
+        path: Routes.emergencyBoardData,
+        builder: (context, state) => const PublicEmergencyBoardPage(),
+      ),
       GoRoute(
         path: Routes.operationalCase,
         builder: (context, state) => OperationalCasePage(caseId: state.pathParameters['id']!),

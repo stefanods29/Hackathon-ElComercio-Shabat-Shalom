@@ -8,6 +8,7 @@ import 'package:vecinal/features/emergencias/data/emergency_directory_repository
 import 'package:vecinal/features/emergencias/data/emergency_directory_store.dart';
 import 'package:vecinal/features/emergencias/data/own_help_request_repository.dart';
 import 'package:vecinal/features/emergencias/domain/emergency_directory.dart';
+import 'package:vecinal/features/emergencias/domain/public_emergency_board.dart';
 
 /// National numbers bundled with the app, shown until the first valid download.
 const emergencyBackupAsset = 'assets/emergencia/respaldo.json';
@@ -42,3 +43,10 @@ final emergencyDirectoryProvider = StreamProvider<EmergencyDirectory>(
 
 // Available only within the authenticated account scope.
 final ownHelpRequestRepositoryProvider = Provider<OwnHelpRequestRepository?>((ref) => null);
+
+/// The board's read-only seam for the authenticated account and zone.
+final emergencyBoardRepositoryProvider = Provider<EmergencyBoardRepository?>((ref) => null);
+
+final emergencyBoardProvider = StreamProvider.autoDispose<PublicEmergencySnapshot>(
+  (ref) => ref.watch(emergencyBoardRepositoryProvider)?.watch() ?? const Stream.empty(),
+);

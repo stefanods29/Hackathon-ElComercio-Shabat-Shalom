@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:vecinal/core/di/providers.dart';
+import 'package:vecinal/core/ui/image_policy.dart';
 import 'package:vecinal/core/ui/submission_status_chip.dart';
 import 'package:vecinal/features/cuenta/data/providers.dart';
 import 'package:vecinal/features/cuenta/domain/auth_state.dart';
@@ -128,17 +129,18 @@ class ReviewCard extends ConsumerWidget {
               }),
               SubmissionStatusChip(status: review.submissionStatus),
             ],
-            for (final photo in review.photos) ...[
-              Image.network(
-                photo.urlFor(ref.watch(environmentProvider).cdnBaseUrl).toString(),
-                semanticLabel: t.reviewPhoto,
-                height: 180,
-                fit: BoxFit.contain,
-                errorBuilder: (_, _, _) =>
-                    Icon(Icons.broken_image_outlined, semanticLabel: t.reviewPhoto),
-              ),
-              ReportButton(content: ReportedContent.photo, contentId: photo.id),
-            ],
+            if (ref.watch(imagesEnabledProvider))
+              for (final photo in review.photos) ...[
+                Image.network(
+                  photo.urlFor(ref.watch(environmentProvider).cdnBaseUrl).toString(),
+                  semanticLabel: t.reviewPhoto,
+                  height: 180,
+                  fit: BoxFit.contain,
+                  errorBuilder: (_, _, _) =>
+                      Icon(Icons.broken_image_outlined, semanticLabel: t.reviewPhoto),
+                ),
+                ReportButton(content: ReportedContent.photo, contentId: photo.id),
+              ],
             ReportButton(content: ReportedContent.review, contentId: review.id),
           ],
         ),

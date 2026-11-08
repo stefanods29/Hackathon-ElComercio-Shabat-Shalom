@@ -17,6 +17,7 @@ import 'package:vecinal/features/directorio/data/powersync_service_directory_rep
 import 'package:vecinal/features/emergencias/assigned_case_cache.dart';
 import 'package:vecinal/features/emergencias/data/http_assigned_case_access.dart';
 import 'package:vecinal/features/emergencias/data/own_help_request_repository.dart';
+import 'package:vecinal/features/emergencias/data/powersync_emergency_board.dart';
 import 'package:vecinal/features/reputacion/data/powersync_reputation_repository.dart';
 import 'package:vecinal/features/solidaridad/data/powersync_post_repository.dart';
 
@@ -30,6 +31,7 @@ class AuthenticatedSyncSession {
     this.sync,
     this.cases,
     this.helpRequests,
+    this.emergencyBoard,
     this.posts,
     this.directory,
     this.reputation,
@@ -50,6 +52,7 @@ class AuthenticatedSyncSession {
   final PowerSyncSyncService sync;
   final AssignedCaseCache cases;
   final OwnHelpRequestRepository helpRequests;
+  final PowerSyncEmergencyBoard emergencyBoard;
   final PowerSyncPostRepository posts;
   final PowerSyncServiceDirectoryRepository directory;
   final PowerSyncReputationRepository reputation;
@@ -103,6 +106,7 @@ class AuthenticatedSyncSession {
         PowerSyncSyncService(local, connector),
         cases,
         OwnHelpRequestRepository(local),
+        PowerSyncEmergencyBoard(local.database, zoneId: user.zoneId!),
         PowerSyncPostRepository(local.database, neighborId: user.neighborId, zoneId: user.zoneId!),
         PowerSyncServiceDirectoryRepository(
           local.database,

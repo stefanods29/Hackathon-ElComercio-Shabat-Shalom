@@ -2,13 +2,19 @@ import 'dart:async';
 import 'dart:io';
 import 'dart:typed_data';
 import 'package:dio/dio.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sentry/sentry.dart';
+import 'package:vecinal/core/config/app_environment.dart';
+import 'package:vecinal/core/di/providers.dart';
+import 'package:vecinal/core/mode/app_mode.dart';
 import 'package:vecinal/core/observability/private_telemetry.dart';
 import 'package:vecinal/core/storage/secure_store.dart';
+import 'package:vecinal/core/ui/image_policy.dart';
 import 'package:vecinal/features/media/application/photo_queue.dart';
 import 'package:vecinal/features/media/data/api_photo_client.dart';
 import 'package:vecinal/features/media/data/encrypted_photo_library.dart';
+import 'package:vecinal/features/media/data/providers.dart';
 import 'package:vecinal/features/media/domain/local_photo.dart';
 import 'package:vecinal/features/media/domain/photo_ports.dart';
 
@@ -55,6 +61,7 @@ class FakeTransfer implements PhotoTransfer {
   int uploads = 0;
   int cancellations = 0;
   bool failCancellation = false;
+  Completer<void>? uploadGate;
   @override
   Future<void> initialize() async {}
   @override
@@ -66,12 +73,15 @@ class FakeTransfer implements PhotoTransfer {
   ) async {
     uploads++;
     onProgress(.5);
+    await uploadGate?.future;
     onProgress(1);
   }
 
   @override
   Future<void> cancelOwner(String ownerId) async {
     cancellations++;
+    uploadGate?.completeError(const PhotoFailure('subida_interrumpida'));
+    uploadGate = null;
     if (failCancellation) throw const PhotoFailure('subida_interrumpida');
   }
 }
@@ -174,6 +184,31 @@ void main() {
       await service.sync();
       expect(transfer.uploads, 1);
     });
+    test('pausar cancela una subida en curso y la reanuda con la misma identidad', () async {
+      final service = queue();
+      await service.load();
+      await service.add();
+      final draft = service.photos.single;
+      transfer.uploadGate = Completer<void>();
+      final pending = service.sync();
+      await Future<void>.delayed(Duration.zero);
+      expect(service.photos.single.stage, LocalPhotoStage.uploading);
+
+      await service.setPaused(true);
+      await pending;
+      expect(transfer.cancellations, 1);
+      expect(service.photos.single.stage, LocalPhotoStage.queued);
+      expect(service.photos.single.id, draft.id);
+      expect(service.photos.single.reserveKey, draft.reserveKey);
+      await service.sync();
+      expect(transfer.uploads, 1);
+      expect(api.confirmKeys, isEmpty);
+
+      await service.setPaused(false);
+      expect(service.photos.single.stage, LocalPhotoStage.ready);
+      expect(transfer.uploads, 2);
+      expect(api.confirmKeys, [draft.confirmKey]);
+    });
     test('reiniciar tras perder la confirmación no repite los bytes', () async {
       api.failConfirm = true;
       final service = queue();
@@ -239,6 +274,78 @@ void main() {
       expect(library.records[owner], isNull);
       expect(library.bytes, isEmpty);
     });
+  });
+  test('reconectar en modo emergencia no solicita fotos y salir reanuda la cola', () async {
+    final server = await HttpServer.bind(InternetAddress.loopbackIPv4, 0);
+    addTearDown(() => server.close(force: true));
+    final requests = <String>[];
+    server.listen((request) async {
+      await request.drain<void>();
+      requests.add(request.uri.path);
+      request.response
+        ..headers.contentType = ContentType.json
+        ..write('{"estado":"listo"}');
+      await request.response.close();
+    });
+    final reconnect = StreamController<bool>.broadcast();
+    addTearDown(reconnect.close);
+    final transfer = FakeTransfer();
+    final library = FakeLibrary();
+    library.records[owner] = [
+      LocalPhoto(
+        id: photoId,
+        ownerId: owner,
+        bytes: 1,
+        sha256: '0' * 64,
+        createdAt: DateTime.utc(2026, 11, 8),
+        reserveKey: 'reserva',
+        confirmKey: 'confirmacion',
+        removeKey: 'baja',
+        stage: LocalPhotoStage.uploading,
+      ),
+    ];
+    final container = ProviderContainer.test(
+      overrides: [
+        environmentProvider.overrideWithValue(
+          AppEnvironment(apiBaseUrl: 'http://127.0.0.1:${server.port}', powersyncUrl: ''),
+        ),
+        mediaCredentialsProvider.overrideWithValue(
+          const MediaCredentials(userId: owner, accessToken: 'credencial-ficticia'),
+        ),
+        photoLibraryProvider.overrideWith((ref) async => library),
+        photoPickerProvider.overrideWithValue(FakePicker()),
+        photoTransferProvider.overrideWithValue(transfer),
+        photoConnectionProvider.overrideWithValue(reconnect.stream),
+      ],
+    );
+    final mode = container.read(appModeProvider.notifier);
+    mode.activateEmergency();
+    await container.read(photoControllerProvider.future);
+    final controller = container.read(photoControllerProvider.notifier);
+    reconnect.add(true);
+    await controller.sync();
+    await Future<void>.delayed(Duration.zero);
+    expect(requests, isEmpty);
+    expect(transfer.uploads, 0);
+    expect(transfer.cancellations, 1);
+    expect(
+      container.read(photoControllerProvider).requireValue.single.stage,
+      LocalPhotoStage.queued,
+    );
+    container.read(imagesEnabledProvider.notifier).set(true);
+    expect(container.read(imagesEnabledProvider), isFalse);
+
+    final ready = Completer<void>();
+    final subscription = container.listen(photoControllerProvider, (_, next) {
+      if (next.value?.singleOrNull?.stage == LocalPhotoStage.ready && !ready.isCompleted) {
+        ready.complete();
+      }
+    });
+    addTearDown(subscription.close);
+    mode.endEvent();
+    await ready.future.timeout(const Duration(seconds: 5));
+    expect(requests, hasLength(2));
+    expect(requests.first, '/v1/archivos');
   });
   test('archivos cifrados resisten alteraciones y sobreviven una nueva instancia', () async {
     final folder = await Directory.systemTemp.createTemp('vecinal-photo-test-');

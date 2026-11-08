@@ -15,7 +15,7 @@
 | 1 | Pedidos de ayuda sin conexión | En curso (verificación local; integración con B y D pendiente) | `JDiazD33` | — |
 | 2 | Streams bajo demanda por asignación | En curso | `JDiazD33` | — |
 | 3 | Modo operativo protegido | En curso (verificación nativa y CI pendientes) | `JDiazD33` | — |
-| 4 | Tablero sin conexión: agregados y recursos | Pendiente | `JDiazD33` | — |
+| 4 | Tablero sin conexión: agregados y recursos | En curso (integración con D y CI pendientes) | `JDiazD33` | — |
 | 5 | Seguridad y pruebas de campo | Pendiente | `JDiazD33` | — |
 | 6 | Integración de la Fase 2 y simulacro | Pendiente | `JDiazD33` | — |
 
@@ -94,8 +94,9 @@ teléfonos reales corresponden a la Parte 5.
 - En modo emergencia, la sincronización prioriza los datos críticos y desactiva las imágenes
   (ahorro de datos).
 
-Pruebas: pruebas de los streams (sin detalle de pedidos en los agregados) y prueba de la app sin
-señal con datos antiguos.
+El [informe de la Parte 4](../evidencias/tablero-offline.md) documenta el SQL de B verificado
+en PostgreSQL, el tablero local con datos descargados y la pausa de fotos. La conexión con
+las pantallas de D y la fecha oficial de verificación dependen del acuerdo de integración.
 
 ## Parte 5 · Seguridad y pruebas de campo
 

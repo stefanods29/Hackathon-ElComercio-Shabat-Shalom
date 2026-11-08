@@ -186,3 +186,21 @@ streams:
         WHERE pedido_id = subscription.parameter('pedido_id') AND pedido_id IN (
           SELECT id FROM emergencias.pedidos_ayuda WHERE autor_id = auth.user_id()
         )
+
+  # La tabla de B ya aplica el umbral mínimo por zona, celda y necesidad.
+  agregados_de_mi_zona:
+    auto_subscribe: true
+    priority: 1
+    query: |
+      SELECT id, zona_id, celda, necesidad, cantidad, actualizado_en
+      FROM emergencias.agregados_celda
+      WHERE zona_id = auth.parameter('zona') AND cantidad >= 3
+
+  recursos_criticos_de_mi_zona:
+    auto_subscribe: true
+    priority: 1
+    query: |
+      SELECT id, zona_id, tipo, cantidad, celda, reportado_en, umbral_segundos,
+             verificacion, confirmaciones, etiqueta_publica, fuente_url, oficial
+      FROM emergencias.recursos_publicos
+      WHERE zona_id = auth.parameter('zona')

@@ -7,6 +7,7 @@ abstract final class Routes {
   static const toReview = '/por-revisar';
   static const emergency = '/emergencia';
   static const emergencyMap = '/emergencia/mapa';
+  static const emergencyBoardData = '/emergencia/datos-de-mi-zona';
   static const operationalCase = '/emergencia/operacion/:id';
   static const map = '/mapa';
   static const tutorial = '/tutorial';

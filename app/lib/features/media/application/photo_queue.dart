@@ -25,11 +25,18 @@ class PhotoQueue {
   bool _syncing = false;
   bool _disposed = false;
   bool _again = false;
+  bool _paused = false;
+  Future<void>? _cancelling;
+  bool get _canSync => !_disposed && !_paused && _cancelling == null;
   List<LocalPhoto> get photos => List.unmodifiable(_photos);
 
   Future<void> load() async {
-    _photos = await library.load(ownerId);
+    final saved = await library.load(ownerId);
+    if (_disposed) return;
+    _photos = saved;
+    final changed = _paused && _requeueUploading();
     _emit();
+    if (changed) await _save();
   }
 
   void _emit() {
@@ -50,8 +57,11 @@ class PhotoQueue {
     return null;
   }
 
-  bool _active(String id) =>
-      !_disposed && _find(id) != null && _find(id)!.stage != LocalPhotoStage.removing;
+  bool _active(String id) {
+    final photo = _find(id);
+    return _canSync && photo != null && photo.stage != LocalPhotoStage.removing;
+  }
+
   Future<void> _replace(LocalPhoto photo) async {
     final index = _photos.indexWhere((item) => item.id == photo.id);
     if (_disposed || index < 0) return;
@@ -113,14 +123,54 @@ class PhotoQueue {
     }
   }
 
+  Future<void> setPaused(bool paused) async {
+    if (_disposed || _paused == paused) return;
+    _paused = paused;
+    if (!paused) {
+      await _cancelling;
+      await sync();
+      return;
+    }
+    if (api == null) return;
+    final cancel = _cancelling ??= Future<void>.microtask(() async {
+      try {
+        await transfer.cancelOwner(ownerId);
+      } catch (_) {
+        // The paused queue still blocks new transfers if native cancellation fails.
+      } finally {
+        _cancelling = null;
+      }
+    });
+    if (_requeueUploading()) {
+      _emit();
+      await _save();
+    }
+    await cancel;
+  }
+
+  bool _requeueUploading() {
+    if (!_photos.any((photo) => photo.stage == LocalPhotoStage.uploading)) return false;
+    _photos = [
+      for (final photo in _photos)
+        photo.stage == LocalPhotoStage.uploading
+            ? photo.copyWith(stage: LocalPhotoStage.queued, progress: 0)
+            : photo,
+    ];
+    return true;
+  }
+
   Future<void> sync() async {
-    if (_disposed || _syncing || api == null) return;
+    if (!_canSync || api == null) return;
+    if (_syncing) {
+      _again = true;
+      return;
+    }
     _syncing = true;
     try {
       do {
         _again = false;
         for (final id in _photos.map((photo) => photo.id).toList()) {
-          if (_disposed) return;
+          if (!_canSync) return;
           final found = _find(id);
           if (found == null ||
               found.stage == LocalPhotoStage.ready ||
@@ -157,6 +207,7 @@ class PhotoQueue {
             }
             if (remote == 'pendiente_subida' && !photo.uploaded) {
               final permission = await api!.permit(photo);
+              if (!_active(id)) continue;
               final bytes = await library.readBytes(ownerId, id);
               if (!_active(id)) continue;
               await _replace(photo.copyWith(stage: LocalPhotoStage.uploading));
@@ -203,7 +254,7 @@ class PhotoQueue {
             }
           }
         }
-      } while (_again && !_disposed);
+      } while (_again && _canSync);
     } finally {
       _syncing = false;
     }

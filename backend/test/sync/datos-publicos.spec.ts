@@ -280,6 +280,68 @@ const sourceRows: Array<[ReturnType<typeof table>, SourceRecord]> = [
       lng: -77.01234,
     },
   ],
+  [
+    table('emergencias', 'agregados_celda'),
+    {
+      id: 'grupo-publicable',
+      zona_id: 'zona-emergencia',
+      celda: 'celda-agua',
+      necesidad: 'agua',
+      cantidad: 3,
+      actualizado_en: HIDDEN_AT,
+      pedido_id: 'pedido-1',
+      autor_id: 'autora',
+      detalle: 'Detalle que no se publica',
+      lat: -12.01234,
+    },
+  ],
+  [
+    table('emergencias', 'agregados_celda'),
+    {
+      id: 'grupo-suprimido',
+      zona_id: 'zona-emergencia',
+      celda: 'celda-traslado',
+      necesidad: 'traslado',
+      cantidad: 2,
+      actualizado_en: HIDDEN_AT,
+    },
+  ],
+  [
+    table('emergencias', 'agregados_celda'),
+    { id: 'grupo-otra-zona', zona_id: 'zona-ajena', cantidad: 4 },
+  ],
+  [
+    table('emergencias', 'recursos_publicos'),
+    {
+      id: 'recurso-oficial',
+      zona_id: 'zona-emergencia',
+      tipo: 'agua',
+      cantidad: 12,
+      celda: 'celda-agua',
+      reportado_en: HIDDEN_AT,
+      umbral_segundos: 7200,
+      verificacion: 'verificado',
+      confirmaciones: 4,
+      etiqueta_publica: 'Punto de agua',
+      fuente_url: 'https://example.test/fuente',
+      oficial: 1,
+      reportante_id: 'autora',
+      huella: 'privada',
+    },
+  ],
+  [
+    table('emergencias', 'recursos_publicos'),
+    { id: 'recurso-otra-zona', zona_id: 'zona-ajena', cantidad: 10 },
+  ],
+  [
+    table('emergencias', 'recursos_criticos'),
+    {
+      id: 'recurso-interno',
+      zona_id: 'zona-emergencia',
+      reportante_id: 'autora',
+      huella: 'privada',
+    },
+  ],
 ];
 
 const dataRows = sourceRows.flatMap(([sourceTable, record]) =>
@@ -315,8 +377,12 @@ async function deliveredRows(sub: string, zona: string, requestId?: string) {
       }));
     },
   });
-  const buckets = new Set([...querier.staticBuckets, ...dynamic].map((bucket) => bucket.bucket));
-  return dataRows.filter((row) => buckets.has(row.bucket));
+  const buckets = new Map(
+    [...querier.staticBuckets, ...dynamic].map((bucket) => [bucket.bucket, bucket.priority]),
+  );
+  return dataRows
+    .filter((row) => buckets.has(row.bucket))
+    .map((row) => ({ ...row, priority: buckets.get(row.bucket) }));
 }
 
 /** `<tabla local>:<id>` of every row the phone of `sub` in `zona` receives. */
@@ -466,5 +532,44 @@ describe('Sync Stream del pedido propio', () => {
       motivo: 'Derivado al servicio oficial',
     });
     expect(dataRows.some((row) => row.table === 'detalles_pedidos')).toBe(false);
+  });
+});
+
+describe('Sync Streams del tablero offline', () => {
+  it('replica a la zona autorizada solo agregados publicables y recursos públicos en prioridad 1', async () => {
+    const boardTables = new Set(['agregados_celda', 'recursos_publicos', 'recursos_criticos']);
+    const rows = (await deliveredRows('vecino', 'zona-emergencia')).filter((row) =>
+      boardTables.has(row.table),
+    );
+    expect(rows.map((row) => row.id).sort()).toEqual(['grupo-publicable', 'recurso-oficial']);
+    expect(rows.every((row) => row.priority === 1)).toBe(true);
+    expect(rows.find((row) => row.table === 'agregados_celda')?.data).toEqual({
+      id: 'grupo-publicable',
+      zona_id: 'zona-emergencia',
+      celda: 'celda-agua',
+      necesidad: 'agua',
+      cantidad: 3,
+      actualizado_en: HIDDEN_AT,
+    });
+    expect(rows.find((row) => row.table === 'recursos_publicos')?.data).toEqual({
+      id: 'recurso-oficial',
+      zona_id: 'zona-emergencia',
+      tipo: 'agua',
+      cantidad: 12,
+      celda: 'celda-agua',
+      reportado_en: HIDDEN_AT,
+      umbral_segundos: 7200,
+      verificacion: 'verificado',
+      confirmaciones: 4,
+      etiqueta_publica: 'Punto de agua',
+      fuente_url: 'https://example.test/fuente',
+      oficial: 1,
+    });
+    expect(dataRows.some((row) => row.id === 'recurso-interno')).toBe(false);
+    expect(
+      (await deliveredRows('vecino', 'zona-sin-acceso')).filter((row) =>
+        boardTables.has(row.table),
+      ),
+    ).toEqual([]);
   });
 });
