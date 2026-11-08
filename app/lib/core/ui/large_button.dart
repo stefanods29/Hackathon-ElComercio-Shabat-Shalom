@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:vecinal/core/theme/accessible_theme.dart';
 
 /// Botón grande accesible: objetivo táctil de al menos 48 × 48 dp, ícono + texto.
 ///
@@ -27,10 +28,10 @@ class LargeButton extends StatelessWidget {
         minimumSize: const Size(48, 60),
         padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 18),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        elevation: enabled ? 4 : 0,
+        elevation: enabled && scheme.brightness == Brightness.light ? 4 : 0,
         shadowColor: scheme.primary.withValues(alpha: 0.45),
-        backgroundColor: enabled ? scheme.primary : scheme.surfaceContainerHighest,
-        foregroundColor: enabled ? scheme.onPrimary : scheme.onSurfaceVariant,
+        backgroundColor: enabled ? AccessibleTheme.action(scheme) : scheme.surfaceContainerHighest,
+        foregroundColor: enabled ? AccessibleTheme.onAction(scheme) : scheme.onSurfaceVariant,
       ),
       child: SizedBox(
         width: fullWidth ? double.infinity : null,

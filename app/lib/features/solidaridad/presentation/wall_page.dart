@@ -5,6 +5,7 @@ import 'package:vecinal/core/di/providers.dart';
 import 'package:vecinal/core/mode/app_mode.dart';
 import 'package:vecinal/core/router/routes.dart';
 import 'package:vecinal/core/sync/sync_service.dart';
+import 'package:vecinal/core/theme/accessible_theme.dart';
 import 'package:vecinal/core/time/time_ago.dart';
 import 'package:vecinal/core/ui/connection_banner.dart';
 import 'package:vecinal/features/emergencias/data/emergency_providers.dart';
@@ -157,6 +158,8 @@ class WallPage extends ConsumerWidget {
                         Expanded(
                           child: FilledButton(
                             style: FilledButton.styleFrom(
+                              elevation: theme.brightness == Brightness.dark ? 0 : 3,
+                              shadowColor: theme.colorScheme.error.withValues(alpha: 0.4),
                               backgroundColor: theme.brightness == Brightness.dark
                                   ? theme.colorScheme.errorContainer
                                   : theme.colorScheme.error,
@@ -179,8 +182,18 @@ class WallPage extends ConsumerWidget {
                         Expanded(
                           child: FilledButton(
                             style: FilledButton.styleFrom(
-                              backgroundColor: theme.colorScheme.primaryContainer,
-                              foregroundColor: theme.colorScheme.onPrimaryContainer,
+                              backgroundColor: theme.brightness == Brightness.dark
+                                  ? theme.colorScheme.surfaceContainerHigh
+                                  : theme.colorScheme.primaryContainer,
+                              foregroundColor: theme.brightness == Brightness.dark
+                                  ? theme.colorScheme.onSurface
+                                  : theme.colorScheme.onPrimaryContainer,
+                              iconColor: theme.brightness == Brightness.dark
+                                  ? theme.colorScheme.primary
+                                  : null,
+                              side: theme.brightness == Brightness.dark
+                                  ? BorderSide(color: AccessibleTheme.hairline(theme.colorScheme))
+                                  : null,
                               padding: const EdgeInsets.all(16),
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(20),
@@ -241,7 +254,7 @@ class _QuickAction extends StatelessWidget {
     mainAxisAlignment: MainAxisAlignment.center,
     crossAxisAlignment: CrossAxisAlignment.start,
     children: [
-      Icon(icon, size: 28),
+      Icon(icon, size: 28, color: IconTheme.of(context).color),
       const SizedBox(height: 12),
       Text(label, style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w700, height: 1.2)),
     ],

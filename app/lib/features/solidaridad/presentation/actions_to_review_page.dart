@@ -32,7 +32,11 @@ class ActionsToReviewPage extends ConsumerWidget {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(Icons.inbox_outlined, size: 64, color: Colors.grey),
+                  Icon(
+                    Icons.inbox_outlined,
+                    size: 64,
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  ),
                   const SizedBox(height: 16),
                   Text(texts.noActionsToReview, style: Theme.of(context).textTheme.titleMedium),
                 ],

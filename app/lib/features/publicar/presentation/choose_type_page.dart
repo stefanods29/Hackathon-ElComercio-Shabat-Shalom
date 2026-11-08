@@ -115,14 +115,14 @@ class _TypeTile extends StatelessWidget {
       (true, true) => (
         scheme.primaryContainer,
         scheme.onPrimaryContainer,
-        scheme.primary,
-        scheme.onPrimary,
+        AccessibleTheme.action(scheme),
+        AccessibleTheme.onAction(scheme),
       ),
       (true, false) => (
-        scheme.surfaceContainerHigh,
+        scheme.surface,
         scheme.onSurface,
-        scheme.secondaryContainer,
-        scheme.onSecondaryContainer,
+        scheme.surfaceContainerHigh,
+        scheme.primary,
       ),
       (false, true) => (
         scheme.primary,
@@ -142,7 +142,7 @@ class _TypeTile extends StatelessWidget {
       margin: EdgeInsets.zero,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(AccessibleTheme.radiusCard),
-        side: BorderSide(color: highlighted ? scheme.primary : scheme.outlineVariant),
+        side: BorderSide(color: highlighted ? scheme.primary : AccessibleTheme.hairline(scheme)),
       ),
       clipBehavior: Clip.antiAlias,
       child: InkWell(

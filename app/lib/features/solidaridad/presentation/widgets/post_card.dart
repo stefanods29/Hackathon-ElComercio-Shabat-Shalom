@@ -136,7 +136,8 @@ class _TypePill extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
-    final (icon, background, foreground) = switch (type) {
+    final dark = scheme.brightness == Brightness.dark;
+    final (icon, lightBackground, lightForeground) = switch (type) {
       PostType.need => (
         Icons.pan_tool_alt_outlined,
         scheme.tertiaryContainer,
@@ -154,10 +155,13 @@ class _TypePill extends StatelessWidget {
       ),
       PostType.ride => (
         Icons.directions_car_outlined,
-        scheme.brightness == Brightness.dark ? const Color(0xFF382766) : const Color(0xFFEDE9FE),
-        scheme.brightness == Brightness.dark ? const Color(0xFFDDD6FE) : const Color(0xFF4C1D95),
+        const Color(0xFFEDE9FE),
+        const Color(0xFF4C1D95),
       ),
     };
+    // Dark keeps every type on the same neutral pill: the icon and the word tell them apart.
+    final background = dark ? scheme.surfaceContainerHigh : lightBackground;
+    final foreground = dark ? scheme.onSurface : lightForeground;
     return DecoratedBox(
       decoration: BoxDecoration(color: background, borderRadius: BorderRadius.circular(999)),
       child: Padding(

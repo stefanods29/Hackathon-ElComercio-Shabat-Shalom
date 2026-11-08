@@ -373,8 +373,18 @@ class _Item extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
-    final background = destructive ? scheme.errorContainer : scheme.primaryContainer;
-    final foreground = destructive ? scheme.onErrorContainer : scheme.onPrimaryContainer;
+    final dark = scheme.brightness == Brightness.dark;
+    // In dark the circles stay neutral and only the icon carries color: fewer tinted blocks.
+    final background = destructive
+        ? scheme.errorContainer
+        : dark
+        ? scheme.surfaceContainerHigh
+        : scheme.primaryContainer;
+    final foreground = destructive
+        ? scheme.onErrorContainer
+        : dark
+        ? scheme.primary
+        : scheme.onPrimaryContainer;
     return ListTile(
       leading: Container(
         width: 42,

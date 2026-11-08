@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:vecinal/core/router/routes.dart';
+import 'package:vecinal/core/theme/accessible_theme.dart';
 import 'package:vecinal/features/cuenta/data/providers.dart';
 import 'package:vecinal/features/cuenta/domain/auth_state.dart';
 import 'package:vecinal/features/onboarding/demo_profiles.dart';
@@ -107,8 +108,8 @@ class ProfileAvatar extends StatelessWidget {
     final initial = name.trim().isEmpty ? '?' : name.trim().characters.first.toUpperCase();
     return CircleAvatar(
       radius: radius,
-      backgroundColor: scheme.primary,
-      foregroundColor: scheme.onPrimary,
+      backgroundColor: AccessibleTheme.action(scheme),
+      foregroundColor: AccessibleTheme.onAction(scheme),
       child: Text(
         initial,
         style: TextStyle(fontSize: radius * 0.8, fontWeight: FontWeight.w700),

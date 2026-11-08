@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:vecinal/core/di/providers.dart';
+import 'package:vecinal/core/theme/accessible_theme.dart';
 import 'package:vecinal/core/ui/image_policy.dart';
 import 'package:vecinal/core/ui/spaced.dart';
 import 'package:vecinal/core/ui/submission_status_chip.dart';
@@ -130,7 +131,7 @@ class ReviewCard extends ConsumerWidget {
                     n <= review.rating ? Icons.star_rounded : Icons.star_outline_rounded,
                     size: 22,
                     color: n <= review.rating
-                        ? const Color(0xFFE0A200)
+                        ? AccessibleTheme.starColor(Theme.of(context).colorScheme)
                         : Theme.of(context).colorScheme.outline,
                   ),
                 const SizedBox(width: 8),
@@ -174,7 +175,7 @@ class MyReviewsPage extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final t = AppLocalizations.of(context);
     return Scaffold(
-      appBar: AppBar(title: Text(t.myReview)),
+      appBar: AppBar(title: Text(t.profileMyReviews)),
       body: ref
           .watch(myReviewsProvider)
           .when(

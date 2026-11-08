@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:vecinal/core/theme/accessible_theme.dart';
 import 'package:vecinal/l10n/app_localizations.dart';
 
 /// Bottom navigation of the main sections. Each section keeps its own place, so the neighbor
@@ -18,7 +19,7 @@ class MainShell extends StatelessWidget {
       body: shell,
       bottomNavigationBar: DecoratedBox(
         decoration: BoxDecoration(
-          border: Border(top: BorderSide(color: scheme.outlineVariant)),
+          border: Border(top: BorderSide(color: AccessibleTheme.hairline(scheme))),
         ),
         child: NavigationBar(
           labelPadding: const EdgeInsets.only(top: 2),
@@ -41,7 +42,7 @@ class MainShell extends StatelessWidget {
             ),
             NavigationDestination(
               icon: Icon(Icons.sos_outlined, color: scheme.error),
-              selectedIcon: Icon(Icons.sos, color: scheme.onPrimary),
+              selectedIcon: Icon(Icons.sos, color: AccessibleTheme.onAction(scheme)),
               label: t.navEmergency,
               tooltip: t.emergencyDashboard,
             ),

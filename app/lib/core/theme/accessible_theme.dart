@@ -5,6 +5,10 @@ import 'package:flutter/material.dart';
 /// (teal, navy and amber) in a soft style: light slate background, white surfaces lifted by
 /// blurred tinted shadows instead of hard borders, generous rounded corners and spacing.
 ///
+/// The dark theme follows the same soft style on a neutral charcoal, never pure black nor tinted
+/// navy: surfaces a step lighter than the background, hairlines instead of strong borders, and a
+/// single muted teal accent. The other colors only mark meaning (emergency, ratings, status).
+///
 /// High contrast for text, touch targets of at least 48 dp and text that respects the font size
 /// the neighbor picked on the phone. Lot D extends it (simple mode, golden tests).
 abstract final class AccessibleTheme {
@@ -33,6 +37,29 @@ abstract final class AccessibleTheme {
 
   static Color ratingColor(ColorScheme scheme) =>
       scheme.brightness == Brightness.dark ? scheme.tertiary : const Color(0xFF956218);
+
+  /// Gold of the filled stars a neighbor picks or reads; a softer gold on the dark theme.
+  static Color starColor(ColorScheme scheme) =>
+      scheme.brightness == Brightness.dark ? scheme.tertiary : const Color(0xFFE0A200);
+
+  /// Charcoal page background of the dark theme; surfaces sit one step lighter.
+  static const Color darkBackground = Color(0xFF1B1E22);
+
+  /// Deep teal of filled actions in the dark theme: calm on charcoal, white text at 6:1.
+  static const Color _darkAction = Color(0xFF2B6B63);
+
+  /// Fill of the main actions (filled buttons, selected tab, avatar). In the dark theme it is a
+  /// deep teal, because the light teal [ColorScheme.primary] is kept for text and icons.
+  static Color action(ColorScheme scheme) =>
+      scheme.brightness == Brightness.dark ? _darkAction : scheme.primary;
+
+  static Color onAction(ColorScheme scheme) =>
+      scheme.brightness == Brightness.dark ? Colors.white : scheme.onPrimary;
+
+  /// Decorative separation (bars, cards, dividers): a slate line in light, a faint light line in
+  /// dark. Controls that need a visible edge use [ColorScheme.outlineVariant].
+  static Color hairline(ColorScheme scheme) =>
+      scheme.brightness == Brightness.dark ? const Color(0x17FFFFFF) : border;
 
   static ThemeData light() => _build(Brightness.light);
 
@@ -77,36 +104,39 @@ abstract final class AccessibleTheme {
             shadow: const Color(0xFF64748B),
           )
         : const ColorScheme.dark(
-            primary: Color(0xFF77D4C4),
-            onPrimary: Color(0xFF102E2B),
-            primaryContainer: Color(0xFF183E3C),
-            onPrimaryContainer: Color(0xFFB6F0E4),
-            secondary: Color(0xFFA9C7EE),
-            onSecondary: Color(0xFF172554),
-            secondaryContainer: Color(0xFF243B57),
-            onSecondaryContainer: Color(0xFFCBDEF7),
-            tertiary: Color(0xFFE9BC72),
-            onTertiary: Color(0xFF422A04),
-            tertiaryContainer: Color(0xFF49320F),
-            onTertiaryContainer: Color(0xFFFFDB87),
-            error: Color(0xFFFCA5A5),
-            onError: Color(0xFF450A0A),
-            errorContainer: Color(0xFF641F26),
-            onErrorContainer: Color(0xFFFECACA),
-            surface: Color(0xFF101824),
-            onSurface: Color(0xFFE6EEF8),
-            onSurfaceVariant: Color(0xFFA8B7CA),
-            surfaceContainerLowest: Color(0xFF0D141F),
-            surfaceContainerLow: Color(0xFF192536),
-            surfaceContainer: Color(0xFF1D2B3D),
-            surfaceContainerHigh: Color(0xFF27384D),
-            surfaceContainerHighest: Color(0xFF34455C),
-            outline: Color(0xFF8A9CB4),
-            outlineVariant: Color(0xFF778AA2),
-            inverseSurface: Color(0xFFE6EEF8),
-            onInverseSurface: Color(0xFF1D2B3D),
+            // One muted teal accent; secondary and tertiary stay close to neutral.
+            primary: Color(0xFF6CBFB2),
+            onPrimary: Color(0xFF0C2724),
+            primaryContainer: Color(0xFF21403B),
+            onPrimaryContainer: Color(0xFFBFE6DF),
+            secondary: Color(0xFFA9B6C6),
+            onSecondary: Color(0xFF1B232D),
+            secondaryContainer: Color(0xFF30353B),
+            onSecondaryContainer: Color(0xFFD9DEE4),
+            tertiary: Color(0xFFE0B565),
+            onTertiary: Color(0xFF3A2804),
+            tertiaryContainer: Color(0xFF3A3226),
+            onTertiaryContainer: Color(0xFFF0DCAF),
+            error: Color(0xFFEE9B9B),
+            onError: Color(0xFF3B0D0D),
+            errorContainer: Color(0xFF452A2C),
+            onErrorContainer: Color(0xFFF6D2D2),
+            // Charcoal steps: background 1B1E22, cards 24282D, controls 2E3237.
+            surface: Color(0xFF24282D),
+            onSurface: Color(0xFFE8EAED),
+            onSurfaceVariant: Color(0xFFAAB1BA),
+            surfaceContainerLowest: Color(0xFF17191C),
+            surfaceContainerLow: Color(0xFF202327),
+            surfaceContainer: Color(0xFF272B30),
+            surfaceContainerHigh: Color(0xFF2E3237),
+            surfaceContainerHighest: Color(0xFF363A40),
+            outline: Color(0xFF8B929B),
+            outlineVariant: Color(0xFF7A818A),
+            inverseSurface: Color(0xFFE8EAED),
+            onInverseSurface: Color(0xFF24282D),
             inversePrimary: primary,
-            surfaceTint: Color(0xFF77D4C4),
+            shadow: Colors.black,
+            surfaceTint: Colors.transparent,
           );
     final rounded = RoundedRectangleBorder(borderRadius: BorderRadius.circular(radiusMedium));
     const buttonPadding = EdgeInsets.symmetric(horizontal: 22, vertical: 14);
@@ -118,8 +148,9 @@ abstract final class AccessibleTheme {
       letterSpacing: 0.1,
     );
     final shadowTint = light ? const Color(0xFF64748B) : Colors.black;
+    final hairlineColor = hairline(scheme);
     return base.copyWith(
-      scaffoldBackgroundColor: light ? background : scheme.surface,
+      scaffoldBackgroundColor: light ? background : darkBackground,
       materialTapTargetSize: MaterialTapTargetSize.padded,
       visualDensity: VisualDensity.standard,
       textTheme: base.textTheme.copyWith(
@@ -136,10 +167,10 @@ abstract final class AccessibleTheme {
         bodyLarge: base.textTheme.bodyLarge?.copyWith(height: 1.55),
         bodyMedium: base.textTheme.bodyMedium?.copyWith(height: 1.55),
       ),
-      // White bar with a hairline: it stands apart from the slate background.
+      // A bar one step above the page with a hairline: it stands apart without a heavy edge.
       appBarTheme: AppBarTheme(
-        backgroundColor: light ? Colors.white : scheme.surfaceContainer,
-        shape: Border(bottom: BorderSide(color: light ? border : scheme.outlineVariant)),
+        backgroundColor: light ? Colors.white : scheme.surfaceContainerLow,
+        shape: Border(bottom: BorderSide(color: hairlineColor)),
         foregroundColor: scheme.onSurface,
         elevation: 0,
         scrolledUnderElevation: 0,
@@ -160,7 +191,10 @@ abstract final class AccessibleTheme {
           padding: buttonPadding,
           textStyle: buttonText,
           shape: rounded,
-          elevation: 3,
+          // Light keeps the defaults (teal filled, soft tonal); dark uses the deep teal for both.
+          backgroundColor: light ? null : action(scheme),
+          foregroundColor: light ? null : onAction(scheme),
+          elevation: light ? 3 : 0,
           shadowColor: scheme.primary.withValues(alpha: 0.45),
         ),
       ),
@@ -172,11 +206,12 @@ abstract final class AccessibleTheme {
           shape: rounded,
           backgroundColor: light ? Colors.white : scheme.surfaceContainerHigh,
           foregroundColor: scheme.primary,
-          elevation: 2,
+          elevation: light ? 2 : 0,
           shadowColor: shadowTint.withValues(alpha: 0.3),
         ),
       ),
-      // Soft secondary button: white pillow with a tinted shadow and a hairline edge.
+      // Soft secondary button: a pillow one step above its surface. In dark the label stays neutral
+      // and only the icon carries the accent, so a screen with many buttons does not turn teal.
       outlinedButtonTheme: OutlinedButtonThemeData(
         style: OutlinedButton.styleFrom(
           minimumSize: _minButtonSize,
@@ -184,10 +219,11 @@ abstract final class AccessibleTheme {
           textStyle: buttonText,
           shape: rounded,
           backgroundColor: light ? Colors.white : scheme.surfaceContainerHigh,
-          foregroundColor: scheme.primary,
-          elevation: 2,
+          foregroundColor: light ? scheme.primary : scheme.onSurface,
+          iconColor: scheme.primary,
+          elevation: light ? 2 : 0,
           shadowColor: shadowTint.withValues(alpha: 0.25),
-          side: BorderSide(color: light ? border : scheme.outlineVariant),
+          side: BorderSide(color: hairlineColor),
         ),
       ),
       textButtonTheme: TextButtonThemeData(
@@ -198,12 +234,15 @@ abstract final class AccessibleTheme {
         ),
       ),
       cardTheme: CardThemeData(
-        color: light ? scheme.surface : scheme.surfaceContainerLow,
-        elevation: 3,
-        shadowColor: shadowTint.withValues(alpha: 0.35),
+        color: scheme.surface,
+        elevation: light ? 3 : 1,
+        shadowColor: shadowTint.withValues(alpha: light ? 0.35 : 0.6),
         surfaceTintColor: Colors.transparent,
         margin: const EdgeInsets.symmetric(vertical: 10),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(radiusCard)),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(radiusCard),
+          side: light ? BorderSide.none : BorderSide(color: hairlineColor),
+        ),
       ),
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
@@ -240,13 +279,13 @@ abstract final class AccessibleTheme {
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
         selectedColor: scheme.primaryContainer,
         backgroundColor: light ? Colors.white : scheme.surfaceContainerHigh,
-        elevation: 1,
+        elevation: light ? 1 : 0,
         pressElevation: 0,
         shadowColor: shadowTint.withValues(alpha: 0.3),
       ),
       navigationBarTheme: NavigationBarThemeData(
-        backgroundColor: light ? Colors.white : scheme.surfaceContainer,
-        indicatorColor: scheme.primary,
+        backgroundColor: light ? Colors.white : scheme.surfaceContainerLow,
+        indicatorColor: action(scheme),
         surfaceTintColor: Colors.transparent,
         elevation: 0,
         height: 64,
@@ -254,31 +293,40 @@ abstract final class AccessibleTheme {
         iconTheme: WidgetStateProperty.resolveWith(
           (states) => IconThemeData(
             size: 24,
-            color: states.contains(WidgetState.selected) ? scheme.onPrimary : scheme.onSurface,
+            color: states.contains(WidgetState.selected)
+                ? onAction(scheme)
+                : light
+                ? scheme.onSurface
+                : scheme.onSurfaceVariant,
           ),
         ),
         labelTextStyle: WidgetStateProperty.resolveWith(
           (states) => base.textTheme.labelMedium!.copyWith(
             fontSize: 12.5,
             fontWeight: states.contains(WidgetState.selected) ? FontWeight.w800 : FontWeight.w600,
-            color: states.contains(WidgetState.selected) ? scheme.primary : scheme.onSurface,
+            color: states.contains(WidgetState.selected)
+                ? (light ? scheme.primary : scheme.onSurface)
+                : (light ? scheme.onSurface : scheme.onSurfaceVariant),
           ),
         ),
       ),
       floatingActionButtonTheme: FloatingActionButtonThemeData(
-        backgroundColor: scheme.primary,
-        foregroundColor: scheme.onPrimary,
-        elevation: 6,
+        backgroundColor: action(scheme),
+        foregroundColor: onAction(scheme),
+        elevation: light ? 6 : 3,
         highlightElevation: 2,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(radiusCard)),
       ),
       snackBarTheme: SnackBarThemeData(
         behavior: SnackBarBehavior.floating,
-        backgroundColor: light ? secondary : null,
+        backgroundColor: light ? secondary : scheme.surfaceContainerHighest,
+        contentTextStyle: base.textTheme.bodyMedium?.copyWith(
+          color: light ? Colors.white : scheme.onSurface,
+        ),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(radiusMedium)),
       ),
       dialogTheme: DialogThemeData(
-        backgroundColor: scheme.surface,
+        backgroundColor: light ? scheme.surface : scheme.surfaceContainer,
         surfaceTintColor: Colors.transparent,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(28)),
       ),
@@ -289,16 +337,12 @@ abstract final class AccessibleTheme {
         ),
       ),
       popupMenuTheme: PopupMenuThemeData(
-        color: scheme.surface,
+        color: light ? scheme.surface : scheme.surfaceContainerHigh,
         surfaceTintColor: Colors.transparent,
         elevation: 6,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(radiusMedium)),
       ),
-      dividerTheme: DividerThemeData(
-        color: light ? border : scheme.outlineVariant,
-        space: 32,
-        thickness: 1,
-      ),
+      dividerTheme: DividerThemeData(color: hairlineColor, space: 32, thickness: 1),
       listTileTheme: ListTileThemeData(
         minVerticalPadding: 14,
         contentPadding: const EdgeInsets.symmetric(horizontal: 20),
@@ -308,6 +352,25 @@ abstract final class AccessibleTheme {
       switchTheme: SwitchThemeData(
         trackOutlineColor: WidgetStateProperty.resolveWith(
           (states) => states.contains(WidgetState.selected) ? Colors.transparent : scheme.outline,
+        ),
+        trackColor: light
+            ? null
+            : WidgetStateProperty.resolveWith(
+                (states) => states.contains(WidgetState.selected)
+                    ? action(scheme)
+                    : scheme.surfaceContainerHighest,
+              ),
+        thumbColor: light
+            ? null
+            : WidgetStateProperty.resolveWith(
+                (states) => states.contains(WidgetState.selected) ? Colors.white : scheme.outline,
+              ),
+      ),
+      segmentedButtonTheme: SegmentedButtonThemeData(
+        style: SegmentedButton.styleFrom(
+          selectedBackgroundColor: light ? scheme.secondaryContainer : scheme.primaryContainer,
+          selectedForegroundColor: light ? scheme.onSecondaryContainer : scheme.onPrimaryContainer,
+          side: BorderSide(color: light ? scheme.outline : scheme.outlineVariant),
         ),
       ),
       // Smooth screen changes: fade forward on Android, the native slide on iOS.

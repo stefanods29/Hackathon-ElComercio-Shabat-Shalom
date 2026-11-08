@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:vecinal/core/platform/pilot_platforms.dart';
+import 'package:vecinal/core/theme/accessible_theme.dart';
 import 'package:vecinal/core/ui/spaced.dart';
 import 'package:vecinal/features/directorio/data/providers.dart';
 import 'package:vecinal/features/onboarding/demo_profiles.dart';
@@ -149,7 +150,7 @@ class _ReviewPageState extends ConsumerState<ReviewPage> {
                           icon: Icon(
                             n <= _rating ? Icons.star_rounded : Icons.star_outline_rounded,
                             color: n <= _rating
-                                ? const Color(0xFFE0A200)
+                                ? AccessibleTheme.starColor(Theme.of(context).colorScheme)
                                 : Theme.of(context).colorScheme.outline,
                           ),
                         ),

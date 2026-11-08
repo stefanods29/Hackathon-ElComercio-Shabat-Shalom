@@ -219,8 +219,12 @@ class ServiceTile extends ConsumerWidget {
                 children: [
                   CircleAvatar(
                     radius: 22,
-                    backgroundColor: theme.colorScheme.primaryContainer,
-                    foregroundColor: theme.colorScheme.onPrimaryContainer,
+                    backgroundColor: theme.brightness == Brightness.dark
+                        ? theme.colorScheme.surfaceContainerHigh
+                        : theme.colorScheme.primaryContainer,
+                    foregroundColor: theme.brightness == Brightness.dark
+                        ? theme.colorScheme.primary
+                        : theme.colorScheme.onPrimaryContainer,
                     child: Icon(
                       service.availableInEmergency
                           ? Icons.handyman_outlined

@@ -126,36 +126,41 @@ class _SimulationPanel extends StatelessWidget {
   Widget build(BuildContext context) {
     final t = AppLocalizations.of(context);
     final scheme = Theme.of(context).colorScheme;
+    final dark = scheme.brightness == Brightness.dark;
+    // Light: an amber note. Dark: a regular surface where only the icon keeps the amber.
+    final background = dark ? scheme.surfaceContainerHigh : scheme.tertiaryContainer;
+    final foreground = dark ? scheme.onSurface : scheme.onTertiaryContainer;
     return Card(
-      color: scheme.tertiaryContainer,
+      color: background,
       child: Padding(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(20),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Row(
               children: [
-                Icon(Icons.science_outlined, color: scheme.onTertiaryContainer),
-                const SizedBox(width: 8),
+                Icon(Icons.science_outlined, color: dark ? scheme.tertiary : foreground),
+                const SizedBox(width: 10),
                 Expanded(
                   child: Text(
                     t.simulationTitle,
-                    style: Theme.of(
-                      context,
-                    ).textTheme.titleMedium?.copyWith(color: scheme.onTertiaryContainer),
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(color: foreground),
                   ),
                 ),
               ],
             ),
             const SizedBox(height: 8),
-            Text(t.simulationHelp, style: TextStyle(color: scheme.onTertiaryContainer)),
-            const SizedBox(height: 12),
+            Text(
+              t.simulationHelp,
+              style: TextStyle(color: dark ? scheme.onSurfaceVariant : foreground),
+            ),
+            const SizedBox(height: 16),
             FilledButton.tonalIcon(
               icon: Icon(eventActive ? Icons.stop_circle_outlined : Icons.warning_amber_rounded),
               label: Text(eventActive ? t.simulationEventOff : t.simulationEventOn),
               onPressed: () => practice.simulateEvent(active: !eventActive),
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: 12),
             OutlinedButton.icon(
               icon: const Icon(Icons.water_drop_outlined),
               label: Text(t.simulationResource),
