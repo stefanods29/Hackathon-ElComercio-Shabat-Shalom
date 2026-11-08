@@ -45,6 +45,10 @@ caducidades aprobados. Usar casos inventados y representar las llamadas oficiale
 | Canal de respaldo | Confirmar un aviso por token. Si el SMS está aprobado, dejar vencer otro acuse y comprobar el respaldo. | Canal, hora relativa, entrega y confirmación. |
 | Cierre | Comparar colas y pedidos con el [procedimiento de campo](modo-operativo.md#prueba-de-campo). Cerrar casos y evento y completar la anonimización. | Perdidos, duplicados, falta de acuse, casos cerrados y casos anonimizados. |
 
+La app crea pedidos de prioridad media por defecto. Para AL-01, AL-02 y BA-01, coordinación
+registra de inmediato la reclasificación por la ruta de prioridad del pedido asignado. Se mide
+el plazo acordado desde la recepción inicial y se registra también la hora de reclasificación.
+
 Medir la primera revisión desde la recepción del servidor. Registrar aparte el tiempo desde
 guardado local hasta recepción. Separar el escalamiento forzado del cumplimiento normal.
 Distinguir la aceptación del push por el proveedor de la recepción en el teléfono. Verificar

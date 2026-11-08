@@ -59,3 +59,14 @@ requiere constancia del equipo.
 | ID | Severidad | Hallazgo | Estado |
 |---|---|---|---|
 | PEN-01 | Media | Reutilizar una clave de apertura desde otra sesión de la misma cuenta devuelve el identificador del permiso anterior. Las reglas rechazan su uso en la otra sesión. | Corregido y repetido localmente en una [repetición en `657370d`](https://github.com/stefanods29/Hackathon-ElComercio-Shabat-Shalom/blob/657370da4022cf27111fdb1ad09652c60abdb6ce/docs/fase-2/evidencias/penetracion-idempotencia-sesion.md). Falta integrar y repetir en el candidato. |
+
+### Dependencias de producción
+
+`npm audit --omit=dev` reportó dos avisos moderados, en `glob` y `minimatch`, y seis
+paquetes afectados al contar sus dependientes. Los paquetes llegan por dependencias
+transitivas de Google Cloud. La simulación de `npm audit fix --omit=dev --package-lock-only
+--dry-run` conserva los seis resultados. No se reprodujo explotación a través de las rutas
+examinadas. Queda pendiente actualizar la cadena dentro de rangos compatibles y verificar
+los adaptadores de nube en un entorno aprobado.
+[Aviso de glob](https://github.com/advisories/GHSA-3g3m-2fjr-6pw4) ·
+[Aviso de minimatch](https://github.com/advisories/GHSA-g3hv-75wg-m249).
