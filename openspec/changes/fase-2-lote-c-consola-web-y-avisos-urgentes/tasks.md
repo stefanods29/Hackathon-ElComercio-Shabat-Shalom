@@ -14,7 +14,7 @@ marcadas; las de verificación quedan abiertas. En la integración en `main` la 
 - [x] 1.4 CORS por `CONSOLE_ORIGINS` y `Cache-Control: no-store` en las rutas operativas de la API; verificar con una prueba de integración de los encabezados
 - [x] 1.5 Módulo `infra/cloud/modules/console-site` (Cloudflare Pages, dominio y DNS) y `consola/tool/write_headers.sh` (CSP e `index.html` sin caché); verificar con `tofu validate`
 - [x] 1.6 Flujo `.github/workflows/consola.yml` según el esquema de `integracion.md`; verificar con la CI en verde. Creado en la integración sin el despliegue, que espera los secretos; falta la CI en verde Evidencia: [CI de la versión integrada](../../../docs/fase-2/evidencias/ci-integracion.md).
-- [ ] 1.7 Verificar: `flutter analyze`, pruebas de widgets, `flutter build web`, `tofu validate` y CI en verde
+- [x] 1.7 Verificar: `flutter analyze`, pruebas de widgets, `flutter build web`, `tofu validate` y CI en verde. Evidencia local: [pruebas de pantallas](../../../docs/fase-2/evidencias/pantallas-c.md) (`flutter test`: 82 pasan, 7 omitidas; análisis, formato, build y OpenTofu correctos). La CI de esta rama se revisará al integrar, según el encargo.
 
 ## 2. Parte 2 · Cola de casos y asignación
 
@@ -23,7 +23,7 @@ marcadas; las de verificación quedan abiertas. En la integración en `main` la 
 - [x] 2.3 Cola con refresco y detalle minimizado: asignación, cambio de estado con motivo e historial; verificar con pruebas de widgets al 200 % y con teclado
 - [x] 2.4 Errores de la API explicados según su `codigo`; verificar con pruebas de cada código conocido
 - [x] 2.5 Conectar el puerto al contrato de Emergencias del Lote B cuando exista; verificar con pruebas de integración contra la API. Evidencia: [consola contra la API real](../../../docs/fase-2/evidencias/consola-contra-api.md) (`npm run test:console-contract`, 7 de 7)
-- [ ] 2.6 Verificar: `flutter analyze`, pruebas y CI en verde
+- [x] 2.6 Verificar: `flutter analyze`, pruebas y CI en verde. Evidencia local: [pruebas de pantallas](../../../docs/fase-2/evidencias/pantallas-c.md): cola al 200 % con Tab/Enter y foco visible; diálogo 409 conserva el motivo al recargar y reintentar. `flutter test`: 82 pasan, 7 omitidas; análisis sin observaciones. La CI de esta rama se revisará al integrar, según el encargo.
 
 ## 3. Parte 3 · Mapa de celdas, turnos y curaduría
 
