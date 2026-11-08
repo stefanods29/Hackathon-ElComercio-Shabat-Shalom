@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:vecinal/features/avisos/data/providers.dart';
 import 'package:vecinal/features/avisos/data/push_service.dart';
+import 'package:vecinal/features/onboarding/practice_mode.dart';
 import 'package:vecinal/l10n/app_localizations.dart';
 
 class PushSettingsPage extends ConsumerStatefulWidget {
@@ -50,7 +51,7 @@ class _PushSettingsPageState extends ConsumerState<PushSettingsPage> with Widget
       appBar: AppBar(title: Text(texts.pushTitle)),
       body: SafeArea(
         child: ListView(
-          padding: const EdgeInsets.all(24),
+          padding: const EdgeInsets.fromLTRB(20, 8, 20, 32),
           children: [
             Icon(
               status == PushStatus.ready
@@ -65,6 +66,18 @@ class _PushSettingsPageState extends ConsumerState<PushSettingsPage> with Widget
             Semantics(liveRegion: true, child: Text(description)),
             const SizedBox(height: 16),
             Text(texts.pushPrivacy),
+            if (ref.watch(practiceModeProvider).value == true) ...[
+              const SizedBox(height: 24),
+              Text(texts.pushPracticeHelp),
+              const SizedBox(height: 12),
+              FilledButton.icon(
+                icon: const Icon(Icons.campaign_outlined),
+                label: Text(texts.pushPracticeSimulate),
+                onPressed: () => ref.read(foregroundPushProvider.notifier).show(const {
+                  'tipo': 'modo_emergencia_activado',
+                }),
+              ),
+            ],
             if (status != PushStatus.disabled && status != PushStatus.loading) ...[
               const SizedBox(height: 24),
               FilledButton(

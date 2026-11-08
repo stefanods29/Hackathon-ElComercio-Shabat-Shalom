@@ -55,6 +55,7 @@ void main() {
       SubmissionKind.publishService,
     ]);
     expect(find.text('Guardado en tu celular'), findsOneWidget);
+    await tester.scrollUntilVisible(find.text('Editar servicio'), 200);
     expect(find.text('Editar servicio'), findsOneWidget);
   });
 }

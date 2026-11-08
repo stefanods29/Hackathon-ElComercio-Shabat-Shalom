@@ -24,9 +24,11 @@ class LargeButton extends StatelessWidget {
     return FilledButton(
       onPressed: onPressed,
       style: FilledButton.styleFrom(
-        minimumSize: const Size(48, 56),
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        minimumSize: const Size(48, 60),
+        padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 18),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        elevation: enabled ? 4 : 0,
+        shadowColor: scheme.primary.withValues(alpha: 0.45),
         backgroundColor: enabled ? scheme.primary : scheme.surfaceContainerHighest,
         foregroundColor: enabled ? scheme.onPrimary : scheme.onSurfaceVariant,
       ),

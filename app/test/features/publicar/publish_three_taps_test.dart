@@ -29,7 +29,7 @@ void main() {
       expect(find.text('Elige qué quieres publicar'), findsOneWidget);
 
       // Toque 2: elegir un tipo (primer botón de la lista).
-      await tester.tap(find.widgetWithText(FilledButton, 'OFREZCO').first);
+      await tester.tap(find.text('OFREZCO').first);
       await tester.pumpAndSettle();
 
       // Ahora estamos en el formulario de publicar.
@@ -54,7 +54,7 @@ void main() {
     await tester.tap(find.byIcon(Icons.add));
     await tester.pumpAndSettle();
 
-    await tester.tap(find.widgetWithText(FilledButton, 'OFREZCO').first);
+    await tester.tap(find.text('OFREZCO').first);
     await tester.pumpAndSettle();
 
     // Borrar el título sugerido y poner uno de 2 letras.

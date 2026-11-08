@@ -17,7 +17,7 @@ SentryEvent privateAppEvent(SentryEvent event) {
     eventId: event.eventId,
     timestamp: event.timestamp,
     level: SentryLevel.error,
-    message: SentryMessage('Error técnico de Vecinal'),
+    message: SentryMessage('Error técnico de Wiki'),
     tags: const {'component': 'app'},
     exceptions: [
       SentryException(

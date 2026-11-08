@@ -32,64 +32,87 @@ class AccountPage extends ConsumerWidget {
         return Scaffold(
           appBar: AppBar(title: Text(texts.accountTitle)),
           body: ListView(
+            padding: const EdgeInsets.fromLTRB(20, 8, 20, 32),
             children: [
-              ListTile(
-                leading: const Icon(Icons.person),
-                title: Text(user?.displayName ?? texts.unknownUser),
-                subtitle: Text(texts.accountSignedIn),
+              _ProfileHeader(
+                name: user?.displayName ?? texts.unknownUser,
+                subtitle: texts.accountSignedIn,
               ),
-              const Divider(),
-              ListTile(
-                leading: const Icon(Icons.contact_phone_outlined),
-                title: Text(texts.emergencyContacts),
-                onTap: () => context.push(Routes.emergencyContacts),
+              const SizedBox(height: 20),
+              _Section(
+                children: [
+                  _Item(
+                    icon: Icons.contact_phone_outlined,
+                    title: texts.emergencyContacts,
+                    onTap: () => context.push(Routes.emergencyContacts),
+                  ),
+                  _Item(
+                    icon: Icons.emergency_outlined,
+                    title: texts.emergencyDashboard,
+                    color: Theme.of(context).colorScheme.error,
+                    onTap: () => context.go(Routes.emergencyDashboard),
+                  ),
+                ],
               ),
-              ListTile(
-                leading: const Icon(Icons.emergency_outlined),
-                title: Text(texts.emergencyDashboard),
-                onTap: () => context.go(Routes.emergencyDashboard),
+              _Section(
+                children: [
+                  _Item(
+                    icon: Icons.privacy_tip_outlined,
+                    title: texts.privacyTitle,
+                    onTap: () => context.push(Routes.myData),
+                  ),
+                  _Item(
+                    icon: Icons.verified_outlined,
+                    title: texts.levelsTitle,
+                    onTap: () => context.push(Routes.levels),
+                  ),
+                  _Item(
+                    icon: Icons.location_on_outlined,
+                    title: texts.changeZone,
+                    onTap: () => context.push(Routes.changeZone),
+                  ),
+                  _Item(
+                    icon: Icons.notifications_outlined,
+                    title: texts.pushTitle,
+                    onTap: () => context.push(Routes.pushSettings),
+                  ),
+                  _Item(
+                    icon: Icons.photo_library_outlined,
+                    title: texts.photosTitle,
+                    onTap: () => context.push(Routes.photos),
+                  ),
+                  _Item(
+                    icon: Icons.tips_and_updates,
+                    title: texts.viewTutorial,
+                    onTap: () => context.push(Routes.tutorial),
+                  ),
+                  _Item(
+                    icon: Icons.accessibility_new,
+                    title: texts.simpleModeTitle,
+                    subtitle: texts.simpleModeSubtitle,
+                    trailing: Switch(
+                      value: simpleModeAsync.value == true,
+                      onChanged: (_) => ref.read(simpleModeProvider.notifier).toggle(),
+                    ),
+                  ),
+                ],
               ),
-              ListTile(
-                leading: const Icon(Icons.privacy_tip_outlined),
-                title: Text(texts.privacyTitle),
-                onTap: () => context.push(Routes.myData),
-              ),
-              ListTile(
-                leading: const Icon(Icons.verified_outlined),
-                title: Text(texts.levelsTitle),
-                onTap: () => context.push(Routes.levels),
-              ),
-              ListTile(
-                leading: const Icon(Icons.location_on_outlined),
-                title: Text(texts.changeZone),
-                onTap: () => context.push(Routes.changeZone),
-              ),
-              ListTile(
-                leading: const Icon(Icons.tips_and_updates),
-                title: Text(texts.viewTutorial),
-                onTap: () => context.push(Routes.tutorial),
-              ),
-              ListTile(
-                leading: const Icon(Icons.accessibility_new),
-                title: Text(texts.simpleModeTitle),
-                subtitle: Text(texts.simpleModeSubtitle),
-                trailing: Switch(
-                  value: simpleModeAsync.value == true,
-                  onChanged: (_) => ref.read(simpleModeProvider.notifier).toggle(),
-                ),
-              ),
-              const Divider(),
-              ListTile(
-                leading: const Icon(Icons.logout),
-                title: Text(texts.signOut),
-                subtitle: Text(texts.signOutWarning),
-                onTap: () => _confirmSignOut(context, ref),
-              ),
-              ListTile(
-                leading: const Icon(Icons.phone_missed),
-                title: Text(texts.lostPhone),
-                subtitle: Text(texts.lostPhoneSubtitle),
-                onTap: () => _confirmLostPhone(context, ref),
+              _Section(
+                children: [
+                  _Item(
+                    icon: Icons.logout,
+                    title: texts.signOut,
+                    subtitle: texts.signOutWarning,
+                    onTap: () => _confirmSignOut(context, ref),
+                  ),
+                  _Item(
+                    icon: Icons.phone_missed,
+                    title: texts.lostPhone,
+                    subtitle: texts.lostPhoneSubtitle,
+                    color: Theme.of(context).colorScheme.error,
+                    onTap: () => _confirmLostPhone(context, ref),
+                  ),
+                ],
               ),
             ],
           ),
@@ -189,5 +212,109 @@ class AccountPage extends ConsumerWidget {
         }
       }
     }
+  }
+}
+
+class _ProfileHeader extends StatelessWidget {
+  const _ProfileHeader({required this.name, required this.subtitle});
+  final String name;
+  final String subtitle;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final initial = name.trim().isEmpty ? '?' : name.trim().characters.first.toUpperCase();
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        gradient: const LinearGradient(
+          colors: [Color(0xFF0F766E), Color(0xFF1E3A5F)],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(24),
+        boxShadow: [
+          BoxShadow(
+            color: const Color(0xFF0F766E).withValues(alpha: 0.3),
+            blurRadius: 24,
+            offset: const Offset(0, 10),
+          ),
+        ],
+      ),
+      child: Row(
+        children: [
+          CircleAvatar(
+            radius: 30,
+            backgroundColor: Colors.white.withValues(alpha: 0.2),
+            foregroundColor: Colors.white,
+            child: Text(initial, style: const TextStyle(fontSize: 26, fontWeight: FontWeight.w800)),
+          ),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(name, style: theme.textTheme.titleLarge?.copyWith(color: Colors.white)),
+                const SizedBox(height: 4),
+                Text(subtitle, style: theme.textTheme.bodyMedium?.copyWith(color: Colors.white)),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// A group of options on a soft white surface.
+class _Section extends StatelessWidget {
+  const _Section({required this.children});
+  final List<Widget> children;
+
+  @override
+  Widget build(BuildContext context) => Card(
+    margin: const EdgeInsets.only(bottom: 16),
+    clipBehavior: Clip.antiAlias,
+    child: Padding(
+      padding: const EdgeInsets.symmetric(vertical: 6),
+      child: Column(children: children),
+    ),
+  );
+}
+
+class _Item extends StatelessWidget {
+  const _Item({
+    required this.icon,
+    required this.title,
+    this.subtitle,
+    this.trailing,
+    this.onTap,
+    this.color,
+  });
+  final IconData icon;
+  final String title;
+  final String? subtitle;
+  final Widget? trailing;
+  final VoidCallback? onTap;
+  final Color? color;
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    final tint = color ?? scheme.primary;
+    return ListTile(
+      leading: Container(
+        width: 42,
+        height: 42,
+        decoration: BoxDecoration(color: tint.withValues(alpha: 0.1), shape: BoxShape.circle),
+        child: Icon(icon, color: tint, size: 22),
+      ),
+      title: Text(title, style: const TextStyle(fontWeight: FontWeight.w600)),
+      subtitle: subtitle == null ? null : Text(subtitle!),
+      trailing:
+          trailing ??
+          (onTap == null ? null : Icon(Icons.chevron_right, color: scheme.onSurfaceVariant)),
+      onTap: onTap,
+    );
   }
 }

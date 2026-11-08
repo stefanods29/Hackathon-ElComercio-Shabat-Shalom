@@ -162,7 +162,7 @@ class MyReviewsPage extends ConsumerWidget {
           .watch(myReviewsProvider)
           .when(
             data: (items) => ListView(
-              padding: const EdgeInsets.all(16),
+              padding: const EdgeInsets.fromLTRB(20, 8, 20, 32),
               children: [
                 if (items.isEmpty) Text(t.noReviews),
                 for (final review in items) ReviewCard(review: review),

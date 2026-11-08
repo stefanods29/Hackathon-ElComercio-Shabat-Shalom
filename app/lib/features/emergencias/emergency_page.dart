@@ -29,7 +29,7 @@ class EmergencyPage extends ConsumerWidget {
       appBar: AppBar(title: Text(t.emergencyTitle)),
       body: SafeArea(
         child: ListView(
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.fromLTRB(20, 8, 20, 32),
           children: [
             Text(t.connectsNeighbors, style: Theme.of(context).textTheme.titleLarge),
             LargeButton(

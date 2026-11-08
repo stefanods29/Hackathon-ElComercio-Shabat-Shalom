@@ -23,12 +23,35 @@ class ConnectionBanner extends ConsumerWidget {
         : texts.dataFrom(timeAgo(lastSyncedAt, ref.watch(clockProvider)(), texts));
     return Semantics(
       liveRegion: true,
-      child: Material(
-        color: scheme.surfaceContainerHighest,
-        child: ListTile(
-          leading: Icon(Icons.cloud_off, color: scheme.onSurface),
-          title: Text(texts.offline, style: const TextStyle(fontWeight: FontWeight.w700)),
-          subtitle: Text(detail),
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(20, 4, 20, 12),
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          decoration: BoxDecoration(
+            color: scheme.secondaryContainer,
+            borderRadius: BorderRadius.circular(20),
+          ),
+          child: Row(
+            children: [
+              Icon(Icons.cloud_off, color: scheme.onSecondaryContainer),
+              const SizedBox(width: 14),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      texts.offline,
+                      style: TextStyle(
+                        fontWeight: FontWeight.w700,
+                        color: scheme.onSecondaryContainer,
+                      ),
+                    ),
+                    Text(detail, style: TextStyle(color: scheme.onSecondaryContainer)),
+                  ],
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

@@ -24,8 +24,8 @@ class SubmissionStatusChip extends StatelessWidget {
       SubmissionStatus.sent => (
         Icons.cloud_done_outlined,
         texts.statusSent,
-        scheme.secondaryContainer,
-        scheme.onSecondaryContainer,
+        scheme.primaryContainer,
+        scheme.onPrimaryContainer,
       ),
       SubmissionStatus.couldNotComplete => (
         Icons.error_outline,
@@ -40,18 +40,18 @@ class SubmissionStatusChip extends StatelessWidget {
       // A row instead of Chip: the label wraps at 200 % text and the widget still reports its
       // intrinsic size, which dialogs need.
       child: DecoratedBox(
-        decoration: BoxDecoration(color: background, borderRadius: BorderRadius.circular(8)),
+        decoration: BoxDecoration(color: background, borderRadius: BorderRadius.circular(999)),
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Icon(icon, color: foreground, size: 20),
-              const SizedBox(width: 8),
+              Icon(icon, color: foreground, size: 18),
+              const SizedBox(width: 6),
               Flexible(
                 child: Text(
                   label,
-                  style: TextStyle(color: foreground, fontWeight: FontWeight.w600),
+                  style: TextStyle(color: foreground, fontWeight: FontWeight.w600, fontSize: 14),
                 ),
               ),
             ],

@@ -122,7 +122,7 @@ class _PublishFormPageState extends ConsumerState<PublishFormPage> {
         leading: IconButton(icon: const Icon(Icons.arrow_back), onPressed: () => context.pop()),
       ),
       body: ListView(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.fromLTRB(20, 8, 20, 32),
         children: [
           Text(
             '${widget.type.apiValue.toUpperCase()} · ${suggestion.category}',

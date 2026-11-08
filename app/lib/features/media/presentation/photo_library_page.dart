@@ -56,7 +56,7 @@ class _PhotoLibraryPageState extends ConsumerState<PhotoLibraryPage> with Widget
                           child: Text(texts.photosStorageFailed),
                         ),
                         data: (photos) => ListView(
-                          padding: const EdgeInsets.all(16),
+                          padding: const EdgeInsets.fromLTRB(20, 8, 20, 32),
                           children: [
                             Card(
                               child: Padding(

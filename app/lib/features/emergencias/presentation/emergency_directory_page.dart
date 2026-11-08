@@ -50,7 +50,7 @@ class _DirectoryList extends ConsumerWidget {
     final now = ref.watch(clockProvider)();
     final isBackup = directory.origin == EmergencyDirectoryOrigin.backup;
     return ListView(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.fromLTRB(20, 8, 20, 32),
       children: [
         Text(texts.emergencyLifeRisk, style: Theme.of(context).textTheme.titleMedium),
         const SizedBox(height: 12),

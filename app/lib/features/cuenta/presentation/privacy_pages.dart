@@ -54,7 +54,7 @@ class _ConsentPageState extends ConsumerState<ConsentPage> {
       appBar: AppBar(title: Text(t.consentTitle)),
       body: SafeArea(
         child: ListView(
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.fromLTRB(20, 8, 20, 32),
           children: [
             if (data?.simulated == true) Text(t.privacyDemo),
             CheckboxListTile(
@@ -171,7 +171,7 @@ class _MyDataPageState extends ConsumerState<MyDataPage> {
       appBar: AppBar(title: Text(t.privacyTitle)),
       body: SafeArea(
         child: ListView(
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.fromLTRB(20, 8, 20, 32),
           children: [
             if (!repository.available)
               Text(t.privacyUnavailable)
@@ -377,7 +377,7 @@ class LevelsPage extends ConsumerWidget {
       appBar: AppBar(title: Text(t.levelsTitle)),
       body: SafeArea(
         child: ListView(
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.fromLTRB(20, 8, 20, 32),
           children: [
             Text(t.currentLevel(level), style: Theme.of(context).textTheme.headlineSmall),
             for (final text in [t.levelZero, t.levelOne, t.levelTwo, t.levelThree])
@@ -414,7 +414,7 @@ class _ChangeZonePageState extends ConsumerState<ChangeZonePage> {
       appBar: AppBar(title: Text(t.changeZone)),
       body: SafeArea(
         child: ListView(
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.fromLTRB(20, 8, 20, 32),
           children: [
             Text(t.changeZoneBody),
             if (!sync.hasValue || sync.value!.pendingUploads > 0) Text(t.pendingZoneWarning),

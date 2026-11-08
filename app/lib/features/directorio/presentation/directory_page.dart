@@ -69,78 +69,118 @@ class _DirectoryPageState extends ConsumerState<DirectoryPage> {
       appBar: AppBar(title: Text(t.directoryTitle)),
       body: SafeArea(
         child: ListView(
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.fromLTRB(20, 8, 20, 32),
           children: [
             const ConnectionBanner(),
             TextField(
               decoration: InputDecoration(
+                hintText: t.searchServices,
                 labelText: t.searchServices,
+                floatingLabelBehavior: FloatingLabelBehavior.never,
                 prefixIcon: const Icon(Icons.search),
               ),
               onChanged: (value) => setState(() => _text = value),
             ),
-            const SizedBox(height: 12),
-            Wrap(
-              spacing: 8,
-              runSpacing: 8,
-              children: [
-                for (final category in categories)
-                  OutlinedButton.icon(
-                    style: OutlinedButton.styleFrom(minimumSize: const Size(48, 48)),
-                    icon: Icon(
-                      _category == category.id
-                          ? Icons.check_circle_outline
-                          : _categoryIcon(category.icon),
+            const SizedBox(height: 16),
+            SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              clipBehavior: Clip.none,
+              child: Row(
+                children: [
+                  FilterChip(
+                    avatar: Icon(
+                      Icons.emergency_outlined,
+                      size: 18,
+                      color: Theme.of(context).colorScheme.error,
                     ),
-                    label: Text(category.name),
-                    onPressed: () =>
-                        setState(() => _category = _category == category.id ? null : category.id),
+                    label: Text(t.usefulInEmergency),
+                    selected: _emergencyOnly || emergency,
+                    onSelected: emergency
+                        ? null
+                        : (value) => setState(() => _emergencyOnly = value),
                   ),
-              ],
+                  for (final category in categories) ...[
+                    const SizedBox(width: 8),
+                    FilterChip(
+                      avatar: Icon(_categoryIcon(category.icon), size: 18),
+                      showCheckmark: false,
+                      label: Text(category.name),
+                      selected: _category == category.id,
+                      onSelected: (_) =>
+                          setState(() => _category = _category == category.id ? null : category.id),
+                    ),
+                  ],
+                ],
+              ),
             ),
             if (_category != null)
-              TextButton(
-                onPressed: () => setState(() => _category = null),
-                child: Text(t.clearFilters),
+              Align(
+                alignment: Alignment.centerLeft,
+                child: TextButton(
+                  onPressed: () => setState(() => _category = null),
+                  child: Text(t.clearFilters),
+                ),
               ),
-            SwitchListTile.adaptive(
-              contentPadding: EdgeInsets.zero,
-              title: Text(t.usefulInEmergency),
-              value: _emergencyOnly || emergency,
-              onChanged: emergency ? null : (value) => setState(() => _emergencyOnly = value),
-            ),
+            const SizedBox(height: 8),
             SwitchListTile.adaptive(
               contentPadding: EdgeInsets.zero,
               title: Text(t.emergencyImages),
-              subtitle: Text(t.emergencyImagesHelp),
+              subtitle: Text(
+                t.emergencyImagesHelp,
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                ),
+              ),
               value: ref.watch(imagesEnabledProvider),
               onChanged: (value) => ref.read(imagesEnabledProvider.notifier).set(value),
             ),
-            if (synced != null) Text(t.updatedAgo(timeAgo(synced, ref.watch(clockProvider)(), t))),
             if (ref.watch(syncStatusProvider).value?.connected != true)
-              Text(t.emergencyOfflineWarning),
+              Padding(
+                padding: const EdgeInsets.only(bottom: 8),
+                child: Text(t.emergencyOfflineWarning),
+              ),
             services.when(
               loading: () => const Center(child: CircularProgressIndicator()),
               error: (_, _) => Text(t.directoryUnavailable),
               data: (items) => Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  if (items.isEmpty) Text(t.directoryEmpty),
+                  if (items.isEmpty)
+                    Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 32),
+                      child: Text(t.directoryEmpty, textAlign: TextAlign.center),
+                    ),
                   if (items.isNotEmpty)
-                    OutlinedButton.icon(
-                      icon: const Icon(Icons.map_outlined),
-                      label: Text(t.mapTitle),
-                      onPressed: () => context.push(
-                        Routes.map,
-                        extra: MapFocus(
-                          items
-                              .map(
-                                (s) =>
-                                    MapMarker(label: s.title, location: s.location.approximate()),
-                              )
-                              .toList(),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: synced == null
+                              ? const SizedBox.shrink()
+                              : Text(
+                                  t.updatedAgo(timeAgo(synced, ref.watch(clockProvider)(), t)),
+                                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                  ),
+                                ),
                         ),
-                      ),
+                        TextButton.icon(
+                          icon: const Icon(Icons.map_outlined),
+                          label: Text(t.mapTitle),
+                          onPressed: () => context.push(
+                            Routes.map,
+                            extra: MapFocus(
+                              items
+                                  .map(
+                                    (s) => MapMarker(
+                                      label: s.title,
+                                      location: s.location.approximate(),
+                                    ),
+                                  )
+                                  .toList(),
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                   for (final service in items) ServiceTile(service: service),
                 ],
@@ -166,28 +206,110 @@ class ServiceTile extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final t = AppLocalizations.of(context);
+    final theme = Theme.of(context);
+    final muted = theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.onSurfaceVariant);
     return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Text(service.title, style: Theme.of(context).textTheme.titleLarge),
-            Text(
-              t.approximateDistance(
-                approximateDistanceMeters(ref.watch(directoryOriginProvider), service.location),
+      clipBehavior: Clip.antiAlias,
+      child: InkWell(
+        onTap: () => context.push('/servicios/${service.id}'),
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(20, 20, 12, 12),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  CircleAvatar(
+                    radius: 22,
+                    backgroundColor: theme.colorScheme.primaryContainer,
+                    foregroundColor: theme.colorScheme.onPrimaryContainer,
+                    child: Icon(
+                      service.availableInEmergency
+                          ? Icons.handyman_outlined
+                          : Icons.storefront_outlined,
+                    ),
+                  ),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(service.title, style: theme.textTheme.titleLarge),
+                        const SizedBox(height: 4),
+                        Text(
+                          t.approximateDistance(
+                            approximateDistanceMeters(
+                              ref.watch(directoryOriginProvider),
+                              service.location,
+                            ),
+                          ),
+                          style: muted,
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
               ),
-            ),
-            Text(t.serviceRating(service.averageRating.toStringAsFixed(1), service.reviewCount)),
-            Text(t.zoneEndorsements(service.zoneEndorsements)),
-            SubmissionStatusChip(status: service.submissionStatus),
-            FilledButton(
-              onPressed: () => context.push('/servicios/${service.id}'),
-              child: Text(t.viewService),
-            ),
-          ],
+              const SizedBox(height: 12),
+              Wrap(
+                spacing: 16,
+                runSpacing: 4,
+                children: [
+                  _Fact(
+                    icon: Icons.star_rounded,
+                    color: const Color(0xFFB7791F),
+                    text: t.serviceRating(
+                      service.averageRating.toStringAsFixed(1),
+                      service.reviewCount,
+                    ),
+                  ),
+                  _Fact(
+                    icon: Icons.thumb_up_alt_outlined,
+                    color: theme.colorScheme.primary,
+                    text: t.zoneEndorsements(service.zoneEndorsements),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 8),
+              Row(
+                children: [
+                  SubmissionStatusChip(status: service.submissionStatus),
+                  const Spacer(),
+                  TextButton(
+                    onPressed: () => context.push('/servicios/${service.id}'),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(t.viewService),
+                        const SizedBox(width: 4),
+                        const Icon(Icons.arrow_forward, size: 18),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
         ),
       ),
     );
   }
+}
+
+class _Fact extends StatelessWidget {
+  const _Fact({required this.icon, required this.color, required this.text});
+  final IconData icon;
+  final Color color;
+  final String text;
+
+  @override
+  Widget build(BuildContext context) => Row(
+    mainAxisSize: MainAxisSize.min,
+    children: [
+      Icon(icon, size: 18, color: color),
+      const SizedBox(width: 6),
+      Flexible(child: Text(text, style: Theme.of(context).textTheme.bodyMedium)),
+    ],
+  );
 }

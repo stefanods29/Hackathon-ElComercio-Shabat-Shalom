@@ -20,10 +20,18 @@ class PublicEmergencyBoardPage extends ConsumerWidget {
     final available =
         ref.watch(practiceModeProvider).asData?.value == false &&
         ref.watch(emergencyBoardRepositoryProvider) != null;
+    final practice = ref.watch(practiceModeProvider).asData?.value == true;
+    final clock = ref.watch(clockProvider);
     return Scaffold(
       appBar: AppBar(title: Text(texts.emergencyBoardTitle)),
       body: SafeArea(
-        child: !available
+        child: practice
+            ? _BoardList(
+                clock: clock,
+                snapshot: practiceBoardSnapshot(clock()),
+                notice: texts.emergencyBoardPractice,
+              )
+            : !available
             ? _BoardList(clock: ref.watch(clockProvider), notice: texts.emergencyBoardUnavailable)
             : ref
                   .watch(emergencyBoardProvider)
@@ -103,7 +111,7 @@ class _BoardListState extends State<_BoardList> {
     final now = widget.clock();
     final aggregateHeader = resources.length + 2;
     return ListView.builder(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.fromLTRB(20, 8, 20, 32),
       itemCount: 3 + resources.length + demands.length,
       itemBuilder: (context, index) {
         if (index == 0) {
@@ -186,3 +194,64 @@ class _BoardListState extends State<_BoardList> {
     ),
   );
 }
+
+/// Fictitious zone board for practice mode: aggregated by cell, never a person or a case.
+PublicEmergencySnapshot practiceBoardSnapshot(DateTime now) => PublicEmergencySnapshot(
+  resources: [
+    PublicCriticalResource(
+      id: 'practica-agua',
+      kind: 'agua',
+      quantity: 40,
+      cell: 'A3',
+      reportedAt: now.subtract(const Duration(minutes: 35)),
+      staleAfter: const Duration(hours: 6),
+      verification: 'vecinos',
+      confirmations: 3,
+      official: false,
+      label: 'Bidones de agua en el local comunal (ficticio)',
+    ),
+    PublicCriticalResource(
+      id: 'practica-albergue',
+      kind: 'albergue',
+      quantity: 25,
+      cell: 'B2',
+      reportedAt: now.subtract(const Duration(hours: 2)),
+      staleAfter: const Duration(hours: 12),
+      verification: 'vecinos',
+      confirmations: 5,
+      official: false,
+      label: 'Albergue en el colegio (ficticio)',
+    ),
+    PublicCriticalResource(
+      id: 'practica-medicamentos',
+      kind: 'medicamentos',
+      quantity: 8,
+      cell: 'C1',
+      reportedAt: now.subtract(const Duration(hours: 9)),
+      staleAfter: const Duration(hours: 6),
+      verification: 'sin_verificar',
+      confirmations: 0,
+      official: false,
+    ),
+  ],
+  demands: [
+    CellDemand(
+      cell: 'A3',
+      need: 'agua',
+      count: 6,
+      updatedAt: now.subtract(const Duration(minutes: 10)),
+    ),
+    CellDemand(
+      cell: 'B2',
+      need: 'albergue',
+      count: 2,
+      updatedAt: now.subtract(const Duration(minutes: 25)),
+    ),
+    CellDemand(
+      cell: 'C1',
+      need: 'traslado',
+      count: 1,
+      updatedAt: now.subtract(const Duration(hours: 1)),
+    ),
+  ],
+);

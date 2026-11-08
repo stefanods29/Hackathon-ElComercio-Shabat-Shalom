@@ -32,19 +32,34 @@ class VecinalApp extends ConsumerWidget {
                   child: SafeArea(
                     bottom: false,
                     child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                      padding: const EdgeInsets.fromLTRB(20, 2, 8, 2),
                       child: Row(
                         children: [
+                          Icon(
+                            Icons.science_outlined,
+                            size: 18,
+                            color: Theme.of(context).colorScheme.onTertiaryContainer,
+                          ),
+                          const SizedBox(width: 8),
                           Expanded(
                             child: Text(
                               AppLocalizations.of(context).practiceMode,
-                              style: TextStyle(
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: Theme.of(context).textTheme.labelLarge?.copyWith(
                                 color: Theme.of(context).colorScheme.onTertiaryContainer,
-                                fontWeight: FontWeight.bold,
+                                fontWeight: FontWeight.w700,
                               ),
                             ),
                           ),
                           TextButton(
+                            style: TextButton.styleFrom(
+                              foregroundColor: Theme.of(context).colorScheme.onTertiaryContainer,
+                              textStyle: Theme.of(context).textTheme.labelLarge?.copyWith(
+                                fontWeight: FontWeight.w600,
+                                decoration: TextDecoration.underline,
+                              ),
+                            ),
                             onPressed: () async {
                               await ref.read(practiceModeProvider.notifier).set(false);
                               ref.read(routerProvider).go(Routes.home);

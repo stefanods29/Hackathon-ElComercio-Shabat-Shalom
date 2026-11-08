@@ -56,10 +56,10 @@ class EmergencyLayout extends ConsumerWidget {
       appBar: AppBar(title: Text(title)),
       body: SafeArea(
         child: ListView(
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.fromLTRB(20, 8, 20, 32),
           children: [
             for (final child in children)
-              Padding(padding: const EdgeInsets.only(bottom: 12), child: child),
+              Padding(padding: const EdgeInsets.only(bottom: 16), child: child),
           ],
         ),
       ),

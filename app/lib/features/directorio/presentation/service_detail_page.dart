@@ -37,19 +37,55 @@ class ServiceDetailPage extends ConsumerWidget {
               data: (service) => service == null
                   ? Center(child: Text(t.serviceUnavailable))
                   : ListView(
-                      padding: const EdgeInsets.all(16),
+                      padding: const EdgeInsets.fromLTRB(20, 8, 20, 32),
                       children: [
-                        Text(service.title, style: Theme.of(context).textTheme.headlineSmall),
-                        if (service.description != null) Text(service.description!),
-                        SubmissionStatusChip(status: service.submissionStatus),
-                        Text(
-                          t.serviceRating(
-                            service.averageRating.toStringAsFixed(1),
-                            service.reviewCount,
+                        Card(
+                          margin: EdgeInsets.zero,
+                          child: Padding(
+                            padding: const EdgeInsets.all(20),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  service.title,
+                                  style: Theme.of(context).textTheme.headlineSmall,
+                                ),
+                                if (service.description != null) ...[
+                                  const SizedBox(height: 8),
+                                  Text(service.description!),
+                                ],
+                                const SizedBox(height: 12),
+                                SubmissionStatusChip(status: service.submissionStatus),
+                                const SizedBox(height: 16),
+                                _DetailFact(
+                                  icon: Icons.star_rounded,
+                                  color: const Color(0xFFB7791F),
+                                  text: t.serviceRating(
+                                    service.averageRating.toStringAsFixed(1),
+                                    service.reviewCount,
+                                  ),
+                                ),
+                                _DetailFact(
+                                  icon: Icons.thumb_up_alt_outlined,
+                                  color: Theme.of(context).colorScheme.primary,
+                                  text: t.zoneEndorsements(service.zoneEndorsements),
+                                ),
+                                _DetailFact(
+                                  icon: Icons.place_outlined,
+                                  color: Theme.of(context).colorScheme.secondary,
+                                  text: t.publicApproximateLocation,
+                                ),
+                              ],
+                            ),
                           ),
                         ),
-                        Text(t.zoneEndorsements(service.zoneEndorsements)),
-                        Text(t.publicApproximateLocation),
+                        const SizedBox(height: 20),
+                        FilledButton.icon(
+                          onPressed: () => context.push('/proveedores/${service.providerId}'),
+                          icon: const Icon(Icons.person_outline),
+                          label: Text(t.viewProvider),
+                        ),
+                        const SizedBox(height: 12),
                         OutlinedButton.icon(
                           onPressed: () => context.push(
                             Routes.map,
@@ -63,11 +99,9 @@ class ServiceDetailPage extends ConsumerWidget {
                           icon: const Icon(Icons.map_outlined),
                           label: Text(t.openOnMap),
                         ),
-                        FilledButton(
-                          onPressed: () => context.push('/proveedores/${service.providerId}'),
-                          child: Text(t.viewProvider),
-                        ),
+                        const SizedBox(height: 4),
                         ReportButton(content: ReportedContent.service, contentId: service.id),
+                        const SizedBox(height: 12),
                         ReviewsSection(
                           serviceId: service.id,
                           isOwnService:
@@ -136,7 +170,7 @@ class ProviderProfilePage extends ConsumerWidget {
           data: (provider) => provider == null
               ? Center(child: Text(t.providerUnavailable))
               : ListView(
-                  padding: const EdgeInsets.all(16),
+                  padding: const EdgeInsets.fromLTRB(20, 8, 20, 32),
                   children: [
                     Text(provider.publicName, style: Theme.of(context).textTheme.headlineSmall),
                     if (provider.description != null) Text(provider.description!),
@@ -186,4 +220,31 @@ class ProviderProfilePage extends ConsumerWidget {
     final count = items.fold(0, (n, s) => n + s.reviewCount);
     return count == 0 ? 0 : items.fold(0.0, (n, s) => n + s.averageRating * s.reviewCount) / count;
   }
+}
+
+class _DetailFact extends StatelessWidget {
+  const _DetailFact({required this.icon, required this.color, required this.text});
+  final IconData icon;
+  final Color color;
+  final String text;
+
+  @override
+  Widget build(BuildContext context) => Padding(
+    padding: const EdgeInsets.symmetric(vertical: 4),
+    child: Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Container(
+          width: 32,
+          height: 32,
+          decoration: BoxDecoration(color: color.withValues(alpha: 0.12), shape: BoxShape.circle),
+          child: Icon(icon, size: 18, color: color),
+        ),
+        const SizedBox(width: 12),
+        Expanded(
+          child: Padding(padding: const EdgeInsets.only(top: 5), child: Text(text)),
+        ),
+      ],
+    ),
+  );
 }

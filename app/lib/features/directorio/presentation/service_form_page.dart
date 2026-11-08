@@ -98,7 +98,7 @@ class _ServiceFormPageState extends ConsumerState<ServiceFormPage> {
         child: Form(
           key: _form,
           child: ListView(
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.fromLTRB(20, 8, 20, 32),
             children: [
               if (service == null)
                 TextFormField(

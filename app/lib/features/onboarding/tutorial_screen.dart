@@ -28,7 +28,7 @@ class _TutorialScreenState extends ConsumerState<TutorialScreen> {
       appBar: AppBar(title: Text(t.tutorialTitle)),
       body: SafeArea(
         child: ListView(
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.fromLTRB(20, 8, 20, 32),
           children: [
             Text(t.tutorialSubtitle, style: Theme.of(context).textTheme.titleLarge),
             Text(t.tutorialFallback),

@@ -146,7 +146,7 @@ class _CaseContentsState extends State<_CaseContents> {
         };
         final coordinates = NumberFormat('0.00000', texts.localeName);
         return ListView(
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.fromLTRB(20, 8, 20, 32),
           children: [
             Text(status, style: Theme.of(context).textTheme.titleLarge),
             Text(texts.operationalNeed(value.need)),

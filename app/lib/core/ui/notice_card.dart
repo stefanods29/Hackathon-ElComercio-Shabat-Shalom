@@ -28,23 +28,29 @@ class NoticeCard extends StatelessWidget {
     return Semantics(
       liveRegion: true,
       child: Container(
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(color: bg, borderRadius: BorderRadius.circular(16)),
+        padding: const EdgeInsets.all(18),
+        decoration: BoxDecoration(color: bg, borderRadius: BorderRadius.circular(20)),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Icon(icon, color: fg, size: 32),
-            const SizedBox(width: 16),
+            Container(
+              width: 44,
+              height: 44,
+              decoration: BoxDecoration(color: fg.withValues(alpha: 0.1), shape: BoxShape.circle),
+              child: Icon(icon, color: fg, size: 24),
+            ),
+            const SizedBox(width: 14),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  const SizedBox(height: 2),
                   Text(
                     title,
                     style: TextStyle(color: fg, fontWeight: FontWeight.w700, fontSize: 16),
                   ),
                   const SizedBox(height: 4),
-                  Text(detail, style: TextStyle(color: fg, fontSize: 14)),
+                  Text(detail, style: TextStyle(color: fg, fontSize: 14, height: 1.45)),
                 ],
               ),
             ),

@@ -1,6 +1,6 @@
 {
   "@@locale": "es",
-  "appName": "Vecinal",
+  "appName": "Wiki",
   "@appName": {
     "description": "Nombre de la app en la barra y el selector de tareas."
   },
@@ -138,7 +138,7 @@
   "@goToWall": {
     "description": "Botón para volver al muro desde la bandeja de acciones"
   },
-  "tutorialTitle": "Tutorial de Vecinal",
+  "tutorialTitle": "Tutorial de Wiki",
   "@tutorialTitle": {
     "description": "Título de la pantalla de tutorial"
   },
@@ -182,7 +182,7 @@
   "@tutorialEmergencyNote": {
     "description": "Texto del paso del tutorial sobre emergencia (parte 2)"
   },
-  "signInTitle": "Ingresar a Vecinal",
+  "signInTitle": "Ingresar a Wiki",
   "@signInTitle": {
     "description": "Título de la pantalla de ingreso"
   },
@@ -360,7 +360,7 @@
   "mapDeleteWarning": "Dejarás de tener este mapa disponible sin conexión hasta que lo vuelvas a descargar.",
   "mapKeepDownload": "Conservar mapa",
   "mapConfirmDelete": "Borrar mapa",
-  "pushDeniedHelp": "Puedes seguir usando Vecinal. Para recibir avisos, abre Ajustes de tu teléfono, busca Vecinal y activa Notificaciones. Después vuelve aquí y comprueba el permiso.",
+  "pushDeniedHelp": "Puedes seguir usando Wiki. Para recibir avisos, abre Ajustes de tu teléfono, busca Wiki y activa Notificaciones. Después vuelve aquí y comprueba el permiso.",
   "pushEnable": "Activar avisos",
   "mapOfflineHeading": "Lleva tu barrio contigo",
   "pushPending": "Guardado en tu celular. Volveremos a intentarlo cuando haya conexión.",
@@ -371,14 +371,14 @@
   "pushCheckAgain": "Comprobar de nuevo",
   "pushLoading": "Preparando avisos…",
   "pushPermissionExplanation": "Permite los avisos para enterarte cuando alguien tome tu favor y recibir novedades públicas de tu zona.",
-  "pushPrivacy": "La pantalla bloqueada solo mostrará un texto general. El detalle se consulta dentro de Vecinal.",
+  "pushPrivacy": "La pantalla bloqueada solo mostrará un texto general. El detalle se consulta dentro de Wiki.",
   "pushDismiss": "Cerrar aviso",
   "postDetailUnavailable": "Esta publicación todavía no está disponible en tu celular. Comprueba la conexión y vuelve a intentarlo.",
   "pushFailed": "No se pudo completar. Comprueba tu conexión y vuelve a intentarlo.",
   "pushWaitingSession": "Inicia sesión para vincular los avisos a tu cuenta.",
   "pushOpen": "Ver",
   "pushTitle": "Avisos",
-  "pushGenericUpdate": "Tienes una actualización en Vecinal",
+  "pushGenericUpdate": "Tienes una actualización en Wiki",
   "mapAreaLabel": "TU ZONA",
   "pushReady": "Avisos activados para tu cuenta y tu zona.",
   "operationalTitle": "Modo operativo",
@@ -687,6 +687,12 @@
   "emergencyUpdated": "Directorio público descargado.",
   "openOnMap": "Ver en el mapa sin conexión",
   "practiceMode": "Modo práctica",
+  "emergencyBoardPractice": "Datos ficticios de práctica, agrupados por celda. No son de tu zona real.",
+  "pushPracticeSimulate": "Simular un aviso urgente",
+  "pushPracticeHelp": "Solo práctica: el aviso aparece dentro de la app, no llega como notificación del celular ni a otros vecinos.",
+  "wallSubtitle": "Favores y ayuda entre vecinos de tu zona.",
+  "wallLatest": "Lo último en tu zona",
+  "moreOptions": "Más opciones",
   "practiceHelp": "Lo que hagas aquí se queda en datos de práctica; no se envía a vecinos ni modifica tu cuenta.",
   "finishTutorial": "Terminar tutorial",
   "tutorialDirectoryStep": "Busca gasfiter, incluso sin tildes. El directorio muestra distancia aproximada y recomendaciones.",
@@ -780,7 +786,7 @@
   "photosDeleteExplanation": "Se eliminará este borrador de tu celular y se solicitará su retiro del servidor. No cambia otras publicaciones.",
   "photosHeading": "Fotos para tus publicaciones",
   "photosTitle": "Mis fotos",
-  "sharePublicPost": "Mira esta publicación en Vecinal: {link}",
+  "sharePublicPost": "Mira esta publicación en Wiki: {link}",
   "photosDisabled": "Las fotos todavía no están habilitadas en esta versión.",
   "photosUploading": "Subiendo foto…",
   "photosReady": "Foto procesada y privada. Todavía no está publicada.",

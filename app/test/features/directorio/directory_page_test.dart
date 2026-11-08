@@ -31,7 +31,7 @@ void main() {
       expect(find.text('Visto Bueno de tu zona: 2'), findsOneWidget);
     }
     // The page also has the image switch of emergency mode (Phase 2, Lot D).
-    await tester.tap(find.widgetWithText(SwitchListTile, 'Útil en emergencia'));
+    await tester.tap(find.widgetWithText(FilterChip, 'Útil en emergencia'));
     await tester.pumpAndSettle();
     expect(find.text('Gasfitero a domicilio'), findsOneWidget);
   });

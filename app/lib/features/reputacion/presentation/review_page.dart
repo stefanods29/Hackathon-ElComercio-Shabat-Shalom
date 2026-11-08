@@ -116,7 +116,7 @@ class _ReviewPageState extends ConsumerState<ReviewPage> {
       appBar: AppBar(title: Text(t.writeReview)),
       body: SafeArea(
         child: ListView(
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.fromLTRB(20, 8, 20, 32),
           children: [
             if (isOwn)
               Text(t.selfReview)

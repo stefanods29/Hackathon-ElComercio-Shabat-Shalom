@@ -25,7 +25,7 @@ class PostDetailPage extends ConsumerWidget {
               data: (posts) {
                 final matches = posts.where((post) => post.id == postId);
                 return ListView(
-                  padding: const EdgeInsets.all(16),
+                  padding: const EdgeInsets.fromLTRB(20, 8, 20, 32),
                   children: [
                     if (matches.isNotEmpty)
                       PostCard(post: matches.first)

@@ -26,8 +26,9 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Muro de favores'), findsOneWidget);
-    expect(find.text('Presto taladro por la tarde'), findsOneWidget);
     expect(find.text('Publicar'), findsOneWidget);
+    await tester.scrollUntilVisible(find.text('Presto taladro por la tarde'), 200);
+    expect(find.text('Presto taladro por la tarde'), findsOneWidget);
   });
 
   testWidgets('sin conexión avisa que los datos pueden haber cambiado', (tester) async {

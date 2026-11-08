@@ -10,7 +10,6 @@ import 'package:vecinal/core/ui/connection_banner.dart';
 import 'package:vecinal/features/emergencias/data/emergency_providers.dart';
 import 'package:vecinal/features/emergencias/presentation/emergency_dashboard_page.dart';
 import 'package:vecinal/features/onboarding/practice_mode.dart';
-import 'package:vecinal/features/onboarding/tutorial_screen.dart';
 import 'package:vecinal/features/solidaridad/data/providers.dart';
 import 'package:vecinal/features/solidaridad/presentation/widgets/post_card.dart';
 import 'package:vecinal/l10n/app_localizations.dart';
@@ -28,21 +27,12 @@ class WallPage extends ConsumerWidget {
     final signOut = ref.watch(demoSignOutProvider);
     final syncStatus = ref.watch(syncStatusProvider).value ?? SyncStatus.initial;
     final lastSyncedAt = syncStatus.lastSyncedAt;
+    final theme = Theme.of(context);
 
     return Scaffold(
       appBar: AppBar(
         title: Text(texts.wallTitle),
         actions: [
-          IconButton(
-            tooltip: texts.photosTitle,
-            icon: const Icon(Icons.photo_library_outlined),
-            onPressed: () => context.push(Routes.photos),
-          ),
-          IconButton(
-            tooltip: texts.pushTitle,
-            icon: const Icon(Icons.notifications_outlined),
-            onPressed: () => context.push(Routes.pushSettings),
-          ),
           IconButton(
             tooltip: texts.mapTitle,
             icon: const Icon(Icons.map_outlined),
@@ -114,57 +104,114 @@ class WallPage extends ConsumerWidget {
                 }
               },
             ),
-          const TutorialButton(),
+          PopupMenuButton<String>(
+            tooltip: texts.moreOptions,
+            icon: const Icon(Icons.more_vert),
+            onSelected: (route) => context.push(route),
+            itemBuilder: (context) => [
+              PopupMenuItem(
+                value: Routes.photos,
+                child: ListTile(
+                  leading: const Icon(Icons.photo_library_outlined),
+                  title: Text(texts.photosTitle),
+                ),
+              ),
+              PopupMenuItem(
+                value: Routes.pushSettings,
+                child: ListTile(
+                  leading: const Icon(Icons.notifications_outlined),
+                  title: Text(texts.pushTitle),
+                ),
+              ),
+              PopupMenuItem(
+                value: Routes.tutorial,
+                child: ListTile(
+                  leading: const Icon(Icons.tips_and_updates_outlined),
+                  title: Text(texts.viewTutorial),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(width: 8),
         ],
       ),
       body: Column(
         children: [
           const ConnectionBanner(),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-            child: Wrap(
-              spacing: 8,
-              runSpacing: 8,
-              children: [
-                FilledButton.icon(
-                  onPressed: () => ref.read(appModeProvider.notifier).activateEmergency(),
-                  icon: const Icon(Icons.emergency_outlined),
-                  label: Text(texts.activateLocalEmergency),
-                ),
-                OutlinedButton.icon(
-                  onPressed: () => context.go(Routes.directory),
-                  icon: const Icon(Icons.handyman_outlined),
-                  label: Text(texts.directoryTitle),
-                ),
-              ],
-            ),
-          ),
-          if (lastSyncedAt != null)
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-              child: Row(
-                children: [
-                  Flexible(
-                    child: Text(
-                      texts.updatedAgo(timeAgo(lastSyncedAt, ref.watch(clockProvider)(), texts)),
-                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: Theme.of(context).colorScheme.onSurfaceVariant,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
           Expanded(
             child: wall.when(
-              data: (posts) => posts.isEmpty
-                  ? Center(child: Text(texts.wallEmpty))
-                  : ListView.separated(
-                      padding: const EdgeInsets.all(16),
-                      itemCount: posts.length,
-                      separatorBuilder: (context, index) => const SizedBox(height: 12),
-                      itemBuilder: (context, index) => PostCard(post: posts[index]),
+              data: (posts) => ListView(
+                padding: const EdgeInsets.fromLTRB(20, 4, 20, 112),
+                children: [
+                  Text(
+                    texts.wallSubtitle,
+                    style: theme.textTheme.bodyLarge?.copyWith(
+                      color: theme.colorScheme.onSurfaceVariant,
                     ),
+                  ),
+                  const SizedBox(height: 16),
+                  IntrinsicHeight(
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        Expanded(
+                          child: FilledButton(
+                            style: FilledButton.styleFrom(
+                              backgroundColor: theme.colorScheme.error,
+                              foregroundColor: theme.colorScheme.onError,
+                              padding: const EdgeInsets.all(16),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(20),
+                              ),
+                            ),
+                            onPressed: () => ref.read(appModeProvider.notifier).activateEmergency(),
+                            child: _QuickAction(
+                              icon: Icons.emergency_outlined,
+                              label: texts.activateLocalEmergency,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: FilledButton(
+                            style: FilledButton.styleFrom(
+                              backgroundColor: theme.colorScheme.primaryContainer,
+                              foregroundColor: theme.colorScheme.onPrimaryContainer,
+                              padding: const EdgeInsets.all(16),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(20),
+                              ),
+                            ),
+                            onPressed: () => context.go(Routes.directory),
+                            child: _QuickAction(
+                              icon: Icons.handyman_outlined,
+                              label: texts.directoryTitle,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 28),
+                  Text(texts.wallLatest, style: theme.textTheme.titleLarge),
+                  if (lastSyncedAt != null) ...[
+                    const SizedBox(height: 2),
+                    Text(
+                      texts.updatedAgo(timeAgo(lastSyncedAt, ref.watch(clockProvider)(), texts)),
+                      style: theme.textTheme.bodySmall?.copyWith(
+                        color: theme.colorScheme.onSurfaceVariant,
+                      ),
+                    ),
+                  ],
+                  const SizedBox(height: 8),
+                  if (posts.isEmpty)
+                    Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 48),
+                      child: Text(texts.wallEmpty, textAlign: TextAlign.center),
+                    ),
+                  for (final post in posts) PostCard(post: post),
+                ],
+              ),
               loading: () => const Center(child: CircularProgressIndicator()),
               error: (error, stackTrace) => Center(child: Text('$error')),
             ),
@@ -178,4 +225,21 @@ class WallPage extends ConsumerWidget {
       ),
     );
   }
+}
+
+class _QuickAction extends StatelessWidget {
+  const _QuickAction({required this.icon, required this.label});
+  final IconData icon;
+  final String label;
+
+  @override
+  Widget build(BuildContext context) => Column(
+    mainAxisAlignment: MainAxisAlignment.center,
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      Icon(icon, size: 28),
+      const SizedBox(height: 12),
+      Text(label, style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w700, height: 1.2)),
+    ],
+  );
 }

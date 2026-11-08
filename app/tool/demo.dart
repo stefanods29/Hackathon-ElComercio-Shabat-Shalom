@@ -18,10 +18,18 @@ Future<void> main() async {
     ProviderScope(
       overrides: [
         environmentProvider.overrideWithValue(
-          const AppEnvironment(apiBaseUrl: 'http://127.0.0.1:9', powersyncUrl: ''),
+          const AppEnvironment(
+            apiBaseUrl: 'http://127.0.0.1:9',
+            powersyncUrl: '',
+            // Public style without a key, so the map shows streets on a phone with internet.
+            mapStyleUrl: 'https://tiles.openfreemap.org/styles/liberty',
+            // Photos stay encrypted on the phone: without a session there is no upload.
+            enablePhotos: true,
+          ),
         ),
         syncServiceProvider.overrideWith((ref) {
-          final sync = FakeSyncService();
+          // Practice data lives in memory, so the demo shows it as up to date.
+          final sync = FakeSyncService(SyncStatus(connected: true, lastSyncedAt: DateTime.now()));
           ref.onDispose(sync.close);
           return sync;
         }),

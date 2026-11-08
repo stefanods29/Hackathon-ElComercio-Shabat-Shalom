@@ -267,7 +267,7 @@ void main() {
       ),
     );
     await tester.pumpAndSettle();
-    expect(find.textContaining('Puedes seguir usando Vecinal'), findsOneWidget);
+    expect(find.textContaining('Puedes seguir usando Wiki'), findsOneWidget);
     expect(find.text('Comprobar de nuevo'), findsOneWidget);
     expect(tester.takeException(), isNull);
   });

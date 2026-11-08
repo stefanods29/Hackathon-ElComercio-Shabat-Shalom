@@ -8,6 +8,7 @@ import 'package:vecinal/features/avisos/data/api_push_registration.dart';
 import 'package:vecinal/features/avisos/data/firebase_push_platform.dart';
 import 'package:vecinal/features/avisos/data/push_service.dart';
 import 'package:vecinal/features/avisos/data/urgent_notice_confirmation.dart';
+import 'package:vecinal/features/avisos/domain/notification_route.dart';
 import 'package:vecinal/features/avisos/domain/push_platform.dart';
 import 'package:vecinal/features/avisos/domain/push_registration.dart';
 
@@ -109,5 +110,11 @@ class PushController extends Notifier<PushStatus> {
     await _service?.signOut();
   }
 
-  void open(Map<String, String> data) => _service?.openMessage(data);
+  void open(Map<String, String> data) {
+    final service = _service;
+    if (service != null) return service.openMessage(data);
+    // Without the push service (practice or push off) a shown message still opens its screen.
+    final route = routeFor(data);
+    if (route != null) ref.read(pushNavigationProvider.notifier).open(route);
+  }
 }
