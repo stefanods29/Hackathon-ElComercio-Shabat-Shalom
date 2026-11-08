@@ -1,0 +1,7 @@
+# Laboratorio de los clientes reales: usar junto a docker-compose.yml.
+# La prueba levanta su API en el puerto 3001, incluida su clave pública efímera.
+services:
+  powersync:
+    image: journeyapps/powersync-service:1.28.1
+    environment:
+      PS_JWKS_URL: http://host.docker.internal:3001/.well-known/jwks.json

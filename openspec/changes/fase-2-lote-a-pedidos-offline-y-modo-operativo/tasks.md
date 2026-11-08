@@ -19,14 +19,14 @@ Las tareas 1.1–1.3 forman el primer incremento con datos ficticios. La integra
 
 Depende de las tablas y transiciones de B2–B3 y del mecanismo de auditoría de B5.
 
-- [ ] 2.1 Extender el stream asignado con la ubicación aproximada y habilitar un flujo separado para ubicación exacta durante «En camino». Verificar en PowerSync cero filas sin asignación activa, cero filas exactas antes del estado permitido y retirada de la ubicación al terminarlo.
-- [ ] 2.2 Integrar la autorización auditada de la apertura con B. Verificar que el backend registra actor, fecha y caso, y que una suscripción directa fuera de ese flujo no puede obtener el detalle.
-- [ ] 2.3 Actualizar el caché del caso para la revocación y el cierre. Verificar reasignación con dos cuentas y purga en la siguiente sincronización, incluidos el detalle en memoria y la ubicación exacta.
+- [x] 2.1 Extender el stream asignado con la ubicación aproximada y habilitar un flujo separado para ubicación exacta durante «En camino». Verificar en PowerSync cero filas sin asignación activa, cero filas exactas antes del estado permitido y retirada de la ubicación al terminarlo.
+- [x] 2.2 Integrar la autorización auditada de la apertura con B. Verificar que el backend registra actor, fecha y caso, y que una suscripción directa fuera de ese flujo no puede obtener el detalle.
+- [x] 2.3 Actualizar el caché del caso para la revocación y el cierre. Verificar reasignación con dos cuentas y purga en la siguiente sincronización, incluidos el detalle en memoria y la ubicación exacta.
 - [ ] 2.4 Compilar y depurar los cambios de app y backend. Ejecutar `npm run verify`, las pruebas de integración con PowerSync y `tool/verify.sh` desde `app/`. Verificar CI en verde.
 
-**Integración en `main` (8 de noviembre de 2026).** B implementa `POST /v1/pedidos-ayuda/{id}/accesos-sincronizacion`, la tabla `autorizaciones_stream` con su revocación al terminar la asignación y la copia `ubicaciones_en_camino`; la prueba de integración del backend lo recorre con PostgreSQL. Falta PowerSync en vivo con dos cuentas.
+**Integración en `main` (8 de noviembre de 2026).** B implementa `POST /v1/pedidos-ayuda/{id}/accesos-sincronizacion`, la tabla `autorizaciones_stream` con su revocación al terminar la asignación y la copia `ubicaciones_en_camino`; la prueba de integración del backend lo recorre con PostgreSQL. La prueba con PowerSync 1.28.1 y dos cuentas valida permisos, sesiones, alcances y revocación ([evidencia](../../../docs/fase-2/evidencias/powersync-en-vivo.md)).
 
-**Pendiente de verificar.** El [informe de laboratorio](../../../docs/fase-2/evidencias/streams-por-asignacion.md) registra el evaluador de Sync Streams, la sesión firmada y la purga local con dos cuentas ficticias. Para 2.1–2.3 falta el acuerdo de B y la prueba de autorización, retiro y reasignación con PowerSync en vivo. Para 2.4 queda pendiente registrar el CI del commit de entrega.
+**Pendiente de verificar.** El [informe de laboratorio](../../../docs/fase-2/evidencias/streams-por-asignacion.md) registra el evaluador de Sync Streams, la sesión firmada y la purga local con dos cuentas ficticias. 2.1 y 2.2 verificadas en vivo en dos ejecuciones consecutivas. 2.3 verificada con el servicio real y las pruebas de purga local de Flutter. Para 2.4 queda registrar la verificación completa y el CI de esta rama. La reasignación en camino se prueba como mutación SQL aislada porque la API no permite esa transición.
 
 ## 3. Parte 3 · Modo operativo protegido
 

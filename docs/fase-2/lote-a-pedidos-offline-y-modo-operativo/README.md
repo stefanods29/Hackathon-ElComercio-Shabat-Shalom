@@ -13,7 +13,7 @@
 | Parte | Qué entrega | Estado | Responsable | PR |
 |---|---|---|---|---|
 | 1 | Pedidos de ayuda sin conexión | En curso: integrada en `main` y conectada a B y D; faltan la prueba en modo avión (1.5) y la CI | `JDiazD33` | — |
-| 2 | Streams bajo demanda por asignación | En curso: integrada; B concede el permiso auditado; faltan PowerSync en vivo con dos cuentas y la CI | `JDiazD33` | — |
+| 2 | Streams bajo demanda por asignación | En curso: permisos y revocación verificados con PowerSync real y dos cuentas; purga local comprobada; falta la CI de esta rama | `JDiazD33` | — |
 | 3 | Modo operativo protegido | En curso: integrada; faltan los celulares reales (3.2) y la CI | `JDiazD33` | — |
 | 4 | Tablero sin conexión: agregados y recursos | En curso: integrada y conectada al tablero de D; faltan reloj y modo avión (4.2) y la CI | `JDiazD33` | — |
 | 5 | Seguridad y pruebas de campo | Pendiente | `JDiazD33` | — |
