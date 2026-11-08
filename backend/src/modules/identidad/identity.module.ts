@@ -1,3 +1,5 @@
+import { AUTHOR_TRUST } from './application/author-trust.js';
+import { KyselyAuthorTrust } from './infrastructure/author-trust.kysely.js';
 import { REVIEWER_READER } from './application/reviewer-reader.js';
 import { KyselyReviewerReader } from './infrastructure/reviewer.reader.kysely.js';
 import { Module } from '@nestjs/common';
@@ -55,6 +57,7 @@ import { KyselyZoneRepository } from './infrastructure/zone.repository.kysely.js
   ],
   providers: [
     IssueCredentials,
+    { provide: AUTHOR_TRUST, useClass: KyselyAuthorTrust },
     { provide: REVIEWER_READER, useClass: KyselyReviewerReader },
     CreateSession,
     RefreshSession,
@@ -95,6 +98,6 @@ import { KyselyZoneRepository } from './infrastructure/zone.repository.kysely.js
           : new DisabledPhoneTokenVerifier(),
     },
   ],
-  exports: [REVIEWER_READER],
+  exports: [REVIEWER_READER, AUTHOR_TRUST],
 })
 export class IdentityModule {}

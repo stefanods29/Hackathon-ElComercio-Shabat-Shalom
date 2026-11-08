@@ -46,6 +46,7 @@ export interface ServicesTable {
   actualizado_en: Timestamp;
   eliminado_en: NullableTimestamp;
   oculto_en: NullableTimestamp;
+  oculto_individual_en: NullableTimestamp;
   busqueda: GeneratedAlways<string>;
 }
 

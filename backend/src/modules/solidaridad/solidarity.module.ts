@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+import { SolidarityModeration } from './infrastructure/solidarity-moderation.kysely.js';
 import { SolidarityPersonalData } from './infrastructure/solidarity-personal-data.kysely.js';
 import { PostsController } from './api/posts.controller.js';
 import { POST_REPOSITORY, NEARBY_POST_READER } from './application/ports.js';
@@ -12,6 +13,7 @@ import { KyselyPostRepository } from './infrastructure/post.repository.kysely.js
 @Module({
   controllers: [PostsController],
   providers: [
+    SolidarityModeration,
     SolidarityPersonalData,
     PublishPost,
     TakeFavor,

@@ -30,11 +30,13 @@ const command = () => ({ ...data, id: newId() });
 async function setup() {
   const directory = new InMemoryDirectoryRepository();
   const outbox = new InMemoryOutboxWriter();
-  const save = new SaveProvider(unitOfWork, directory, clock);
+  const providerOutbox = new InMemoryOutboxWriter();
+  const save = new SaveProvider(unitOfWork, directory, clock, providerOutbox);
   await save.execute(profile, actor);
   return {
     directory,
     outbox,
+    providerOutbox,
     save,
     publish: new PublishService(unitOfWork, directory, outbox, clock),
     edit: new EditService(unitOfWork, directory, clock),
@@ -63,6 +65,18 @@ describe('Casos de uso del directorio', () => {
         context.publish.execute(command(), { ...actor, ...changes }),
       ).rejects.toMatchObject({ code });
     }
+  });
+
+  it('emite un solo evento de moderación al publicar un perfil de proveedor', async () => {
+    const context = await setup();
+    await context.save.execute({ ...profile, publicName: 'Nombre actualizado' }, actor);
+    expect(context.providerOutbox.recorded).toEqual([
+      expect.objectContaining({
+        type: 'directorio.proveedor_publicado',
+        aggregateId: actor.id,
+        occurredAt: NOW,
+      }),
+    ]);
   });
 
   it('crea el servicio y registra el evento con la misma transacción y el reloj fijo', async () => {

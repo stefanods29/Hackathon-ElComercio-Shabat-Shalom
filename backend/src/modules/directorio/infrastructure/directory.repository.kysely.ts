@@ -1,4 +1,5 @@
 import { Inject, Injectable } from '@nestjs/common';
+import { PublicationPolicy } from '../../moderacion/index.js';
 import { AccountAccess } from '../../../shared/auth/account-access.js';
 import { type Kysely, type Selectable, sql } from 'kysely';
 import { KYSELY } from '../../../shared/db/connection.js';
@@ -63,6 +64,7 @@ export class KyselyDirectoryRepository implements DirectoryRepository {
   constructor(
     @Inject(KYSELY) private readonly db: Kysely<DirectoryTables>,
     private readonly accounts: AccountAccess,
+    private readonly publication: PublicationPolicy,
   ) {}
 
   async listCategories(): Promise<Category[]> {
@@ -120,6 +122,7 @@ export class KyselyDirectoryRepository implements DirectoryRepository {
   async saveProvider(transaction: TransactionContext, provider: ProviderProfile): Promise<void> {
     const data = provider.snapshot();
     await this.accounts.requireActiveWrite(transaction, data.id);
+    await this.publication.requirePublication(transaction, data.id, data.updatedAt);
     await asKysely<DirectoryTables>(transaction)
       .insertInto('directorio.proveedores')
       .values({
@@ -157,6 +160,7 @@ export class KyselyDirectoryRepository implements DirectoryRepository {
   async insertService(transaction: TransactionContext, service: Service): Promise<boolean> {
     const data = service.snapshot();
     await this.accounts.requireActiveWrite(transaction, data.providerId);
+    await this.publication.requirePublication(transaction, data.providerId, data.updatedAt);
     const inserted = await asKysely<DirectoryTables>(transaction)
       .insertInto('directorio.servicios')
       .values({
@@ -177,7 +181,14 @@ export class KyselyDirectoryRepository implements DirectoryRepository {
     service: Service,
     previousVersion: number,
   ): Promise<boolean> {
-    await this.accounts.requireActiveWrite(transaction, service.snapshot().providerId);
+    const snapshot = service.snapshot();
+    await this.accounts.requireActiveWrite(transaction, snapshot.providerId);
+    if (!snapshot.deletedAt)
+      await this.publication.requirePublication(
+        transaction,
+        snapshot.providerId,
+        snapshot.updatedAt,
+      );
     const updated = await asKysely<DirectoryTables>(transaction)
       .updateTable('directorio.servicios')
       .set(editableValues(service))

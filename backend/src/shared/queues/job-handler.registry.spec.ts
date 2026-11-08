@@ -15,6 +15,37 @@ describe('JobHandlerRegistry', () => {
     expect(received).toEqual(['aviso-1']);
   });
 
+  it('entrega un evento al dueño y a su suscriptor sin reemplazar al primero', async () => {
+    const registry = new JobHandlerRegistry();
+    const queue = new InMemoryJobQueue();
+    const received: string[] = [];
+    registry.subscribe('pruebas.contenido', 'media', async () => {
+      received.push('media');
+    });
+    registry.register('pruebas.contenido', async () => {
+      received.push('dueño');
+    });
+    expect(() => registry.subscribe('pruebas.contenido', 'media', async () => {})).toThrow(
+      /duplicado/,
+    );
+    await registry.startAll(queue);
+    await queue.enqueue('pruebas.contenido', {});
+    await queue.drain();
+    expect(received).toEqual(['dueño', 'media']);
+  });
+
+  it('no entrega a suscriptores un evento que el dueño identifica como obsoleto', async () => {
+    const registry = new JobHandlerRegistry();
+    const queue = new InMemoryJobQueue();
+    const subscriber = vi.fn(async () => {});
+    registry.register('pruebas.contenido', async () => false);
+    registry.subscribe('pruebas.contenido', 'media', subscriber);
+    await registry.startAll(queue);
+    await queue.enqueue('pruebas.contenido', {});
+    await queue.drain();
+    expect(subscriber).not.toHaveBeenCalled();
+  });
+
   it('rechaza duplicados y registros tardíos para no reemplazar manejadores sin aviso', async () => {
     const registry = new JobHandlerRegistry();
     registry.register('pruebas.aviso', async () => {});

@@ -12,3 +12,5 @@ export function recalculationRequested(serviceId: string, occurredAt: Date): Dom
     payload: { servicioId: serviceId },
   };
 }
+
+export const REVIEW_PUBLISHED_EVENT = 'reputacion.resena_publicada';

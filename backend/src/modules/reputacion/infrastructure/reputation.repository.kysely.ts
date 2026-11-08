@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { PublicationPolicy } from '../../moderacion/index.js';
 import { AccountAccess } from '../../../shared/auth/account-access.js';
 import { type Selectable, sql } from 'kysely';
 import type { TransactionContext } from '../../../shared/db/unit-of-work.js';
@@ -25,7 +26,10 @@ function toEndorsement(row: Selectable<EndorsementsTable>): Endorsement {
 
 @Injectable()
 export class KyselyReputationRepository implements ReputationRepository {
-  constructor(private readonly accounts: AccountAccess) {}
+  constructor(
+    private readonly accounts: AccountAccess,
+    private readonly publication: PublicationPolicy,
+  ) {}
 
   private async lock(transaction: TransactionContext, key: string): Promise<void> {
     await sql`SELECT pg_advisory_xact_lock(hashtextextended(${key}, 0))`.execute(
@@ -113,6 +117,7 @@ export class KyselyReputationRepository implements ReputationRepository {
     const db = asKysely<ReputationTables>(transaction);
     const r = review.snapshot();
     await this.accounts.requireActiveWrite(transaction, r.authorId);
+    await this.publication.requirePublication(transaction, r.authorId, r.createdAt);
     const inserted = await db
       .insertInto('reputacion.resenas')
       .values({

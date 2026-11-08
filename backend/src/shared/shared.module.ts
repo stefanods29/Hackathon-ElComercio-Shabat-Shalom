@@ -24,6 +24,8 @@ import { HealthController } from './health/health.controller.js';
 import { IDEMPOTENCY_STORE } from './idempotency/idempotency-store.js';
 import { PostgresIdempotencyStore } from './idempotency/idempotency-store.postgres.js';
 import { IdempotencyInterceptor } from './idempotency/idempotency.interceptor.js';
+import { ContentModerationRegistry } from './moderation/content-moderation.js';
+import { PublicationPolicy } from './moderation/publication-policy.js';
 import { OUTBOX_WRITER } from './outbox/outbox.js';
 import { PostgresOutboxWriter } from './outbox/outbox.postgres.js';
 import { JOB_QUEUE } from './queues/job-queue.js';
@@ -59,6 +61,8 @@ function queueProvider(worker = false) {
     TokenService,
     AccountAccess,
     PersonalDataRegistry,
+    ContentModerationRegistry,
+    PublicationPolicy,
     SharedPersonalData,
     {
       provide: IDEMPOTENCY_STORE,
@@ -89,6 +93,8 @@ function queueProvider(worker = false) {
     TokenService,
     AccountAccess,
     PersonalDataRegistry,
+    ContentModerationRegistry,
+    PublicationPolicy,
     IDEMPOTENCY_STORE,
     OUTBOX_WRITER,
     JOB_QUEUE,

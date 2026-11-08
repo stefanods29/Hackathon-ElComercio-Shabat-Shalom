@@ -9,6 +9,7 @@ import {
 import { IdentityModule, PRESENCE_CLEANUP_JOB } from '../modules/identidad/index.js';
 import { SolidarityModule } from '../modules/solidaridad/index.js';
 import { EmergenciesModule } from '../modules/emergencias/index.js';
+import { MediaModule } from '../modules/media/index.js';
 import { DirectoryModule } from '../modules/directorio/index.js';
 import { ModerationModule } from '../modules/moderacion/index.js';
 import { ReputationModule } from '../modules/reputacion/index.js';
@@ -69,6 +70,7 @@ export class WorkerRuntime implements OnModuleInit, OnApplicationBootstrap, OnMo
     DirectoryModule,
     ReputationModule,
     ModerationModule,
+    MediaModule,
   ],
   providers: [OutboxRelay, DailyCleanup, WorkerRuntime],
 })

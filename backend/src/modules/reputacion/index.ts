@@ -7,3 +7,4 @@ export {
   type ReviewPhotoReader,
   type ReviewRiskReader,
 } from './application/ports.js';
+export { REVIEW_PUBLISHED_EVENT } from './application/reputation-events.js';
