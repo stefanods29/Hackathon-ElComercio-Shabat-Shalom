@@ -6,12 +6,12 @@ hasta verla en verde.
 ## 1. Parte 1 · Eventos
 - [x] 1.1 Definir contrato, cobertura y puerto de alertas oficiales.
 - [x] 1.2 Implementar persistencia, activación y outbox.
-- [ ] 1.3 Compilar, depurar y verificar en CI cuando se autorice la validación.
+- [x] 1.3 Compilar, depurar y verificar en CI cuando se autorice la validación. Evidencia: [CI de la versión integrada](../../../docs/fase-2/evidencias/ci-integracion.md).
 
 ## 2. Parte 2 · Pedidos
 - [x] 2.1 Implementar máquina de estados, idempotencia y concurrencia.
 - [x] 2.2 Separar detalles privados y autorizar lecturas auditadas.
-- [ ] 2.3 Compilar, depurar y verificar transiciones y permisos en CI.
+- [x] 2.3 Compilar, depurar y verificar transiciones y permisos en CI. Evidencia: [CI de la versión integrada](../../../docs/fase-2/evidencias/ci-integracion.md).
 
 ## 3. Parte 3 · Operación
 - [x] 3.1 Implementar habilitaciones, grupos, turnos y asignaciones.

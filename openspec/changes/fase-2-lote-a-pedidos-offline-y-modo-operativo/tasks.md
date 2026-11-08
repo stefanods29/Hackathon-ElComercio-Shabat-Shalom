@@ -9,11 +9,11 @@ Las tareas 1.1–1.3 forman el primer incremento con datos ficticios. La integra
 - [x] 1.3 Implementar la vista de estado e historial del pedido propio con fuentes ficticias en pruebas. Verificar en Flutter que el estado de envío depende del acuse y que un cierre o derivación de versión más reciente conserva su motivo. Registrar los resultados como evidencia de laboratorio.
 - [ ] 1.4 Con el contrato de B1–B2 aprobado, conectar la carga a la ruta y los errores acordados, y configurar `mi_pedido` con pedido e historial filtrados por autor. Verificar la idempotencia con la API, cero filas para otra cuenta, ausencia de datos sensibles en streams automáticos y purga al salir de la cuenta.
 - [ ] 1.5 Conectar el repositorio al puerto de D y validar en sus pantallas un pedido en modo avión, el mensaje de que nadie lo recibió, las alternativas oficiales y la reconciliación de un cierre o derivación al recuperar la señal. Verificar que el modo de práctica permanece aislado del flujo real.
-- [ ] 1.6 Compilar y depurar la parte. Ejecutar `tool/verify.sh` desde `app/`, las comprobaciones de Sync Streams del backend y `openspec validate --all --strict`. Verificar CI en verde y adjuntar el resultado.
+- [x] 1.6 Compilar y depurar la parte. Ejecutar `tool/verify.sh` desde `app/`, las comprobaciones de Sync Streams del backend y `openspec validate --all --strict`. Verificar CI en verde y adjuntar el resultado. Evidencia: [CI de la versión integrada](../../../docs/fase-2/evidencias/ci-integracion.md).
 
 **Integración en `main` (8 de noviembre de 2026).** La carga usa la ruta y los errores de B, `mi_pedido` lee la copia `emergencias.historial_para_autor` y el tablero de D usa este repositorio ([integración](../../../docs/fase-2/integracion.md)). Falta aprobar el contrato con el equipo, probar con PowerSync en vivo y en modo avión y ver la CI.
 
-**Pendiente de verificar.** La [evidencia de laboratorio e integración local](../../../docs/fase-2/evidencias/pedidos-offline-laboratorio.md) cubre la cola, la purga, el acceso al stream con filas ficticias y la reconciliación. Para 1.4 falta aprobar y probar B con PowerSync y su API. Para 1.5 falta conectar el puerto de D y validar sus pantallas en modo avión. Para 1.6 queda pendiente el CI del commit de entrega.
+**Pendiente de verificar.** La [evidencia de laboratorio e integración local](../../../docs/fase-2/evidencias/pedidos-offline-laboratorio.md) cubre la cola, la purga, el acceso al stream con filas ficticias y la reconciliación. Para 1.4 falta aprobar y probar B con PowerSync y su API. Para 1.5 falta conectar el puerto de D y validar sus pantallas en modo avión. La CI de 1.6 quedó en verde con la versión integrada.
 
 ## 2. Parte 2 · Streams bajo demanda por asignación
 
@@ -35,9 +35,9 @@ El bloqueo y la caducidad pueden probarse inicialmente con casos ficticios y rel
 - [x] 3.1 Implementar el bloqueo local con PIN o biometría y el cierre por inactividad. Verificar con pruebas unitarias y de widgets la cancelación, el límite de inactividad y la reapertura sin red.
 - [ ] 3.2 Aplicar `FLAG_SECURE` en Android y la vista difuminada en el selector de apps de iOS. Verificar en ambos sistemas con teléfonos reales que el contenido sensible no queda visible y registrar el resultado en `docs/fase-2/evidencias/modo-operativo.md`.
 - [x] 3.3 Aplicar caducidad y purga al cerrar el caso, al reabrir la app y al volver a primer plano. Verificar con reloj de prueba y modo avión que un caso vencido se purga antes de mostrarse y que el autor conserva solo su historial mínimo permitido.
-- [ ] 3.4 Compilar y depurar la app con `tool/verify.sh` desde `app/`. Verificar CI en verde con compilaciones de Android e iOS.
+- [x] 3.4 Compilar y depurar la app con `tool/verify.sh` desde `app/`. Verificar CI en verde con compilaciones de Android e iOS. Evidencia: [CI de la versión integrada](../../../docs/fase-2/evidencias/ci-integracion.md).
 
-El [informe de la Parte 3](../../../docs/fase-2/evidencias/modo-operativo.md) registra la verificación de 3.1 y 3.3 con reloj controlado y sin red en laboratorio. Para 3.2 quedan pendientes las pruebas de capturas y del selector en teléfonos reales. Para 3.4 queda pendiente el CI con compilaciones nativas.
+El [informe de la Parte 3](../../../docs/fase-2/evidencias/modo-operativo.md) registra la verificación de 3.1 y 3.3 con reloj controlado y sin red en laboratorio. Para 3.2 quedan pendientes las pruebas de capturas y del selector en teléfonos reales. La CI de 3.4 quedó en verde con Android e iOS en la versión integrada.
 
 ## 4. Parte 4 · Tablero sin conexión
 
@@ -46,9 +46,9 @@ Depende de agregados y recursos de B4, del tablero de D y del directorio curado 
 - [x] 4.1 Configurar los streams públicos de agregados y recursos por zona. Verificar con datos sembrados de B que no se replica el grupo de dos pedidos, que el de tres llega solo como agregado y que el stream no incluye detalle ni filas de otra zona.
 - [ ] 4.2 Conectar frescura y fuentes al tablero de D. Verificar con reloj de prueba y modo avión los límites por tipo, la indicación de datos antiguos y la fuente de recursos oficiales.
 - [x] 4.3 Priorizar los datos críticos y desactivar las imágenes en modo emergencia. Verificar la prioridad configurada y la ausencia de solicitudes de imágenes al recuperar señal con tráfico pendiente.
-- [ ] 4.4 Compilar y depurar app y configuración de sincronización. Ejecutar `npm run verify` en backend y `tool/verify.sh` desde `app/`. Verificar CI en verde.
+- [x] 4.4 Compilar y depurar app y configuración de sincronización. Ejecutar `npm run verify` en backend y `tool/verify.sh` desde `app/`. Verificar CI en verde. Evidencia: [CI de la versión integrada](../../../docs/fase-2/evidencias/ci-integracion.md).
 
-En la integración B publica `verificado_en` y el tablero de D muestra los recursos del stream con su fuente verificada; falta la verificación con reloj de prueba y modo avión de 4.2. El [informe de la Parte 4](../../../docs/fase-2/evidencias/tablero-offline.md) registra la verificación de 4.1 con el SQL de B y de 4.3 con el evaluador de streams y la cola de fotos en reconexión. Para 4.2 falta conectar el tablero de D y recibir la fecha de verificación oficial de B. Para 4.4 queda pendiente el CI de la entrega.
+En la integración B publica `verificado_en` y el tablero de D muestra los recursos del stream con su fuente verificada; falta la verificación con reloj de prueba y modo avión de 4.2. El [informe de la Parte 4](../../../docs/fase-2/evidencias/tablero-offline.md) registra la verificación de 4.1 con el SQL de B y de 4.3 con el evaluador de streams y la cola de fotos en reconexión. Para 4.2 falta conectar el tablero de D y recibir la fecha de verificación oficial de B. La CI de 4.4 quedó en verde con la versión integrada.
 
 ## 5. Parte 5 · Seguridad y pruebas de campo
 

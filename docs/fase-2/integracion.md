@@ -65,7 +65,7 @@ revocación de los permisos y auditoría sin contenido.
 
 ## Lo que sigue pendiente
 
-- **CI.** Nada de esto se vio todavía en GitHub Actions; el flujo nuevo `consola.yml` tampoco.
+- ~~CI~~: en verde en `4fc14c1`, con Android e iOS ([evidencia](evidencias/ci-integracion.md)).
 - **PowerSync en vivo.** Los streams se probaron con el evaluador de Sync Streams, no con el
   servicio real ni con dos celulares.
 - **Celulares reales.** Capturas bloqueadas y vista difuminada (A 3.2), modo avión en las pantallas

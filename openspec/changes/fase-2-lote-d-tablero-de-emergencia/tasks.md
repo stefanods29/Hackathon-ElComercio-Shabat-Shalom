@@ -27,4 +27,4 @@ app en verde). Las de verificación quedan abiertas hasta tener su evidencia.
 - [x] 4.1 Contactos cifrados por cuenta, purga al cerrar sesión y SMS preparado sin enviar.
 - [ ] 4.2 Revisar la accesibilidad del modo emergencia: lector de pantalla, texto grande, modo sencillo y alto contraste; golden tests al 200 %.
 - [ ] 4.3 Registrar la prueba con vecinos en `docs/fase-2/evidencias/simulacro.md`.
-- [ ] 4.4 Verificar CI en verde con la versión integrada.
+- [x] 4.4 Verificar CI en verde con la versión integrada. Evidencia: [CI de la versión integrada](../../../docs/fase-2/evidencias/ci-integracion.md).
