@@ -24,11 +24,12 @@ describe('Migraciones de todos los módulos', () => {
 
     const { rows } = await sql<{ schema_name: string }>`
       SELECT schema_name FROM information_schema.schemata
-      WHERE schema_name IN ('compartido', 'emergencias', 'identidad', 'solidaridad')
+      WHERE schema_name IN ('compartido', 'directorio', 'emergencias', 'identidad', 'solidaridad')
       ORDER BY schema_name
     `.execute(db);
     expect(rows.map((row) => row.schema_name)).toEqual([
       'compartido',
+      'directorio',
       'emergencias',
       'identidad',
       'solidaridad',
@@ -67,6 +68,9 @@ describe('Migraciones de todos los módulos', () => {
       WHERE pubname = 'powersync' ORDER BY 1
     `.execute(db);
     expect(rows.map((row) => row.table_name)).toEqual([
+      'directorio.categorias',
+      'directorio.proveedores',
+      'directorio.servicios',
       'emergencias.asignaciones',
       'emergencias.pedidos_ayuda',
       'identidad.zonas',
