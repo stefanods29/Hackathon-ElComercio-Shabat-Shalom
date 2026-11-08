@@ -8,6 +8,7 @@ import 'package:vecinal/core/time/time_ago.dart';
 import 'package:vecinal/core/ui/image_policy.dart';
 import 'package:vecinal/core/ui/large_button.dart';
 import 'package:vecinal/features/emergencias/data/emergency_providers.dart';
+import 'package:vecinal/features/emergencias/domain/emergency.dart';
 import 'package:vecinal/features/emergencias/presentation/emergency_widgets.dart';
 import 'package:vecinal/l10n/app_localizations.dart';
 
@@ -83,7 +84,7 @@ class EmergencyDashboardPage extends ConsumerWidget {
             label: t.emergencyContacts,
             onPressed: () => context.push(Routes.emergencyContacts),
           ),
-          for (final request in data?.requests ?? [])
+          for (final request in data?.requests ?? const <OwnHelpRequest>[])
             OutlinedButton.icon(
               icon: const Icon(Icons.assignment_outlined),
               label: Text('${t.emergencyMyRequest} · ${requestStatusLabel(t, request.status)}'),

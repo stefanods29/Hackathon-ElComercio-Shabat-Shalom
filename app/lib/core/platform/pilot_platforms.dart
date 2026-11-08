@@ -58,8 +58,9 @@ abstract interface class SmsComposer {
 class SystemSmsComposer implements SmsComposer {
   @override
   Future<bool> compose({required String recipient, required String body}) {
-    if (!RegExp(r'^\+?[0-9]{6,15}$').hasMatch(recipient) || body.isEmpty)
+    if (!RegExp(r'^\+?[0-9]{6,15}$').hasMatch(recipient) || body.isEmpty) {
       return Future.value(false);
+    }
     return launchUrl(
       Uri(scheme: 'sms', path: recipient, query: 'body=${Uri.encodeComponent(body)}'),
     );

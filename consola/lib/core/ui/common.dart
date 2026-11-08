@@ -101,7 +101,12 @@ enum BadgeTone { neutral, warning, danger, success }
 
 /// Icon and text together: color is never the only signal (WCAG 1.4.1).
 class StatusBadge extends StatelessWidget {
-  const StatusBadge({super.key, required this.icon, required this.label, this.tone = BadgeTone.neutral});
+  const StatusBadge({
+    super.key,
+    required this.icon,
+    required this.label,
+    this.tone = BadgeTone.neutral,
+  });
 
   final IconData icon;
   final String label;
@@ -129,10 +134,7 @@ class StatusBadge extends StatelessWidget {
           children: [
             Icon(icon, size: 18, color: foreground),
             const SizedBox(width: 6),
-            Text(
-              label,
-              style: Theme.of(context).textTheme.labelLarge?.copyWith(color: foreground),
-            ),
+            Text(label, style: Theme.of(context).textTheme.labelLarge?.copyWith(color: foreground)),
           ],
         ),
       ),
@@ -194,7 +196,9 @@ class AsyncBody<T> extends StatelessWidget {
   @override
   Widget build(BuildContext context) => value.when(
     data: data,
-    error: (error, _) => CenteredMessage(child: ProblemNotice(error: error, onRetry: onRetry)),
+    error: (error, _) => CenteredMessage(
+      child: ProblemNotice(error: error, onRetry: onRetry),
+    ),
     loading: () => const LoadingIndicator(),
   );
 }

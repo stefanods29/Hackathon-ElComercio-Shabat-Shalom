@@ -9,15 +9,16 @@ import 'package:vecinal_consola/features/avisos_urgentes/domain/urgent_notices.d
 
 final urgentNoticesRepositoryProvider = Provider<UrgentNoticesRepository?>((ref) {
   if (ref.watch(currentOperatorProvider) == null) return null;
-  if (ref.watch(demoDataProvider)) return DemoUrgentNoticesRepository(now: ref.watch(clockProvider));
+  if (ref.watch(demoDataProvider)) {
+    return DemoUrgentNoticesRepository(now: ref.watch(clockProvider));
+  }
   return HttpUrgentNoticesRepository(ref.watch(consoleApiProvider));
 });
 
 /// Only the roles that receive urgent notices ask for them.
 final receivesUrgentNoticesProvider = Provider<bool>((ref) {
   final user = ref.watch(currentOperatorProvider);
-  return user != null &&
-      (user.coordinates || user.has(OperationalRole.brigadist));
+  return user != null && (user.coordinates || user.has(OperationalRole.brigadist));
 });
 
 final pendingUrgentNoticesProvider = FutureProvider.autoDispose<List<UrgentNotice>>((ref) async {
@@ -149,7 +150,12 @@ class DemoUrgentNoticesRepository implements UrgentNoticesRepository {
       confirmed: 37,
       unconfirmed: 5,
       smsSent: 4,
-      withoutBackup: const {'tope_de_gasto': 0, 'sin_proveedor': 0, 'sin_telefono': 1, 'sms_fallido': 0},
+      withoutBackup: const {
+        'tope_de_gasto': 0,
+        'sin_proveedor': 0,
+        'sin_telefono': 1,
+        'sms_fallido': 0,
+      },
       confirmationP50Seconds: 48,
       confirmationP95Seconds: 170,
       todayCents: 10,

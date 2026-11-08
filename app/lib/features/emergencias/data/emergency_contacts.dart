@@ -100,8 +100,9 @@ class SecureEmergencyContactsRepository implements EmergencyContactsRepository {
               phone: map['phone'] as String,
             );
             if (!EmergencyContact.validName(contact.name) ||
-                !EmergencyContact.validPhone(contact.phone))
+                !EmergencyContact.validPhone(contact.phone)) {
               throw const FormatException('Invalid contact');
+            }
             return contact;
           })
           .toList(growable: false);
@@ -138,8 +139,9 @@ class SecureEmergencyContactsRepository implements EmergencyContactsRepository {
   @override
   Future<void> save(EmergencyContact contact) {
     _ensureOpen();
-    if (!EmergencyContact.validName(contact.name) || !EmergencyContact.validPhone(contact.phone))
+    if (!EmergencyContact.validName(contact.name) || !EmergencyContact.validPhone(contact.phone)) {
       throw ArgumentError('Invalid contact');
+    }
     return _queue(() async {
       await _load();
       _ensureOpen();
@@ -201,8 +203,9 @@ class PracticeEmergencyContactsRepository implements EmergencyContactsRepository
   @override
   Future<void> save(EmergencyContact contact) async {
     _ensureOpen();
-    if (!EmergencyContact.validName(contact.name) || !EmergencyContact.validPhone(contact.phone))
+    if (!EmergencyContact.validName(contact.name) || !EmergencyContact.validPhone(contact.phone)) {
       throw ArgumentError('Invalid contact');
+    }
     _contacts.removeWhere((c) => c.id == contact.id);
     _contacts.add(contact);
     _changes.add(null);

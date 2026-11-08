@@ -104,9 +104,8 @@ class _ModerationPageState extends ConsumerState<ModerationPage> {
             label: l10n.moderationFilter,
             options: ModerationState.values,
             selected: _state,
-            labelOf: (state) => state == ModerationState.pending
-                ? l10n.moderationPending
-                : l10n.moderationResolved,
+            labelOf: (state) =>
+                state == ModerationState.pending ? l10n.moderationPending : l10n.moderationResolved,
             onSelected: (state) {
               if (state == _state) return;
               setState(() => _state = state);
@@ -194,7 +193,10 @@ class _ModerationCard extends StatelessWidget {
             style: textTheme.titleMedium,
           ),
           const SizedBox(height: 8),
-          Text(l10n.moderationCreated(formatDayAndClock(item.createdAt)), style: textTheme.bodyLarge),
+          Text(
+            l10n.moderationCreated(formatDayAndClock(item.createdAt)),
+            style: textTheme.bodyLarge,
+          ),
           if (firstReview != null)
             Text(
               l10n.moderationFirstReview(formatDayAndClock(firstReview)),
@@ -336,10 +338,7 @@ class _DecisionDialogState extends ConsumerState<_DecisionDialog> {
                     ),
                   ),
                 ),
-              if (error != null) ...[
-                const SizedBox(height: 12),
-                ProblemNotice(error: error),
-              ],
+              if (error != null) ...[const SizedBox(height: 12), ProblemNotice(error: error)],
             ],
           ),
         ),

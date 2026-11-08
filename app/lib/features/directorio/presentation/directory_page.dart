@@ -46,10 +46,11 @@ class _DirectoryPageState extends ConsumerState<DirectoryPage> {
   void initState() {
     super.initState();
     _emergencyOnly = widget.emergencyOnly;
-    if (widget.emergencyOnly)
+    if (widget.emergencyOnly) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (mounted) ref.read(imagesEnabledProvider.notifier).set(false);
       });
+    }
   }
 
   @override

@@ -41,8 +41,7 @@ Dio createApiClient(ConsoleEnvironment environment, {Future<String?> Function()?
 /// JSON over the `/v1` API with Problem Details errors. Every call goes online: nothing is cached
 /// in the browser (the API answers `Cache-Control: no-store` on the console's routes).
 class ConsoleApi {
-  ConsoleApi(this._dio, {required void Function() onUnauthorized})
-    : _onUnauthorized = onUnauthorized;
+  ConsoleApi(this._dio, {required this._onUnauthorized});
 
   final Dio _dio;
   final void Function() _onUnauthorized;
@@ -66,10 +65,8 @@ class ConsoleApi {
     required Object body,
     required String idempotencyKey,
     Set<int> expected = const {200, 201},
-  }) => _send(
-    () => _dio.put<Object?>(path, data: body, options: _withKey(idempotencyKey)),
-    expected,
-  );
+  }) =>
+      _send(() => _dio.put<Object?>(path, data: body, options: _withKey(idempotencyKey)), expected);
 
   static Options _withKey(String key) => Options(headers: {idempotencyKeyHeader: key});
 
@@ -120,7 +117,10 @@ List<Map<String, Object?>> objects(Map<String, Object?> json, String key) {
   if (value is! List) throw UnexpectedResponse('Falta la lista "$key".');
   return [
     for (final row in value)
-      if (row is Map) Map<String, Object?>.from(row) else throw UnexpectedResponse('"$key" inválido.'),
+      if (row is Map)
+        Map<String, Object?>.from(row)
+      else
+        throw UnexpectedResponse('"$key" inválido.'),
   ];
 }
 

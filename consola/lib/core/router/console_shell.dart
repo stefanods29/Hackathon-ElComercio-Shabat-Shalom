@@ -130,10 +130,7 @@ class _Header extends ConsumerWidget {
           spacing: 16,
           runSpacing: 8,
           children: [
-            Semantics(
-              header: true,
-              child: Text(l10n.consoleTitle, style: textTheme.titleLarge),
-            ),
+            Semantics(header: true, child: Text(l10n.consoleTitle, style: textTheme.titleLarge)),
             Wrap(
               spacing: 16,
               runSpacing: 8,
@@ -214,10 +211,7 @@ class _DemoStrip extends StatelessWidget {
             Expanded(
               child: Text(
                 l10n.demoStrip,
-                style: TextStyle(
-                  color: scheme.onTertiaryContainer,
-                  fontWeight: FontWeight.bold,
-                ),
+                style: TextStyle(color: scheme.onTertiaryContainer, fontWeight: FontWeight.bold),
               ),
             ),
           ],

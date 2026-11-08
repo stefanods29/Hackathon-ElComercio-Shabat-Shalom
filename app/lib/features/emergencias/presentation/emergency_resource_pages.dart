@@ -97,8 +97,9 @@ class _OfferFormState extends ConsumerState<_OfferForm> {
         _saved ||
         !_form.currentState!.validate() ||
         ref.read(emergencyScopeProvider)?.key != widget.scope.key ||
-        ref.read(emergencySnapshotProvider).value?.coverageVerified != true)
+        ref.read(emergencySnapshotProvider).value?.coverageVerified != true) {
       return;
+    }
     final t = AppLocalizations.of(context);
     setState(() {
       _busy = true;
@@ -115,8 +116,9 @@ class _OfferFormState extends ConsumerState<_OfferForm> {
               createdAt: ref.read(clockProvider)(),
             ),
           );
-      if (mounted && ref.read(emergencyScopeProvider)?.key == widget.scope.key)
+      if (mounted && ref.read(emergencyScopeProvider)?.key == widget.scope.key) {
         setState(() => _saved = true);
+      }
     } catch (_) {
       if (mounted) setState(() => _error = t.emergencySaveFailed);
     } finally {
@@ -237,8 +239,9 @@ class _ResourcesState extends ConsumerState<_Resources> {
         _saved ||
         !_form.currentState!.validate() ||
         ref.read(emergencyScopeProvider)?.key != widget.scope.key ||
-        ref.read(emergencySnapshotProvider).value?.coverageVerified != true)
+        ref.read(emergencySnapshotProvider).value?.coverageVerified != true) {
       return;
+    }
     final t = AppLocalizations.of(context);
     setState(() {
       _busy = true;
@@ -255,8 +258,9 @@ class _ResourcesState extends ConsumerState<_Resources> {
               description: _text.text.trim(),
             ),
           );
-      if (mounted && ref.read(emergencyScopeProvider)?.key == widget.scope.key)
+      if (mounted && ref.read(emergencyScopeProvider)?.key == widget.scope.key) {
         setState(() => _saved = true);
+      }
     } catch (_) {
       if (mounted) setState(() => _error = t.emergencySaveFailed);
     } finally {

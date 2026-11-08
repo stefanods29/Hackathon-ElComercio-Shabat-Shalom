@@ -232,10 +232,8 @@ class _PeoplePicker extends ConsumerWidget {
         const SizedBox(height: 8),
         people.when(
           loading: () => const LoadingIndicator(),
-          error: (error, _) => ProblemNotice(
-            error: error,
-            onRetry: () => ref.invalidate(availablePeopleProvider),
-          ),
+          error: (error, _) =>
+              ProblemNotice(error: error, onRetry: () => ref.invalidate(availablePeopleProvider)),
           data: (list) => list.isEmpty
               ? InfoCard(icon: Icons.group_off_outlined, title: l10n.nobodyAvailable)
               : Column(

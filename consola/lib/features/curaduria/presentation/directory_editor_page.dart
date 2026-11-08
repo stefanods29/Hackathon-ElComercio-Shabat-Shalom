@@ -170,9 +170,9 @@ class _DirectoryEditorPageState extends ConsumerState<DirectoryEditorPage> {
       if (!mounted) return;
       _apply(published);
       ref.invalidate(directoriesProvider);
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(l10n.curationPublished(published.directory.version))),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(l10n.curationPublished(published.directory.version))));
     } on Object catch (error) {
       if (!mounted) return;
       setState(() {
@@ -215,7 +215,11 @@ class _DirectoryEditorPageState extends ConsumerState<DirectoryEditorPage> {
         title: l10n.curationTitle,
         actions: [back],
         child: CenteredMessage(
-          child: InfoCard(icon: Icons.search_off, title: l10n.notFoundTitle, body: l10n.notFoundBody),
+          child: InfoCard(
+            icon: Icons.search_off,
+            title: l10n.notFoundTitle,
+            body: l10n.notFoundBody,
+          ),
         ),
       );
     }
@@ -260,7 +264,11 @@ class _DirectoryEditorPageState extends ConsumerState<DirectoryEditorPage> {
       padding: const EdgeInsets.fromLTRB(24, 8, 24, 32),
       children: [
         if (_dirty)
-          InfoCard(icon: Icons.edit_note, title: l10n.curationUnsaved, body: l10n.curationUnsavedBody),
+          InfoCard(
+            icon: Icons.edit_note,
+            title: l10n.curationUnsaved,
+            body: l10n.curationUnsavedBody,
+          ),
         if (replacing != null) ...[
           const SizedBox(height: 12),
           InfoCard(icon: Icons.warning_amber_outlined, title: l10n.curationReplacing(replacing)),
@@ -336,9 +344,7 @@ class _DirectoryEditorPageState extends ConsumerState<DirectoryEditorPage> {
             FilledButton.icon(
               onPressed: _publishing || conflict ? null : _publish,
               icon: const Icon(Icons.publish_outlined),
-              label: Text(
-                _publishing ? l10n.sending : l10n.curationPublish(_seenVersion + 1),
-              ),
+              label: Text(_publishing ? l10n.sending : l10n.curationPublish(_seenVersion + 1)),
             ),
             if (_dirty)
               TextButton(onPressed: _publishing ? null : _load, child: Text(l10n.curationDiscard)),
@@ -409,7 +415,10 @@ class _EntryCard extends StatelessWidget {
           if (phone != null) Text(l10n.entryPhone(phone), style: textTheme.bodyLarge),
           if (location != null)
             Text(
-              l10n.entryCoordinates(location.lat.toStringAsFixed(5), location.lng.toStringAsFixed(5)),
+              l10n.entryCoordinates(
+                location.lat.toStringAsFixed(5),
+                location.lng.toStringAsFixed(5),
+              ),
               style: textTheme.bodyLarge,
             ),
           Text(l10n.entrySource(entry.sourceName), style: textTheme.bodyLarge),

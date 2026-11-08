@@ -81,7 +81,9 @@ class _EntryDialogState extends State<EntryDialog> {
     if (latText.isNotEmpty || lngText.isNotEmpty) {
       final lat = _coordinate(_lat);
       final lng = _coordinate(_lng);
-      if (lat == null) problems.add(const EntryProblem('ubicacion.lat', EntryProblemKind.latitudeRange));
+      if (lat == null) {
+        problems.add(const EntryProblem('ubicacion.lat', EntryProblemKind.latitudeRange));
+      }
       if (lng == null) {
         problems.add(const EntryProblem('ubicacion.lng', EntryProblemKind.longitudeRange));
       }
@@ -99,9 +101,7 @@ class _EntryDialogState extends State<EntryDialog> {
       sourceUrl: _optional(_sourceUrl),
       verifiedOn: _verified.text.trim(),
     );
-    problems.addAll(
-      validateEntry(entry, today: isoDay(widget.now), otherIds: widget.otherIds),
-    );
+    problems.addAll(validateEntry(entry, today: isoDay(widget.now), otherIds: widget.otherIds));
     if (problems.isNotEmpty) {
       setState(() => _problems = problems);
       return;

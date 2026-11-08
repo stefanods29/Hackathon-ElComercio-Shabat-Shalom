@@ -41,6 +41,5 @@ class ModuleNotAvailable implements Exception {
 }
 
 /// Shortcut for the demo doubles, which answer like the API.
-ApiProblem demoProblem(int status, String code, {String? detail}) => ApiProblem(
-  ProblemDetails(status: status, title: 'Error $status', code: code, detail: detail),
-);
+ApiProblem demoProblem(int status, String code, {String? detail}) =>
+    ApiProblem(ProblemDetails(status: status, title: 'Error $status', code: code, detail: detail));

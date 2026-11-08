@@ -107,7 +107,7 @@ Variables nuevas de la API (documentadas en `backend/.env.example`):
 
 | Variable | Por defecto | Para qué |
 |---|---|---|
-| `SMS_PROVIDER` | `fake` | `none` apaga el respaldo; `fake` lo escribe en el log (prohibido en producción) |
+| `SMS_PROVIDER` | `none` | `none` apaga el respaldo; `fake` lo escribe en el log (solo desarrollo y pruebas, prohibido en producción) |
 | `URGENT_ACK_TIMEOUT_SECONDS` | `120` | Plazo para confirmar antes del SMS (30 a 3600) |
 | `SMS_COST_CENTS` | `5` | Costo estimado de un SMS, en centavos de dólar |
 | `SMS_DAILY_BUDGET_CENTS` / `SMS_MONTHLY_BUDGET_CENTS` | `500` / `5000` | Topes de gasto por día (America/Lima) y por mes |

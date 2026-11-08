@@ -101,7 +101,7 @@ export const configSchema = z
     JOB_QUEUE_DRIVER: z.enum(['memory', 'pgboss']).default('pgboss'),
 
     // Phase 2, Lot C · urgent notices with SMS backup (section 7.5). Amounts in US cents.
-    SMS_PROVIDER: z.enum(['none', 'fake']).default('fake'),
+    SMS_PROVIDER: z.enum(['none', 'fake']).default('none'),
     URGENT_ACK_TIMEOUT_SECONDS: z.coerce.number().int().min(30).max(3600).default(120),
     SMS_COST_CENTS: z.coerce.number().int().min(0).max(1000).default(5),
     SMS_DAILY_BUDGET_CENTS: z.coerce.number().int().min(0).default(500),
@@ -252,7 +252,8 @@ export const configSchema = z
       ctx.addIssue({
         code: 'custom',
         path: ['CURATION_PUBLISH_DRIVER'],
-        message: 'filesystem solo sirve en desarrollo; en producción usa el almacenamiento de la CDN',
+        message:
+          'filesystem solo sirve en desarrollo; en producción usa el almacenamiento de la CDN',
       });
     }
     if (config.OTP_PROVIDER === 'firebase' && !config.FIREBASE_PROJECT_ID) {

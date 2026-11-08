@@ -69,7 +69,9 @@ class AuthApi {
   final Dio _dio;
 
   Future<CodeRequest> requestCode(String phone) async {
-    final response = await _call(() => _dio.post<Object?>('/v1/auth/otp', data: {'telefono': phone}));
+    final response = await _call(
+      () => _dio.post<Object?>('/v1/auth/otp', data: {'telefono': phone}),
+    );
     _require(response, 202);
     final body = response.data;
     if (body is! Map) throw const UnexpectedResponse('Respuesta del código inválida.');

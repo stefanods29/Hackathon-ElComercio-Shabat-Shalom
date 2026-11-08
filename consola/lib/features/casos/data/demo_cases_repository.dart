@@ -190,12 +190,10 @@ class DemoCasesRepository implements CasesRepository {
 
   Future<void> _latency() => Future<void>.delayed(const Duration(milliseconds: 250));
 
-  bool _visible(_DemoCase item) =>
-      viewer.coordinates || item.assignee?.id == viewer.id;
+  bool _visible(_DemoCase item) => viewer.coordinates || item.assignee?.id == viewer.id;
 
   EmergencyCase _view(_DemoCase item) {
-    final showsPoint =
-        item.status == CaseStatus.onTheWay && item.assignee?.id == viewer.id;
+    final showsPoint = item.status == CaseStatus.onTheWay && item.assignee?.id == viewer.id;
     return EmergencyCase(
       id: item.id,
       version: item.version,

@@ -61,11 +61,7 @@ export interface SmsProvider {
 export const SMS_PROVIDER = Symbol('SMS_PROVIDER');
 
 export type UrgentNoticeState =
-  | 'esperando_confirmacion'
-  | 'confirmado'
-  | 'sms_enviando'
-  | 'sms_enviado'
-  | 'sin_respaldo';
+  'esperando_confirmacion' | 'confirmado' | 'sms_enviando' | 'sms_enviado' | 'sin_respaldo';
 
 export type NoBackupReason = 'tope_de_gasto' | 'sin_proveedor' | 'sin_telefono' | 'sms_fallido';
 

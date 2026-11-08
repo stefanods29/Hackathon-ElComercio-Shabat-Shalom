@@ -35,7 +35,11 @@ class CaseDetailPage extends ConsumerWidget {
         title: l10n.caseDetailTitle,
         actions: [back],
         child: CenteredMessage(
-          child: InfoCard(icon: Icons.search_off, title: l10n.notFoundTitle, body: l10n.notFoundBody),
+          child: InfoCard(
+            icon: Icons.search_off,
+            title: l10n.notFoundTitle,
+            body: l10n.notFoundBody,
+          ),
         ),
       );
     }
@@ -173,10 +177,7 @@ class _HistoryEntry extends StatelessWidget {
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Padding(
-              padding: EdgeInsets.only(top: 2),
-              child: Icon(Icons.history, size: 20),
-            ),
+            const Padding(padding: EdgeInsets.only(top: 2), child: Icon(Icons.history, size: 20)),
             const SizedBox(width: 12),
             Expanded(
               child: Column(

@@ -13,11 +13,7 @@ import type {
 export class DeliveryRepository implements NotificationDelivery {
   constructor(@Inject(KYSELY) private readonly db: Kysely<unknown>) {}
 
-  async deliver(
-    job: DeliveryRequest,
-    message: PushMessage,
-    push: NotificationPort,
-  ): Promise<void> {
+  async deliver(job: DeliveryRequest, message: PushMessage, push: NotificationPort): Promise<void> {
     const fingerprint = createHash('sha256')
       .update(JSON.stringify([job.destino, message]))
       .digest('hex');

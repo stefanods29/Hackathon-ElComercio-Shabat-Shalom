@@ -33,7 +33,10 @@ ProblemExplanation explainProblem(AppLocalizations l10n, Object error) {
     );
   }
   if (error is ModuleNotAvailable) {
-    return ProblemExplanation(title: l10n.moduleUnavailableTitle, action: l10n.moduleUnavailableHint);
+    return ProblemExplanation(
+      title: l10n.moduleUnavailableTitle,
+      action: l10n.moduleUnavailableHint,
+    );
   }
   if (error is UnexpectedResponse) {
     return ProblemExplanation(
@@ -50,24 +53,18 @@ ProblemExplanation explainProblem(AppLocalizations l10n, Object error) {
   final problem = error.problem;
   final seconds = problem.retryAfterSeconds;
   final (title, action) = switch (problem.code) {
-    'conflicto_de_version' => (
-      l10n.problemVersionConflictTitle,
-      l10n.problemVersionConflictAction,
-    ),
+    'conflicto_de_version' => (l10n.problemVersionConflictTitle, l10n.problemVersionConflictAction),
     'transicion_invalida' => (
       l10n.problemInvalidTransitionTitle,
       l10n.problemInvalidTransitionAction,
     ),
     'no_autenticado' => (l10n.problemUnauthenticatedTitle, l10n.problemUnauthenticatedAction),
-    'prohibido' || 'rol_requerido' || 'nivel_de_confianza_insuficiente' => (
-      l10n.problemForbiddenTitle,
-      l10n.problemForbiddenAction,
-    ),
+    'prohibido' ||
+    'rol_requerido' ||
+    'nivel_de_confianza_insuficiente' => (l10n.problemForbiddenTitle, l10n.problemForbiddenAction),
     'recurso_no_encontrado' => (l10n.problemNotFoundTitle, l10n.problemNotFoundAction),
-    'validacion' || 'solicitud_invalida' => (
-      l10n.problemValidationTitle,
-      l10n.problemValidationAction,
-    ),
+    'validacion' ||
+    'solicitud_invalida' => (l10n.problemValidationTitle, l10n.problemValidationAction),
     'directorio_invalido' => (
       l10n.problemInvalidDirectoryTitle,
       l10n.problemInvalidDirectoryAction,

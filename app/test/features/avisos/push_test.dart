@@ -98,13 +98,29 @@ class _FixedStatus extends PushController {
 
 void main() {
   test('routeFor solo acepta tipos conocidos e ids completos', () {
+    const notice = '01970000-0000-7000-8000-00000000a001';
     expect(routeFor(_message), '/publicaciones/$_post');
-    expect(routeFor({'tipo': 'aviso_urgente', 'casoId': _post}), '/emergencia/operacion/$_post');
+    // An urgent notice always carries its own id, which confirms it and stops the SMS backup.
+    expect(
+      routeFor({'tipo': 'aviso_urgente', 'avisoId': notice, 'casoId': _post}),
+      '/emergencia/operacion/$_post',
+    );
+    expect(routeFor({'tipo': 'aviso_urgente', 'avisoId': notice}), '/emergencia/tablero');
+    expect(
+      routeFor({'tipo': 'aviso_urgente', 'avisoId': notice, 'casoId': '../../configuracion'}),
+      '/emergencia/tablero',
+    );
+    expect(routeFor({'tipo': 'modo_emergencia_activado', 'zonaId': _post}), '/emergencia/tablero');
+    expect(
+      routeFor({'tipo': 'pedido_actualizado', 'pedidoId': _post}),
+      '/emergencia/pedidos/$_post',
+    );
     for (final data in [
       <String, String>{},
       {'tipo': 'desconocido', 'publicacionId': _post},
-      {'tipo': 'aviso_urgente', 'casoId': '../../configuracion'},
-      {'tipo': 'aviso_urgente', 'avisoId': _post},
+      {'tipo': 'aviso_urgente', 'casoId': _post},
+      {'tipo': 'aviso_urgente', 'avisoId': '../../configuracion', 'casoId': _post},
+      {'tipo': 'pedido_actualizado', 'pedidoId': '../../configuracion'},
       {'tipo': 'favor_tomado', 'publicacionId': '../../configuracion'},
       {'tipo': 'favor_tomado', 'publicacionId': 'https://example.com'},
     ]) {

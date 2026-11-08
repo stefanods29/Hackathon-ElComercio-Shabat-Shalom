@@ -177,7 +177,7 @@ class _ContactsState extends ConsumerState<_Contacts> {
           phone: _phone.text.trim(),
         ),
       );
-      if (_current) {
+      if (_current && mounted) {
         setState(_reset);
         emergencyMessage(context, t.emergencyContactSaved);
       }

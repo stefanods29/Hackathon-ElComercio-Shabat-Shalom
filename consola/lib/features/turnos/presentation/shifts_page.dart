@@ -114,13 +114,10 @@ class _CoverageCard extends StatelessWidget {
             for (final gap in coverage.gaps)
               Padding(
                 padding: const EdgeInsets.only(top: 8),
-                child: Text(
-                  switch (gap) {
-                    CoverageGap.tooFewCoordinators => l10n.coverageGapCoordinators,
-                    CoverageGap.noCurrentShift => l10n.coverageGapShift,
-                  },
-                  style: textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w600),
-                ),
+                child: Text(switch (gap) {
+                  CoverageGap.tooFewCoordinators => l10n.coverageGapCoordinators,
+                  CoverageGap.noCurrentShift => l10n.coverageGapShift,
+                }, style: textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w600)),
               ),
             const SizedBox(height: 12),
             Text(l10n.coverageRuleNote, style: textTheme.bodyMedium),
@@ -243,10 +240,7 @@ class _EndShiftDialogState extends ConsumerState<_EndShiftDialog> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               Text(l10n.shiftEndBody(widget.shift.personName)),
-              if (error != null) ...[
-                const SizedBox(height: 12),
-                ProblemNotice(error: error),
-              ],
+              if (error != null) ...[const SizedBox(height: 12), ProblemNotice(error: error)],
             ],
           ),
         ),
@@ -420,10 +414,7 @@ class _NewShiftDialogState extends ConsumerState<_NewShiftDialog> {
                   style: textTheme.bodyLarge?.copyWith(color: Theme.of(context).colorScheme.error),
                 ),
               ],
-              if (error != null) ...[
-                const SizedBox(height: 12),
-                ProblemNotice(error: error),
-              ],
+              if (error != null) ...[const SizedBox(height: 12), ProblemNotice(error: error)],
             ],
           ),
         ),

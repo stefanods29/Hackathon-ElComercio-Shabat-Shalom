@@ -1,12 +1,15 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
+import 'package:vecinal/core/di/providers.dart';
 import 'package:vecinal/core/platform/pilot_platforms.dart';
 import 'package:vecinal/core/router/routes.dart';
 import 'package:vecinal/core/ui/large_button.dart';
 import 'package:vecinal/core/ui/simple_mode.dart';
-import 'package:vecinal/core/di/providers.dart';
+import 'package:vecinal/features/directorio/domain/directory.dart';
 import 'package:vecinal/features/directorio/domain/search.dart';
 import 'package:vecinal/features/directorio/presentation/directory_page.dart';
 import 'package:vecinal/features/emergencias/data/emergency_contacts.dart';
@@ -82,7 +85,7 @@ class EmergencyScopeGate extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final scope = ref.watch(emergencyScopeProvider);
     final t = AppLocalizations.of(context);
-    if (scope == null)
+    if (scope == null) {
       return EmergencyLayout(
         title: title,
         children: [
@@ -94,6 +97,7 @@ class EmergencyScopeGate extends ConsumerWidget {
           ),
         ],
       );
+    }
     return KeyedSubtree(key: ValueKey(scope.key), child: builder(scope));
   }
 }
@@ -106,7 +110,7 @@ class EmergencyAlternatives extends ConsumerWidget {
     final t = AppLocalizations.of(context);
     final directory = ref.watch(publicEmergencyDirectoryProvider).value;
     final scope = ref.watch(emergencyScopeProvider);
-    final origin = request?.approximateLocation ?? ref.watch(directoryOriginProvider);
+    final origin = request?.approximateLocation ?? ref.watch<GeoPoint>(directoryOriginProvider);
     final points =
         (directory?.entries ?? <PublicEmergencyEntry>[])
             .where((e) => e.kind == PublicEmergencyKind.meetingPoint && e.location != null)
@@ -224,7 +228,7 @@ class EmergencyAlternatives extends ConsumerWidget {
     }
     final contacts = ref.read(emergencyContactsProvider).value ?? <EmergencyContact>[];
     if (contacts.isEmpty) {
-      context.push(Routes.emergencyContacts);
+      unawaited(context.push<void>(Routes.emergencyContacts));
       return;
     }
     final recipient = await showDialog<EmergencyContact>(
@@ -237,8 +241,9 @@ class EmergencyAlternatives extends ConsumerWidget {
     if (recipient == null ||
         !context.mounted ||
         ref.read(emergencyScopeProvider)?.key != scope.key ||
-        ref.read(practiceModeProvider).value != false)
+        ref.read(practiceModeProvider).value != false) {
       return;
+    }
     // Recheck after the picker: deletion/revocation must not use a captured contact.
     final current = ref.read(emergencyContactsProvider).value ?? <EmergencyContact>[];
     if (!current.any((c) => c.id == recipient.id && c.phone == recipient.phone)) return;
@@ -246,8 +251,9 @@ class EmergencyAlternatives extends ConsumerWidget {
     try {
       opened = await ref.read(smsComposerProvider).compose(recipient: recipient.phone, body: body);
     } catch (_) {}
-    if (context.mounted)
+    if (context.mounted) {
       emergencyMessage(context, opened ? t.emergencySmsNotSent : t.emergencySmsFailed);
+    }
   }
 }
 

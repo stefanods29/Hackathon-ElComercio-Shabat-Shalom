@@ -166,7 +166,7 @@ class _HelpRequestFormState extends ConsumerState<_HelpRequestForm> {
       emergencyMessage(context, t.emergencyPracticeExternal);
       return;
     }
-    final dictation = _dictation ??= ref.read(commentDictationProvider);
+    final dictation = _dictation ??= ref.read<CommentDictation>(commentDictationProvider);
     if (_listening) {
       await dictation.stop();
       if (_current) setState(() => _listening = false);
@@ -179,11 +179,12 @@ class _HelpRequestFormState extends ConsumerState<_HelpRequestForm> {
           if (_current) _description.text = words.length > 500 ? words.substring(0, 500) : words;
         },
         () {
-          if (_current)
+          if (_current) {
             setState(() {
               _listening = false;
               _error = t.emergencyDictationFailed;
             });
+          }
         },
       );
     } catch (_) {}
@@ -201,8 +202,9 @@ class _HelpRequestFormState extends ConsumerState<_HelpRequestForm> {
     if (!_current ||
         _busy ||
         !_form.currentState!.validate() ||
-        ref.read(emergencySnapshotProvider).value?.coverageVerified != true)
+        ref.read(emergencySnapshotProvider).value?.coverageVerified != true) {
       return;
+    }
     final t = AppLocalizations.of(context);
     final repository = ref.read(emergencyRepositoryProvider);
     final location = ref.read(directoryOriginProvider).approximate();
@@ -221,7 +223,7 @@ class _HelpRequestFormState extends ConsumerState<_HelpRequestForm> {
           approximateLocation: location,
         ),
       );
-      if (_current) context.replace('/emergencia/pedidos/${request.id}');
+      if (_current && mounted) context.replace('/emergencia/pedidos/${request.id}');
     } catch (_) {
       if (_current) setState(() => _error = t.emergencySaveFailed);
     } finally {
@@ -256,7 +258,7 @@ class _OwnHelpRequestState extends ConsumerState<_OwnHelpRequest> {
     final snapshot = ref.watch(emergencySnapshotProvider);
     final request = snapshot.value?.requests.where((r) => r.id == widget.requestId).firstOrNull;
     final now = ref.watch(emergencyNowProvider).value ?? ref.watch(clockProvider)();
-    if (request == null)
+    if (request == null) {
       return EmergencyLayout(
         title: t.emergencyMyRequest,
         children: [
@@ -267,6 +269,7 @@ class _OwnHelpRequestState extends ConsumerState<_OwnHelpRequest> {
           const EmergencyAlternatives(),
         ],
       );
+    }
     String date(DateTime value) => DateFormat.yMd(t.localeName).add_Hm().format(value.toLocal());
     return EmergencyLayout(
       title: t.emergencyMyRequest,
@@ -347,8 +350,9 @@ class _OwnHelpRequestState extends ConsumerState<_OwnHelpRequest> {
                 ?.requests
                 .where((r) => r.id == request.id && r.canConfirmAttendance)
                 .isNotEmpty !=
-            true)
+            true) {
       return;
+    }
     setState(() => _busy = true);
     try {
       await ref.read(emergencyRepositoryProvider).confirmAttendance(request.id);

@@ -95,7 +95,9 @@ export class UrgentNotices {
     if (!notice) return;
     const providerEnabled = this.sms.name !== 'none';
     const phone =
-      providerEnabled && !notice.confirmadoEn ? await this.contacts.phoneOf(notice.usuarioId) : null;
+      providerEnabled && !notice.confirmadoEn
+        ? await this.contacts.phoneOf(notice.usuarioId)
+        : null;
     const reservedAt = this.clock.now();
     const reservation = await this.store.reserveSms(
       avisoId,

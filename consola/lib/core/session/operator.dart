@@ -41,8 +41,7 @@ class Operator {
   bool get isOperational => roles.isNotEmpty;
 
   /// Reviews, assigns and closes cases of the zone.
-  bool get coordinates =>
-      has(OperationalRole.coordinator) || has(OperationalRole.administrator);
+  bool get coordinates => has(OperationalRole.coordinator) || has(OperationalRole.administrator);
 
   /// Which sections this person may open. The API applies the same roles again.
   bool canOpen(ConsoleSection section) => switch (section) {

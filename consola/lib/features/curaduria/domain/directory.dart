@@ -219,7 +219,9 @@ List<EntryProblem> validateEntry(
     add('ubicacion', EntryProblemKind.locationRequired);
   }
   if (location != null) {
-    if (location.lat < -90 || location.lat > 90) add('ubicacion.lat', EntryProblemKind.latitudeRange);
+    if (location.lat < -90 || location.lat > 90) {
+      add('ubicacion.lat', EntryProblemKind.latitudeRange);
+    }
     if (location.lng < -180 || location.lng > 180) {
       add('ubicacion.lng', EntryProblemKind.longitudeRange);
     }
@@ -246,12 +248,13 @@ List<EntryProblem> validateEntry(
 }
 
 /// Problems of every entry, by position, with ids compared across the whole directory.
-Map<int, List<EntryProblem>> validateEntries(List<DirectoryEntry> entries, {required String today}) {
+Map<int, List<EntryProblem>> validateEntries(
+  List<DirectoryEntry> entries, {
+  required String today,
+}) {
   final result = <int, List<EntryProblem>>{};
   for (var index = 0; index < entries.length; index++) {
-    final others = [
-      for (var other = 0; other < index; other++) entries[other].id,
-    ];
+    final others = [for (var other = 0; other < index; other++) entries[other].id];
     final problems = validateEntry(entries[index], today: today, otherIds: others);
     if (problems.isNotEmpty) result[index] = problems;
   }
@@ -266,8 +269,6 @@ const maxEntries = 500;
 String suggestId(String name) {
   const accents = {'á': 'a', 'é': 'e', 'í': 'i', 'ó': 'o', 'ú': 'u', 'ü': 'u', 'ñ': 'n'};
   final lower = name.toLowerCase().split('').map((char) => accents[char] ?? char).join();
-  final slug = lower
-      .replaceAll(RegExp(r'[^a-z0-9]+'), '-')
-      .replaceAll(RegExp(r'^-+|-+$'), '');
+  final slug = lower.replaceAll(RegExp(r'[^a-z0-9]+'), '-').replaceAll(RegExp(r'^-+|-+$'), '');
   return slug.length > 60 ? slug.substring(0, 60).replaceAll(RegExp(r'-+$'), '') : slug;
 }

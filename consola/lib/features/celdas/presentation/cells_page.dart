@@ -65,11 +65,7 @@ class _CellsPageState extends ConsumerState<CellsPage> {
                 height: 380,
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(12),
-                  child: CellsMap(
-                    cells: snapshot.cells,
-                    need: _need,
-                    label: l10n.cellsMapLabel,
-                  ),
+                  child: CellsMap(cells: snapshot.cells, need: _need, label: l10n.cellsMapLabel),
                 ),
               ),
               const SizedBox(height: 4),

@@ -3,8 +3,7 @@ import 'package:vecinal_consola/features/casos/domain/emergency_case.dart';
 /// Requests in a cell. Below [threshold] it is never a number, so nobody can be singled out
 /// (spec: "Mapa de celdas sin ubicaciones exactas"). Zero is also "fewer than three".
 class CellCount {
-  factory CellCount(int? value) =>
-      CellCount._(value != null && value >= threshold ? value : null);
+  factory CellCount(int? value) => CellCount._(value != null && value >= threshold ? value : null);
 
   const CellCount._(this.value);
 

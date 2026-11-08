@@ -34,9 +34,8 @@ final authApiProvider = Provider<AuthApi>(
 );
 
 final phoneVerifierProvider = Provider<FirebaseWebVerifier?>(
-  (ref) => ref.watch(consoleEnvironmentProvider).phoneAuthWithFirebase
-      ? FirebaseWebVerifier()
-      : null,
+  (ref) =>
+      ref.watch(consoleEnvironmentProvider).phoneAuthWithFirebase ? FirebaseWebVerifier() : null,
 );
 
 final sessionProvider = NotifierProvider<SessionController, ConsoleSession>(SessionController.new);

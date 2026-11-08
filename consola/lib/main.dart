@@ -36,9 +36,7 @@ Future<void> _startFirebase(ConsoleEnvironment environment) async {
         appId: environment.firebaseAppId,
         messagingSenderId: environment.firebaseSenderId,
         projectId: environment.firebaseProjectId,
-        authDomain: environment.firebaseAuthDomain.isEmpty
-            ? null
-            : environment.firebaseAuthDomain,
+        authDomain: environment.firebaseAuthDomain.isEmpty ? null : environment.firebaseAuthDomain,
       ),
     );
     // Firebase keeps no session of its own in this browser (no IndexedDB, no localStorage).

@@ -39,10 +39,8 @@ class UrgentNoticesPage extends ConsumerWidget {
           const SizedBox(height: 16),
           summary.when(
             loading: () => const LoadingIndicator(),
-            error: (error, _) => ProblemNotice(
-              error: error,
-              onRetry: () => ref.invalidate(urgentSummaryProvider),
-            ),
+            error: (error, _) =>
+                ProblemNotice(error: error, onRetry: () => ref.invalidate(urgentSummaryProvider)),
             data: (data) => _Summary(summary: data),
           ),
         ],
@@ -104,10 +102,7 @@ class _Summary extends StatelessWidget {
         ),
         LabeledValue(
           label: l10n.urgentSpendingMonth,
-          value: l10n.urgentSpendingOf(
-            _money(summary.monthCents),
-            _money(summary.monthlyCapCents),
-          ),
+          value: l10n.urgentSpendingOf(_money(summary.monthCents), _money(summary.monthlyCapCents)),
         ),
       ],
     );

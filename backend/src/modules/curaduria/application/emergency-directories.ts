@@ -98,7 +98,10 @@ export class EmergencyDirectories {
       const district = index.distritos.find((entry) => entry.archivo === archivo);
       if (!district) throw new ResourceNotFound('directorio de emergencia', archivo);
       // The CDN file may come from the Phase 1 PR flow, before any version was recorded here.
-      const current = Math.max(district.version, (await this.versions.latest(transaction, archivo)) ?? 0);
+      const current = Math.max(
+        district.version,
+        (await this.versions.latest(transaction, archivo)) ?? 0,
+      );
       if (parsed.data.versionVista !== current) {
         throw new VersionConflict(parsed.data.versionVista, current);
       }
@@ -144,7 +147,9 @@ export class EmergencyDirectories {
     }
     const body = await this.publisher.read(INDEX_PATH);
     if (!body) {
-      throw new ServiceUnavailableException('No se encontró el índice del directorio de emergencia.');
+      throw new ServiceUnavailableException(
+        'No se encontró el índice del directorio de emergencia.',
+      );
     }
     return indexSchema.parse(JSON.parse(body.toString('utf8')));
   }

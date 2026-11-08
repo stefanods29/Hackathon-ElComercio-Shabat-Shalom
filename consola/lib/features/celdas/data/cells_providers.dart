@@ -82,8 +82,6 @@ class DemoCellsRepository implements CellsRepository {
     label: 'Celda $id (ejemplo)',
     bounds: bounds,
     total: CellCount(counts[6]),
-    byNeed: {
-      for (final need in EmergencyNeed.values) need: CellCount(counts[need.index]),
-    },
+    byNeed: {for (final need in EmergencyNeed.values) need: CellCount(counts[need.index])},
   );
 }

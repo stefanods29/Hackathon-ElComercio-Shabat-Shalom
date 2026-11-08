@@ -242,11 +242,12 @@ class _OtpSignInState extends ConsumerState<_OtpSignIn> {
               children: [
                 TextButton(
                   onPressed: _busy || _resendIn > 0 ? null : _sendCode,
-                  child: Text(
-                    _resendIn > 0 ? l10n.signInResendIn(_resendIn) : l10n.signInResend,
-                  ),
+                  child: Text(_resendIn > 0 ? l10n.signInResendIn(_resendIn) : l10n.signInResend),
                 ),
-                TextButton(onPressed: _busy ? null : _changePhone, child: Text(l10n.signInChangePhone)),
+                TextButton(
+                  onPressed: _busy ? null : _changePhone,
+                  child: Text(l10n.signInChangePhone),
+                ),
               ],
             ),
           ],
@@ -275,7 +276,11 @@ class _DemoSignIn extends ConsumerWidget {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       mainAxisSize: MainAxisSize.min,
       children: [
-        InfoCard(icon: Icons.science_outlined, title: l10n.demoSignInTitle, body: l10n.demoSignInBody),
+        InfoCard(
+          icon: Icons.science_outlined,
+          title: l10n.demoSignInTitle,
+          body: l10n.demoSignInBody,
+        ),
         const SizedBox(height: 16),
         Wrap(
           spacing: 8,

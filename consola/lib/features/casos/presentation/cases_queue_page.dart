@@ -22,7 +22,10 @@ class CasesQueuePage extends ConsumerWidget {
     if (user == null) return const SizedBox.shrink();
     final title = user.coordinates ? l10n.casesTitle : l10n.myCasesTitle;
     if (ref.watch(casesRepositoryProvider) == null) {
-      return ConsolePage(title: title, child: ModuleUnavailable(message: l10n.casesUnavailable));
+      return ConsolePage(
+        title: title,
+        child: ModuleUnavailable(message: l10n.casesUnavailable),
+      );
     }
     if (user.zoneId == null) {
       return ConsolePage(

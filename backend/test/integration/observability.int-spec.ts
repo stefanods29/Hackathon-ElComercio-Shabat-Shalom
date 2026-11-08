@@ -31,6 +31,9 @@ describe('Observabilidad por HTTP y PostgreSQL', () => {
     ({ app } = await createTestApp(inject('databaseUrl'), { JOB_QUEUE_DRIVER: 'pgboss' }));
     await app.listen(0, '127.0.0.1');
     db = createKysely(inject('databaseUrl'), 2);
+    // The guard keeps only the roles the account still has in the database (Phase 2, Lot B).
+    await sql`UPDATE identidad.usuarios SET roles = array_append(roles, 'administrador')
+      WHERE id = ${NEIGHBORS.carla.id} AND NOT ('administrador' = ANY(roles))`.execute(db);
     const tokens = app.get(TokenService);
     ({ token: admin } = await tokens.issueAccess({
       id: NEIGHBORS.carla.id,
@@ -48,6 +51,10 @@ describe('Observabilidad por HTTP y PostgreSQL', () => {
   afterEach(() => vi.restoreAllMocks());
   afterAll(async () => {
     await app?.close();
+    if (db) {
+      await sql`UPDATE identidad.usuarios SET roles = array_remove(roles, 'administrador')
+        WHERE id = ${NEIGHBORS.carla.id}`.execute(db);
+    }
     await db?.destroy();
   });
 
