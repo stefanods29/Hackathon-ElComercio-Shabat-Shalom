@@ -99,6 +99,33 @@ export const configSchema = z
     TWILIO_FROM_WHATSAPP: z.string().optional(),
 
     JOB_QUEUE_DRIVER: z.enum(['memory', 'pgboss']).default('pgboss'),
+
+    // Phase 2, Lot C · urgent notices with SMS backup (section 7.5). Amounts in US cents.
+    SMS_PROVIDER: z.enum(['none', 'fake']).default('fake'),
+    URGENT_ACK_TIMEOUT_SECONDS: z.coerce.number().int().min(30).max(3600).default(120),
+    SMS_COST_CENTS: z.coerce.number().int().min(0).max(1000).default(5),
+    SMS_DAILY_BUDGET_CENTS: z.coerce.number().int().min(0).default(500),
+    SMS_MONTHLY_BUDGET_CENTS: z.coerce.number().int().min(0).default(5000),
+
+    // Phase 2, Lot C · operations console (section 9.5).
+    CONSOLE_ORIGINS: z
+      .string()
+      .default('')
+      .transform((value) =>
+        value
+          .split(',')
+          .map((origin) => origin.trim())
+          .filter((origin) => origin.length > 0),
+      )
+      .pipe(
+        z.array(
+          z
+            .string()
+            .regex(/^https?:\/\/[A-Za-z0-9.-]+(:[0-9]{1,5})?$/, 'debe ser un origen sin ruta'),
+        ),
+      ),
+    CURATION_PUBLISH_DRIVER: z.enum(['disabled', 'filesystem']).default('disabled'),
+    CURATION_PUBLIC_ROOT: z.string().min(1).default('../infra/cdn/publico'),
   })
   .superRefine((config, ctx) => {
     if (config.NODE_ENV === 'production' && config.MEDIA_DRIVER === 'fake') {
@@ -195,6 +222,37 @@ export const configSchema = z
         code: 'custom',
         path: ['OTP_PROVIDER'],
         message: 'el proveedor OTP falso no puede usarse en producción',
+      });
+    }
+    if (config.NODE_ENV === 'production' && config.SMS_PROVIDER === 'fake') {
+      ctx.addIssue({
+        code: 'custom',
+        path: ['SMS_PROVIDER'],
+        message: 'el proveedor de SMS falso no puede usarse en producción; usa none',
+      });
+    }
+    if (config.SMS_DAILY_BUDGET_CENTS > config.SMS_MONTHLY_BUDGET_CENTS) {
+      ctx.addIssue({
+        code: 'custom',
+        path: ['SMS_DAILY_BUDGET_CENTS'],
+        message: 'el tope diario no puede superar al mensual',
+      });
+    }
+    if (
+      config.NODE_ENV === 'production' &&
+      config.CONSOLE_ORIGINS.some((origin) => !origin.startsWith('https://'))
+    ) {
+      ctx.addIssue({
+        code: 'custom',
+        path: ['CONSOLE_ORIGINS'],
+        message: 'en producción los orígenes de la consola deben usar https',
+      });
+    }
+    if (config.NODE_ENV === 'production' && config.CURATION_PUBLISH_DRIVER === 'filesystem') {
+      ctx.addIssue({
+        code: 'custom',
+        path: ['CURATION_PUBLISH_DRIVER'],
+        message: 'filesystem solo sirve en desarrollo; en producción usa el almacenamiento de la CDN',
       });
     }
     if (config.OTP_PROVIDER === 'firebase' && !config.FIREBASE_PROJECT_ID) {

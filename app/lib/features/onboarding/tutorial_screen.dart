@@ -133,7 +133,7 @@ class _TutorialScreenState extends ConsumerState<TutorialScreen> {
       TutorialDestination.review =>
         service == null ? Routes.directory : '/servicios/${service.id}/resena',
       TutorialDestination.actions => Routes.toReview,
-      TutorialDestination.emergency => Routes.emergency,
+      TutorialDestination.emergency => Routes.emergencyDashboard,
       TutorialDestination.privacy => Routes.myData,
     };
     context.push(route);

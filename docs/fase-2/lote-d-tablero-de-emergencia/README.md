@@ -12,12 +12,27 @@
 
 | Parte | Qué entrega | Estado | Responsable | PR |
 |---|---|---|---|---|
-| 1 | Inicio en modo emergencia | Pendiente | Por asignar | — |
-| 2 | "Necesito ayuda" y el estado de mi pedido | Pendiente | Por asignar | — |
-| 3 | "Puedo ayudar" y recursos | Pendiente | Por asignar | — |
-| 4 | Contactos de emergencia y accesibilidad | Pendiente | Por asignar | — |
+| 1 | Inicio en modo emergencia | En curso | stefanods29 | — |
+| 2 | "Necesito ayuda" y el estado de mi pedido | En curso | stefanods29 | — |
+| 3 | "Puedo ayudar" y recursos | En curso | stefanods29 | — |
+| 4 | Contactos de emergencia y accesibilidad | En curso | stefanods29 | — |
 
 Estados posibles: **Pendiente**, **En curso** o **Hecha** (integrada en `main`).
+
+### Entrega de código · 7 de noviembre de 2026
+
+Desarrollo en la rama `f2-lote-d/tablero-de-emergencia`, sobre las pantallas del piloto
+de Fase 1. Los repositorios operativos de Fase 2 todavía requieren integración con los
+Lotes A y B. La cuenta real debe mostrar esa falta de disponibilidad; los datos de
+práctica permanecen separados y no representan pedidos recibidos ni ayuda asignada.
+
+Por indicación del responsable, esta entrega se realiza sin crear ni ejecutar pruebas,
+análisis, compilaciones, CI o simulacros. La accesibilidad se contempla en el código,
+pero su validación y el ejercicio con vecinos quedan pendientes. Estos límites no
+cambian los criterios de finalización descritos al final del documento.
+
+Los puertos, las reglas de aislamiento y los pendientes externos se describen en
+[Integración del tablero](integracion.md).
 
 ---
 

@@ -93,3 +93,23 @@ WHERE publicado_en IS NULL ORDER BY ocurrido_en, id;
 Referencias de la dependencia: [transacciones](https://pgboss.io/api/adapters),
 [colas y políticas](https://pgboss.io/api/queues) y
 [opciones de trabajos](https://pgboss.io/api/jobs).
+
+## Fase 2 · Lote C: avisos urgentes y aviso de zona
+
+| Nombre | Carga JSON | Prioridad | Reintentos | Productor | Consumidor |
+|---|---|---|---|---|---|
+| `notificaciones.enviar_aviso_urgente` | `UrgentNoticeJob`: `{ avisoId, usuarioId, plantilla, datos: { casoId? } }` | crítica | 5 | Lote B de la Fase 2 (asignación y escalamiento) | Lote C: push y revisión programada |
+| `notificaciones.revisar_aviso_urgente` | `{ avisoId }`, con `delaySeconds = URGENT_ACK_TIMEOUT_SECONDS` (0 si ningún dispositivo recibió el push) | crítica | 5 | Lote C | Lote C: SMS de respaldo dentro del tope o `sin_respaldo` |
+| `emergencias.evento_activado` | Sobre del relay con `carga.zonaId` | crítica (módulo `emergencias`) | 5 | Lote B de la Fase 2 (outbox) | Lote C: `notificaciones.enviar_aviso` al tópico `zona-<zonaId>`, plantilla `modo_emergencia_activado` |
+
+**Plantillas de `UrgentNoticeJob`:** `caso_asignado`, `pedido_por_escalar` y `pedido_escalado`.
+Todas muestran el mismo texto, "Tienes una actualización urgente", y el SMS dice "Vecinal: tienes
+una actualización urgente. Abre la app para verla."
+
+**Identificadores:**
+- `avisoId` deduplica el push, la revisión y el SMS.
+- El aviso de zona usa un UUIDv5 de `eventoId` y la zona.
+
+**Pendiente con el Lote B:** `emergencias.evento_activado` tiene hoy un solo consumidor (`register`).
+Si otro módulo necesita el mismo evento, el registro requiere un mecanismo de varios suscriptores,
+porque `JobHandlerRegistry` no admite dos manejadores con el mismo nombre.

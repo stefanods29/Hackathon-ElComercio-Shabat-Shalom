@@ -3,8 +3,9 @@
 | Dato | Valor |
 |---|---|
 | Dificultad | ★★ Media |
-| Área | `consola/` (nuevo, en la raíz del monorepo), `backend/src/modules/notificaciones/`, `infra/tofu/`, `.github/workflows/` |
-| Change de OpenSpec | `fase-2-lote-c-consola-web-y-avisos-urgentes` (se crea al abrir la fase) |
+| Área | `consola/` (nuevo, en la raíz del monorepo), `backend/src/modules/notificaciones/`, `backend/src/modules/curaduria/` (nuevo), `infra/cloud/modules/console-site/` (nuevo), `.github/workflows/` |
+| Change de OpenSpec | [`fase-2-lote-c-consola-web-y-avisos-urgentes`](../../../openspec/changes/fase-2-lote-c-consola-web-y-avisos-urgentes/) |
+| Integración | [`integracion.md`](integracion.md): qué falta de B y cómo compilar y probar |
 | Partes | 4. La 1 va primero; la 4 puede avanzar en paralelo |
 | Depende de | Contrato del módulo Emergencias (B, partes 1–3) |
 
@@ -12,10 +13,10 @@
 
 | Parte | Qué entrega | Estado | Responsable | PR |
 |---|---|---|---|---|
-| 1 | Base de la consola web | Pendiente | Por asignar | — |
-| 2 | Cola de casos y asignación | Pendiente | Por asignar | — |
-| 3 | Mapa de celdas, turnos y curaduría | Pendiente | Por asignar | — |
-| 4 | Avisos urgentes con SMS de respaldo | Pendiente | Por asignar | — |
+| 1 | Base de la consola web | En curso: código sin validar, falta el flujo de CI | stefanods29 | — |
+| 2 | Cola de casos y asignación | En curso: código sin validar, espera el contrato de B | stefanods29 | — |
+| 3 | Mapa de celdas, turnos y curaduría | En curso: código sin validar; celdas y turnos esperan a B | stefanods29 | — |
+| 4 | Avisos urgentes con SMS de respaldo | En curso: código sin validar, solo el SMS falso | stefanods29 | — |
 
 Estados posibles: **Pendiente**, **En curso** o **Hecha** (integrada en `main`).
 

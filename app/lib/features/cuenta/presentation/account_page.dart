@@ -40,6 +40,16 @@ class AccountPage extends ConsumerWidget {
               ),
               const Divider(),
               ListTile(
+                leading: const Icon(Icons.contact_phone_outlined),
+                title: Text(texts.emergencyContacts),
+                onTap: () => context.push(Routes.emergencyContacts),
+              ),
+              ListTile(
+                leading: const Icon(Icons.emergency_outlined),
+                title: Text(texts.emergencyDashboard),
+                onTap: () => context.push(Routes.emergencyDashboard),
+              ),
+              ListTile(
                 leading: const Icon(Icons.privacy_tip_outlined),
                 title: Text(texts.privacyTitle),
                 onTap: () => context.push(Routes.myData),

@@ -26,6 +26,7 @@ class PushService {
     required this.navigate,
     required this.onForeground,
     required this.store,
+    this.confirmUrgent,
   });
   final PushPlatform platform;
   final SecureStore store;
@@ -33,6 +34,10 @@ class PushService {
   final void Function(PushStatus) onStatus;
   final void Function(String) navigate;
   final void Function(Map<String, String>) onForeground;
+
+  /// Confirms an opened urgent notice in the API (Phase 2, Lot C); its errors never change the
+  /// push status.
+  final Future<void> Function(PushCredentials session, String noticeId)? confirmUrgent;
   final _subscriptions = <StreamSubscription<dynamic>>[];
   Future<void> _tail = Future.value();
   PushCredentials? _session;
@@ -40,6 +45,9 @@ class PushService {
   String? _token;
   String? _topic;
   String? _pendingRoute;
+
+  /// Urgent notice opened before the session of this run was ready.
+  String? _pendingUrgent;
   bool _initialized = false;
   bool _disposed = false;
   bool _registeredThisRun = false;
@@ -118,6 +126,11 @@ class PushService {
     if (session != null && _pendingRoute != null) {
       navigate(_pendingRoute!);
       _pendingRoute = null;
+    }
+    final urgent = _pendingUrgent;
+    if (session != null && urgent != null) {
+      _pendingUrgent = null;
+      _sendConfirmation(session, urgent);
     }
     await _persist();
   }
@@ -205,6 +218,8 @@ class PushService {
   }
 
   void _open(Map<String, String> data) {
+    final urgent = urgentNoticeIdFor(data);
+    if (urgent != null && !_disposed) _confirmUrgent(urgent);
     final route = routeFor(data);
     if (route == null || _disposed) return;
     if (_session == null || _session?.userId != _desiredSession?.userId) {
@@ -216,6 +231,21 @@ class PushService {
   }
 
   void openMessage(Map<String, String> data) => _open(data);
+
+  /// Opening an urgent notice confirms it, which stops its SMS backup. Without the session of this
+  /// run yet, the confirmation waits for it (in memory only: the SMS remains the backup).
+  void _confirmUrgent(String noticeId) {
+    final session = _session;
+    if (session == null || session.userId != _desiredSession?.userId) {
+      _pendingUrgent = noticeId;
+      return;
+    }
+    _sendConfirmation(session, noticeId);
+  }
+
+  void _sendConfirmation(PushCredentials session, String noticeId) {
+    unawaited(confirmUrgent?.call(session, noticeId).catchError((Object _) {}));
+  }
 
   Future<void> _persist() => store.write(
     'push.installation',

@@ -50,6 +50,24 @@ class SystemPhoneDialer implements PhoneDialer {
 
 final phoneDialerProvider = Provider<PhoneDialer>((ref) => SystemPhoneDialer());
 
+/// Opens a draft for the user to review. A successful launch is never a delivery receipt.
+abstract interface class SmsComposer {
+  Future<bool> compose({required String recipient, required String body});
+}
+
+class SystemSmsComposer implements SmsComposer {
+  @override
+  Future<bool> compose({required String recipient, required String body}) {
+    if (!RegExp(r'^\+?[0-9]{6,15}$').hasMatch(recipient) || body.isEmpty)
+      return Future.value(false);
+    return launchUrl(
+      Uri(scheme: 'sms', path: recipient, query: 'body=${Uri.encodeComponent(body)}'),
+    );
+  }
+}
+
+final smsComposerProvider = Provider<SmsComposer>((ref) => SystemSmsComposer());
+
 /// Selected local files are deliberately distinct from uploaded public file ids.
 class SelectedPhoto {
   const SelectedPhoto({required this.path, required this.name, this.uploadedFileId});

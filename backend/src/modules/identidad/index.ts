@@ -16,3 +16,6 @@ export {
 } from './application/reviewer-reader.js';
 export { PRESENCE_CLEANUP_JOB } from './application/identity-events.js';
 export { AUTHOR_TRUST, type AuthorTrust } from './application/author-trust.js';
+/** Phase 2, Lot C: phone lookup for the SMS backup of urgent notices. */
+export { IdentityContactsModule } from './identity-contacts.module.js';
+export { CONTACT_DIRECTORY, type ContactDirectory } from './application/contact-directory.js';

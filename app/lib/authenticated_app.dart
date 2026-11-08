@@ -22,6 +22,7 @@ import 'package:vecinal/features/cuenta/data/providers.dart';
 import 'package:vecinal/features/cuenta/domain/auth_state.dart';
 import 'package:vecinal/features/directorio/data/providers.dart';
 import 'package:vecinal/features/emergencias/assigned_case_provider.dart';
+import 'package:vecinal/features/emergencias/data/emergency_contacts.dart';
 import 'package:vecinal/features/emergencias/data/emergency_directory_repository.dart';
 import 'package:vecinal/features/emergencias/data/emergency_directory_store.dart';
 import 'package:vecinal/features/emergencias/data/providers.dart';
@@ -55,6 +56,7 @@ class _AuthenticatedAppState extends State<AuthenticatedApp> {
   late final Dio _cdn;
   late final EmergencyDirectoryRepository _emergency;
   late final AppLifecycleListener _lifecycle;
+  late final EmergencyContactVault _contacts;
   late Future<void> _ready;
   AuthenticatedSyncSession? _session;
 
@@ -70,6 +72,7 @@ class _AuthenticatedAppState extends State<AuthenticatedApp> {
       loadBackup: loadEmergencyBackup,
     );
     _lifecycle = AppLifecycleListener(onResume: _refreshEmergencyDirectory);
+    _contacts = EmergencyContactVault(widget.store);
     _publicApi = createApiClient(widget.environment, getToken: () async => null);
     _auth = HttpAuthRepository(
       api: _publicApi,
@@ -84,6 +87,9 @@ class _AuthenticatedAppState extends State<AuthenticatedApp> {
   Future<void> _activate(LocalUser user) async {
     final current = _session;
     if (current?.user.neighborId == user.neighborId && current?.user.zoneId == user.zoneId) return;
+    if (current != null && current.user.neighborId != user.neighborId) {
+      await _contacts.purge(current.user.neighborId);
+    }
     if (current != null) await current.close(purge: true);
     final session = await AuthenticatedSyncSession.open(
       user: user,
@@ -97,6 +103,7 @@ class _AuthenticatedAppState extends State<AuthenticatedApp> {
       await session.close(purge: false);
       return;
     }
+    _contacts.authorize(user.neighborId);
     setState(() => _session = session);
     // Login/restore must finish before PowerSync requests a token from the same queue.
     Timer.run(session.start);
@@ -112,6 +119,8 @@ class _AuthenticatedAppState extends State<AuthenticatedApp> {
 
   /// Sign-out, revoked session and account deletion (Lot A, part 4).
   Future<void> _purge(String accountId) async {
+    // Emergency contacts are encrypted per account (Phase 2, Lot D): they go with the account.
+    await _contacts.purge(accountId);
     await purgeAccountData(
       accountId,
       pendingPhotos: widget.pendingPhotos,
@@ -141,7 +150,10 @@ class _AuthenticatedAppState extends State<AuthenticatedApp> {
   @override
   void dispose() {
     _lifecycle.dispose();
+    // Revoke contact writes immediately before awaiting asynchronous auth cleanup.
+    final contactsClosed = _contacts.close();
     _report(() async {
+      await contactsClosed;
       await _auth.close();
       await _session?.close(purge: false);
       await _emergency.close();
@@ -163,6 +175,8 @@ class _AuthenticatedAppState extends State<AuthenticatedApp> {
             session == null ? 'signed-out' : '${session.user.neighborId}:${session.user.zoneId}',
           ),
           overrides: [
+            secureStoreProvider.overrideWithValue(widget.store),
+            emergencyContactVaultProvider.overrideWithValue(_contacts),
             authRepositoryProvider.overrideWithValue(_auth),
             emergencyDirectoryRepositoryProvider.overrideWithValue(_emergency),
             if (session != null) ...[

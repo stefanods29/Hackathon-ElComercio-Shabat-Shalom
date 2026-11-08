@@ -17,4 +17,7 @@ Consecuencias.
 | [0009](0009-proveedor-de-codigos-firebase.md) | Firebase Authentication envía y comprueba los códigos por SMS (Lote B 1.4) |
 | [0010](0010-precision-de-la-ubicacion-publica.md) | Copia pública de la ubicación redondeada a 3 decimales; exacta solo con consentimiento del proveedor (Fase 1, Lote A 1.1; propuesto) |
 | [0011](0011-confirmacion-de-residencia.md) | Presencia sin coordenadas, confirmación manual y avales del piloto |
+| [0014](0014-consola-web-en-flutter.md) | Consola web de operación en Flutter web, en un proyecto propio (Fase 2, Lote C 1; propuesto) |
 
+El 0012 y el 0013 quedan reservados para el proveedor de la nube y OpenTelemetry (Fase 1, Lote C,
+partes 4 y 5).

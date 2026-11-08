@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+import { CurationModule } from './modules/curaduria/index.js';
 import { DirectoryModule } from './modules/directorio/index.js';
 import { EmergenciesModule } from './modules/emergencias/index.js';
 import { IdentityModule } from './modules/identidad/index.js';
@@ -25,6 +26,7 @@ import { SharedModule } from './shared/shared.module.js';
     NotificationsModule,
     MediaModule,
     ModerationModule,
+    CurationModule,
   ],
 })
 export class AppModule {}

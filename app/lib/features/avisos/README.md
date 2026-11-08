@@ -35,6 +35,15 @@ disponible, queda pendiente y puede reintentarse. En primer plano se muestra un 
 con enlace solo para tipos e identificadores válidos. En segundo plano no se procesa contenido
 personal. Un destino recibido antes de autenticarse se conserva en almacenamiento seguro.
 
+## Avisos urgentes y aviso de zona (Fase 2, Lote C)
+
+- `aviso_urgente` y `modo_emergencia_activado` abren el tablero de emergencia
+  (`/emergencia/tablero`), que no necesita sesión. Ninguno lleva datos del caso.
+- Abrir un aviso urgente lo confirma con `POST /v1/avisos-urgentes/{id}/confirmar`
+  (`data/urgent_notice_confirmation.dart`), lo que detiene su SMS de respaldo. Si la sesión todavía
+  no está lista, la confirmación espera en memoria a la sesión de esa misma ejecución. Un error al
+  confirmar nunca cambia el estado de los avisos: en el peor caso llega el SMS, que es su respaldo.
+
 ## Configuración local
 
 Seguir `app/README.md`. No subir los archivos del proyecto Firebase. El equipo debe configurar
