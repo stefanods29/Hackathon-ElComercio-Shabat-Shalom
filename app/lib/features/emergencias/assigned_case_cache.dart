@@ -78,6 +78,7 @@ class AssignedCaseCache {
     required PowerSyncBackendConnector connector,
     required this.clock,
     this.authorize,
+    this.maxLocalAge = const Duration(hours: 24),
     SubscribeToAssignedCase? subscribe,
   }) : _subscribe = subscribe ?? ((db, stream, params) => _connect(db, connector, stream, params));
 
@@ -104,6 +105,7 @@ class AssignedCaseCache {
   final SecureStore store;
   final DateTime Function() clock;
   final AuthorizeAssignedCase? authorize;
+  final Duration maxLocalAge;
   final String accountId;
   final SubscribeToAssignedCase _subscribe;
   static const _summaryQuery = 'SELECT * FROM pedidos_ayuda';
@@ -303,7 +305,9 @@ class AssignedCaseCache {
     final summary = _summary;
     if (summary == null) return;
     final now = clock();
-    if (!summary.permit.expiresAt.isAfter(now)) {
+    final displayedDeadline = _current?.expiresAt;
+    if (!summary.permit.expiresAt.isAfter(now) ||
+        (displayedDeadline != null && !displayedDeadline.isAfter(now))) {
       await _purge();
       return;
     }
@@ -315,6 +319,7 @@ class AssignedCaseCache {
     final row = rows.singleOrNull;
     final stage = HelpRequestStage.fromApi(row?['estado']);
     final expires = DateTime.tryParse(row?['vence_en'] as String? ?? '');
+    final localDeadline = DateTime.tryParse(row?['creado_en'] as String? ?? '')?.add(maxLocalAge);
     final need = row?['necesidad'] as String?;
     final priority = row?['prioridad'] as String?;
     final version = row?['version'] as int?;
@@ -324,6 +329,8 @@ class AssignedCaseCache {
         version == null ||
         expires == null ||
         !expires.isAfter(now) ||
+        localDeadline == null ||
+        !localDeadline.isAfter(now) ||
         (stage != HelpRequestStage.sent &&
             stage != HelpRequestStage.seen &&
             stage != HelpRequestStage.onTheWay)) {
@@ -331,7 +338,7 @@ class AssignedCaseCache {
       return;
     }
 
-    final deadline = _earlier(expires, summary.permit.expiresAt);
+    final deadline = _earlier(localDeadline, _earlier(expires, summary.permit.expiresAt));
     final exact = _exact;
     AssignedCaseLocation? location;
     if (exact != null) {

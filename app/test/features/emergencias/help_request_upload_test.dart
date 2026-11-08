@@ -311,6 +311,9 @@ void main() {
       },
     );
     expect((await reopened.watch(id).first)?.latest?.reason, reason);
+    expect(await local.database.getAll('SELECT * FROM pedidos_propios_cerrados'), [
+      {'id': id, 'estado': 'derivado', 'version': 4, 'cerrado_en': closedAt, 'motivo': reason},
+    ]);
     await connector.uploadData(local.database);
     expect(attempts, 1);
     expect(await local.database.getNextCrudTransaction(), isNull);

@@ -28,10 +28,12 @@ Depende de las tablas y transiciones de B2–B3 y del mecanismo de auditoría de
 
 El bloqueo y la caducidad pueden probarse inicialmente con casos ficticios y reloj controlado.
 
-- [ ] 3.1 Implementar el bloqueo local con PIN o biometría y el cierre por inactividad. Verificar con pruebas unitarias y de widgets la cancelación, el límite de inactividad y la reapertura sin red.
+- [x] 3.1 Implementar el bloqueo local con PIN o biometría y el cierre por inactividad. Verificar con pruebas unitarias y de widgets la cancelación, el límite de inactividad y la reapertura sin red.
 - [ ] 3.2 Aplicar `FLAG_SECURE` en Android y la vista difuminada en el selector de apps de iOS. Verificar en ambos sistemas con teléfonos reales que el contenido sensible no queda visible y registrar el resultado en `docs/fase-2/evidencias/modo-operativo.md`.
-- [ ] 3.3 Aplicar caducidad y purga al cerrar el caso, al reabrir la app y al volver a primer plano. Verificar con reloj de prueba y modo avión que un caso vencido se purga antes de mostrarse y que el autor conserva solo su historial mínimo permitido.
+- [x] 3.3 Aplicar caducidad y purga al cerrar el caso, al reabrir la app y al volver a primer plano. Verificar con reloj de prueba y modo avión que un caso vencido se purga antes de mostrarse y que el autor conserva solo su historial mínimo permitido.
 - [ ] 3.4 Compilar y depurar la app con `tool/verify.sh` desde `app/`. Verificar CI en verde con compilaciones de Android e iOS.
+
+El [informe de la Parte 3](../../../docs/fase-2/evidencias/modo-operativo.md) registra la verificación de 3.1 y 3.3 con reloj controlado y sin red en laboratorio. Para 3.2 quedan pendientes las pruebas de capturas y del selector en teléfonos reales. Para 3.4 queda pendiente el CI con compilaciones nativas.
 
 ## 4. Parte 4 · Tablero sin conexión
 

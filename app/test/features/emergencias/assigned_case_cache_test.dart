@@ -81,22 +81,26 @@ void main() {
     return result;
   }
 
-  Future<void> summary(TestCaseSubscription stream, {String stage = 'visto', int version = 1}) =>
-      stream.database.execute(
-        'INSERT OR REPLACE INTO ps_data__pedidos_ayuda (id, data) VALUES (?, ?)',
-        [
-          caseId,
-          jsonEncode({
-            'necesidad': 'agua',
-            'prioridad': 'alta',
-            'estado': stage,
-            'version': version,
-            'celda': 'celda-aproximada',
-            'creado_en': now.toIso8601String(),
-            'vence_en': expires.add(const Duration(minutes: 30)).toIso8601String(),
-          }),
-        ],
-      );
+  Future<void> summary(
+    TestCaseSubscription stream, {
+    String stage = 'visto',
+    int version = 1,
+    DateTime? createdAt,
+  }) => stream.database.execute(
+    'INSERT OR REPLACE INTO ps_data__pedidos_ayuda (id, data) VALUES (?, ?)',
+    [
+      caseId,
+      jsonEncode({
+        'necesidad': 'agua',
+        'prioridad': 'alta',
+        'estado': stage,
+        'version': version,
+        'celda': 'celda-aproximada',
+        'creado_en': (createdAt ?? now).toIso8601String(),
+        'vence_en': expires.add(const Duration(minutes: 30)).toIso8601String(),
+      }),
+    ],
+  );
 
   Future<void> location(TestCaseSubscription stream) =>
       stream.database.execute('INSERT INTO ps_data__ubicaciones_casos (id, data) VALUES (?, ?)', [
@@ -260,6 +264,46 @@ void main() {
     expect(await restored.watch().first, isNull);
     expect(await store.read(summaryKey), isNull);
     expect(await File(casePath).exists(), isFalse);
+  });
+
+  test('la fecha del caso limita el acceso local aun con permisos vigentes', () async {
+    exactExpires = expires;
+    final createdAt = now.subtract(const Duration(hours: 23, minutes: 59));
+    final cases = cache();
+    await cases.request(caseId);
+    await summary(subscriptions.single, stage: 'en_camino', createdAt: createdAt);
+    await cases.review();
+    await cases.requestExact(caseId);
+    await location(subscriptions.last);
+    await cases.review();
+    expect((await cases.watch().first)?.location, isNotNull);
+
+    now = now.add(const Duration(minutes: 1));
+    expect(now.isBefore(expires), isTrue);
+    expect(await cases.watch().first, isNull);
+    await cases.review();
+    expect(await store.read(summaryKey), isNull);
+    expect(await store.read(exactKey), isNull);
+    expect(await File(casePath).exists(), isFalse);
+    expect(await File('$casePath.exact').exists(), isFalse);
+  });
+
+  test('la reapertura sin red borra el resumen vencido por la edad del caso', () async {
+    final createdAt = now.subtract(const Duration(hours: 23, minutes: 59));
+    final initial = cache();
+    await initial.request(caseId);
+    await summary(subscriptions.single, createdAt: createdAt);
+    await initial.review();
+    expect((await initial.watch().first)?.id, caseId);
+    await initial.close();
+
+    now = now.add(const Duration(minutes: 1));
+    final restored = cache();
+    await restored.restore();
+    expect(await restored.watch().first, isNull);
+    expect(await store.read(summaryKey), isNull);
+    expect(await File(casePath).exists(), isFalse);
+    expect(subscriptions, hasLength(1));
   });
 
   test('sin autorización auditada o después de salir no se abre ningún stream', () async {

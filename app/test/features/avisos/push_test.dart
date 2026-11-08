@@ -99,9 +99,12 @@ class _FixedStatus extends PushController {
 void main() {
   test('routeFor solo acepta tipos conocidos e ids completos', () {
     expect(routeFor(_message), '/publicaciones/$_post');
+    expect(routeFor({'tipo': 'aviso_urgente', 'casoId': _post}), '/emergencia/operacion/$_post');
     for (final data in [
       <String, String>{},
       {'tipo': 'desconocido', 'publicacionId': _post},
+      {'tipo': 'aviso_urgente', 'casoId': '../../configuracion'},
+      {'tipo': 'aviso_urgente', 'avisoId': _post},
       {'tipo': 'favor_tomado', 'publicacionId': '../../configuracion'},
       {'tipo': 'favor_tomado', 'publicacionId': 'https://example.com'},
     ]) {

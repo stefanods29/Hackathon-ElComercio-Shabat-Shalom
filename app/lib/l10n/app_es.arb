@@ -381,6 +381,32 @@
   "pushGenericUpdate": "Tienes una actualización en Vecinal",
   "mapAreaLabel": "TU ZONA",
   "pushReady": "Avisos activados para tu cuenta y tu zona.",
+  "operationalTitle": "Modo operativo",
+  "operationalLocked": "Modo operativo bloqueado",
+  "operationalUnlock": "Desbloquear",
+  "operationalUnlockReason": "Confirma tu identidad para abrir el caso asignado.",
+  "operationalDeviceCredential": "Usar código del dispositivo",
+  "operationalUnlockFailed": "No se confirmó tu identidad.",
+  "operationalProtectionFailed": "No se pudo proteger esta pantalla.",
+  "operationalCaseUnavailable": "El caso no está disponible en este celular.",
+  "operationalExactUnavailable": "La ubicación exacta no está disponible.",
+  "operationalOpenExact": "Ver ubicación exacta",
+  "operationalNeed": "Necesidad · {need, select, agua{Agua} alimentos{Alimentos} medicamentos{Medicamentos} traslado{Traslado} albergue{Albergue} other{Otra}}",
+  "@operationalNeed": {
+    "placeholders": {"need": {"type": "String"}}
+  },
+  "operationalPriority": "Prioridad · {priority, select, alta{Alta} media{Media} baja{Baja} other{Sin determinar}}",
+  "@operationalPriority": {
+    "placeholders": {"priority": {"type": "String"}}
+  },
+  "operationalCell": "Ubicación aproximada · celda {cell}",
+  "@operationalCell": {
+    "placeholders": {"cell": {"type": "String"}}
+  },
+  "operationalCoordinates": "Latitud {latitude} · Longitud {longitude}",
+  "@operationalCoordinates": {
+    "placeholders": {"latitude": {"type": "String"}, "longitude": {"type": "String"}}
+  },
   "emergencyHelpRequestTitle": "Pedido de ayuda",
   "emergencyHelpRequestNotSent": "Tu pedido todavía no fue enviado. Nadie lo ha recibido.",
   "emergencyHelpRequestNoCoverage": "La zona no tiene cobertura de coordinación vecinal.",

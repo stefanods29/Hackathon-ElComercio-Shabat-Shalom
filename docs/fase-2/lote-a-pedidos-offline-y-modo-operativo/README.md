@@ -14,7 +14,7 @@
 |---|---|---|---|---|
 | 1 | Pedidos de ayuda sin conexión | En curso (verificación local; integración con B y D pendiente) | `JDiazD33` | — |
 | 2 | Streams bajo demanda por asignación | En curso | `JDiazD33` | — |
-| 3 | Modo operativo protegido | Pendiente | `JDiazD33` | — |
+| 3 | Modo operativo protegido | En curso (verificación nativa y CI pendientes) | `JDiazD33` | — |
 | 4 | Tablero sin conexión: agregados y recursos | Pendiente | `JDiazD33` | — |
 | 5 | Seguridad y pruebas de campo | Pendiente | `JDiazD33` | — |
 | 6 | Integración de la Fase 2 y simulacro | Pendiente | `JDiazD33` | — |
@@ -81,8 +81,9 @@ PowerSync en vivo.
 - Caducidad local de los datos sensibles (por ejemplo, 24 horas o al cerrar el caso), aunque el
   celular siga sin conexión, sobre la purga de la Fase 0.
 
-Pruebas: unitarias del temporizador y de la caducidad con reloj de prueba, y comprobación en
-Android e iOS reales.
+El [informe de la Parte 3](../evidencias/modo-operativo.md) describe el bloqueo local, la
+caducidad y las pruebas de laboratorio. Las comprobaciones de captura y selector de apps en
+teléfonos reales corresponden a la Parte 5.
 
 ## Parte 4 · Tablero sin conexión: agregados y recursos
 
