@@ -12,11 +12,11 @@
 
 | Parte | Qué entrega | Estado | Responsable | PR |
 |---|---|---|---|---|
-| 1 | Eventos y activación del modo emergencia | En curso: integrada en `main` y probada por la API; falta la CI | Por asignar | — |
-| 2 | Pedidos de ayuda y su máquina de estados | En curso: integrada en `main` y probada por la API; falta la CI | Por asignar | — |
-| 3 | Asignaciones, escalamiento y turnos | En curso: integrada en `main` y probada por la API; falta la CI | Por asignar | — |
-| 4 | Recursos críticos y reportes verificables | En curso: integrada en `main` y probada por la API; falta la CI | Por asignar | — |
-| 5 | Roles operativos, auditoría y cierre del evento | En curso: integrada y probada por la API; faltan la CI y revisar las migraciones | Por asignar | — |
+| 1 | Eventos y activación del modo emergencia | En curso: integrada en `main` y probada por la API; falta la CI | `Defartion` | — |
+| 2 | Pedidos de ayuda y su máquina de estados | En curso: integrada en `main` y probada por la API; falta la CI | `Defartion` | — |
+| 3 | Asignaciones, escalamiento y turnos | En curso: integrada en `main` y probada por la API; falta la CI | `Defartion` | — |
+| 4 | Recursos críticos y reportes verificables | En curso: integrada en `main` y probada por la API; falta la CI | `Defartion` | — |
+| 5 | Roles operativos, auditoría y cierre del evento | En curso: integrada y probada por la API; faltan la CI y revisar las migraciones | `Defartion` | — |
 
 Estados posibles: **Pendiente**, **En curso** o **Hecha** (integrada en `main`).
 
