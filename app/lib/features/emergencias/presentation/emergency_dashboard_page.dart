@@ -25,6 +25,22 @@ class EmergencyDashboardPage extends ConsumerWidget {
     return EmergencyLayout(
       title: t.emergencyDashboard,
       children: [
+        // Always a visible way back: local mode, or the practice event the neighbor simulated.
+        if (ref.watch(appModeProvider) == AppMode.emergency ||
+            (data?.activeEvent == true &&
+                ref.watch(emergencyRepositoryProvider) is PracticeEmergencyRepository))
+          FilledButton.tonalIcon(
+            icon: const Icon(Icons.home_outlined),
+            label: Text(t.emergencyExitLocalMode),
+            onPressed: () {
+              if (ref.read(emergencyRepositoryProvider) case final PracticeEmergencyRepository p) {
+                p.simulateEvent(active: false);
+              }
+              final mode = ref.read(appModeProvider.notifier);
+              mode.endEvent();
+              mode.closeRecovery();
+            },
+          ),
         Text(t.connectsNeighbors),
         if (scope?.practice == true) Text(t.emergencyPracticeHelp),
         if (ref.watch(emergencyRepositoryProvider) case final PracticeEmergencyRepository practice)
@@ -36,16 +52,6 @@ class EmergencyDashboardPage extends ConsumerWidget {
             onPressed: () => ref.read(appModeProvider.notifier).activateEmergency(),
           ),
         Text(t.emergencyLocalModeHelp),
-        if (data?.activeEvent != true && ref.watch(appModeProvider) == AppMode.emergency)
-          OutlinedButton.icon(
-            icon: const Icon(Icons.home_outlined),
-            label: Text(t.emergencyExitLocalMode),
-            onPressed: () {
-              final mode = ref.read(appModeProvider.notifier);
-              mode.endEvent();
-              mode.closeRecovery();
-            },
-          ),
         if (!available) Semantics(liveRegion: true, child: Text(t.emergencyNoCoverage)),
         if (snapshot.isLoading) const LinearProgressIndicator(),
         if (snapshot.hasError) Text(t.emergencyCoordinationUnavailable),

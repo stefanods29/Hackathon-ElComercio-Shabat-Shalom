@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:vecinal/core/router/routes.dart';
+import 'package:vecinal/core/theme/theme_mode.dart';
+import 'package:vecinal/core/ui/image_policy.dart';
 import 'package:vecinal/core/ui/simple_mode.dart';
 import 'package:vecinal/features/avisos/data/providers.dart';
 import 'package:vecinal/features/cuenta/data/providers.dart';
@@ -97,6 +99,58 @@ class AccountPage extends ConsumerWidget {
                   ),
                 ],
               ),
+              _SectionTitle(texts.settingsTitle),
+              _Section(
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(20, 12, 20, 8),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      spacing: 12,
+                      children: [
+                        Text(
+                          texts.themeTitle,
+                          style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 16),
+                        ),
+                        SegmentedButton<ThemeMode>(
+                          showSelectedIcon: false,
+                          segments: [
+                            ButtonSegment(
+                              value: ThemeMode.system,
+                              icon: const Icon(Icons.brightness_auto_outlined),
+                              label: Text(texts.themeSystem),
+                            ),
+                            ButtonSegment(
+                              value: ThemeMode.light,
+                              icon: const Icon(Icons.light_mode_outlined),
+                              label: Text(texts.themeLight),
+                            ),
+                            ButtonSegment(
+                              value: ThemeMode.dark,
+                              icon: const Icon(Icons.dark_mode_outlined),
+                              label: Text(texts.themeDark),
+                            ),
+                          ],
+                          selected: {ref.watch(themeModeProvider)},
+                          onSelectionChanged: (value) =>
+                              ref.read(themeModeProvider.notifier).set(value.first),
+                        ),
+                      ],
+                    ),
+                  ),
+                  SwitchListTile.adaptive(
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 20),
+                    secondary: const Icon(Icons.image_outlined),
+                    title: Text(
+                      texts.emergencyImages,
+                      style: const TextStyle(fontWeight: FontWeight.w600),
+                    ),
+                    subtitle: Text(texts.emergencyImagesHelp),
+                    value: ref.watch(imagesEnabledProvider),
+                    onChanged: (value) => ref.read(imagesEnabledProvider.notifier).set(value),
+                  ),
+                ],
+              ),
               _Section(
                 children: [
                   _Item(
@@ -133,12 +187,6 @@ class AccountPage extends ConsumerWidget {
   }
 
   Future<void> _confirmSignOut(BuildContext context, WidgetRef ref) async {
-    if (ref.read(practiceModeProvider).value != false) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text(AppLocalizations.of(context).practiceHelp)));
-      return;
-    }
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
@@ -156,6 +204,12 @@ class AccountPage extends ConsumerWidget {
         ],
       ),
     );
+    if (confirmed == true && context.mounted && ref.read(practiceModeProvider).value != false) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(AppLocalizations.of(context).practiceSignOutDone)));
+      return;
+    }
     if (confirmed == true && context.mounted && ref.read(practiceModeProvider).value == false) {
       try {
         await _unregisterPush(ref);
@@ -174,12 +228,6 @@ class AccountPage extends ConsumerWidget {
   }
 
   Future<void> _confirmLostPhone(BuildContext context, WidgetRef ref) async {
-    if (ref.read(practiceModeProvider).value != false) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text(AppLocalizations.of(context).practiceHelp)));
-      return;
-    }
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
@@ -197,6 +245,12 @@ class AccountPage extends ConsumerWidget {
         ],
       ),
     );
+    if (confirmed == true && context.mounted && ref.read(practiceModeProvider).value != false) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(AppLocalizations.of(context).practiceLostPhoneDone)));
+      return;
+    }
     if (confirmed == true && context.mounted && ref.read(practiceModeProvider).value == false) {
       try {
         await _unregisterPush(ref);
@@ -317,4 +371,18 @@ class _Item extends StatelessWidget {
       onTap: onTap,
     );
   }
+}
+
+class _SectionTitle extends StatelessWidget {
+  const _SectionTitle(this.text);
+  final String text;
+
+  @override
+  Widget build(BuildContext context) => Padding(
+    padding: const EdgeInsets.fromLTRB(4, 8, 4, 8),
+    child: Text(
+      text,
+      style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700),
+    ),
+  );
 }

@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:vecinal/core/router/router.dart';
 import 'package:vecinal/core/router/routes.dart';
 import 'package:vecinal/core/theme/accessible_theme.dart';
+import 'package:vecinal/core/theme/theme_mode.dart';
 import 'package:vecinal/features/avisos/presentation/push_listener.dart';
 import 'package:vecinal/features/media/presentation/photo_runtime.dart';
 import 'package:vecinal/features/onboarding/practice_mode.dart';
@@ -18,6 +19,7 @@ class VecinalApp extends ConsumerWidget {
       onGenerateTitle: (context) => AppLocalizations.of(context).appName,
       theme: AccessibleTheme.light(),
       darkTheme: AccessibleTheme.dark(),
+      themeMode: ref.watch(themeModeProvider),
       locale: const Locale('es'),
       supportedLocales: AppLocalizations.supportedLocales,
       localizationsDelegates: AppLocalizations.localizationsDelegates,
@@ -26,7 +28,8 @@ class VecinalApp extends ConsumerWidget {
         child: PushListener(
           child: Column(
             children: [
-              if (practice.value == true)
+              // The demo build is always in practice and says so on each practice screen.
+              if (practice.value == true && !ref.watch(practiceLockedProvider))
                 Material(
                   color: Theme.of(context).colorScheme.tertiaryContainer,
                   child: SafeArea(
@@ -52,21 +55,20 @@ class VecinalApp extends ConsumerWidget {
                               ),
                             ),
                           ),
-                          if (!ref.watch(practiceLockedProvider))
-                            TextButton(
-                              style: TextButton.styleFrom(
-                                foregroundColor: Theme.of(context).colorScheme.onTertiaryContainer,
-                                textStyle: Theme.of(context).textTheme.labelLarge?.copyWith(
-                                  fontWeight: FontWeight.w600,
-                                  decoration: TextDecoration.underline,
-                                ),
+                          TextButton(
+                            style: TextButton.styleFrom(
+                              foregroundColor: Theme.of(context).colorScheme.onTertiaryContainer,
+                              textStyle: Theme.of(context).textTheme.labelLarge?.copyWith(
+                                fontWeight: FontWeight.w600,
+                                decoration: TextDecoration.underline,
                               ),
-                              onPressed: () async {
-                                await ref.read(practiceModeProvider.notifier).set(false);
-                                ref.read(routerProvider).go(Routes.home);
-                              },
-                              child: Text(AppLocalizations.of(context).exitPractice),
                             ),
+                            onPressed: () async {
+                              await ref.read(practiceModeProvider.notifier).set(false);
+                              ref.read(routerProvider).go(Routes.home);
+                            },
+                            child: Text(AppLocalizations.of(context).exitPractice),
+                          ),
                         ],
                       ),
                     ),

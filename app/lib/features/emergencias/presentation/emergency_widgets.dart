@@ -124,9 +124,10 @@ class EmergencyAlternatives extends ConsumerWidget {
     final nearest = points.firstOrNull;
     return Card(
       child: Padding(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(20),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
+          spacing: 14,
           children: [
             Semantics(
               header: true,

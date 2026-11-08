@@ -431,6 +431,7 @@ class _ChangeZonePageState extends ConsumerState<ChangeZonePage> {
                   }
                   return Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
+                    spacing: 12,
                     children: [
                       for (final zone in snapshot.data!)
                         OutlinedButton(

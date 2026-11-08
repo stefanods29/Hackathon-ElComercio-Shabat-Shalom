@@ -112,9 +112,9 @@ abstract final class AccessibleTheme {
         titleSpacing: 20,
         toolbarHeight: 64,
         titleTextStyle: base.textTheme.titleLarge!.copyWith(
-          fontSize: 26,
+          fontSize: 22,
           fontWeight: FontWeight.w800,
-          letterSpacing: -0.5,
+          letterSpacing: -0.4,
           color: scheme.onSurface,
         ),
       ),

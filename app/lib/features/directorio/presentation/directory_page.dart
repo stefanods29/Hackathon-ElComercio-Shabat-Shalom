@@ -88,11 +88,8 @@ class _DirectoryPageState extends ConsumerState<DirectoryPage> {
               child: Row(
                 children: [
                   FilterChip(
-                    avatar: Icon(
-                      Icons.emergency_outlined,
-                      size: 18,
-                      color: Theme.of(context).colorScheme.error,
-                    ),
+                    avatar: const Icon(Icons.emergency_outlined, size: 18),
+                    showCheckmark: false,
                     label: Text(t.usefulInEmergency),
                     selected: _emergencyOnly || emergency,
                     onSelected: emergency
@@ -173,19 +170,6 @@ class _DirectoryPageState extends ConsumerState<DirectoryPage> {
                   for (final service in items) ServiceTile(service: service),
                 ],
               ),
-            ),
-            const SizedBox(height: 24),
-            SwitchListTile.adaptive(
-              contentPadding: EdgeInsets.zero,
-              title: Text(t.emergencyImages),
-              subtitle: Text(
-                t.emergencyImagesHelp,
-                style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  color: Theme.of(context).colorScheme.onSurfaceVariant,
-                ),
-              ),
-              value: ref.watch(imagesEnabledProvider),
-              onChanged: (value) => ref.read(imagesEnabledProvider.notifier).set(value),
             ),
           ],
         ),
