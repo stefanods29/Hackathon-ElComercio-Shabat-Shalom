@@ -6,10 +6,10 @@ import 'package:vecinal/features/prototipo/presentation/widgets/proto_button.dar
 import 'package:vecinal/features/prototipo/presentation/widgets/proto_post_card.dart';
 import 'package:vecinal/features/prototipo/presentation/widgets/proto_text_field.dart';
 
-/// Pantalla principal del prototipo: Mapa con barra de navegación superior.
+/// Pantalla principal del prototipo: Mapa con barra de navegación inferior.
 ///
 /// Después de elegir zona (o entrar como invitado), el flujo llega aquí.
-/// Contiene 4 pestañas: Mapa, Muro, Publicar y Cuenta.
+/// Contiene 4 pestañas en la parte inferior: Mapa, Muro, Publicar y Cuenta.
 class MapScreen extends StatefulWidget {
   const MapScreen({super.key});
 
@@ -18,66 +18,80 @@ class MapScreen extends StatefulWidget {
 }
 
 class _MapScreenState extends State<MapScreen> {
+  int _selectedIndex = 0;
   int pending = 1;
+
+  final List<Widget> _tabs = [
+    _MapaTab(),
+    _MuroTab(),
+    _PublicarTab(),
+    _CuentaTab(),
+  ];
 
   @override
   Widget build(BuildContext context) {
-    return DefaultTabController(
-      length: 4,
-      child: Scaffold(
-        backgroundColor: kBackgroundColor,
-        appBar: AppBar(
-          backgroundColor: kSurfaceColor,
-          elevation: 0,
-          title: const Text(
-            'Vecinal',
-            style: TextStyle(
-              color: kTextColor,
-              fontWeight: FontWeight.bold,
-              fontSize: 20,
-            ),
+    return Scaffold(
+      backgroundColor: kBackgroundColor,
+      appBar: AppBar(
+        backgroundColor: kSurfaceColor,
+        elevation: 0,
+        title: const Text(
+          'Vecinal',
+          style: TextStyle(
+            color: kTextColor,
+            fontWeight: FontWeight.bold,
+            fontSize: 20,
           ),
-          centerTitle: true,
-          bottom: TabBar(
-            indicatorColor: kPrimaryColor,
-            indicatorWeight: 3,
-            labelColor: kPrimaryColor,
-            unselectedLabelColor: const Color(0xFF9CA3AF),
-            labelStyle: const TextStyle(
-              fontSize: 12,
-              fontWeight: FontWeight.w600,
-            ),
-            unselectedLabelStyle: const TextStyle(
-              fontSize: 12,
-              fontWeight: FontWeight.w500,
-            ),
-            tabs: const [
-              Tab(icon: Icon(Icons.map_outlined, size: 24), text: 'Mapa'),
-              Tab(icon: Icon(Icons.feed_outlined, size: 24), text: 'Muro'),
-              Tab(icon: Icon(Icons.add_circle_outline, size: 24), text: 'Publicar'),
-              Tab(icon: Icon(Icons.person_outline, size: 24), text: 'Cuenta'),
-            ],
+        ),
+        centerTitle: true,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.notifications_outlined, color: kTextColor),
+            onPressed: () => context.go('/por-revisar'),
           ),
-          actions: [
-            IconButton(
-              icon: const Icon(Icons.notifications_outlined, color: kTextColor),
-              onPressed: () => context.go('/por-revisar'),
-            ),
-            const SizedBox(width: 8),
-          ],
+          const SizedBox(width: 8),
+        ],
+      ),
+      body: _tabs[_selectedIndex],
+      bottomNavigationBar: BottomNavigationBar(
+        currentIndex: _selectedIndex,
+        onTap: (index) => setState(() => _selectedIndex = index),
+        type: BottomNavigationBarType.fixed,
+        backgroundColor: kSurfaceColor,
+        selectedItemColor: kPrimaryColor,
+        unselectedItemColor: const Color(0xFF9CA3AF),
+        showSelectedLabels: true,
+        showUnselectedLabels: true,
+        selectedLabelStyle: const TextStyle(
+          fontSize: 12,
+          fontWeight: FontWeight.w600,
         ),
-        body: TabBarView(
-          children: [
-            // Pestaña 1: Mapa (vista principal)
-            _MapaTab(),
-            // Pestaña 2: Muro
-            _MuroTab(pending: pending),
-            // Pestaña 3: Publicar
-            _PublicarTab(),
-            // Pestaña 4: Cuenta
-            _CuentaTab(),
-          ],
+        unselectedLabelStyle: const TextStyle(
+          fontSize: 12,
+          fontWeight: FontWeight.w500,
         ),
+        items: const [
+          BottomNavigationBarItem(
+            icon: Icon(Icons.map_outlined, size: 24),
+            activeIcon: Icon(Icons.map, size: 24),
+            label: 'Mapa',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.feed_outlined, size: 24),
+            activeIcon: Icon(Icons.feed, size: 24),
+            label: 'Muro',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.add_circle_outline, size: 24),
+            activeIcon: Icon(Icons.add_circle, size: 24),
+            label: 'Publicar',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.person_outline, size: 24),
+            activeIcon: Icon(Icons.person, size: 24),
+            label: 'Cuenta',
+          ),
+        ],
       ),
     );
   }
@@ -168,9 +182,7 @@ class _MapaTab extends StatelessWidget {
 
 /// Pestaña: Muro
 class _MuroTab extends StatelessWidget {
-  final int pending;
-
-  const _MuroTab({required this.pending});
+  const _MuroTab();
 
   @override
   Widget build(BuildContext context) {
@@ -179,29 +191,6 @@ class _MuroTab extends StatelessWidget {
     return SafeArea(
       child: Column(
         children: [
-          if (pending > 0)
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 16),
-              color: kWarningColor.withValues(alpha: 0.1),
-              child: Row(
-                children: [
-                  const Icon(Icons.schedule, size: 16, color: kWarningColor),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: Text(
-                      '$pending publicación${pending > 1 ? 'es' : ''} guardada${pending > 1 ? 's' : ''} en tu celular',
-                      style: TextStyle(
-                        fontSize: 13,
-                        fontWeight: FontWeight.w500,
-                        color: kWarningColor,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          const SizedBox(height: 10),
           Expanded(
             child: posts.isEmpty
                 ? Center(
@@ -220,7 +209,10 @@ class _MuroTab extends StatelessWidget {
                 : ListView.builder(
                     itemCount: posts.length,
                     itemBuilder: (context, index) {
-                      return ProtoPostCard(post: posts[index]);
+                      return ProtoPostCard(
+                        post: posts[index],
+                        onTap: () => context.go('/publicaciones/${posts[index].id}'),
+                      );
                     },
                   ),
           ),
@@ -405,6 +397,22 @@ class _CuentaTab extends StatelessWidget {
               ),
               const SizedBox(height: 12),
               ProtoButton(
+                text: 'Emergencia',
+                icon: Icons.warning,
+                onPressed: () => context.go('/emergencia'),
+                fullWidth: true,
+                secondary: true,
+              ),
+              const SizedBox(height: 12),
+              ProtoButton(
+                text: 'Avisos',
+                icon: Icons.notifications,
+                onPressed: () => context.go('/avisos'),
+                fullWidth: true,
+                secondary: true,
+              ),
+              const SizedBox(height: 12),
+              ProtoButton(
                 text: 'Cerrar sesión',
                 icon: Icons.logout,
                 onPressed: () => context.go('/ingresar'),
@@ -429,3 +437,5 @@ class _CuentaTab extends StatelessWidget {
     );
   }
 }
+
+/// Botón de navegación inferior personalizado para accesibilidad.
