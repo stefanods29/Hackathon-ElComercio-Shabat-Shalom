@@ -1,6 +1,11 @@
 import { type Kysely, sql } from 'kysely';
 import { inject } from 'vitest';
 import {
+  up as createEmergencyProjections,
+  down as dropEmergencyProjections,
+} from '../../src/modules/emergencias/infrastructure/migrations/202611160100_emergencias_streams_operativos.js';
+import { up as backfillEmergencyLocations } from '../../src/modules/emergencias/infrastructure/migrations/202611160110_emergencias_relleno_ubicaciones.js';
+import {
   up as createSessions,
   down as dropSessions,
 } from '../../src/modules/identidad/infrastructure/migrations/202611070200_identidad_sesiones.js';
@@ -59,6 +64,46 @@ describe('Migraciones de todos los módulos', () => {
     expect(rows[0]?.id).toMatch(
       /^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/,
     );
+  });
+
+  it('repone la ubicación de pedidos en camino previos a los streams y conserva su purga', async () => {
+    const rollback = new Error('revertir prueba de migración');
+    await expect(
+      db.transaction().execute(async (tx) => {
+        await dropEmergencyProjections(tx);
+        const { rows } = await sql<{ id: string; vigente: boolean }>`
+          INSERT INTO emergencias.pedidos_ayuda (detalle, estado, creado_en, vence_en)
+          VALUES
+            ('Solicitud ficticia', 'en_camino', now() - interval '2 hours', now() + interval '1 hour'),
+            ('Solicitud ficticia vencida', 'en_camino', now() - interval '2 hours', now() - interval '1 hour')
+          RETURNING id, vence_en > now() AS vigente
+        `.execute(tx);
+        const current = rows.find(({ vigente }) => vigente)!.id;
+        for (const { id } of rows) {
+          await sql`
+            INSERT INTO emergencias.detalles_pedidos (pedido_id, descripcion, lat, lng)
+            VALUES (${id}, 'Detalle ficticio', -12.08, -77.03)
+          `.execute(tx);
+        }
+        await createEmergencyProjections(tx);
+        const copies = async () =>
+          (
+            await sql`
+              SELECT pedido_id, lat, lng FROM emergencias.ubicaciones_en_camino
+              WHERE pedido_id = ANY(${sql.val(rows.map(({ id }) => id))}::uuid[])
+            `.execute(tx)
+          ).rows;
+        expect(await copies()).toEqual([]);
+        await backfillEmergencyLocations(tx);
+        await backfillEmergencyLocations(tx);
+        expect(await copies()).toEqual([{ pedido_id: current, lat: -12.08, lng: -77.03 }]);
+        await sql`UPDATE emergencias.pedidos_ayuda SET estado = 'atendido' WHERE id = ${current}`.execute(
+          tx,
+        );
+        expect(await copies()).toEqual([]);
+        throw rollback;
+      }),
+    ).rejects.toBe(rollback);
   });
 
   it('la migración de sesiones se puede revertir y aplicar sin modificar los usuarios', async () => {
