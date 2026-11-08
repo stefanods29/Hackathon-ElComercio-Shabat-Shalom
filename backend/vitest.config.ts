@@ -6,7 +6,12 @@ export default defineConfig({
   test: {
     globals: true,
     root: './',
-    include: ['src/**/*.spec.ts', 'test/load/**/*.spec.ts', 'test/sync/**/*.spec.ts'],
+    include: [
+      'src/**/*.spec.ts',
+      'test/load/**/*.spec.ts',
+      'test/sync/**/*.spec.ts',
+      'scripts/**/*.spec.ts',
+    ],
     coverage: {
       provider: 'v8',
       include: ['src/**/*.ts'],

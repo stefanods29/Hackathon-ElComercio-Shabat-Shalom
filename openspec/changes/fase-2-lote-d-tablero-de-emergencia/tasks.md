@@ -26,6 +26,6 @@ app en verde). Las de verificación quedan abiertas hasta tener su evidencia.
 
 - [x] 4.1 Contactos cifrados por cuenta, purga al cerrar sesión y SMS preparado sin enviar.
 - [x] 4.2 Revisar la accesibilidad del modo emergencia de forma automática: texto grande, modo sencillo, contraste, tamaño y nombre de los botones, orden del lector de pantalla y golden tests al 200 %. Evidencia: [accesibilidad automática](../../../docs/fase-2/evidencias/accesibilidad-modo-emergencia.md).
-- [ ] 4.3 Registrar la prueba con vecinos en `docs/fase-2/evidencias/simulacro.md`.
+- [ ] 4.3 Registrar la prueba con vecinos. El [libreto del simulacro](../../../docs/fase-2/evidencias/simulacro.md#prueba-con-vecinos) incluye el procedimiento y el registro pendiente.
 - [x] 4.4 Verificar CI en verde con la versión integrada. Evidencia: [CI de la versión integrada](../../../docs/fase-2/evidencias/ci-integracion.md).
 - [ ] 4.5 Recorrer el modo emergencia con TalkBack y VoiceOver en teléfonos y con el alto contraste del sistema; registrar el resultado en `docs/fase-2/evidencias/accesibilidad-modo-emergencia.md`.
