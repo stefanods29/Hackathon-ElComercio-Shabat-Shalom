@@ -3,12 +3,12 @@
 ## 1. Parte 1 · Datos públicos del piloto en el celular
 
 - [ ] 1.1 Escribir `docs/adr/0010-precision-de-la-ubicacion-publica.md` (3 decimales, ubicación exacta solo con consentimiento del proveedor, el muro no necesita migración) y agregarlo al índice de ADRs; verificar que el índice lo enlaza y que el equipo lo aprueba en la revisión de la parte
-- [ ] 1.2 Agregar a `infra/powersync/sync-config.yaml` los streams `categorias`, `servicios_de_mi_zona`, `proveedores_de_mi_zona`, `resenas_publicadas`, `fotos_de_resenas_publicadas`, `mis_resenas` y `mis_vistos_buenos`, y el filtro `oculta_en IS NULL` en los streams del muro; verificar con `npm run sync:validate`
-- [ ] 1.3 Pruebas de acceso en `backend/test/sync/datos-publicos.spec.ts` (otra zona sin filas, reseña en revisión solo para su autor, ocultos fuera de todo bucket, ninguna columna privada en streams automáticos) e incluir `test/sync/**/*.spec.ts` en `vitest.config.ts`; verificar con `npm test`
-- [ ] 1.4 Puertos de dominio, entidades y dobles en memoria de `features/directorio/` y `features/reputacion/` con sus proveedores de Riverpod; verificar con pruebas unitarias (búsqueda sin tildes, filtro de emergencia, estados de una reseña)
-- [ ] 1.5 Tablas locales nuevas en `core/sync/local_schema.dart`, columna `envios.optimista` y repositorios `PowerSyncServiceDirectoryRepository` y `PowerSyncReputationRepository` (lectura reactiva y escritura optimista con comando y envío en una transacción); verificar con pruebas sobre una base PowerSync local, incluida la lectura sin conexión
-- [ ] 1.6 Conector de subida con los tipos nuevos (método y ruta por tipo, `Idempotency-Key` del comando, rechazos sin bloquear la cola); verificar con pruebas de HTTP falso para cada tipo y para un 409 `resena_duplicada`
-- [ ] 1.7 Sobreescribir los proveedores del directorio y la reputación en `AuthenticatedApp` y en la sesión de desarrollo; verificar con una prueba que las pantallas reciben los repositorios reales
+- [x] 1.2 Agregar a `infra/powersync/sync-config.yaml` los streams `categorias`, `servicios_de_mi_zona`, `proveedores_de_mi_zona`, `resenas_publicadas`, `fotos_de_resenas_publicadas`, `mis_resenas` y `mis_vistos_buenos`, y el filtro `oculta_en IS NULL` en los streams del muro; verificar con `npm run sync:validate`
+- [x] 1.3 Pruebas de acceso en `backend/test/sync/datos-publicos.spec.ts` (otra zona sin filas, reseña en revisión solo para su autor, ocultos fuera de todo bucket, ninguna columna privada en streams automáticos) e incluir `test/sync/**/*.spec.ts` en `vitest.config.ts`; verificar con `npm test`
+- [x] 1.4 Puertos de dominio, entidades y dobles en memoria de `features/directorio/` y `features/reputacion/` con sus proveedores de Riverpod; verificar con pruebas unitarias (búsqueda sin tildes, filtro de emergencia, estados de una reseña)
+- [x] 1.5 Tablas locales nuevas en `core/sync/local_schema.dart`, columna `envios.optimista` y repositorios `PowerSyncServiceDirectoryRepository` y `PowerSyncReputationRepository` (lectura reactiva y escritura optimista con comando y envío en una transacción); verificar con pruebas sobre una base PowerSync local, incluida la lectura sin conexión
+- [x] 1.6 Conector de subida con los tipos nuevos (método y ruta por tipo, `Idempotency-Key` del comando, rechazos sin bloquear la cola); verificar con pruebas de HTTP falso para cada tipo y para un 409 `resena_duplicada`
+- [x] 1.7 Sobreescribir los proveedores del directorio y la reputación en `AuthenticatedApp` y en la sesión de desarrollo; verificar con una prueba que las pantallas reciben los repositorios reales
 - [ ] 1.8 Compilar y depurar: `npm run verify` en el backend, `tool/verify.sh` en la app y CI en verde
 
 ## 2. Parte 2 · Directorio de emergencia sin conexión

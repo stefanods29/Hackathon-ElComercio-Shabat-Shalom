@@ -12,7 +12,7 @@
 
 | Parte | Qué entrega | Estado | Responsable | PR |
 |---|---|---|---|---|
-| 1 | Datos públicos del piloto en el celular | Pendiente | JDiazD33 | — |
+| 1 | Datos públicos del piloto en el celular | En curso: implementada y verificada en local; falta aprobar el ADR 0010 y la CI | JDiazD33 | Rama `f1-lote-a/parte-1-datos-publicos` |
 | 2 | Directorio de emergencia sin conexión | Pendiente | JDiazD33 | — |
 | 3 | Métricas de sincronización | Pendiente | JDiazD33 | — |
 | 4 | Zona, cuenta y fotos pendientes | Pendiente | JDiazD33 | — |
