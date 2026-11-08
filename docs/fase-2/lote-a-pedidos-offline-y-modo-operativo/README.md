@@ -12,7 +12,7 @@
 
 | Parte | Qué entrega | Estado | Responsable | PR |
 |---|---|---|---|---|
-| 1 | Pedidos de ayuda sin conexión | Pendiente | Stefano | — |
+| 1 | Pedidos de ayuda sin conexión | En curso (1.1–1.3 verificadas en laboratorio) | Stefano | — |
 | 2 | Streams bajo demanda por asignación | Pendiente | Stefano | — |
 | 3 | Modo operativo protegido | Pendiente | Stefano | — |
 | 4 | Tablero sin conexión: agregados y recursos | Pendiente | Stefano | — |
@@ -44,6 +44,9 @@ a los pedidos de ayuda reales.
 
 Pruebas: cola con 0 pérdidas y 0 duplicados (como la prueba de 500 operaciones de la Fase 0, ahora
 con pedidos), estados con HTTP falso y conflicto de cierre sin conexión.
+
+El [resultado de laboratorio](../evidencias/pedidos-offline-laboratorio.md) cubre el primer
+incremento con pedidos ficticios. La integración operativa sigue las tareas 1.4–1.6 de OpenSpec.
 
 ## Parte 2 · Streams bajo demanda por asignación
 
