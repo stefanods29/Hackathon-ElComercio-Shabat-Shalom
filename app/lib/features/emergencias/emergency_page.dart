@@ -3,10 +3,14 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:vecinal/core/di/providers.dart';
+import 'package:vecinal/core/mode/app_mode.dart';
 import 'package:vecinal/core/platform/pilot_platforms.dart';
 import 'package:vecinal/core/router/routes.dart';
+import 'package:vecinal/core/time/time_ago.dart';
+import 'package:vecinal/core/ui/large_button.dart';
 import 'package:vecinal/features/emergencias/public_emergency_directory.dart';
 import 'package:vecinal/features/mapa/presentation/map_view.dart';
+import 'package:vecinal/features/onboarding/practice_mode.dart';
 import 'package:vecinal/l10n/app_localizations.dart';
 
 class EmergencyPage extends ConsumerWidget {
@@ -22,6 +26,14 @@ class EmergencyPage extends ConsumerWidget {
           padding: const EdgeInsets.all(16),
           children: [
             Text(t.connectsNeighbors, style: Theme.of(context).textTheme.titleLarge),
+            LargeButton(
+              icon: Icons.emergency_outlined,
+              label: t.activateLocalEmergency,
+              onPressed: () {
+                ref.read(appModeProvider.notifier).activateEmergency();
+                context.push(Routes.emergencyDashboard);
+              },
+            ),
             const SizedBox(height: 12),
             Text(t.emergencyLifeRisk, style: Theme.of(context).textTheme.titleMedium),
             const SizedBox(height: 16),
@@ -34,6 +46,9 @@ class EmergencyPage extends ConsumerWidget {
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     Text(data.bundled ? t.emergencyBackup : t.emergencyUpdated),
+                    Text(t.updatedAgo(timeAgo(data.generatedAt, ref.watch(clockProvider)(), t))),
+                    if (ref.watch(syncStatusProvider).value?.connected != true)
+                      Text(t.emergencyOfflineWarning),
                     for (final entry in entries)
                       Card(
                         child: Padding(
@@ -61,6 +76,12 @@ class EmergencyPage extends ConsumerWidget {
                                   icon: const Icon(Icons.phone_outlined),
                                   label: Text(t.callAction),
                                   onPressed: () async {
+                                    if (ref.read(practiceModeProvider).value != false) {
+                                      ScaffoldMessenger.of(context).showSnackBar(
+                                        SnackBar(content: Text(t.emergencyPracticeExternal)),
+                                      );
+                                      return;
+                                    }
                                     var opened = false;
                                     try {
                                       opened = await ref

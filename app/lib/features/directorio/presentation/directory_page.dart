@@ -5,10 +5,12 @@ import 'package:vecinal/core/di/providers.dart';
 import 'package:vecinal/core/router/routes.dart';
 import 'package:vecinal/core/time/time_ago.dart';
 import 'package:vecinal/core/ui/connection_banner.dart';
+import 'package:vecinal/core/ui/image_policy.dart';
 import 'package:vecinal/core/ui/submission_status_chip.dart';
 import 'package:vecinal/features/directorio/data/providers.dart';
 import 'package:vecinal/features/directorio/domain/directory.dart';
 import 'package:vecinal/features/directorio/domain/search.dart';
+import 'package:vecinal/features/emergencias/data/emergency_providers.dart';
 import 'package:vecinal/features/mapa/presentation/map_view.dart';
 import 'package:vecinal/features/onboarding/practice_mode.dart';
 import 'package:vecinal/l10n/app_localizations.dart';
@@ -28,7 +30,8 @@ final providerServicesProvider = StreamProvider.family<List<Service>, String>((r
 });
 
 class DirectoryPage extends ConsumerStatefulWidget {
-  const DirectoryPage({super.key});
+  const DirectoryPage({super.key, this.emergencyOnly = false});
+  final bool emergencyOnly;
   @override
   ConsumerState<DirectoryPage> createState() => _DirectoryPageState();
 }
@@ -36,12 +39,27 @@ class DirectoryPage extends ConsumerStatefulWidget {
 class _DirectoryPageState extends ConsumerState<DirectoryPage> {
   String _text = '';
   String? _category;
-  bool _emergencyOnly = false;
+  late bool _emergencyOnly;
+
+  @override
+  void initState() {
+    super.initState();
+    _emergencyOnly = widget.emergencyOnly;
+    if (widget.emergencyOnly)
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) ref.read(imagesEnabledProvider.notifier).set(false);
+      });
+  }
 
   @override
   Widget build(BuildContext context) {
     final t = AppLocalizations.of(context);
-    final query = ServiceQuery(text: _text, categoryId: _category, emergencyOnly: _emergencyOnly);
+    final emergency = ref.watch(emergencyHomeProvider);
+    final query = ServiceQuery(
+      text: _text,
+      categoryId: _category,
+      emergencyOnly: _emergencyOnly || emergency,
+    );
     final services = ref.watch(servicesProvider(query));
     final categories = ref.watch(categoriesProvider).value ?? const <Category>[];
     final synced = ref.watch(syncStatusProvider).value?.lastSyncedAt;
@@ -86,10 +104,19 @@ class _DirectoryPageState extends ConsumerState<DirectoryPage> {
             SwitchListTile.adaptive(
               contentPadding: EdgeInsets.zero,
               title: Text(t.usefulInEmergency),
-              value: _emergencyOnly,
-              onChanged: (value) => setState(() => _emergencyOnly = value),
+              value: _emergencyOnly || emergency,
+              onChanged: emergency ? null : (value) => setState(() => _emergencyOnly = value),
+            ),
+            SwitchListTile.adaptive(
+              contentPadding: EdgeInsets.zero,
+              title: Text(t.emergencyImages),
+              subtitle: Text(t.emergencyImagesHelp),
+              value: ref.watch(imagesEnabledProvider),
+              onChanged: (value) => ref.read(imagesEnabledProvider.notifier).set(value),
             ),
             if (synced != null) Text(t.updatedAgo(timeAgo(synced, ref.watch(clockProvider)(), t))),
+            if (ref.watch(syncStatusProvider).value?.connected != true)
+              Text(t.emergencyOfflineWarning),
             services.when(
               loading: () => const Center(child: CircularProgressIndicator()),
               error: (_, _) => Text(t.directoryUnavailable),

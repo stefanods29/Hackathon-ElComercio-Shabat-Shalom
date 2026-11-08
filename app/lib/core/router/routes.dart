@@ -7,6 +7,13 @@ abstract final class Routes {
   static const toReview = '/por-revisar';
   static const emergency = '/emergencia';
   static const emergencyMap = '/emergencia/mapa';
+  static const emergencyDashboard = '/emergencia/tablero';
+  static const emergencyNeeds = '/emergencia/necesito';
+  static const emergencyRequestForm = '/emergencia/nuevo/:need';
+  static const emergencyRequest = '/emergencia/pedidos/:id';
+  static const emergencyOffer = '/emergencia/ofrecer';
+  static const emergencyResources = '/emergencia/recursos';
+  static const emergencyContacts = '/cuenta/contactos-emergencia';
   static const map = '/mapa';
   static const tutorial = '/tutorial';
   static const signIn = '/ingresar';

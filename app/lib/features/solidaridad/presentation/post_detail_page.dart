@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:vecinal/core/router/routes.dart';
+import 'package:vecinal/core/ui/image_policy.dart';
 import 'package:vecinal/features/reputacion/domain/reputation.dart';
 import 'package:vecinal/features/reputacion/presentation/report_button.dart';
 import 'package:vecinal/features/solidaridad/data/providers.dart';
@@ -31,6 +32,7 @@ class PostDetailPage extends ConsumerWidget {
                     else
                       Text(texts.postDetailUnavailable),
                     const SizedBox(height: 16),
+                    if (!ref.watch(imagesEnabledProvider)) Text(texts.emergencyImagesHidden),
                     if (matches.isNotEmpty)
                       ReportButton(content: ReportedContent.post, contentId: postId),
                     TextButton(

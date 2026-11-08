@@ -2,10 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:vecinal/core/di/providers.dart';
+import 'package:vecinal/core/mode/app_mode.dart';
 import 'package:vecinal/core/router/routes.dart';
 import 'package:vecinal/core/sync/sync_service.dart';
 import 'package:vecinal/core/time/time_ago.dart';
 import 'package:vecinal/core/ui/connection_banner.dart';
+import 'package:vecinal/features/emergencias/data/emergency_providers.dart';
+import 'package:vecinal/features/emergencias/presentation/emergency_dashboard_page.dart';
 import 'package:vecinal/features/onboarding/practice_mode.dart';
 import 'package:vecinal/features/onboarding/tutorial_screen.dart';
 import 'package:vecinal/features/solidaridad/data/providers.dart';
@@ -19,6 +22,7 @@ class WallPage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    if (ref.watch(emergencyHomeProvider)) return const EmergencyDashboardPage();
     final texts = AppLocalizations.of(context);
     final wall = ref.watch(wallProvider);
     final signOut = ref.watch(demoSignOutProvider);
@@ -122,9 +126,9 @@ class WallPage extends ConsumerWidget {
               runSpacing: 8,
               children: [
                 FilledButton.icon(
-                  onPressed: () => context.push(Routes.emergency),
+                  onPressed: () => ref.read(appModeProvider.notifier).activateEmergency(),
                   icon: const Icon(Icons.emergency_outlined),
-                  label: Text(texts.emergencyTitle),
+                  label: Text(texts.activateLocalEmergency),
                 ),
                 OutlinedButton.icon(
                   onPressed: () => context.push(Routes.directory),
