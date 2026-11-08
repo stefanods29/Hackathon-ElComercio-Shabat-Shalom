@@ -25,8 +25,11 @@ pruebas usan una cuenta de práctica con un pedido en camino y recursos ficticio
 Resultado: 33 de 33, y `tool/verify.sh` en verde con 284 pruebas.
 
 Las imágenes de referencia usan la fuente de prueba de Flutter, que dibuja las letras como bloques,
-para que sean iguales en macOS y en la CI de Linux. Muestran el diseño, no la tipografía. Se acepta
-hasta un 1 % de diferencia de píxeles por el suavizado de cada sistema.
+y muestran el diseño, no la tipografía. Se generaron en macOS y se comparan solo allí, con hasta
+un 1 % de diferencia: en la CI de Linux el suavizado de esa fuente cambió más (6 de 6 imágenes
+fallaron en el primer intento), así que la CI corre las 27 comprobaciones restantes y salta solo la
+comparación de imágenes. Para que la CI también las compare hacen falta referencias generadas en
+Linux.
 
 ## Lo que no cubre
 
