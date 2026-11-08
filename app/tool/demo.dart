@@ -5,6 +5,7 @@ import 'package:vecinal/app.dart';
 import 'package:vecinal/core/config/app_environment.dart';
 import 'package:vecinal/core/di/providers.dart';
 import 'package:vecinal/core/sync/sync_service.dart';
+import 'package:vecinal/features/onboarding/practice_mode.dart';
 
 /// Demo variant: the app in practice mode, with fictitious data in memory and no server, account,
 /// OTP, Firebase or synchronization. Unlike `phone_practice.dart` it also runs in release builds,
@@ -17,6 +18,7 @@ Future<void> main() async {
   runApp(
     ProviderScope(
       overrides: [
+        practiceLockedProvider.overrideWithValue(true),
         environmentProvider.overrideWithValue(
           const AppEnvironment(
             apiBaseUrl: 'http://127.0.0.1:9',

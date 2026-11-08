@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:vecinal/core/ui/spaced.dart';
 import 'package:vecinal/features/avisos/data/providers.dart';
 import 'package:vecinal/features/avisos/data/push_service.dart';
 import 'package:vecinal/features/onboarding/practice_mode.dart';
@@ -52,7 +53,7 @@ class _PushSettingsPageState extends ConsumerState<PushSettingsPage> with Widget
       body: SafeArea(
         child: ListView(
           padding: const EdgeInsets.fromLTRB(20, 8, 20, 32),
-          children: [
+          children: spaced([
             Icon(
               status == PushStatus.ready
                   ? Icons.notifications_active_outlined
@@ -87,7 +88,7 @@ class _PushSettingsPageState extends ConsumerState<PushSettingsPage> with Widget
                 ),
               ),
             ],
-          ],
+          ]),
         ),
       ),
     );

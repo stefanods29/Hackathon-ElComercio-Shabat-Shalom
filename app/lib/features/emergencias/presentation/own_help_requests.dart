@@ -66,6 +66,7 @@ class HelpRequestStatusCard extends StatelessWidget {
         title: Text(t.emergencyHelpRequestTitle),
         subtitle: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
+          spacing: 12,
           children: [
             Text(status),
             if (latest?.reason case final reason?) Text(reason),

@@ -8,6 +8,7 @@ import 'package:vecinal/core/di/providers.dart';
 import 'package:vecinal/core/security/operational_gate.dart';
 import 'package:vecinal/core/security/operational_lock.dart';
 import 'package:vecinal/core/security/sensitive_screen_protection.dart';
+import 'package:vecinal/core/ui/spaced.dart';
 import 'package:vecinal/features/cuenta/data/providers.dart';
 import 'package:vecinal/features/cuenta/domain/auth_state.dart';
 import 'package:vecinal/features/emergencias/assigned_case_cache.dart';
@@ -147,7 +148,7 @@ class _CaseContentsState extends State<_CaseContents> {
         final coordinates = NumberFormat('0.00000', texts.localeName);
         return ListView(
           padding: const EdgeInsets.fromLTRB(20, 8, 20, 32),
-          children: [
+          children: spaced([
             Text(status, style: Theme.of(context).textTheme.titleLarge),
             Text(texts.operationalNeed(value.need)),
             Text(texts.operationalPriority(value.priority)),
@@ -169,7 +170,7 @@ class _CaseContentsState extends State<_CaseContents> {
                 ),
               ),
             ],
-          ],
+          ]),
         );
       },
     );

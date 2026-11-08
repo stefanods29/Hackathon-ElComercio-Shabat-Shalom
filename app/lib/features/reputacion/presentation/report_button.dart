@@ -13,7 +13,8 @@ class ReportButton extends StatelessWidget {
   final ReportedContent content;
   final String contentId;
   @override
-  Widget build(BuildContext context) => OutlinedButton.icon(
+  Widget build(BuildContext context) => TextButton.icon(
+    style: TextButton.styleFrom(foregroundColor: Theme.of(context).colorScheme.onSurfaceVariant),
     icon: const Icon(Icons.flag_outlined),
     label: Text(AppLocalizations.of(context).reportAction),
     onPressed: () => showDialog<void>(

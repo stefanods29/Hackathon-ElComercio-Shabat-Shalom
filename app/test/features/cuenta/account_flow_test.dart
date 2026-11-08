@@ -75,7 +75,7 @@ void main() {
       ),
     );
     await tester.pumpAndSettle();
-    expect(find.text('Ingresar a Wiki'), findsOneWidget);
+    expect(find.text('Ingresar a Winki'), findsOneWidget);
     await tester.enterText(find.byType(TextFormField), '900 000 002');
     await tester.tap(find.text('Enviar código'));
     await tester.pumpAndSettle();

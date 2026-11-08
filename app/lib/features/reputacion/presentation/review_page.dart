@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:vecinal/core/platform/pilot_platforms.dart';
+import 'package:vecinal/core/ui/spaced.dart';
 import 'package:vecinal/features/directorio/data/providers.dart';
 import 'package:vecinal/features/onboarding/demo_profiles.dart';
 import 'package:vecinal/features/reputacion/data/providers.dart';
@@ -117,14 +118,17 @@ class _ReviewPageState extends ConsumerState<ReviewPage> {
       body: SafeArea(
         child: ListView(
           padding: const EdgeInsets.fromLTRB(20, 8, 20, 32),
-          children: [
+          children: spaced([
             if (isOwn)
               Text(t.selfReview)
             else if (existing != null) ...[
               Text(t.duplicateReview),
               ReviewCard(review: existing),
             ] else ...[
-              Semantics(liveRegion: true, child: Text(t.starsLabel(_rating))),
+              Semantics(
+                liveRegion: true,
+                child: Text(t.starsLabel(_rating), style: Theme.of(context).textTheme.titleMedium),
+              ),
               Wrap(
                 spacing: 4,
                 runSpacing: 4,
@@ -141,7 +145,13 @@ class _ReviewPageState extends ConsumerState<ReviewPage> {
                         child: IconButton(
                           tooltip: t.starsLabel(n),
                           onPressed: () => setState(() => _rating = n),
-                          icon: Icon(n <= _rating ? Icons.star : Icons.star_border),
+                          iconSize: 40,
+                          icon: Icon(
+                            n <= _rating ? Icons.star_rounded : Icons.star_outline_rounded,
+                            color: n <= _rating
+                                ? const Color(0xFFE0A200)
+                                : Theme.of(context).colorScheme.outline,
+                          ),
                         ),
                       ),
                     ),
@@ -199,7 +209,7 @@ class _ReviewPageState extends ConsumerState<ReviewPage> {
                 child: Text(_busy ? t.loadingAction : t.submitReview),
               ),
             ],
-          ],
+          ]),
         ),
       ),
     );

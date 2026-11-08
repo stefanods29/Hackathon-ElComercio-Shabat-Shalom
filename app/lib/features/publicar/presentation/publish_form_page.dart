@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:vecinal/core/router/routes.dart';
+import 'package:vecinal/core/ui/spaced.dart';
 import 'package:vecinal/features/publicar/domain/suggestions.dart';
 import 'package:vecinal/features/solidaridad/data/providers.dart';
 import 'package:vecinal/features/solidaridad/domain/post.dart';
@@ -123,7 +124,7 @@ class _PublishFormPageState extends ConsumerState<PublishFormPage> {
       ),
       body: ListView(
         padding: const EdgeInsets.fromLTRB(20, 8, 20, 32),
-        children: [
+        children: spaced([
           Text(
             '${widget.type.apiValue.toUpperCase()} · ${suggestion.category}',
             style: Theme.of(context).textTheme.labelLarge,
@@ -174,7 +175,7 @@ class _PublishFormPageState extends ConsumerState<PublishFormPage> {
                   : Text(texts.publishButton),
             ),
           ),
-        ],
+        ]),
       ),
     );
   }

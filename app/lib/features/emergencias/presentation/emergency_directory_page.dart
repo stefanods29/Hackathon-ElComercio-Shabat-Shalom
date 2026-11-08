@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:vecinal/core/di/providers.dart';
 import 'package:vecinal/core/ui/notice_card.dart';
+import 'package:vecinal/core/ui/spaced.dart';
 import 'package:vecinal/features/emergencias/data/providers.dart';
 import 'package:vecinal/features/emergencias/domain/emergency_directory.dart';
 import 'package:vecinal/l10n/app_localizations.dart';
@@ -51,7 +52,7 @@ class _DirectoryList extends ConsumerWidget {
     final isBackup = directory.origin == EmergencyDirectoryOrigin.backup;
     return ListView(
       padding: const EdgeInsets.fromLTRB(20, 8, 20, 32),
-      children: [
+      children: spaced([
         Text(texts.emergencyLifeRisk, style: Theme.of(context).textTheme.titleMedium),
         const SizedBox(height: 12),
         NoticeCard(
@@ -67,7 +68,7 @@ class _DirectoryList extends ConsumerWidget {
           const SizedBox(height: 12),
         ],
         Text(texts.connectsNeighbors),
-      ],
+      ]),
     );
   }
 }
@@ -88,9 +89,10 @@ class _EntryCard extends StatelessWidget {
     return Card(
       margin: EdgeInsets.zero,
       child: Padding(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(20),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
+          spacing: 12,
           children: [
             Text(_typeLabel(texts, entry.type), style: theme.textTheme.labelLarge),
             const SizedBox(height: 4),

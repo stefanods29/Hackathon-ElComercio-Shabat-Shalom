@@ -99,9 +99,9 @@ class ServiceDetailPage extends ConsumerWidget {
                           icon: const Icon(Icons.map_outlined),
                           label: Text(t.openOnMap),
                         ),
-                        const SizedBox(height: 4),
+                        const SizedBox(height: 8),
                         ReportButton(content: ReportedContent.service, contentId: service.id),
-                        const SizedBox(height: 12),
+                        const SizedBox(height: 8),
                         ReviewsSection(
                           serviceId: service.id,
                           isOwnService:

@@ -1,7 +1,9 @@
 import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:vecinal/core/di/providers.dart';
+import 'package:vecinal/core/ui/spaced.dart';
 import 'package:vecinal/features/media/data/providers.dart';
 import 'package:vecinal/features/media/domain/local_photo.dart';
 import 'package:vecinal/features/media/presentation/local_photo_preview.dart';
@@ -57,7 +59,7 @@ class _PhotoLibraryPageState extends ConsumerState<PhotoLibraryPage> with Widget
                         ),
                         data: (photos) => ListView(
                           padding: const EdgeInsets.fromLTRB(20, 8, 20, 32),
-                          children: [
+                          children: spaced([
                             Card(
                               child: Padding(
                                 padding: const EdgeInsets.all(20),
@@ -102,7 +104,7 @@ class _PhotoLibraryPageState extends ConsumerState<PhotoLibraryPage> with Widget
                                 key: ValueKey('${photo.ownerId}/${photo.id}'),
                                 photo: photo,
                               ),
-                          ],
+                          ]),
                         ),
                       ),
           ),

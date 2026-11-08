@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:vecinal/core/router/routes.dart';
+import 'package:vecinal/core/ui/spaced.dart';
 import 'package:vecinal/features/directorio/data/providers.dart';
 import 'package:vecinal/features/directorio/domain/directory.dart';
 import 'package:vecinal/features/directorio/domain/use_cases.dart';
@@ -99,7 +100,7 @@ class _ServiceFormPageState extends ConsumerState<ServiceFormPage> {
           key: _form,
           child: ListView(
             padding: const EdgeInsets.fromLTRB(20, 8, 20, 32),
-            children: [
+            children: spaced([
               if (service == null)
                 TextFormField(
                   controller: _name,
@@ -162,7 +163,7 @@ class _ServiceFormPageState extends ConsumerState<ServiceFormPage> {
                 onPressed: () => context.go(Routes.directory),
                 child: Text(t.directoryTitle),
               ),
-            ],
+            ]),
           ),
         ),
       ),

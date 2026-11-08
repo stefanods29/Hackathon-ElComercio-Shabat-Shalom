@@ -8,6 +8,7 @@ import 'package:vecinal/core/platform/pilot_platforms.dart';
 import 'package:vecinal/core/router/routes.dart';
 import 'package:vecinal/core/time/time_ago.dart';
 import 'package:vecinal/core/ui/large_button.dart';
+import 'package:vecinal/core/ui/spaced.dart';
 import 'package:vecinal/features/emergencias/data/providers.dart';
 import 'package:vecinal/features/emergencias/presentation/own_help_requests.dart';
 import 'package:vecinal/features/emergencias/public_emergency_directory.dart';
@@ -30,7 +31,7 @@ class EmergencyPage extends ConsumerWidget {
       body: SafeArea(
         child: ListView(
           padding: const EdgeInsets.fromLTRB(20, 8, 20, 32),
-          children: [
+          children: spaced([
             Text(t.connectsNeighbors, style: Theme.of(context).textTheme.titleLarge),
             LargeButton(
               icon: Icons.emergency_outlined,
@@ -69,6 +70,7 @@ class EmergencyPage extends ConsumerWidget {
                 final entries = data.entries;
                 return Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
+                  spacing: 12,
                   children: [
                     Text(data.bundled ? t.emergencyBackup : t.emergencyUpdated),
                     Text(t.updatedAgo(timeAgo(data.generatedAt, ref.watch(clockProvider)(), t))),
@@ -77,9 +79,10 @@ class EmergencyPage extends ConsumerWidget {
                     for (final entry in entries)
                       Card(
                         child: Padding(
-                          padding: const EdgeInsets.all(16),
+                          padding: const EdgeInsets.all(20),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.stretch,
+                            spacing: 12,
                             children: [
                               Text(entry.label, style: Theme.of(context).textTheme.titleLarge),
                               if (entry.description != null) Text(entry.description!),
@@ -149,7 +152,7 @@ class EmergencyPage extends ConsumerWidget {
                 );
               },
             ),
-          ],
+          ]),
         ),
       ),
     );

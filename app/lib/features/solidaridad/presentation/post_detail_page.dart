@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:vecinal/core/router/routes.dart';
 import 'package:vecinal/core/ui/image_policy.dart';
+import 'package:vecinal/core/ui/spaced.dart';
 import 'package:vecinal/features/reputacion/domain/reputation.dart';
 import 'package:vecinal/features/reputacion/presentation/report_button.dart';
 import 'package:vecinal/features/solidaridad/data/providers.dart';
@@ -26,7 +27,7 @@ class PostDetailPage extends ConsumerWidget {
                 final matches = posts.where((post) => post.id == postId);
                 return ListView(
                   padding: const EdgeInsets.fromLTRB(20, 8, 20, 32),
-                  children: [
+                  children: spaced([
                     if (matches.isNotEmpty)
                       PostCard(post: matches.first)
                     else
@@ -39,7 +40,7 @@ class PostDetailPage extends ConsumerWidget {
                       onPressed: () => context.go(Routes.home),
                       child: Text(texts.postDetailBack),
                     ),
-                  ],
+                  ]),
                 );
               },
               loading: () => const Center(child: CircularProgressIndicator()),

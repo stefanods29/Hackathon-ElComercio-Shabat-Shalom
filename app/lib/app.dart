@@ -52,20 +52,21 @@ class VecinalApp extends ConsumerWidget {
                               ),
                             ),
                           ),
-                          TextButton(
-                            style: TextButton.styleFrom(
-                              foregroundColor: Theme.of(context).colorScheme.onTertiaryContainer,
-                              textStyle: Theme.of(context).textTheme.labelLarge?.copyWith(
-                                fontWeight: FontWeight.w600,
-                                decoration: TextDecoration.underline,
+                          if (!ref.watch(practiceLockedProvider))
+                            TextButton(
+                              style: TextButton.styleFrom(
+                                foregroundColor: Theme.of(context).colorScheme.onTertiaryContainer,
+                                textStyle: Theme.of(context).textTheme.labelLarge?.copyWith(
+                                  fontWeight: FontWeight.w600,
+                                  decoration: TextDecoration.underline,
+                                ),
                               ),
+                              onPressed: () async {
+                                await ref.read(practiceModeProvider.notifier).set(false);
+                                ref.read(routerProvider).go(Routes.home);
+                              },
+                              child: Text(AppLocalizations.of(context).exitPractice),
                             ),
-                            onPressed: () async {
-                              await ref.read(practiceModeProvider.notifier).set(false);
-                              ref.read(routerProvider).go(Routes.home);
-                            },
-                            child: Text(AppLocalizations.of(context).exitPractice),
-                          ),
                         ],
                       ),
                     ),

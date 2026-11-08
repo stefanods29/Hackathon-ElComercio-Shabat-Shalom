@@ -1,7 +1,7 @@
 {
   "@@locale": "es",
-  "consoleTitle": "Vecinal · Consola de operación",
-  "titleWithNotices": "({count}) Vecinal · Consola de operación",
+  "consoleTitle": "Winki · Consola de operación",
+  "titleWithNotices": "({count}) Winki · Consola de operación",
   "@titleWithNotices": {
     "placeholders": {
       "count": {

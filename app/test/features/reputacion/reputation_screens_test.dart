@@ -67,12 +67,19 @@ void main() {
     await tester.enterText(find.byType(TextField), 'Buen trabajo');
     await tester.tap(find.text('Agregar fotos'));
     await tester.pumpAndSettle();
+    await tester.scrollUntilVisible(
+      find.text('Foto seleccionada 3'),
+      200,
+      scrollable: find.byType(Scrollable).first,
+    );
     expect(find.text('Foto seleccionada 3'), findsOneWidget);
     await tester.scrollUntilVisible(
       find.text('Guardar reseña'),
       200,
       scrollable: find.byType(Scrollable).first,
     );
+    await tester.ensureVisible(find.text('Guardar reseña'));
+    await tester.pumpAndSettle();
     await tester.tap(find.text('Guardar reseña'));
     await tester.pumpAndSettle();
     expect(find.text('En revisión'), findsOneWidget);

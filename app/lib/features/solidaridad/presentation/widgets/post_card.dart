@@ -76,10 +76,12 @@ class PostCard extends ConsumerWidget {
                   ),
                 ],
                 const SizedBox(height: 16),
-                Row(
+                Wrap(
+                  spacing: 12,
+                  runSpacing: 12,
+                  crossAxisAlignment: WrapCrossAlignment.center,
                   children: [
                     SubmissionStatusChip(status: post.submissionStatus),
-                    const Spacer(),
                     SharePostButton(post: post),
                   ],
                 ),

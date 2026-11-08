@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:vecinal/core/di/providers.dart';
 import 'package:vecinal/core/platform/pilot_platforms.dart';
 import 'package:vecinal/core/router/routes.dart';
+import 'package:vecinal/core/ui/spaced.dart';
 import 'package:vecinal/features/cuenta/data/privacy_providers.dart';
 import 'package:vecinal/features/cuenta/data/providers.dart';
 import 'package:vecinal/features/cuenta/domain/auth_repository.dart';
@@ -55,7 +56,7 @@ class _ConsentPageState extends ConsumerState<ConsentPage> {
       body: SafeArea(
         child: ListView(
           padding: const EdgeInsets.fromLTRB(20, 8, 20, 32),
-          children: [
+          children: spaced([
             if (data?.simulated == true) Text(t.privacyDemo),
             CheckboxListTile(
               contentPadding: EdgeInsets.zero,
@@ -135,7 +136,7 @@ class _ConsentPageState extends ConsumerState<ConsentPage> {
                     : t.saveChanges,
               ),
             ),
-          ],
+          ]),
         ),
       ),
     );
@@ -172,7 +173,7 @@ class _MyDataPageState extends ConsumerState<MyDataPage> {
       body: SafeArea(
         child: ListView(
           padding: const EdgeInsets.fromLTRB(20, 8, 20, 32),
-          children: [
+          children: spaced([
             if (!repository.available)
               Text(t.privacyUnavailable)
             else
@@ -186,6 +187,7 @@ class _MyDataPageState extends ConsumerState<MyDataPage> {
                   }
                   return Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
+                    spacing: 14,
                     children: [
                       if (value.simulated) Text(t.privacyDemo),
                       for (final entry in value.values.entries)
@@ -230,7 +232,7 @@ class _MyDataPageState extends ConsumerState<MyDataPage> {
               onPressed: _busy ? null : _delete,
             ),
             if (_message != null) Semantics(liveRegion: true, child: Text(_message!)),
-          ],
+          ]),
         ),
       ),
     );
@@ -378,7 +380,7 @@ class LevelsPage extends ConsumerWidget {
       body: SafeArea(
         child: ListView(
           padding: const EdgeInsets.fromLTRB(20, 8, 20, 32),
-          children: [
+          children: spaced([
             Text(t.currentLevel(level), style: Theme.of(context).textTheme.headlineSmall),
             for (final text in [t.levelZero, t.levelOne, t.levelTwo, t.levelThree])
               Card(
@@ -388,7 +390,7 @@ class LevelsPage extends ConsumerWidget {
               onPressed: () => context.push(Routes.consent),
               child: Text(t.consentTitle),
             ),
-          ],
+          ]),
         ),
       ),
     );
@@ -415,7 +417,7 @@ class _ChangeZonePageState extends ConsumerState<ChangeZonePage> {
       body: SafeArea(
         child: ListView(
           padding: const EdgeInsets.fromLTRB(20, 8, 20, 32),
-          children: [
+          children: spaced([
             Text(t.changeZoneBody),
             if (!sync.hasValue || sync.value!.pendingUploads > 0) Text(t.pendingZoneWarning),
             if (sync.value?.connected != true) Text(t.onlineRequired),
@@ -440,7 +442,7 @@ class _ChangeZonePageState extends ConsumerState<ChangeZonePage> {
                 },
               ),
             if (_message != null) Text(_message!),
-          ],
+          ]),
         ),
       ),
     );

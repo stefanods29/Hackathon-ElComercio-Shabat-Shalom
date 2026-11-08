@@ -45,7 +45,7 @@ void main() {
     taps++;
     await tester.pumpAndSettle();
     final publish = find.widgetWithText(FilledButton, 'Publicar');
-    await tester.ensureVisible(publish);
+    await tester.scrollUntilVisible(publish, 200, scrollable: find.byType(Scrollable).first);
     await tester.tap(publish);
     taps++;
     await tester.pumpAndSettle();

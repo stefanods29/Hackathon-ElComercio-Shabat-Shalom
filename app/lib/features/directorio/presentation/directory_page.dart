@@ -122,18 +122,6 @@ class _DirectoryPageState extends ConsumerState<DirectoryPage> {
                 ),
               ),
             const SizedBox(height: 8),
-            SwitchListTile.adaptive(
-              contentPadding: EdgeInsets.zero,
-              title: Text(t.emergencyImages),
-              subtitle: Text(
-                t.emergencyImagesHelp,
-                style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  color: Theme.of(context).colorScheme.onSurfaceVariant,
-                ),
-              ),
-              value: ref.watch(imagesEnabledProvider),
-              onChanged: (value) => ref.read(imagesEnabledProvider.notifier).set(value),
-            ),
             if (ref.watch(syncStatusProvider).value?.connected != true)
               Padding(
                 padding: const EdgeInsets.only(bottom: 8),
@@ -185,6 +173,19 @@ class _DirectoryPageState extends ConsumerState<DirectoryPage> {
                   for (final service in items) ServiceTile(service: service),
                 ],
               ),
+            ),
+            const SizedBox(height: 24),
+            SwitchListTile.adaptive(
+              contentPadding: EdgeInsets.zero,
+              title: Text(t.emergencyImages),
+              subtitle: Text(
+                t.emergencyImagesHelp,
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                ),
+              ),
+              value: ref.watch(imagesEnabledProvider),
+              onChanged: (value) => ref.read(imagesEnabledProvider.notifier).set(value),
             ),
           ],
         ),
