@@ -51,16 +51,6 @@ class _PublishScreenState extends State<PublishScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: kBackgroundColor,
-      appBar: AppBar(
-        backgroundColor: kSurfaceColor,
-        elevation: 0,
-        title: const Text('Publicar', style: TextStyle(color: kTextColor, fontWeight: FontWeight.bold)),
-        centerTitle: true,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: kTextColor),
-          onPressed: () => context.go('/'),
-        ),
-      ),
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(20),
