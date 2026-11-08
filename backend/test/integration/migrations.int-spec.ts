@@ -24,7 +24,7 @@ describe('Migraciones de todos los módulos', () => {
 
     const { rows } = await sql<{ schema_name: string }>`
       SELECT schema_name FROM information_schema.schemata
-      WHERE schema_name IN ('compartido', 'directorio', 'emergencias', 'identidad', 'solidaridad')
+      WHERE schema_name IN ('compartido', 'directorio', 'emergencias', 'identidad', 'moderacion', 'reputacion', 'solidaridad')
       ORDER BY schema_name
     `.execute(db);
     expect(rows.map((row) => row.schema_name)).toEqual([
@@ -32,6 +32,8 @@ describe('Migraciones de todos los módulos', () => {
       'directorio',
       'emergencias',
       'identidad',
+      'moderacion',
+      'reputacion',
       'solidaridad',
     ]);
   });
@@ -74,6 +76,9 @@ describe('Migraciones de todos los módulos', () => {
       'emergencias.asignaciones',
       'emergencias.pedidos_ayuda',
       'identidad.zonas',
+      'reputacion.resena_fotos',
+      'reputacion.resenas',
+      'reputacion.vistos_buenos',
       'solidaridad.publicaciones',
     ]);
   });
