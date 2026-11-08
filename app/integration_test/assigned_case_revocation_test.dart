@@ -12,6 +12,7 @@ import 'package:vecinal/core/storage/secure_store.dart';
 import 'package:vecinal/core/sync/local_sync_database.dart';
 import 'package:vecinal/core/sync/vecinal_connector.dart';
 import 'package:vecinal/features/emergencias/assigned_case_cache.dart';
+import 'package:vecinal/features/emergencias/data/http_assigned_case_access.dart';
 
 class OfflineConnector extends PowerSyncBackendConnector {
   int requests = 0;
@@ -29,6 +30,7 @@ class OfflineConnector extends PowerSyncBackendConnector {
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
   const caseId = String.fromEnvironment('TEST_ASSIGNED_CASE_ID');
+  const otp = String.fromEnvironment('TEST_OTP');
 
   testWidgets(
     'en Android se borra el caso de prueba al vencer sin señal y al reasignarlo',
@@ -37,10 +39,10 @@ void main() {
       final publicApi = createApiClient(environment, getToken: () async => null);
       addTearDown(publicApi.close);
       final login = await publicApi.post<Map<String, Object?>>(
-        '/v1/dev/sesiones',
-        data: {'telefono': '+51900000003'},
+        '/v1/auth/otp/verificar',
+        data: {'telefono': '+51900000003', 'codigo': otp, 'dispositivo': 'prueba de asignación'},
       );
-      expect(login.statusCode, 201);
+      expect(login.statusCode, 200);
       final token = login.data!['tokenDeAcceso'] as String;
       final api = createApiClient(environment, getToken: () async => token);
       addTearDown(api.close);
@@ -66,6 +68,7 @@ void main() {
           accountId: account,
           connector: source,
           clock: clock,
+          authorize: HttpAssignedCaseAccess(api).open,
         );
         addTearDown(cache.close);
         return cache;
@@ -78,7 +81,14 @@ void main() {
             .firstWhere((value) => value != null)
             .timeout(const Duration(seconds: 45));
         expect(received!.id, caseId);
-        expect(received.detail, 'Detalle sintético para prueba Android');
+        expect(received.cell, isNotEmpty);
+        expect(received.location, isNull);
+        await cache.requestExact(caseId);
+        final exact = await cache
+            .watch()
+            .firstWhere((value) => value?.location != null)
+            .timeout(const Duration(seconds: 45));
+        expect(exact!.location!.description, 'Detalle sintético para prueba Android');
         expect(await File(dbPath).exists(), isTrue);
         expect(await store.read(key), isNotNull);
         return received;
@@ -95,18 +105,18 @@ void main() {
       expect(await store.read(key), isNull);
       expect(disconnected.requests, 0);
       await expired.close();
-      debugPrint('VECINAL_TEST_CASE_EXPIRED $caseId');
+      debugPrint('VECINAL_TEST_CASE_EXPIRED');
 
       final current = newCache(connector, DateTime.now);
       await receive(current);
       final removed = current.watch().firstWhere((value) => value == null);
-      debugPrint('VECINAL_TEST_CASE_READY $caseId');
+      debugPrint('VECINAL_TEST_CASE_READY');
       await removed.timeout(const Duration(seconds: 80));
       await current.review();
       expect(await File(dbPath).exists(), isFalse);
       expect(await store.read(key), isNull);
     },
-    skip: caseId.isEmpty,
+    skip: caseId.isEmpty || otp.isEmpty,
     timeout: const Timeout(Duration(minutes: 3)),
   );
 }

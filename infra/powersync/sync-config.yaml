@@ -8,6 +8,7 @@
 # Claims del JWT que usan los streams (los emite la API en GET /v1/sync/credenciales):
 #   sub   → auth.user_id()          id del vecino
 #   zona  → auth.parameter('zona')  id de su zona
+#   sid   → auth.parameter('sid')   familia de la sesión autenticada
 #
 # Datos públicos: solo la copia pública de una ubicación (3 decimales, ADR 0010). Nunca la columna
 # privada `ubicacion`, teléfonos ni el autor de una reseña pública. Lo borrado u oculto por
@@ -121,21 +122,53 @@ streams:
       FROM reputacion.vistos_buenos AS mis_vistos_buenos
       WHERE vecino_id = auth.user_id()
 
-  # El celular solicita un caso concreto. El servidor confirma la asignación activa.
+  # B registra la apertura y concede un acceso revocable ligado a la asignación y sesión.
   caso_asignado:
     auto_subscribe: false
     priority: 1
     query: |
-      SELECT id, detalle, creado_en, vence_en
+      SELECT id, necesidad, prioridad, estado, version, celda, creado_en, vence_en
       FROM emergencias.pedidos_ayuda
       WHERE id = subscription.parameter('pedido_id') AND cerrado_en IS NULL
+        AND (estado = 'enviado' OR estado = 'visto' OR estado = 'en_camino')
         AND (
           'brigadista' IN (SELECT value FROM json_each(auth.parameter('roles')))
           OR 'coordinador' IN (SELECT value FROM json_each(auth.parameter('roles')))
         )
         AND id IN (
-          SELECT pedido_id FROM emergencias.asignaciones
-          WHERE usuario_id = auth.user_id() AND finalizada_en IS NULL
+          SELECT asignacion.pedido_id
+          FROM emergencias.asignaciones AS asignacion
+          INNER JOIN emergencias.autorizaciones_stream AS acceso ON acceso.asignacion_id = asignacion.id
+          WHERE asignacion.usuario_id = auth.user_id()
+            AND asignacion.finalizada_en IS NULL
+            AND acceso.id = subscription.parameter('autorizacion_id')
+            AND acceso.sesion_id = auth.parameter('sid')
+            AND acceso.alcance = 'resumen' AND acceso.revocada_en IS NULL
+        )
+
+  caso_ubicacion_exacta:
+    auto_subscribe: false
+    priority: 1
+    query: |
+      SELECT pedido_id AS id, descripcion, lat, lng
+      FROM emergencias.detalles_pedidos AS ubicaciones_casos
+      WHERE pedido_id = subscription.parameter('pedido_id')
+        AND pedido_id IN (
+          SELECT id FROM emergencias.pedidos_ayuda WHERE estado = 'en_camino' AND cerrado_en IS NULL
+        )
+        AND (
+          'brigadista' IN (SELECT value FROM json_each(auth.parameter('roles')))
+          OR 'coordinador' IN (SELECT value FROM json_each(auth.parameter('roles')))
+        )
+        AND pedido_id IN (
+          SELECT asignacion.pedido_id
+          FROM emergencias.asignaciones AS asignacion
+          INNER JOIN emergencias.autorizaciones_stream AS acceso ON acceso.asignacion_id = asignacion.id
+          WHERE asignacion.usuario_id = auth.user_id()
+            AND asignacion.finalizada_en IS NULL
+            AND acceso.id = subscription.parameter('autorizacion_id')
+            AND acceso.sesion_id = auth.parameter('sid')
+            AND acceso.alcance = 'exacta' AND acceso.revocada_en IS NULL
         )
 
   # Un pedido concreto del autor. B debe publicar el historial con un motivo apto para el vecino.

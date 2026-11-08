@@ -90,12 +90,10 @@ Future<DevSyncApp> _seed(Directory directory, SecureStore store) async {
     accountId: 'cases.${session.neighborId}',
     schema: assignedCaseSchema,
   );
-  await cases.database
-      .execute('INSERT INTO pedidos_ayuda (id, detalle, vence_en) VALUES (?, ?, ?)', [
-        'caso-sintetico',
-        'Detalle de prueba',
-        DateTime.now().add(const Duration(hours: 1)).toIso8601String(),
-      ]);
+  await cases.database.execute(
+    'INSERT INTO pedidos_ayuda (id, estado, vence_en) VALUES (?, ?, ?)',
+    ['caso-sintetico', 'visto', DateTime.now().add(const Duration(hours: 1)).toIso8601String()],
+  );
   await cases.close();
   return DevSyncApp(
     environment: const AppEnvironment(apiBaseUrl: 'http://127.0.0.1:1', powersyncUrl: ''),

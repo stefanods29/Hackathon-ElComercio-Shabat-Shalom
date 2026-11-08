@@ -42,3 +42,8 @@ El backend SHALL registrar quién accedió, cuándo y a qué caso por cada apert
 
 - **WHEN** el coordinador o brigadista abre el detalle autorizado de un caso
 - **THEN** queda un registro de acceso con actor, fecha y caso, sin ubicación, datos de salud ni descripción del pedido
+
+#### Scenario: Suscripción directa fuera de la apertura auditada
+
+- **WHEN** un operador intenta suscribirse sin permiso emitido para esa asignación, sesión y alcance
+- **THEN** PowerSync devuelve cero filas, incluso si el operador tiene una asignación activa

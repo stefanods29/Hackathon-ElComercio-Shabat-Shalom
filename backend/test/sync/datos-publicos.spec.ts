@@ -423,7 +423,7 @@ describe('Sync Streams de datos públicos', () => {
   });
 
   it('todos los streams de datos públicos se suscriben solos', () => {
-    const privateStreams = new Set(['caso_asignado', 'mi_pedido']);
+    const privateStreams = new Set(['caso_asignado', 'caso_ubicacion_exacta', 'mi_pedido']);
     const publicStreams = config.bucketSources.filter((stream) => !privateStreams.has(stream.name));
     expect(publicStreams.every((stream) => stream.subscribedToByDefault)).toBe(true);
   });

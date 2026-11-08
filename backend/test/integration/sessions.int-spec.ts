@@ -1,5 +1,6 @@
 import { setTimeout as delay } from 'node:timers/promises';
 import type { INestApplication } from '@nestjs/common';
+import { decodeJwt } from 'jose';
 import { type Kysely, sql } from 'kysely';
 import request from 'supertest';
 import { inject } from 'vitest';
@@ -101,6 +102,27 @@ describe('Sesiones revocables', () => {
       SELECT tablename AS name FROM pg_publication_tables WHERE pubname = 'powersync' AND tablename = 'sesiones'
     `.execute(db);
     expect(publication.rows).toEqual([]);
+  });
+
+  it('emite credenciales de PowerSync con la familia de cada celular autenticado', async () => {
+    const phone = newPhone();
+    const first = await login(phone, 'primer celular');
+    const second = await login(phone, 'segundo celular');
+    const firstActor = await tokens.verifyAccess(first.tokenDeAcceso);
+    const secondActor = await tokens.verifyAccess(second.tokenDeAcceso);
+    expect(firstActor.sessionId).toBeDefined();
+    expect(secondActor.sessionId).not.toBe(firstActor.sessionId);
+
+    for (const [session, actor] of [
+      [first, firstActor],
+      [second, secondActor],
+    ] as const) {
+      const credential = await sync(session.tokenDeAcceso).expect(200);
+      expect(decodeJwt(credential.body.token)).toMatchObject({
+        sub: actor.id,
+        sid: actor.sessionId,
+      });
+    }
   });
 
   it('rota una vez y detecta el token robado: revoca también el refresh nuevo', async () => {

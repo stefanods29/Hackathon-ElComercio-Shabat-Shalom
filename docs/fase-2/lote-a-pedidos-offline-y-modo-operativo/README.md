@@ -12,12 +12,12 @@
 
 | Parte | Qué entrega | Estado | Responsable | PR |
 |---|---|---|---|---|
-| 1 | Pedidos de ayuda sin conexión | En curso (verificación local; integración con B y D pendiente) | Stefano | — |
-| 2 | Streams bajo demanda por asignación | Pendiente | Stefano | — |
-| 3 | Modo operativo protegido | Pendiente | Stefano | — |
-| 4 | Tablero sin conexión: agregados y recursos | Pendiente | Stefano | — |
-| 5 | Seguridad y pruebas de campo | Pendiente | Stefano | — |
-| 6 | Integración de la Fase 2 y simulacro | Pendiente | Stefano | — |
+| 1 | Pedidos de ayuda sin conexión | En curso (verificación local; integración con B y D pendiente) | `JDiazD33` | — |
+| 2 | Streams bajo demanda por asignación | En curso | `JDiazD33` | — |
+| 3 | Modo operativo protegido | Pendiente | `JDiazD33` | — |
+| 4 | Tablero sin conexión: agregados y recursos | Pendiente | `JDiazD33` | — |
+| 5 | Seguridad y pruebas de campo | Pendiente | `JDiazD33` | — |
+| 6 | Integración de la Fase 2 y simulacro | Pendiente | `JDiazD33` | — |
 
 Estados posibles: **Pendiente**, **En curso** o **Hecha** (integrada en `main`).
 
@@ -57,8 +57,20 @@ pendientes de verificación con B, D y CI.
   el caso pasa a *en camino*, en un stream aparte que depende del estado.
 - Cada apertura queda auditada en el backend (B, parte 5).
 
-Pruebas de acceso de los streams: un brigadista sin asignación recibe 0 filas; al reasignar el
-caso, sus filas se borran; la ubicación exacta no llega antes de *en camino*.
+El [informe de la Parte 2](../evidencias/streams-por-asignacion.md) documenta las pruebas con
+filas ficticias, la ruta auditada propuesta y las verificaciones pendientes con el backend de B y
+PowerSync en vivo.
+
+### Pedidos para B y D
+
+- **B · Parte 1.** Acordar y publicar `emergencias.historial_pedidos.motivo_para_autor` para los
+  cierres y las derivaciones. El motivo operativo y el usuario del historial quedan fuera de la
+  proyección de PowerSync.
+- **B · Parte 2.** Acordar la autorización auditada ligada a sesión, asignación y alcance. El
+  informe de la Parte 2 especifica la ruta, los campos y la revocación propuestos.
+- **D · Parte 1.** Conectar `operationalEmergencyFactoryProvider` al repositorio de pedidos de
+  la cuenta. Entregar `exactLocation` y `lifeThreatening` desde la pantalla de pedido, y presentar
+  el resumen cuando la descripción y las coordenadas ya se retiraron de la cola.
 
 ## Parte 3 · Modo operativo protegido
 

@@ -15,6 +15,7 @@ import 'package:vecinal/core/sync/vecinal_connector.dart';
 import 'package:vecinal/features/cuenta/domain/auth_state.dart';
 import 'package:vecinal/features/directorio/data/powersync_service_directory_repository.dart';
 import 'package:vecinal/features/emergencias/assigned_case_cache.dart';
+import 'package:vecinal/features/emergencias/data/http_assigned_case_access.dart';
 import 'package:vecinal/features/emergencias/data/own_help_request_repository.dart';
 import 'package:vecinal/features/reputacion/data/powersync_reputation_repository.dart';
 import 'package:vecinal/features/solidaridad/data/powersync_post_repository.dart';
@@ -91,6 +92,7 @@ class AuthenticatedSyncSession {
       accountId: user.neighborId,
       connector: connector,
       clock: DateTime.now,
+      authorize: HttpAssignedCaseAccess(api).open,
     );
     try {
       return AuthenticatedSyncSession._(

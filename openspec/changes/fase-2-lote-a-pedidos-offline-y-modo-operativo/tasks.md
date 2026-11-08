@@ -22,6 +22,8 @@ Depende de las tablas y transiciones de B2–B3 y del mecanismo de auditoría de
 - [ ] 2.3 Actualizar el caché del caso para la revocación y el cierre. Verificar reasignación con dos cuentas y purga en la siguiente sincronización, incluidos el detalle en memoria y la ubicación exacta.
 - [ ] 2.4 Compilar y depurar los cambios de app y backend. Ejecutar `npm run verify`, las pruebas de integración con PowerSync y `tool/verify.sh` desde `app/`. Verificar CI en verde.
 
+**Pendiente de verificar.** El [informe de laboratorio](../../../docs/fase-2/evidencias/streams-por-asignacion.md) registra el evaluador de Sync Streams, la sesión firmada y la purga local con dos cuentas ficticias. Para 2.1–2.3 falta el acuerdo de B y la prueba de autorización, retiro y reasignación con PowerSync en vivo. Para 2.4 queda pendiente registrar el CI del commit de entrega.
+
 ## 3. Parte 3 · Modo operativo protegido
 
 El bloqueo y la caducidad pueden probarse inicialmente con casos ficticios y reloj controlado.
