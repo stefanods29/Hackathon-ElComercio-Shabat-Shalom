@@ -12,13 +12,17 @@
 
 | Parte | Qué entrega | Estado | Responsable | PR |
 |---|---|---|---|---|
-| 1 | Directorio: categorías, proveedores y servicios | Pendiente | Por asignar | — |
+| 1 | Directorio: categorías, proveedores y servicios | Lista para revisión | JDiazD33 | — |
 | 2 | Búsqueda por cercanía y texto | Pendiente | Por asignar | — |
 | 3 | Reseñas, Visto Bueno y ranking | Pendiente | Por asignar | — |
 | 4 | Identidad del piloto: niveles, zona y privacidad | Pendiente | Por asignar | — |
 | 5 | Moderación | Pendiente | Por asignar | — |
 
-Estados posibles: **Pendiente**, **En curso** o **Hecha** (integrada en `main`).
+Estados posibles: **Pendiente**, **En curso**, **Lista para revisión** (código entregado,
+comprobaciones y aprobación a cargo del supervisor) o **Hecha** (integrada en `main`).
+
+La Parte 1 se entrega en `f1-lote-b/parte-1-directorio`, sin PR ni integración. Su alcance,
+cobertura escrita y comandos pendientes están en [el informe de la parte](parte-1.md).
 
 ---
 

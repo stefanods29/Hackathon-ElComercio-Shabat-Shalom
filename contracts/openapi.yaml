@@ -395,6 +395,7 @@ paths:
         '400': { $ref: '#/components/responses/SolicitudInvalida' }
         '401': { $ref: '#/components/responses/NoAutenticado' }
         '403': { $ref: '#/components/responses/Prohibido' }
+        '404': { $ref: '#/components/responses/NoEncontrado' }
         '409': { $ref: '#/components/responses/Conflicto' }
         '422': { $ref: '#/components/responses/NoProcesable' }
 
@@ -835,7 +836,7 @@ components:
       description: |
         El vecino no puede hacer esto. `nivel_de_confianza_insuficiente` incluye `nivelActual` y
         `nivelRequerido`; `rol_requerido` incluye `rolesRequeridos`. Otros códigos posibles son
-        `fuera_de_tu_zona` y `no_eres_el_autor`.
+        `fuera_de_tu_zona`, `no_eres_el_autor`, `no_eres_el_dueno` y `sin_zona`.
       content:
         application/problem+json:
           schema: { $ref: '#/components/schemas/Problema' }
