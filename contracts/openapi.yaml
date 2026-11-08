@@ -34,6 +34,8 @@ tags:
     description: Métricas operativas reservadas a administradores.
   - name: notificaciones
     description: Registro y baja de dispositivos para avisos personales.
+  - name: telemetria
+    description: Contadores anónimos de la sincronización que envían los celulares.
 security:
   - tokenDeAcceso: []
 
@@ -329,10 +331,11 @@ paths:
     get:
       tags: [operacion]
       operationId: consultarMetricasOperativas
-      summary: Métricas de idempotencia, outbox y colas para administradores
+      summary: Métricas de idempotencia, outbox, colas y sincronización para administradores
       description: |
         Exige el rol administrador. Los contadores de idempotencia corresponden a esta
-        instancia desde su arranque; outbox y colas son lecturas actuales de PostgreSQL.
+        instancia desde su arranque; outbox y colas son lecturas actuales de PostgreSQL;
+        sincronizacion resume los reportes anónimos de los celulares de los últimos 7 días.
         No devuelve cargas de trabajos, cuerpos, claves de idempotencia ni tokens.
         Todas las rutas aceptan x-request-id de 1–128 caracteres ASCII seguros; si falta
         o es inválido se genera un UUIDv7. La respuesta lo devuelve y los problemas incluyen
@@ -351,6 +354,40 @@ paths:
               schema: { $ref: '#/components/schemas/MetricasOperativas' }
         '401': { $ref: '#/components/responses/NoAutenticado' }
         '403': { $ref: '#/components/responses/Prohibido' }
+
+  /v1/telemetria/sincronizacion:
+    post:
+      tags: [telemetria]
+      operationId: registrarMetricasDeSincronizacion
+      summary: Contadores diarios y anónimos de la sincronización de un celular
+      description: |
+        La app envía como máximo un reporte al día con los contadores agregados desde el anterior.
+        Exige sesión para limitar el abuso, pero la fila se guarda sin el vecino, sin el
+        dispositivo, con el día de recepción en lugar de la hora y con un id aleatorio. El
+        registro de idempotencia conserva el alcance del vecino solo durante su retención normal.
+        Un campo fuera del contrato responde 400 `validacion` y no se guarda nada.
+      parameters:
+        - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/MetricasDeSincronizacion' }
+      responses:
+        '202':
+          description: Contadores guardados sin datos del vecino ni de su celular.
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: false
+                required: [recibidoEl]
+                properties:
+                  recibidoEl: { type: string, format: date, description: Día UTC de recepción. }
+        '400': { $ref: '#/components/responses/SolicitudInvalida' }
+        '401': { $ref: '#/components/responses/NoAutenticado' }
+        '409': { $ref: '#/components/responses/Conflicto' }
+        '422': { $ref: '#/components/responses/NoProcesable' }
 
   /v1/publicaciones:
     get:
@@ -696,7 +733,7 @@ components:
   schemas:
     MetricasOperativas:
       type: object
-      required: [instanciaId, desde, generadoEn, idempotencia, outbox, colasMotor, colas]
+      required: [instanciaId, desde, generadoEn, idempotencia, outbox, colasMotor, colas, sincronizacion]
       properties:
         instanciaId: { type: string, format: uuid }
         desde: { type: string, format: date-time }
@@ -731,6 +768,96 @@ components:
                 type: [number, 'null']
                 minimum: 0
                 description: Edad del trabajo crítico elegible más antiguo; nulo si no hay ninguno listo.
+        sincronizacion: { $ref: '#/components/schemas/ResumenDeSincronizacion' }
+    MetricasDeSincronizacion:
+      type: object
+      additionalProperties: false
+      description: |
+        Contadores de un celular desde su reporte anterior. No lleva identificadores, teléfonos,
+        contenido ni ubicaciones.
+      required:
+        - versionApp
+        - sistema
+        - periodoInicio
+        - periodoFin
+        - colaPendientes
+        - enviosConfirmados
+        - tiempoHastaEnviadoP50Segundos
+        - tiempoHastaEnviadoP95Segundos
+        - rechazosPermanentes
+        - segundosDesdeUltimaSincronizacion
+        - erroresDeConexion
+      properties:
+        versionApp: { type: string, pattern: '^[0-9A-Za-z.+-]{1,32}$', examples: ['0.1.0+1'] }
+        sistema: { type: string, enum: [android, ios] }
+        periodoInicio: { type: string, format: date-time }
+        periodoFin:
+          type: string
+          format: date-time
+          description: No puede ser anterior a periodoInicio. El servidor guarda solo la duración.
+        colaPendientes:
+          type: integer
+          minimum: 0
+          maximum: 100000
+          description: Acciones en la cola local al cerrar el período.
+        enviosConfirmados:
+          type: integer
+          minimum: 0
+          maximum: 100000
+          description: Acciones que pasaron a "Enviado" durante el período.
+        tiempoHastaEnviadoP50Segundos:
+          type: [integer, 'null']
+          minimum: 0
+          maximum: 7776000
+          description: Mediana (rango más cercano) de "Guardado en tu celular" a "Enviado"; nulo sin envíos.
+        tiempoHastaEnviadoP95Segundos:
+          type: [integer, 'null']
+          minimum: 0
+          maximum: 7776000
+          description: Percentil 95 (rango más cercano); no puede ser menor que el p50.
+        rechazosPermanentes:
+          type: object
+          description: Acciones rechazadas para siempre, por código del problema (como máximo 20).
+          maxProperties: 20
+          propertyNames: { pattern: '^[a-z0-9_]{1,64}$' }
+          additionalProperties: { type: integer, minimum: 1, maximum: 100000 }
+        segundosDesdeUltimaSincronizacion:
+          type: [integer, 'null']
+          minimum: 0
+          maximum: 315360000
+          description: Nulo si el celular nunca terminó una sincronización.
+        erroresDeConexion:
+          type: integer
+          minimum: 0
+          maximum: 100000
+          description: Veces que la conexión con PowerSync falló mientras la app estaba abierta.
+    ResumenDeSincronizacion:
+      type: object
+      description: |
+        Reportes de los celulares de los últimos 7 días (hoy incluido). Los percentiles se calculan
+        sobre los valores de cada reporte. Sin datos de vecinos ni de dispositivos.
+      required:
+        - desde
+        - reportes
+        - enviosConfirmados
+        - colaPendientesP95
+        - tiempoHastaEnviadoP50Segundos
+        - tiempoHastaEnviadoP95Segundos
+        - rechazosPermanentes
+        - segundosDesdeUltimaSincronizacionP95
+        - erroresDeConexion
+      properties:
+        desde: { type: string, format: date }
+        reportes: { type: integer, minimum: 0 }
+        enviosConfirmados: { type: integer, minimum: 0 }
+        colaPendientesP95: { type: [number, 'null'], minimum: 0 }
+        tiempoHastaEnviadoP50Segundos: { type: [number, 'null'], minimum: 0 }
+        tiempoHastaEnviadoP95Segundos: { type: [number, 'null'], minimum: 0 }
+        rechazosPermanentes:
+          type: object
+          additionalProperties: { type: integer, minimum: 0 }
+        segundosDesdeUltimaSincronizacionP95: { type: [number, 'null'], minimum: 0 }
+        erroresDeConexion: { type: integer, minimum: 0 }
     TokenDeDispositivo:
       type: string
       minLength: 1
