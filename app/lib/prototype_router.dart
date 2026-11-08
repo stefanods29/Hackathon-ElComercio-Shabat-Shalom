@@ -1,4 +1,5 @@
 import 'package:go_router/go_router.dart';
+import 'package:vecinal/features/prototipo/presentation/navigation/proto_navigation.dart';
 import 'package:vecinal/features/prototipo/presentation/screens/account_screen.dart';
 import 'package:vecinal/features/prototipo/presentation/screens/actions_to_review_screen.dart';
 import 'package:vecinal/features/prototipo/presentation/screens/code_screen.dart';
@@ -12,32 +13,28 @@ import 'package:vecinal/features/prototipo/presentation/screens/tutorial_screen.
 import 'package:vecinal/features/prototipo/presentation/screens/welcome_screen.dart';
 import 'package:vecinal/features/prototipo/presentation/screens/zone_screen.dart';
 
-abstract final class ProtoRoutes {
-  static const welcome = '/';
-  static const mapa = '/mapa';
-  static const login = '/ingresar';
-  static const code = '/ingresar/codigo';
-  static const zone = '/elegir-zona';
-  static const publish = '/publicar';
-  static const publishForm = '/publicar/:tipo';
-  static const toReview = '/por-revisar';
-  static const emergency = '/emergencia';
-  static const tutorial = '/tutorial';
-  static const account = '/cuenta';
-  static const pushSettings = '/avisos';
-  static const postDetail = '/publicaciones/:id';
-}
+export 'package:vecinal/features/prototipo/presentation/navigation/proto_navigation.dart'
+    show ProtoRoutes;
 
-final prototypeRouter = GoRouter(
-  initialLocation: ProtoRoutes.welcome,
+final prototypeRouter = createPrototypeRouter();
+
+GoRouter createPrototypeRouter({String initialLocation = ProtoRoutes.welcome}) => GoRouter(
+  initialLocation: initialLocation,
   routes: [
     GoRoute(path: ProtoRoutes.welcome, builder: (context, _) => const WelcomeScreen()),
-    GoRoute(path: ProtoRoutes.mapa, builder: (context, _) => const MapScreen()),
+    GoRoute(
+      path: ProtoRoutes.mapa,
+      builder: (context, state) =>
+          MapScreen(tab: ProtoHomeTab.fromQuery(state.uri.queryParameters['vista'])),
+    ),
     GoRoute(path: ProtoRoutes.login, builder: (context, _) => const LoginScreen()),
     GoRoute(path: ProtoRoutes.code, builder: (context, _) => const CodeScreen()),
     GoRoute(path: ProtoRoutes.zone, builder: (context, _) => const ZoneScreen()),
     GoRoute(path: ProtoRoutes.publish, builder: (context, _) => const PublishScreen()),
-    GoRoute(path: ProtoRoutes.publishForm, builder: (context, _) => const PublishScreen()),
+    GoRoute(
+      path: ProtoRoutes.publishForm,
+      builder: (context, state) => PublishScreen(initialType: state.pathParameters['tipo']),
+    ),
     GoRoute(path: ProtoRoutes.toReview, builder: (context, _) => const ActionsToReviewScreen()),
     GoRoute(path: ProtoRoutes.emergency, builder: (context, _) => const EmergencyScreen()),
     GoRoute(path: ProtoRoutes.tutorial, builder: (context, _) => const TutorialScreen()),

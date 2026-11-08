@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:vecinal/features/prototipo/data/mock_data.dart';
+import 'package:vecinal/features/prototipo/presentation/navigation/proto_navigation.dart';
 import 'package:vecinal/features/prototipo/presentation/theme/app_theme.dart';
 import 'package:vecinal/features/prototipo/presentation/widgets/proto_button.dart';
+import 'package:vecinal/features/prototipo/presentation/widgets/proto_status_badge.dart';
 
 /// Pantalla de detalle de una publicación.
 class PostDetailScreen extends StatelessWidget {
@@ -12,21 +14,20 @@ class PostDetailScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final post = mockPosts.firstWhere((p) => p.id == postId,
-        orElse: () => mockPosts.first);
-    final statusColor = _statusColor(post.status);
+    final post = mockPosts.firstWhere((p) => p.id == postId, orElse: () => mockPosts.first);
+    final statusColor = protoStatusColor(post.status);
 
     return Scaffold(
       backgroundColor: kBackgroundColor,
       appBar: AppBar(
         backgroundColor: kSurfaceColor,
         elevation: 0,
-        title: const Text('Detalle', style: TextStyle(color: kTextColor, fontWeight: FontWeight.bold)),
-        centerTitle: true,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: kTextColor),
-          onPressed: () => context.go('/mapa'),
+        title: const Text(
+          'Detalle',
+          style: TextStyle(color: kTextColor, fontWeight: FontWeight.bold),
         ),
+        centerTitle: true,
+        leading: const ProtoBackButton(),
       ),
       body: SafeArea(
         child: SingleChildScrollView(
@@ -43,17 +44,17 @@ class PostDetailScreen extends StatelessWidget {
                   ),
                   child: Text(
                     post.typeLabel,
-                    style: TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w700,
-                      color: statusColor,
-                    ),
+                    style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: statusColor),
                   ),
                 ),
                 const SizedBox(height: 20),
                 Text(
                   post.title,
-                  style: const TextStyle(fontSize: 26, fontWeight: FontWeight.bold, color: kTextColor),
+                  style: const TextStyle(
+                    fontSize: 26,
+                    fontWeight: FontWeight.bold,
+                    color: kTextColor,
+                  ),
                 ),
                 const SizedBox(height: 16),
                 Row(
@@ -65,16 +66,26 @@ class PostDetailScreen extends StatelessWidget {
                         color: Colors.grey.shade100,
                         borderRadius: BorderRadius.circular(12),
                       ),
-                      child: const Icon(Icons.person_outline, size: 20, color: Color(0xFF9CA3AF)),
+                      child: const Icon(Icons.person_outline, size: 20, color: kTextSecondaryColor),
                     ),
                     const SizedBox(width: 12),
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(post.author, style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600, color: kTextColor)),
+                          Text(
+                            post.author,
+                            style: const TextStyle(
+                              fontSize: 15,
+                              fontWeight: FontWeight.w600,
+                              color: kTextColor,
+                            ),
+                          ),
                           const SizedBox(height: 2),
-                          Text(post.zone, style: TextStyle(fontSize: 13, color: Colors.grey.shade600)),
+                          Text(
+                            post.zone,
+                            style: TextStyle(fontSize: 13, color: Colors.grey.shade600),
+                          ),
                         ],
                       ),
                     ),
@@ -83,11 +94,18 @@ class PostDetailScreen extends StatelessWidget {
                 const SizedBox(height: 8),
                 Row(
                   children: [
-                    const Icon(Icons.access_time, size: 16, color: Color(0xFF9CA3AF)),
+                    const Icon(Icons.access_time, size: 16, color: kTextSecondaryColor),
                     const SizedBox(width: 8),
-                    Text(post.ago, style: TextStyle(fontSize: 13, color: Colors.grey.shade600)),
+                    Expanded(
+                      child: Text(
+                        post.ago,
+                        style: const TextStyle(fontSize: 14, color: kTextSecondaryColor),
+                      ),
+                    ),
                   ],
                 ),
+                const SizedBox(height: 24),
+                ProtoStatusBadge(post: post),
                 const SizedBox(height: 24),
                 Container(
                   width: double.infinity,
@@ -100,7 +118,14 @@ class PostDetailScreen extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text('Descripción', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: Color(0xFF6B7280))),
+                      const Text(
+                        'Descripción',
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                          color: Color(0xFF6B7280),
+                        ),
+                      ),
                       const SizedBox(height: 8),
                       Text(
                         post.title.length > 50
@@ -115,7 +140,7 @@ class PostDetailScreen extends StatelessWidget {
                 ProtoButton(
                   text: 'Volver al muro',
                   icon: Icons.arrow_back,
-                  onPressed: () => context.go('/mapa'),
+                  onPressed: () => context.go(ProtoRoutes.home(ProtoHomeTab.wall)),
                   fullWidth: true,
                 ),
                 const SizedBox(height: 20),
@@ -125,18 +150,5 @@ class PostDetailScreen extends StatelessWidget {
         ),
       ),
     );
-  }
-
-  Color _statusColor(String status) {
-    switch (status) {
-      case 'savedOnPhone':
-        return kStatusSavedColor;
-      case 'accepted':
-        return kStatusAcceptedColor;
-      case 'rejected':
-        return kStatusRejectedColor;
-      default:
-        return kSecondaryColor;
-    }
   }
 }

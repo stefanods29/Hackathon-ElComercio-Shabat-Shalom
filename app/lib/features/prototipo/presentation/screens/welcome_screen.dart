@@ -13,7 +13,7 @@ class WelcomeScreen extends StatelessWidget {
       backgroundColor: kBackgroundColor,
       body: SafeArea(
         child: Center(
-          child: Padding(
+          child: SingleChildScrollView(
             padding: const EdgeInsets.all(20),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -23,10 +23,7 @@ class WelcomeScreen extends StatelessWidget {
                 Text(
                   'Servicios, solidaridad y emergencias para tu barrio',
                   textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: kTextSecondaryColor,
-                  ),
+                  style: TextStyle(fontSize: 14, color: kTextSecondaryColor),
                 ),
                 const SizedBox(height: 48),
                 ProtoButton(
@@ -46,10 +43,7 @@ class WelcomeScreen extends StatelessWidget {
                 const SizedBox(height: 48),
                 Text(
                   '© 2026 Winki · App vecinal de solidaridad',
-                  style: TextStyle(
-                    fontSize: 10,
-                    color: Colors.grey.shade400,
-                  ),
+                  style: TextStyle(fontSize: 10, color: kTextSecondaryColor),
                 ),
               ],
             ),

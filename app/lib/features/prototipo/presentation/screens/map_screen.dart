@@ -2,114 +2,257 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:vecinal/features/prototipo/data/mock_data.dart';
 import 'package:vecinal/features/prototipo/data/models.dart';
+import 'package:vecinal/features/prototipo/presentation/navigation/proto_navigation.dart';
+import 'package:vecinal/features/prototipo/presentation/screens/account_screen.dart';
 import 'package:vecinal/features/prototipo/presentation/theme/app_theme.dart';
 import 'package:vecinal/features/prototipo/presentation/widgets/proto_button.dart';
 import 'package:vecinal/features/prototipo/presentation/widgets/proto_post_card.dart';
-import 'package:vecinal/features/prototipo/presentation/widgets/proto_text_field.dart';
+import 'package:vecinal/features/prototipo/presentation/widgets/proto_publish_form.dart';
+import 'package:vecinal/features/prototipo/presentation/widgets/proto_status_badge.dart';
+import 'package:vecinal/l10n/app_localizations.dart';
 
-/// Pantalla principal del prototipo Winki: Mapa con publicaciones como marcadores.
+/// The selected tab is part of the route, so every entry point agrees on it.
 class MapScreen extends StatefulWidget {
-  const MapScreen({super.key});
+  const MapScreen({super.key, this.tab = ProtoHomeTab.map});
+
+  final ProtoHomeTab tab;
 
   @override
   State<MapScreen> createState() => _MapScreenState();
 }
 
 class _MapScreenState extends State<MapScreen> {
-  int _selectedIndex = 0;
-  int pending = 1;
-  final GlobalKey<ScaffoldState> _drawerKey = GlobalKey<ScaffoldState>();
+  final _scaffoldKey = GlobalKey<ScaffoldState>();
 
-  final List<Widget> _tabs = [
-    _MapaTab(),
-    _MuroTab(),
-    _PublicarTab(),
-    _CuentaTab(),
-  ];
+  void _selectTab(ProtoHomeTab tab) {
+    _scaffoldKey.currentState?.closeDrawer();
+    FocusScope.of(context).unfocus();
+    context.go(ProtoRoutes.home(tab));
+  }
+
+  void _open(String route) {
+    _scaffoldKey.currentState?.closeDrawer();
+    ProtoNavigation.open(context, route);
+  }
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final labels = [l10n.protoMapTab, l10n.protoWallTab, l10n.publishAction, l10n.protoAccountTab];
+    const icons = [
+      Icons.map_outlined,
+      Icons.feed_outlined,
+      Icons.add_circle_outline,
+      Icons.person_outline,
+    ];
     return Scaffold(
-      key: _drawerKey,
-      backgroundColor: kBackgroundColor,
+      key: _scaffoldKey,
       appBar: AppBar(
-        backgroundColor: kSurfaceColor,
-        elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.menu, color: kTextColor),
-          onPressed: () => _drawerKey.currentState?.openDrawer(),
+          tooltip: l10n.protoOpenMenu,
+          icon: const Icon(Icons.menu),
+          onPressed: () => _scaffoldKey.currentState?.openDrawer(),
         ),
-        title: const _WinkiAppBarTitle(),
+        title: const Text('Winki', style: TextStyle(fontWeight: FontWeight.bold)),
         centerTitle: true,
         actions: [
           IconButton(
-            icon: const Icon(Icons.notifications_outlined, color: kTextColor),
-            onPressed: () => context.go('/por-revisar'),
+            tooltip: l10n.actionsToReview,
+            icon: const Icon(Icons.notifications_outlined),
+            onPressed: () => _open(ProtoRoutes.toReview),
           ),
-          const SizedBox(width: 8),
         ],
       ),
-      drawer: _buildDrawer(context),
-      body: _tabs[_selectedIndex],
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: _selectedIndex,
-        onTap: (index) => setState(() => _selectedIndex = index),
-        type: BottomNavigationBarType.fixed,
-        backgroundColor: kSurfaceColor,
-        selectedItemColor: kPrimaryColor,
-        unselectedItemColor: const Color(0xFF9CA3AF),
-        showSelectedLabels: true,
-        showUnselectedLabels: true,
-        selectedLabelStyle: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
-        unselectedLabelStyle: const TextStyle(fontSize: 12, fontWeight: FontWeight.w500),
-        items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.map_outlined, size: 24), activeIcon: Icon(Icons.map, size: 24), label: 'Mapa'),
-          BottomNavigationBarItem(icon: Icon(Icons.feed_outlined, size: 24), activeIcon: Icon(Icons.feed, size: 24), label: 'Muro'),
-          BottomNavigationBarItem(icon: Icon(Icons.add_circle_outline, size: 24), activeIcon: Icon(Icons.add_circle, size: 24), label: 'Publicar'),
-          BottomNavigationBarItem(icon: Icon(Icons.person_outline, size: 24), activeIcon: Icon(Icons.person, size: 24), label: 'Cuenta'),
+      drawer: Drawer(
+        child: SafeArea(
+          child: ListView(
+            padding: EdgeInsets.zero,
+            children: [
+              Container(
+                padding: const EdgeInsets.all(24),
+                color: kPrimaryColor,
+                child: Column(
+                  children: [
+                    const Icon(Icons.sentiment_very_satisfied, size: 48, color: Colors.white),
+                    const SizedBox(height: 12),
+                    const Text(
+                      'Winki',
+                      style: TextStyle(
+                        fontSize: 24,
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    Text(l10n.protoMainMenu, style: const TextStyle(color: Colors.white)),
+                  ],
+                ),
+              ),
+              for (final tab in ProtoHomeTab.values)
+                ListTile(
+                  leading: Icon(icons[tab.index]),
+                  title: Text(labels[tab.index]),
+                  selected: widget.tab == tab,
+                  selectedColor: kPrimaryColor,
+                  onTap: () => _selectTab(tab),
+                ),
+              const Divider(),
+              ListTile(
+                leading: const Icon(Icons.school_outlined),
+                title: Text(l10n.viewTutorial),
+                onTap: () => _open(ProtoRoutes.tutorial),
+              ),
+              ListTile(
+                leading: const Icon(Icons.warning_amber_outlined),
+                title: Text(l10n.protoEmergency),
+                onTap: () => _open(ProtoRoutes.emergency),
+              ),
+              ListTile(
+                leading: const Icon(Icons.notifications_outlined),
+                title: Text(l10n.pushTitle),
+                onTap: () => _open(ProtoRoutes.pushSettings),
+              ),
+              const Divider(),
+              ListTile(
+                leading: const Icon(Icons.logout, color: kErrorColor),
+                title: Text(l10n.signOut, style: const TextStyle(color: kErrorColor)),
+                onTap: () {
+                  _scaffoldKey.currentState?.closeDrawer();
+                  context.go(ProtoRoutes.login);
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.phone_disabled, color: kErrorColor),
+                title: Text(l10n.lostPhone, style: const TextStyle(color: kErrorColor)),
+                onTap: () => _scaffoldKey.currentState?.closeDrawer(),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(20),
+                child: Text(l10n.protoTagline, textAlign: TextAlign.center),
+              ),
+            ],
+          ),
+        ),
+      ),
+      // Keep a draft and scroll positions while switching between home tabs.
+      body: IndexedStack(
+        index: widget.tab.index,
+        children: [
+          const _MapTab(),
+          const _WallTab(),
+          ProtoPublishForm(
+            onPublished: () => _selectTab(ProtoHomeTab.wall),
+            onCancel: () => _selectTab(ProtoHomeTab.map),
+          ),
+          const AccountContent(),
         ],
+      ),
+      bottomNavigationBar: Material(
+        color: kSurfaceColor,
+        elevation: 8,
+        child: SafeArea(
+          top: false,
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              for (final tab in ProtoHomeTab.values)
+                Expanded(
+                  child: Semantics(
+                    selected: widget.tab == tab,
+                    button: true,
+                    child: InkWell(
+                      onTap: () => _selectTab(tab),
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 12),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(
+                              icons[tab.index],
+                              color: widget.tab == tab ? kPrimaryColor : kTextSecondaryColor,
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              labels[tab.index],
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                fontSize: 12,
+                                fontWeight: widget.tab == tab ? FontWeight.bold : FontWeight.w500,
+                                color: widget.tab == tab ? kPrimaryColor : kTextSecondaryColor,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+            ],
+          ),
+        ),
       ),
     );
   }
+}
 
-  Widget _buildDrawer(BuildContext context) {
-    return Drawer(
-      child: SafeArea(
+class _MapTab extends StatelessWidget {
+  const _MapTab();
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    return SafeArea(
+      child: SingleChildScrollView(
+        key: const PageStorageKey('prototype-map'),
+        padding: const EdgeInsets.all(16),
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
+            Text(l10n.protoMapHeading, style: Theme.of(context).textTheme.headlineLarge),
+            const SizedBox(height: 4),
+            Text(l10n.protoNearbyPosts),
+            const SizedBox(height: 20),
             Container(
-              width: double.infinity,
-              padding: const EdgeInsets.all(20),
+              padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: kPrimaryColor,
-                borderRadius: BorderRadius.only(bottomLeft: Radius.circular(26), bottomRight: Radius.circular(26)),
+                color: kSecondaryColor.withValues(alpha: 0.06),
+                borderRadius: BorderRadius.circular(24),
+                border: Border.all(color: kSecondaryColor.withValues(alpha: 0.15)),
               ),
               child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  const WinkiLogo(size: 56, withText: false),
-                  const SizedBox(height: 12),
-                  const Text('Winki', style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Colors.white)),
-                  const SizedBox(height: 4),
-                  Text('Menú principal', style: TextStyle(fontSize: 10, color: Colors.white.withValues(alpha: 0.8))),
+                  const Icon(Icons.map_outlined, size: 40, color: kSecondaryColor),
+                  const SizedBox(height: 8),
+                  Text(l10n.protoMapPlaceholder, textAlign: TextAlign.center),
+                  const SizedBox(height: 20),
+                  LayoutBuilder(
+                    builder: (context, constraints) {
+                      final scale = MediaQuery.textScalerOf(context).scale(16) / 16;
+                      final columns = (constraints.maxWidth / (240 * scale)).floor().clamp(1, 3);
+                      final width = (constraints.maxWidth - (columns - 1) * 12) / columns;
+                      return Wrap(
+                        spacing: 12,
+                        runSpacing: 12,
+                        children: [
+                          for (final post in mockPosts)
+                            SizedBox(
+                              width: width,
+                              child: _MapMarker(post: post),
+                            ),
+                        ],
+                      );
+                    },
+                  ),
                 ],
               ),
             ),
-            const SizedBox(height: 12),
-            _DrawerItem(icon: Icons.home_outlined, label: 'Mapa', onTap: () { _drawerKey.currentState?.closeDrawer(); setState(() => _selectedIndex = 0); }),
-            _DrawerItem(icon: Icons.feed_outlined, label: 'Muro', onTap: () { _drawerKey.currentState?.closeDrawer(); setState(() => _selectedIndex = 1); }),
-            _DrawerItem(icon: Icons.add_circle_outlined, label: 'Publicar', onTap: () { _drawerKey.currentState?.closeDrawer(); setState(() => _selectedIndex = 2); }),
-            _DrawerItem(icon: Icons.person_outlined, label: 'Cuenta', onTap: () { _drawerKey.currentState?.closeDrawer(); setState(() => _selectedIndex = 3); }),
-            const Divider(height: 1),
-            _DrawerItem(icon: Icons.school, label: 'Ver tutorial', onTap: () { _drawerKey.currentState?.closeDrawer(); context.go('/tutorial'); }),
-            _DrawerItem(icon: Icons.warning_outlined, label: 'Emergencia', onTap: () { _drawerKey.currentState?.closeDrawer(); context.go('/emergencia'); }),
-            _DrawerItem(icon: Icons.notifications_outlined, label: 'Avisos', onTap: () { _drawerKey.currentState?.closeDrawer(); context.go('/avisos'); }),
-            const Divider(height: 1),
-            _DrawerItem(icon: Icons.logout, label: 'Cerrar sesión', isDestructive: true, onTap: () { _drawerKey.currentState?.closeDrawer(); context.go('/ingresar'); }),
-            _DrawerItem(icon: Icons.phone_disabled, label: 'Perdí mi teléfono', isDestructive: true, onTap: () => _drawerKey.currentState?.closeDrawer()),
-            const Spacer(),
-            const Padding(
-              padding: EdgeInsets.all(16),
-              child: Text('Servicios, solidaridad y emergencias para tu barrio', textAlign: TextAlign.center, style: TextStyle(fontSize: 10, color: Color(0xFF9CA3AF))),
+            const SizedBox(height: 20),
+            ProtoButton(
+              text: l10n.viewTutorial,
+              icon: Icons.play_circle_outline,
+              onPressed: () => ProtoNavigation.open(context, ProtoRoutes.tutorial),
+              secondary: true,
+              fullWidth: true,
             ),
           ],
         ),
@@ -118,251 +261,77 @@ class _MapScreenState extends State<MapScreen> {
   }
 }
 
-/// Ítem del drawer lateral
-class _DrawerItem extends StatelessWidget {
-  final IconData icon;
-  final String label;
-  final VoidCallback onTap;
-  final bool isDestructive;
-  const _DrawerItem({required this.icon, required this.label, required this.onTap, this.isDestructive = false});
-  @override
-  Widget build(BuildContext context) {
-    return ListTile(
-      leading: Icon(icon, color: isDestructive ? kErrorColor : kSecondaryColor, size: 24),
-      title: Text(label, style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: isDestructive ? kErrorColor : kTextColor)),
-      onTap: onTap,
-    );
-  }
-}
+/// Mock markers flow with the available width instead of sharing coordinates.
+class _MapMarker extends StatelessWidget {
+  const _MapMarker({required this.post});
+  final PostProto post;
 
-/// Título de la app en el AppBar
-class _WinkiAppBarTitle extends StatelessWidget {
-  const _WinkiAppBarTitle();
   @override
-  Widget build(BuildContext context) {
-    return Row(mainAxisSize: MainAxisSize.min, children: [
-      Container(width: 32, height: 32, decoration: BoxDecoration(color: kPrimaryColor, borderRadius: BorderRadius.circular(9999)), child: const Icon(Icons.sentiment_very_satisfied, size: 20, color: Colors.white)),
-      const SizedBox(width: 4),
-      const Text('Winki', style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: kTextColor)),
-    ]);
-  }
-}
-
-/// Pestaña: Mapa (vista principal)
-class _MapaTab extends StatelessWidget {
-  const _MapaTab();
-  @override
-  Widget build(BuildContext context) {
-    return SafeArea(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text('Mapa de tu zona', style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: kTextColor)),
-                const SizedBox(height: 4),
-                Text('Publicaciones cerca de ti', style: TextStyle(fontSize: 10, color: kTextSecondaryColor)),
-              ],
-            ),
-          ),
-          Expanded(
-            child: Stack(
-              children: [
-                Container(
-                  width: double.infinity,
-                  height: double.infinity,
-                  decoration: BoxDecoration(color: kSecondaryColor.withValues(alpha: 0.08), borderRadius: BorderRadius.circular(20), border: Border.all(color: Colors.grey.shade200)),
-                  child: const Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(Icons.map_outlined, size: 32, color: kSecondaryColor),
-                        SizedBox(height: 16),
-                        Text('Mapa', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: kTextColor)),
-                        SizedBox(height: 4),
-                        Text('Próximamente con zonas offline', style: TextStyle(fontSize: 10, color: const Color(0xFF9CA3AF))),
-                      ],
+  Widget build(BuildContext context) => Semantics(
+    button: true,
+    child: Material(
+      color: kSurfaceColor,
+      borderRadius: BorderRadius.circular(16),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(16),
+        onTap: () => ProtoNavigation.open(context, '/publicaciones/${post.id}'),
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Icon(Icons.location_on, color: kPrimaryColor),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      post.typeLabel,
+                      style: const TextStyle(color: kPrimaryColor, fontWeight: FontWeight.bold),
                     ),
                   ),
+                ],
+              ),
+              const SizedBox(height: 8),
+              Text(
+                post.title,
+                style: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                  color: kTextColor,
                 ),
-                ...mockPosts.map((post) => _MapMarker(post: post)),
-              ],
+              ),
+              const SizedBox(height: 12),
+              ProtoStatusBadge(post: post),
+            ],
+          ),
+        ),
+      ),
+    ),
+  );
+}
+
+class _WallTab extends StatelessWidget {
+  const _WallTab();
+
+  @override
+  Widget build(BuildContext context) => SafeArea(
+    child: mockPosts.isEmpty
+        ? Center(
+            child: Padding(
+              padding: const EdgeInsets.all(20),
+              child: Text(AppLocalizations.of(context).wallEmpty),
+            ),
+          )
+        : ListView.builder(
+            key: const PageStorageKey('prototype-wall'),
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            itemCount: mockPosts.length,
+            itemBuilder: (context, index) => ProtoPostCard(
+              post: mockPosts[index],
+              onTap: () => ProtoNavigation.open(context, '/publicaciones/${mockPosts[index].id}'),
             ),
           ),
-          Container(
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(color: kSurfaceColor, borderRadius: BorderRadius.only(topLeft: Radius.circular(26), topRight: Radius.circular(26)), boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 12, offset: const Offset(0, -4))]),
-            child: Column(mainAxisSize: MainAxisSize.min, children: [
-              ProtoButton(text: 'Ver tutorial', icon: Icons.play_circle_outline, onPressed: () => context.go('/tutorial'), fullWidth: true, secondary: true),
-              const SizedBox(height: 12),
-            ]),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-/// Marcador de publicación sobre el mapa
-class _MapMarker extends StatelessWidget {
-  final PostProto post;
-  const _MapMarker({required this.post});
-  Color _statusColor(String status) {
-    switch (status) {
-      case 'savedOnPhone': return kStatusSavedColor;
-      case 'accepted': return kStatusAcceptedColor;
-      case 'rejected': return kStatusRejectedColor;
-      default: return kSecondaryColor;
-    }
-  }
-  @override
-  Widget build(BuildContext context) {
-    final statusColor = _statusColor(post.status);
-    return Positioned(
-      left: 60,
-      top: 180,
-      child: GestureDetector(
-        onTap: () => context.go('/publicaciones/${post.id}'),
-        child: Column(mainAxisSize: MainAxisSize.min, children: [
-          Container(width: 32, height: 32, decoration: BoxDecoration(color: statusColor, shape: BoxShape.circle, border: Border.all(color: Colors.white, width: 2), boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.15), blurRadius: 6, offset: const Offset(0, 2))]), child: const Icon(Icons.location_on, size: 18, color: Colors.white)),
-          const SizedBox(height: 4),
-          Container(padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6), decoration: BoxDecoration(color: kSurfaceColor, borderRadius: BorderRadius.circular(9999), border: Border.all(color: statusColor), boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.1), blurRadius: 4, offset: const Offset(0, 2))]), child: Column(mainAxisSize: MainAxisSize.min, children: [
-            Text(post.typeLabel, style: TextStyle(fontSize: 10, fontWeight: FontWeight.w600, color: statusColor)),
-            const SizedBox(height: 2),
-            Text(post.title, style: TextStyle(fontSize: 12, fontWeight: FontWeight.w500, color: kTextColor), maxLines: 2, overflow: TextOverflow.ellipsis),
-          ])),
-        ]),
-      ),
-    );
-  }
-}
-
-/// Pestaña: Muro
-class _MuroTab extends StatelessWidget {
-  const _MuroTab();
-  @override
-  Widget build(BuildContext context) {
-    final posts = mockPosts;
-    return SafeArea(
-      child: Column(
-        children: [
-          Expanded(
-            child: posts.isEmpty
-                ? Center(child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [Icon(Icons.note_add, size: 64, color: Colors.grey.shade300), const SizedBox(height: 12), Text('Aún no hay publicaciones en tu zona.', style: TextStyle(fontSize: 14, color: Colors.grey.shade600))]))
-                : ListView.builder(itemCount: posts.length, itemBuilder: (context, index) => ProtoPostCard(post: posts[index], onTap: () => context.go('/publicaciones/${posts[index].id}'))),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-/// Pestaña: Publicar
-class _PublicarTab extends StatefulWidget {
-  @override
-  State<_PublicarTab> createState() => _PublicarTabState();
-}
-class _PublicarTabState extends State<_PublicarTab> {
-  String? selectedType;
-  final titleController = TextEditingController();
-  final descriptionController = TextEditingController();
-  String? error;
-  @override
-  void dispose() { titleController.dispose(); descriptionController.dispose(); super.dispose(); }
-  void _publish() {
-    if (selectedType == null) { setState(() => error = 'Selecciona un tipo de publicación.'); return; }
-    if (titleController.text.trim().length < 3) { setState(() => error = 'El título debe tener entre 3 y 120 caracteres.'); return; }
-    setState(() => error = null);
-    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Publicación guardada en tu celular.'), backgroundColor: kSuccessColor, behavior: SnackBarBehavior.floating));
-    if (mounted) context.go('/mapa');
-  }
-  @override
-  Widget build(BuildContext context) {
-    return SafeArea(
-      child: Padding(padding: const EdgeInsets.all(20), child: SingleChildScrollView(
-        child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-          const Text('¿Qué quieres compartir?', style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: kTextColor)),
-          const SizedBox(height: 4),
-          Text('Elige el tipo y los datos se prellenan.', style: TextStyle(fontSize: 10, color: kTextSecondaryColor)),
-          const SizedBox(height: 24),
-          Wrap(spacing: 4, runSpacing: 4, children: mockPublishTypes.map((t) {
-            final isSelected = selectedType == t['value'];
-            return ChoiceChip(label: Text(t['label']!, style: TextStyle(fontSize: 12, fontWeight: FontWeight.w500, color: isSelected ? Colors.white : kTextColor)), selected: isSelected, onSelected: (_) => setState(() => selectedType = t['value']), selectedColor: kPrimaryColor, backgroundColor: kSurfaceColor, labelPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(9999), side: BorderSide(color: isSelected ? kPrimaryColor : Colors.grey.shade300)), elevation: 0);
-          }).toList()),
-          const SizedBox(height: 24),
-          ProtoTextField(label: 'Título', hint: 'Necesito ayuda con...', controller: titleController, maxLength: 120, errorText: error),
-          const SizedBox(height: 16),
-          ProtoTextField(label: 'Descripción (opcional)', hint: 'Más detalles sobre lo que ofreces o necesitas', controller: descriptionController, maxLength: 2000, maxLines: 3),
-          const SizedBox(height: 24),
-          ProtoButton(text: 'Publicar', icon: Icons.publish, onPressed: _publish, fullWidth: true),
-          const SizedBox(height: 12),
-          ProtoButton(text: 'Cancelar', icon: Icons.close, onPressed: () => context.go('/mapa'), fullWidth: true, secondary: true),
-          const SizedBox(height: 24),
-        ]),
-      )),
-    );
-  }
-}
-
-/// Pestaña: Cuenta
-class _CuentaTab extends StatelessWidget {
-  const _CuentaTab();
-  @override
-  Widget build(BuildContext context) {
-    return SafeArea(
-      child: SingleChildScrollView(
-        child: Padding(padding: const EdgeInsets.all(20), child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-          const Center(child: CircleAvatar(radius: 48, backgroundColor: Color(0xFFE2E8F0), child: Icon(Icons.person, size: 48, color: kPrimaryColor))),
-          const SizedBox(height: 12),
-          const Text('Beto', style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: kTextColor), textAlign: TextAlign.center),
-          const SizedBox(height: 4),
-          Text('Zona: La Victoria · Lima', style: TextStyle(fontSize: 12, color: kTextSecondaryColor), textAlign: TextAlign.center),
-          const SizedBox(height: 48),
-          ProtoButton(text: 'Modo sencillo', icon: Icons.accessibility, onPressed: () {}, fullWidth: true),
-          const SizedBox(height: 12),
-          ProtoButton(text: 'Ver tutorial', icon: Icons.play_circle_outline, onPressed: () => context.go('/tutorial'), fullWidth: true),
-          const SizedBox(height: 12),
-          ProtoButton(text: 'Emergencia', icon: Icons.warning, onPressed: () => context.go('/emergencia'), fullWidth: true, secondary: true),
-          const SizedBox(height: 12),
-          ProtoButton(text: 'Avisos', icon: Icons.notifications, onPressed: () => context.go('/avisos'), fullWidth: true, secondary: true),
-          const SizedBox(height: 48),
-          const Divider(color: Color(0xFFE5E7EB)),
-          const SizedBox(height: 16),
-          ProtoButton(text: 'Perdí mi teléfono', icon: Icons.phone_disabled, onPressed: () {}, fullWidth: true, secondary: true),
-          const SizedBox(height: 48),
-        ])),
-      ),
-    );
-  }
-}
-
-/// Widget del logo de Winki
-class WinkiLogo extends StatelessWidget {
-  final double size;
-  final bool withText;
-  const WinkiLogo({super.key, this.size = 56, this.withText = true});
-  @override
-  Widget build(BuildContext context) {
-    return Column(mainAxisSize: MainAxisSize.min, children: [
-      Container(width: size, height: size, decoration: BoxDecoration(color: kPrimaryColor, borderRadius: BorderRadius.circular(9999)), child: Stack(children: [
-        Positioned(left: size * 0.22, top: size * 0.30, child: Container(width: size * 0.12, height: size * 0.12, decoration: BoxDecoration(color: const Color(0xFF0E5A58), shape: BoxShape.circle))),
-        Positioned(left: size * 0.58, top: size * 0.30, child: Container(width: size * 0.12, height: size * 0.12, decoration: BoxDecoration(color: const Color(0xFF0E5A58), shape: BoxShape.circle))),
-        Positioned(left: size * 0.25, top: size * 0.58, child: Container(width: size * 0.40, height: size * 0.12, decoration: BoxDecoration(color: const Color(0xFF0E5A58), borderRadius: BorderRadius.circular(9999)))),
-        Positioned(left: size * 0.72, top: size * 0.58, child: Container(width: size * 0.18, height: size * 0.18, decoration: BoxDecoration(color: kAccentColor, shape: BoxShape.circle))),
-      ])),
-      if (withText) ...[
-        const SizedBox(height: 12),
-        const Text('Winki', style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold, color: kPrimaryColor, letterSpacing: -0.02)),
-        const SizedBox(height: 2),
-        Row(mainAxisSize: MainAxisSize.min, children: [
-          Container(width: size * 0.14, height: size * 0.14, decoration: BoxDecoration(color: kAccentColor, shape: BoxShape.circle)),
-          const SizedBox(width: 4),
-          Container(width: size * 0.14, height: size * 0.14, decoration: BoxDecoration(color: kAccentColor, shape: BoxShape.circle)),
-        ]),
-      ],
-    ]);
-  }
+  );
 }

@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:vecinal/features/prototipo/data/mock_data.dart';
 import 'package:vecinal/features/prototipo/data/models.dart';
+import 'package:vecinal/features/prototipo/presentation/navigation/proto_navigation.dart';
 import 'package:vecinal/features/prototipo/presentation/theme/app_theme.dart';
+import 'package:vecinal/l10n/app_localizations.dart';
 
-/// Pantalla para elegir la zona del vecino.
-/// Cada zona se muestra como una tarjeta separada con espaciado visual.
 class ZoneScreen extends StatefulWidget {
   const ZoneScreen({super.key});
 
@@ -14,61 +14,41 @@ class ZoneScreen extends StatefulWidget {
 }
 
 class _ZoneScreenState extends State<ZoneScreen> {
-  ZoneProto? selectedZone;
+  ZoneProto? _selectedZone;
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Scaffold(
-      backgroundColor: kBackgroundColor,
       appBar: AppBar(
-        backgroundColor: kSurfaceColor,
-        elevation: 0,
-        title: const Text('Elige tu zona', style: TextStyle(color: kTextColor, fontWeight: FontWeight.bold)),
-        centerTitle: true,
+        title: Text(l10n.chooseZoneTitle),
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: kTextColor),
-          onPressed: () => context.go('/'),
+          tooltip: l10n.protoBack,
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () => context.go(ProtoRoutes.welcome),
         ),
       ),
       body: SafeArea(
-        child: Padding(
+        child: ListView(
           padding: const EdgeInsets.all(20),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              const Text(
-                'Selecciona tu zona',
-                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: kTextColor),
-              ),
-              const SizedBox(height: 8),
-              Text(
-                'Esto nos muestra publicaciones y alertas de tu barrio.',
-                style: TextStyle(fontSize: 15, color: Colors.grey.shade600),
-              ),
-              const SizedBox(height: 32),
-              Expanded(
-                child: ListView.builder(
-                  itemCount: mockZones.length,
-                  itemBuilder: (context, index) {
-                    final zone = mockZones[index];
-                    final isSelected = selectedZone?.id == zone.id;
-                    return Padding(
-                      padding: const EdgeInsets.only(bottom: 16),
-                      child: _ZoneCard(
-                        zone: zone,
-                        isSelected: isSelected,
-                        onTap: () {
-                          setState(() => selectedZone = zone);
-                          context.go('/mapa');
-                        },
-                      ),
-                    );
+          children: [
+            Text(l10n.chooseZoneTitle, style: Theme.of(context).textTheme.headlineLarge),
+            const SizedBox(height: 8),
+            Text(l10n.chooseZoneDetail),
+            const SizedBox(height: 24),
+            for (final zone in mockZones)
+              Padding(
+                padding: const EdgeInsets.only(bottom: 16),
+                child: _ZoneCard(
+                  zone: zone,
+                  isSelected: _selectedZone?.id == zone.id,
+                  onTap: () {
+                    setState(() => _selectedZone = zone);
+                    context.go(ProtoRoutes.home());
                   },
                 ),
               ),
-              const SizedBox(height: 24),
-            ],
-          ),
+          ],
         ),
       ),
     );
@@ -81,11 +61,7 @@ class _ZoneCard extends StatelessWidget {
   final bool isSelected;
   final VoidCallback onTap;
 
-  const _ZoneCard({
-    required this.zone,
-    required this.isSelected,
-    required this.onTap,
-  });
+  const _ZoneCard({required this.zone, required this.isSelected, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
@@ -113,11 +89,7 @@ class _ZoneCard extends StatelessWidget {
                   color: kPrimaryColor.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(14),
                 ),
-                child: const Icon(
-                  Icons.location_on,
-                  color: kPrimaryColor,
-                  size: 26,
-                ),
+                child: const Icon(Icons.location_on, color: kPrimaryColor, size: 26),
               ),
               const SizedBox(width: 16),
               Expanded(
@@ -126,7 +98,11 @@ class _ZoneCard extends StatelessWidget {
                   children: [
                     Text(
                       zone.name,
-                      style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w600, color: kTextColor),
+                      style: const TextStyle(
+                        fontSize: 17,
+                        fontWeight: FontWeight.w600,
+                        color: kTextColor,
+                      ),
                     ),
                     const SizedBox(height: 4),
                     Text(
@@ -139,7 +115,7 @@ class _ZoneCard extends StatelessWidget {
               if (isSelected)
                 const Icon(Icons.check_circle, color: kPrimaryColor, size: 24)
               else
-                const Icon(Icons.chevron_right, color: Color(0xFF9CA3AF), size: 24),
+                const Icon(Icons.chevron_right, color: kTextSecondaryColor, size: 24),
             ],
           ),
         ),

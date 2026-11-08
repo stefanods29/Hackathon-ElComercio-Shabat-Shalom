@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:vecinal/features/prototipo/data/mock_data.dart';
+import 'package:vecinal/features/prototipo/presentation/navigation/proto_navigation.dart';
 import 'package:vecinal/features/prototipo/presentation/theme/app_theme.dart';
 import 'package:vecinal/features/prototipo/presentation/widgets/proto_button.dart';
 import 'package:vecinal/features/prototipo/presentation/widgets/proto_post_card.dart';
+import 'package:vecinal/l10n/app_localizations.dart';
 
 /// Pantalla del muro (home). Muestra publicaciones y permite publicar.
 class WallScreen extends StatefulWidget {
@@ -25,20 +27,22 @@ class _WallScreenState extends State<WallScreen> {
       appBar: AppBar(
         backgroundColor: kSurfaceColor,
         elevation: 0,
-        title: const Text('Muro', style: TextStyle(color: kTextColor, fontWeight: FontWeight.bold)),
+        title: const Text(
+          'Muro',
+          style: TextStyle(color: kTextColor, fontWeight: FontWeight.bold),
+        ),
         centerTitle: true,
         actions: [
           IconButton(
+            tooltip: AppLocalizations.of(context).actionsToReview,
             icon: const Icon(Icons.notifications_outlined, color: kTextColor),
-            onPressed: () => context.go('/por-revisar'),
+            onPressed: () => ProtoNavigation.open(context, ProtoRoutes.toReview),
           ),
           const SizedBox(width: 8),
-          ProtoButton(
-            text: 'Cuenta',
-            icon: Icons.person_outline,
-            onPressed: () => context.go('/cuenta'),
-            secondary: true,
-            fullWidth: false,
+          IconButton(
+            tooltip: AppLocalizations.of(context).accountTitle,
+            icon: const Icon(Icons.person_outline),
+            onPressed: () => ProtoNavigation.open(context, ProtoRoutes.account),
           ),
           const SizedBox(width: 8),
         ],
@@ -87,7 +91,11 @@ class _WallScreenState extends State<WallScreen> {
                   : ListView.builder(
                       itemCount: posts.length,
                       itemBuilder: (context, index) {
-                        return ProtoPostCard(post: posts[index]);
+                        return ProtoPostCard(
+                          post: posts[index],
+                          onTap: () =>
+                              ProtoNavigation.open(context, '/publicaciones/${posts[index].id}'),
+                        );
                       },
                     ),
             ),

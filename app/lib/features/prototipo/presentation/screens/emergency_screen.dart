@@ -1,88 +1,68 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:vecinal/features/prototipo/presentation/navigation/proto_navigation.dart';
 import 'package:vecinal/features/prototipo/presentation/theme/app_theme.dart';
 import 'package:vecinal/features/prototipo/presentation/widgets/proto_button.dart';
+import 'package:vecinal/l10n/app_localizations.dart';
 
-/// Pantalla de modo emergencia — contacto con servicios de emergencia.
 class EmergencyScreen extends StatelessWidget {
   const EmergencyScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Scaffold(
-      backgroundColor: kBackgroundColor,
-      appBar: AppBar(
-        backgroundColor: kSurfaceColor,
-        elevation: 0,
-        title: const Text('Modo emergencia', style: TextStyle(color: kTextColor, fontWeight: FontWeight.bold)),
-        centerTitle: true,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: kTextColor),
-          onPressed: () => context.go('/'),
-        ),
-      ),
+      appBar: AppBar(title: Text(l10n.protoEmergency), leading: const ProtoBackButton()),
       body: SafeArea(
-        child: Center(
-          child: Padding(
-            padding: const EdgeInsets.all(24),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Container(
-                  width: 80,
-                  height: 80,
-                  decoration: BoxDecoration(
-                    color: kErrorColor.withValues(alpha: 0.12),
-                    borderRadius: BorderRadius.circular(24),
-                  ),
-                  child: const Icon(Icons.error_outline, size: 40, color: kErrorColor),
-                ),
-                const SizedBox(height: 24),
-                const Text(
-                  'Emergencia',
-                  style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: kTextColor),
-                ),
-                const SizedBox(height: 16),
-                Text(
-                  'Si hay riesgo para la vida, llama a los servicios de emergencia:',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(fontSize: 15, color: Colors.grey.shade600),
-                ),
-                const SizedBox(height: 32),
-                _emergencyButton('116', 'Bomberos', Icons.local_fire_department),
-                const SizedBox(height: 14),
-                _emergencyButton('105', 'Policía', Icons.local_police),
-                const SizedBox(height: 14),
-                _emergencyButton('106', 'Ambulancia / SAMU', Icons.medical_services),
-                const SizedBox(height: 32),
-                Text(
-                  'Esta app conecta vecinos; no reemplaza a los servicios de emergencia.',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(fontSize: 13, color: Colors.grey.shade500),
-                ),
-                const SizedBox(height: 28),
-                ProtoButton(
-                  text: 'Volver al muro',
-                  icon: Icons.arrow_back,
-                  onPressed: () => context.go('/mapa'),
-                  fullWidth: true,
-                ),
-                const SizedBox(height: 20),
-              ],
+        child: ListView(
+          padding: const EdgeInsets.all(24),
+          children: [
+            const Icon(Icons.error_outline, size: 64, color: kErrorColor),
+            const SizedBox(height: 24),
+            Text(
+              l10n.protoEmergencyHeading,
+              textAlign: TextAlign.center,
+              style: Theme.of(context).textTheme.headlineLarge,
             ),
-          ),
+            const SizedBox(height: 16),
+            Text(l10n.protoEmergencyHint, textAlign: TextAlign.center),
+            const SizedBox(height: 28),
+            // Calls remain placeholders in this UI prototype.
+            ProtoButton(
+              text: l10n.protoFirefighters,
+              icon: Icons.local_fire_department,
+              onPressed: () {},
+              fullWidth: true,
+              secondary: true,
+            ),
+            const SizedBox(height: 14),
+            ProtoButton(
+              text: l10n.protoPolice,
+              icon: Icons.local_police,
+              onPressed: () {},
+              fullWidth: true,
+              secondary: true,
+            ),
+            const SizedBox(height: 14),
+            ProtoButton(
+              text: l10n.protoAmbulance,
+              icon: Icons.medical_services,
+              onPressed: () {},
+              fullWidth: true,
+              secondary: true,
+            ),
+            const SizedBox(height: 28),
+            Text(l10n.connectsNeighbors, textAlign: TextAlign.center),
+            const SizedBox(height: 28),
+            ProtoButton(
+              text: l10n.postDetailBack,
+              icon: Icons.arrow_back,
+              onPressed: () => context.go(ProtoRoutes.home(ProtoHomeTab.wall)),
+              fullWidth: true,
+            ),
+          ],
         ),
       ),
-    );
-  }
-
-  Widget _emergencyButton(String number, String label, IconData icon) {
-    return ProtoButton(
-      text: '$number · $label',
-      icon: icon,
-      onPressed: () {},
-      fullWidth: true,
-      secondary: true,
     );
   }
 }
