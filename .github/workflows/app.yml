@@ -21,7 +21,7 @@ env:
 jobs:
   verificar:
     name: Análisis, pruebas, formato y APK
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     defaults:
       run:
         working-directory: app
@@ -81,5 +81,6 @@ jobs:
           cache: true
       - name: Generar carpetas de plataforma si aún no están en el repo
         run: '[ -d ios ] || flutter create --platforms=android,ios --org pe.shabatshalom --project-name vecinal .'
-      - run: flutter pub get
+      - name: Verificar app y referencias visuales de macOS
+        run: bash tool/verify.sh
       - run: flutter build ios --debug --no-codesign

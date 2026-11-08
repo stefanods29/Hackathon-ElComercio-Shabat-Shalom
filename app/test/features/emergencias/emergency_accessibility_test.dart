@@ -95,8 +95,7 @@ class _Repository implements EmergencyRepository {
   Future<void> reportResource(ResourceReportDraft draft) async {}
 }
 
-/// The default text of `flutter test` is drawn the same on macOS and Linux, but antialiasing may
-/// differ by a few pixels between the two: up to 1 % passes.
+/// Compare against references drawn on the same operating system, allowing up to 1 %.
 class _TolerantComparator extends LocalFileComparator {
   _TolerantComparator(super.testFile);
 
@@ -111,11 +110,10 @@ class _TolerantComparator extends LocalFileComparator {
   }
 }
 
-/// The references were drawn on macOS. On Linux the antialiasing of the test font changes more
-/// than the tolerance, so the CI checks everything else and skips only the image comparison.
-final _goldenSkip = Platform.isMacOS
+/// Each supported operating system has its own references because font antialiasing differs.
+final _goldenSkip = Platform.isMacOS || Platform.isLinux
     ? null
-    : 'Referencias generadas en macOS; el suavizado de Linux difiere';
+    : 'No hay referencias visuales para ${Platform.operatingSystem}; solo macOS y Linux';
 
 final _screens = <String, Widget Function()>{
   'tablero': () => const EmergencyDashboardPage(),
@@ -209,13 +207,15 @@ void main() {
         expect(scaler.scale(10), greaterThan(10));
       });
 
-      testWidgets('se ve igual que su referencia con texto al 200 %', (tester) async {
-        await _show(tester, screen(), textScale: 2);
-        await expectLater(
-          find.byType(MaterialApp),
-          matchesGoldenFile('goldens/emergencia_${name}_200.png'),
-        );
-      }, skip: _goldenSkip != null);
+      group('referencia visual', () {
+        testWidgets('se ve igual que su referencia con texto al 200 %', (tester) async {
+          await _show(tester, screen(), textScale: 2);
+          await expectLater(
+            find.byType(MaterialApp),
+            matchesGoldenFile('goldens/${Platform.operatingSystem}/emergencia_${name}_200.png'),
+          );
+        });
+      }, skip: _goldenSkip);
     });
   }
 
