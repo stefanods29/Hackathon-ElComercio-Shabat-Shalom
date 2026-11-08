@@ -58,9 +58,14 @@ registran en el [reporte de la entrega](reporte-telefonos-android.md).
 | Versión de TalkBack/VoiceOver | `17.1.0.1003738110`, consultada en el dispositivo | No probado |
 | Teclado y dictado del sistema | Pendiente | No probado |
 | Tamaño de fuente y contraste del sistema | Consulta inicial: `font_scale=1.1` (110 %); `high_text_contrast_enabled` sin valor definido. No se atribuye al teléfono el 200 % de los widgets | No configurado |
-| Modo sencillo, tema y sesión usados | Pendiente | No ejecutado |
+| Modo sencillo, tema y sesión usados | Práctica confirmada por el usuario; modo sencillo y tema de la ejecución pendientes | No ejecutado |
 | Fecha y commit instalado | 8 de noviembre de 2026; base `4fb7761` más entrada de práctica de esta rama. APK de práctica instalado y actividad abierta por ADB; integridad en el reporte | No instalado |
-| Observación física recibida | El ingreso normal no puede enviar el código sin API local; pendiente del recorrido de práctica con el lector | Ninguna |
+| Observación física recibida | El usuario confirma la franja «Modo práctica», el acceso con «Estoy en emergencia» y la identificación de «Volver al inicio normal»; pendiente del recorrido con lector | Ninguna |
+
+La confirmación de arranque y navegación corresponde a la variante de práctica del commit
+`5f4ec140097e2cc4093c6eaea3d83578747cbba7`, el 8 de noviembre de 2026. No se confirmó que TalkBack
+estuviera activo ni se comunicaron anuncios del lector; por ello los pasos D-01 a D-11 conservan
+su estado pendiente. Se mantuvo la navegación existente al identificarse el control de salida.
 
 | Paso | Esperado | Observado en Android | Resultado |
 |---|---|---|---|

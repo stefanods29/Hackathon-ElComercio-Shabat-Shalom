@@ -61,7 +61,7 @@ dispositivo, versión, condiciones y resultado. El CI de esta rama queda pendien
 Preparación del 8 de noviembre de 2026, America/Lima, en
 `f2-lote-a/parte-3-y-d-4-telefonos`, desde `origin/main` en `4fb7761`.
 Responsable de ejecutar y comunicar las observaciones: `JDiazD33`.
-El código de la app permanece en esa base; no se modificó el código nativo.
+El código del caso operativo permanece en esa base; no se modificó el código nativo.
 
 **Alcance acordado: Android por ahora. iPhone no se ejecutó por no disponer de una Mac con Xcode
 ni de las herramientas de firma de iOS.** La tarea A 3.2 permanece abierta, pues exige ambos sistemas.

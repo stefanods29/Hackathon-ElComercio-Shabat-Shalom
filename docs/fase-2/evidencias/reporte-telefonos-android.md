@@ -1,10 +1,11 @@
-# Reporte de preparación Android · pantallas protegidas y lector
+# Reporte de trabajo y comprobaciones Android
 
 Fecha: 8 de noviembre de 2026, America/Lima.
 Responsable de ejecutar las pruebas en teléfono y comunicar sus observaciones: `JDiazD33`.
 Rama de entrega: `f2-lote-a/parte-3-y-d-4-telefonos`.
 Base de la app: `4fb7761a52d2762911dbfb02ea5b7c9e25781d26`, de `origin/main` actualizado.
 Esta rama agrega una entrada de depuración para práctica y su prueba, además de documentación.
+Versión de código de la variante instalada: `5f4ec140097e2cc4093c6eaea3d83578747cbba7`.
 
 ## Alcance y resultado
 
@@ -26,6 +27,20 @@ API local disponible ni configuración `backend/.env` en este checkout. Para rec
 real, se preparó una entrada aislada que inicia la práctica existente sin teléfono ni OTP.
 Los recorridos de TalkBack y las capturas del contenido protegido todavía requieren observación
 y resultado por paso. No se tomaron capturas ni grabaciones de evidencia.
+
+## Observaciones confirmadas en el teléfono
+
+El usuario confirmó en el chat el 8 de noviembre de 2026:
+
+| Comprobación | Observación comunicada | Resultado |
+|---|---|---|
+| Arranque de práctica | Ve la franja «Modo práctica» y entra sin número ni código | Confirmado por el usuario |
+| Acceso al tablero | Puede activar «Estoy en emergencia» y entrar al modo emergencia | Confirmado por el usuario |
+| Control para salir | Identificó el botón existente «Volver al inicio normal» | Control identificado; no se solicitó un cambio de navegación |
+
+Estas observaciones confirman el acceso y la identificación del control de salida. No se comunicó
+un recorrido con TalkBack, fuente al 200 % o contraste del sistema, ni el resultado de una captura
+protegida. No se presentan como evidencia suficiente para cerrar A 3.2 o D 4.5.
 
 ## Trabajo realizado
 
@@ -83,8 +98,9 @@ Se conserva en `app/build/app/outputs/flutter-apk/app-standard-debug.apk`.
 El APK de práctica se generó el 8 de noviembre a las 11:49 (America/Lima): 246 106 132 bytes,
 SHA-256 `f62e49d1e4c29877eb57018867f1fc2789f6e36cf3e19e709edf9b06eba21935`.
 Se conserva en `app/build/app/outputs/flutter-apk/app-practice-debug.apk`. ADB confirmó `Success`
-al instalarlo y `am start` abrió la actividad de la app. Falta registrar la observación del usuario
-sobre el arranque visible y los recorridos con TalkBack; no se deduce de esos comandos.
+al instalarlo y `am start` abrió la actividad de la app. El usuario confirmó después el arranque
+visible en práctica y el acceso al tablero, como se registra arriba. Los recorridos con TalkBack
+siguen pendientes y no se deducen de los comandos de instalación.
 
 La consulta inicial del teléfono devolvió escala de fuente `1.1` (110 %) y ningún valor definido
 para `high_text_contrast_enabled`. No se modificaron esos ajustes por ADB ni se da por probado
@@ -116,7 +132,9 @@ locales de compilación no se incluyen en Git.
 | D 4.5 | Abierta | Faltan el recorrido con TalkBack, el contraste y texto grande reales, el dictado y el anuncio de estados. VoiceOver pendiente por falta de Mac/Xcode/firma |
 
 No se marcó ninguna tarea nueva `[x]`. Los veinte resultados paso a paso están en las dos secciones
-«Teléfonos reales»; todos están pendientes de la ejecución física. Las demás tareas conservan su estado.
+«Teléfonos reales»; siguen pendientes de los ensayos de protección y accesibilidad especificados.
+Las confirmaciones de arranque y acceso se registraron aparte porque no prueban esos criterios.
+Las demás tareas conservan su estado.
 
 Para continuar, abrir la variante de práctica, seguir la [guía](telefonos-android.md) y devolver
 configuración del lector y del sistema, fecha, commit y lo observado para cada ID.
