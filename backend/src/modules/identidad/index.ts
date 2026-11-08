@@ -4,3 +4,8 @@
  */
 export { IdentityModule } from './identity.module.js';
 export type { RegisteredUser } from './application/ports.js';
+export {
+  REVIEWER_READER,
+  type ReviewerContext,
+  type ReviewerReader,
+} from './application/reviewer-reader.js';

@@ -1,3 +1,5 @@
+import { REVIEWER_READER } from './application/reviewer-reader.js';
+import { KyselyReviewerReader } from './infrastructure/reviewer.reader.kysely.js';
 import { Module } from '@nestjs/common';
 import { APP_CONFIG, type AppConfig } from '../../shared/config/app-config.js';
 import { AuthController } from './api/auth.controller.js';
@@ -38,6 +40,7 @@ import { KyselyZoneRepository } from './infrastructure/zone.repository.kysely.js
   controllers: [AuthController, SessionsController, SessionManagementController, ZonesController],
   providers: [
     IssueCredentials,
+    { provide: REVIEWER_READER, useClass: KyselyReviewerReader },
     CreateSession,
     RefreshSession,
     LogOut,
@@ -70,5 +73,6 @@ import { KyselyZoneRepository } from './infrastructure/zone.repository.kysely.js
           : new DisabledPhoneTokenVerifier(),
     },
   ],
+  exports: [REVIEWER_READER],
 })
 export class IdentityModule {}

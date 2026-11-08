@@ -1,3 +1,9 @@
+import { ReputationAggregatesHandler } from './application/reputation-aggregates-handler.js';
+import {
+  DIRECTORY_RANKING_STORE,
+  DIRECTORY_SERVICE_READER,
+} from './application/reputation-ports.js';
+import { KyselyDirectoryReputationStore } from './infrastructure/reputation.store.kysely.js';
 import { Module } from '@nestjs/common';
 import { DirectoryController } from './api/directory.controller.js';
 import { FindServices } from './application/find-services.js';
@@ -23,7 +29,11 @@ import { KyselyDirectoryRepository } from './infrastructure/directory.repository
     FindServices,
     { provide: SERVICE_SEARCH_READER, useClass: KyselyServiceSearchReader },
     ZoneChangedHandler,
+    ReputationAggregatesHandler,
+    { provide: DIRECTORY_RANKING_STORE, useClass: KyselyDirectoryReputationStore },
+    { provide: DIRECTORY_SERVICE_READER, useExisting: DIRECTORY_RANKING_STORE },
     { provide: DIRECTORY_REPOSITORY, useClass: KyselyDirectoryRepository },
   ],
+  exports: [DIRECTORY_SERVICE_READER],
 })
 export class DirectoryModule {}
