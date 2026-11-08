@@ -69,10 +69,11 @@ class EmergencyPage extends ConsumerWidget {
                                     } catch (_) {
                                       /* Explain on this screen. */
                                     }
-                                    if (!opened && context.mounted)
+                                    if (!opened && context.mounted) {
                                       ScaffoldMessenger.of(
                                         context,
                                       ).showSnackBar(SnackBar(content: Text(t.callFailed)));
+                                    }
                                   },
                                 ),
                               if (entry.location != null)

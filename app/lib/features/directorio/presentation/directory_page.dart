@@ -22,8 +22,9 @@ final directoryOriginProvider = Provider<GeoPoint>((ref) {
 final providerServicesProvider = StreamProvider.family<List<Service>, String>((ref, id) {
   // Keep the same fail-closed practice boundary as A1's providers.
   if (ref.watch(syncedServiceDirectoryRepositoryProvider) != null &&
-      !ref.watch(practiceModeProvider).hasValue)
+      !ref.watch(practiceModeProvider).hasValue) {
     return const Stream.empty();
+  }
   return ref.watch(serviceDirectoryRepositoryProvider).watchProviderServices(id);
 });
 

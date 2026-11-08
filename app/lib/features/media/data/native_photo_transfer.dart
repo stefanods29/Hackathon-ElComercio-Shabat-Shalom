@@ -64,8 +64,7 @@ class NativePhotoTransfer implements PhotoTransfer {
   ) async {
     final generation = _cancellations[photo.ownerId] ?? 0;
     bool active() =>
-        currentOwner() == photo.ownerId &&
-        (_cancellations[photo.ownerId] ?? 0) == generation;
+        currentOwner() == photo.ownerId && (_cancellations[photo.ownerId] ?? 0) == generation;
     final url = permission.url;
     final localHttp =
         url.scheme == 'http' && ['10.0.2.2', '127.0.0.1', 'localhost'].contains(url.host);

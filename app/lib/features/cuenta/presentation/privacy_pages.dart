@@ -108,7 +108,7 @@ class _ConsentPageState extends ConsumerState<ConsentPage> {
                           context.pop();
                         }
                       } on PrivacyFailure catch (error) {
-                        if (mounted)
+                        if (mounted) {
                           setState(() {
                             _error = switch (error.code) {
                               'required_consent' => t.consentRequired,
@@ -120,6 +120,7 @@ class _ConsentPageState extends ConsumerState<ConsentPage> {
                               _presence = false;
                             }
                           });
+                        }
                       } catch (_) {
                         if (mounted) setState(() => _error = t.actionFailed);
                       } finally {
@@ -251,7 +252,7 @@ class _MyDataPageState extends ConsumerState<MyDataPage> {
       await ref.read(privacyRepositoryProvider).updateDisplayName(_name.text);
       if (mounted) setState(() => _message = t.nameSaved);
     } on PrivacyFailure catch (error) {
-      if (mounted)
+      if (mounted) {
         setState(() {
           if (error.field == 'displayName' || error.code == 'invalid_name') {
             _nameError = t.invalidProviderName;
@@ -259,6 +260,7 @@ class _MyDataPageState extends ConsumerState<MyDataPage> {
             _message = t.privacyUnavailable;
           }
         });
+      }
     } catch (_) {
       if (mounted) setState(() => _message = t.actionFailed);
     } finally {
@@ -422,8 +424,9 @@ class _ChangeZonePageState extends ConsumerState<ChangeZonePage> {
               FutureBuilder(
                 future: ref.watch(accountZonesProvider.future),
                 builder: (context, snapshot) {
-                  if (!snapshot.hasData)
+                  if (!snapshot.hasData) {
                     return Text(snapshot.hasError ? t.actionFailed : t.chooseZoneSubtitle);
+                  }
                   return Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [

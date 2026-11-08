@@ -135,6 +135,7 @@ class InMemoryAuthRepository implements AuthRepository, AccountLifecycle {
         neighborId: state.user.neighborId,
         displayName: state.user.displayName,
         zoneId: zoneId,
+        trustLevel: state.user.trustLevel,
       ),
     );
     _controller.add(_state);
@@ -150,27 +151,5 @@ class InMemoryAuthRepository implements AuthRepository, AccountLifecycle {
 
   void close() {
     _controller.close();
-  }
-
-  @override
-  Future<void> deleteAccount() async {
-    _state = const SignedOut();
-    _controller.add(_state);
-  }
-
-  @override
-  Future<void> changeZone(String zoneId) async {
-    _zones.firstWhere((zone) => zone.id == zoneId);
-    final current = _state;
-    if (current is! SignedIn) throw const AccountCapabilityUnavailable();
-    _state = SignedIn(
-      LocalUser(
-        neighborId: current.user.neighborId,
-        displayName: current.user.displayName,
-        zoneId: zoneId,
-        trustLevel: current.user.trustLevel,
-      ),
-    );
-    _controller.add(_state);
   }
 }

@@ -16,6 +16,8 @@ import { reportServerFailure } from '../observability/telemetry.js';
 /** Every error response goes out as `application/problem+json` (RFC 9457). */
 @Catch()
 export class ProblemDetailsFilter implements ExceptionFilter {
+  private readonly logger = new Logger('Errors');
+
   catch(error: unknown, host: ArgumentsHost): void {
     const http = host.switchToHttp();
     const response = http.getResponse<Response>();

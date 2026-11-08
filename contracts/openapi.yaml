@@ -695,6 +695,10 @@ paths:
           application/json:
             schema: { $ref: '#/components/schemas/MetricasDeSincronizacion' }
       responses:
+        '200':
+          description: Repetición con la misma clave; devuelve el cuerpo guardado.
+          headers:
+            Idempotent-Replayed: { $ref: '#/components/headers/IdempotentReplayed' }
         '202':
           description: Contadores guardados sin datos del vecino ni de su celular.
           content:
@@ -888,7 +892,7 @@ paths:
       parameters:
         - $ref: '#/components/parameters/IdempotencyKey'
       responses:
-        '204': { description: Servicio retirado, incluso si ya lo estaba. }
+        '204': { description: 'Servicio retirado, incluso si ya lo estaba.' }
         '200':
           description: Reintento con la misma clave de un retiro ya procesado.
           headers:
@@ -1945,7 +1949,7 @@ components:
         tipoContenido: { $ref: '#/components/schemas/TipoDeContenidoModerado' }
         contenidoId: { type: string, format: uuid }
         estado: { $ref: '#/components/schemas/EstadoDeCaso' }
-        motivo: { type: string, description: Código del motivo en la cola, sin texto libre ni datos de contacto. }
+        motivo: { type: string, description: 'Código del motivo en la cola, sin texto libre ni datos de contacto.' }
         ultimaAccion:
           anyOf:
             - $ref: '#/components/schemas/AccionDeModeracion'

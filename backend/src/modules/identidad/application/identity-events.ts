@@ -16,7 +16,7 @@ export function zoneChanged(
     type: ZONE_CHANGED_EVENT,
     aggregateId: userId,
     occurredAt: now,
-    payload: { zonaAnteriorId: previousZoneId, zonaId },
+    payload: { zonaAnteriorId: previousZoneId, zonaId: zoneId },
   };
 }
 

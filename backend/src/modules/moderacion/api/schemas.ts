@@ -24,7 +24,7 @@ export const decisionSchema = z.strictObject({
 export const queueSchema = z.strictObject({
   estado: z.enum(CASE_STATES).default('pendiente'),
   cursor: z.string().min(1).max(256).optional(),
-  limite: z.string().trim().min(1).pipe(z.coerce.number().int().min(1).max(50)).default(20),
+  limite: z.coerce.number().int().min(1).max(50).default(20),
 });
 export const metricsSchema = z.strictObject({
   desde: z.iso.datetime({ offset: true }).optional(),

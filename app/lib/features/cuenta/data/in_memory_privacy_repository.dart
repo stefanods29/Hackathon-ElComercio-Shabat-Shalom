@@ -34,8 +34,11 @@ class InMemoryPrivacyRepository implements PrivacyRepository {
     required Map<DataPurpose, String> textVersions,
   }) async {
     if (consents[DataPurpose.service] != true) throw const PrivacyFailure('required_consent');
-    if (DataPurpose.values.any((purpose) => textVersions[purpose] != consentTextVersions[purpose]))
+    if (DataPurpose.values.any(
+      (purpose) => textVersions[purpose] != consentTextVersions[purpose],
+    )) {
       throw const PrivacyFailure('version_de_consentimiento_desactualizada');
+    }
     _data = PrivacyData(
       displayName: _data.displayName,
       values: _data.values,
@@ -49,8 +52,9 @@ class InMemoryPrivacyRepository implements PrivacyRepository {
   @override
   Future<void> updateDisplayName(String name) async {
     final trimmed = name.trim();
-    if (trimmed.length < 2 || trimmed.length > 60)
+    if (trimmed.length < 2 || trimmed.length > 60) {
       throw const PrivacyFailure('invalid_name', field: 'displayName');
+    }
     _data = PrivacyData(
       displayName: trimmed,
       values: _data.values,

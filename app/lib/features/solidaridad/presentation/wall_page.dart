@@ -105,8 +105,9 @@ class WallPage extends ConsumerWidget {
                 );
                 if (confirmed == true &&
                     context.mounted &&
-                    ref.read(practiceModeProvider).value == false)
+                    ref.read(practiceModeProvider).value == false) {
                   signOut();
+                }
               },
             ),
           IconButton(

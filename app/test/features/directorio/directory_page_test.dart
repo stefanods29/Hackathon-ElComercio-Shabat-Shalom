@@ -3,11 +3,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:vecinal/core/di/providers.dart';
 import 'package:vecinal/core/sync/sync_service.dart';
+import 'package:vecinal/core/theme/accessible_theme.dart';
 import 'package:vecinal/features/directorio/data/in_memory_service_directory_repository.dart';
 import 'package:vecinal/features/directorio/data/providers.dart';
 import 'package:vecinal/features/directorio/presentation/directory_page.dart';
 import 'package:vecinal/l10n/app_localizations.dart';
-import 'package:vecinal/core/theme/accessible_theme.dart';
 
 void main() {
   testWidgets('busca sin tildes, tolera un error y filtra útiles en emergencia', (tester) async {
@@ -37,7 +37,7 @@ void main() {
 
   testWidgets('vacío sin señal explica descargar una vez', (tester) async {
     final directory = InMemoryServiceDirectoryRepository(currentNeighborId: 'me', zoneId: 'zone');
-    final sync = FakeSyncService(const SyncStatus(connected: false));
+    final sync = FakeSyncService(SyncStatus.initial);
     addTearDown(directory.close);
     addTearDown(sync.close);
     await tester.pumpWidget(

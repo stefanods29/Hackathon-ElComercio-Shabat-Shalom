@@ -9,6 +9,10 @@ import {
   down as dropCases,
 } from '../../src/modules/moderacion/infrastructure/migrations/202611080220_moderacion_casos.js';
 import {
+  up as createReports,
+  down as dropReports,
+} from '../../src/modules/moderacion/infrastructure/migrations/202611080400_moderacion_denuncias_decisiones_y_sanciones.js';
+import {
   up as createReputation,
   down as dropReputation,
 } from '../../src/modules/reputacion/infrastructure/migrations/202611080200_reputacion_base.js';
@@ -62,6 +66,8 @@ describe('Migraciones de reputación y antifraude', () => {
             transaction,
           );
         const before = await serviceCount();
+        // Reports, decisions and sanctions (part 5) reference the cases: they go first.
+        await dropReports(transaction);
         await dropCases(transaction);
         await dropRankingControl(transaction);
         await dropReputation(transaction);
@@ -74,6 +80,7 @@ describe('Migraciones de reputación y antifraude', () => {
         await createReputation(transaction);
         await createRankingControl(transaction);
         await createCases(transaction);
+        await createReports(transaction);
         for (const table of [...PUBLIC_TABLES, ...PRIVATE_TABLES]) {
           const present = await sql<{
             name: string;

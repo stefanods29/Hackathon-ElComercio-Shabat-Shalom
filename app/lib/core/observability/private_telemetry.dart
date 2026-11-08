@@ -32,7 +32,14 @@ Future<void> reportAppFailure(Object error) async {
   try {
     await Sentry.captureEvent(
       privateAppEvent(
-        SentryEvent(exceptions: [SentryException(type: error.runtimeType.toString())]),
+        SentryEvent(
+          exceptions: [
+            SentryException(
+              type: error.runtimeType.toString(),
+              value: 'Detalle omitido por privacidad',
+            ),
+          ],
+        ),
       ),
     );
   } catch (_) {

@@ -39,8 +39,9 @@ final routerProvider = Provider<GoRouter>((ref) {
       // Institutional phones and verified public points never require a session.
       if (current == Routes.emergency ||
           current == Routes.emergencyMap ||
-          current == Routes.consent)
+          current == Routes.consent) {
         return null;
+      }
       final isSignIn = current == Routes.signIn;
       final isSignInCode = current == Routes.signInCode;
       final isChooseZone = current == Routes.chooseZone;

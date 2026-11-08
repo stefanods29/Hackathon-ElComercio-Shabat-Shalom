@@ -22,8 +22,9 @@ final privacyRepositoryProvider = Provider<PrivacyRepository>((ref) {
   if (practice.value == true) return ref.watch(practicePrivacyRepositoryProvider);
   final real = ref.watch(syncedPrivacyRepositoryProvider);
   if (real != null) return real;
-  if (ref.watch(authRepositoryProvider) is InMemoryAuthRepository)
+  if (ref.watch(authRepositoryProvider) is InMemoryAuthRepository) {
     return ref.watch(practicePrivacyRepositoryProvider);
+  }
   return const UnavailablePrivacyRepository();
 });
 final privacyDataProvider = StreamProvider<PrivacyData>(

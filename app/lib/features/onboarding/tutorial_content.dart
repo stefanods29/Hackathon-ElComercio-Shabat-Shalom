@@ -14,8 +14,9 @@ class TutorialContent {
   const TutorialContent(this.steps);
   final List<TutorialStep> steps;
   factory TutorialContent.parse(Object? json) {
-    if (json is! Map || json['version'] != 1 || json['steps'] is! List)
+    if (json is! Map || json['version'] != 1 || json['steps'] is! List) {
       throw const FormatException('Invalid tutorial');
+    }
     final values = json['steps'] as List;
     final destinations = <TutorialDestination>{};
     final steps = values
@@ -24,19 +25,23 @@ class TutorialContent {
           final destination = TutorialDestination.values
               .where((d) => d.name == value['destination'])
               .firstOrNull;
-          if (destination == null || !destinations.add(destination))
+          if (destination == null || !destinations.add(destination)) {
             throw const FormatException('Invalid tutorial destination');
+          }
           final title = value['title'];
           final body = value['body'];
-          if (title != null && (title is! String || title.trim().isEmpty || title.length > 160))
+          if (title != null && (title is! String || title.trim().isEmpty || title.length > 160)) {
             throw const FormatException('Invalid tutorial title');
-          if (body != null && (body is! String || body.trim().isEmpty || body.length > 2000))
+          }
+          if (body != null && (body is! String || body.trim().isEmpty || body.length > 2000)) {
             throw const FormatException('Invalid tutorial text');
+          }
           return TutorialStep(destination, title: title as String?, body: body as String?);
         })
         .toList(growable: false);
-    if (!TutorialDestination.values.every(destinations.contains))
+    if (!TutorialDestination.values.every(destinations.contains)) {
       throw const FormatException('Incomplete pilot tutorial');
+    }
     return TutorialContent(steps);
   }
 }

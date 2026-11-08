@@ -33,6 +33,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.13.1"
+  background_downloader:
+    dependency: "direct main"
+    description:
+      name: background_downloader
+      sha256: "7c5c1d65a9778282229bfc90f41536074bd4921c775608b260a5b6bf129513e3"
+      url: "https://pub.dev"
+    source: hosted
+    version: "9.6.6"
   boolean_selector:
     dependency: transitive
     description:
@@ -113,6 +121,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "3.0.8"
+  cryptography:
+    dependency: "direct main"
+    description:
+      name: cryptography
+      sha256: "3eda3029d34ec9095a27a198ac9785630fe525c0eb6a49f3d575272f8e792ef0"
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.9.0"
   cupertino_ui:
     dependency: transitive
     description:
@@ -294,11 +310,67 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
+  flutter_blurhash:
+    dependency: "direct main"
+    description:
+      name: flutter_blurhash
+      sha256: e97b9aff13b9930bbaa74d0d899fec76e3f320aba3190322dcc5d32104e3d25d
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.9.1"
   flutter_driver:
     dependency: transitive
     description: flutter
     source: sdk
     version: "0.0.0"
+  flutter_image_compress:
+    dependency: "direct main"
+    description:
+      name: flutter_image_compress
+      sha256: "98a48c05a7add6869c6838270e862124a4d571f9dd5d0cf209ed03a71b20ea84"
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.5.1"
+  flutter_image_compress_common:
+    dependency: transitive
+    description:
+      name: flutter_image_compress_common
+      sha256: "76869e4d5f3d65f3431e7edff0b2d8ad1eea68b49c6a37772fdb1ae6016da9ed"
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.1.1"
+  flutter_image_compress_macos:
+    dependency: transitive
+    description:
+      name: flutter_image_compress_macos
+      sha256: "0d2a842d2e544828fb32bda16dcfccb3149107df568898a4936d78232e486847"
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.1.0"
+  flutter_image_compress_ohos:
+    dependency: transitive
+    description:
+      name: flutter_image_compress_ohos
+      sha256: "1491bb7bcfdf59e3b127c263c116cfbf8ed3afade6e7fa691d9622e838ed7e48"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.0.3+1"
+  flutter_image_compress_platform_interface:
+    dependency: transitive
+    description:
+      name: flutter_image_compress_platform_interface
+      sha256: bbefb7967bda565004fdabdb3300dcbfb40c7ef8402675d23206e5bddc358178
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.1.0"
+  flutter_image_compress_web:
+    dependency: transitive
+    description:
+      name: flutter_image_compress_web
+      sha256: "91cc58e091a1e09c7683d216d579e2b964119a8527fc43b64dfdb00f1acc94ec"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.1.5+1"
   flutter_lints:
     dependency: "direct dev"
     description:
@@ -844,6 +916,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "3.5.0"
+  sentry:
+    dependency: "direct main"
+    description:
+      name: sentry
+      sha256: de233eb7a4d30e8fc18dafffde344b1846f92ffd079f454c56872e064145e396
+      url: "https://pub.dev"
+    source: hosted
+    version: "10.3.0"
   share_plus:
     dependency: "direct main"
     description:

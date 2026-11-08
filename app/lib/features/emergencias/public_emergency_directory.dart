@@ -88,25 +88,30 @@ class PublicEmergencyDirectory {
             throw const FormatException('Invalid emergency entry');
           }
           final id = _text(value['id'], 2, 60);
-          if (!RegExp(r'^[a-z0-9-]{2,60}$').hasMatch(id) || !ids.add(id))
+          if (!RegExp(r'^[a-z0-9-]{2,60}$').hasMatch(id) || !ids.add(id)) {
             throw const FormatException('Invalid entry id');
+          }
           final label = _text(value['nombre'], 2, 120);
           final source = value['fuente'];
-          if (source is! Map || source.keys.any((key) => !const ['nombre', 'url'].contains(key)))
+          if (source is! Map || source.keys.any((key) => !const ['nombre', 'url'].contains(key))) {
             throw const FormatException('Invalid source');
+          }
           final sourceName = _text(source['nombre'], 2, 120);
           final sourceUrl = source['url'] == null
               ? null
               : Uri.tryParse(_text(source['url'], 1, 2048));
           if (source['url'] != null &&
-              (sourceUrl == null || sourceUrl.scheme != 'https' || sourceUrl.host.isEmpty))
+              (sourceUrl == null || sourceUrl.scheme != 'https' || sourceUrl.host.isEmpty)) {
             throw const FormatException('Invalid source URL');
+          }
           final rawDate = value['verificadoEn'];
-          if (rawDate is! String || !RegExp(r'^\d{4}-\d{2}-\d{2}$').hasMatch(rawDate))
+          if (rawDate is! String || !RegExp(r'^\d{4}-\d{2}-\d{2}$').hasMatch(rawDate)) {
             throw const FormatException('Invalid verification date');
+          }
           final date = DateTime.tryParse(rawDate);
-          if (date == null || date.toIso8601String().substring(0, 10) != rawDate)
+          if (date == null || date.toIso8601String().substring(0, 10) != rawDate) {
             throw const FormatException('Invalid verification date');
+          }
           final kind = switch (value['tipo']) {
             'numero' => PublicEmergencyKind.phone,
             'punto_de_encuentro' => PublicEmergencyKind.meetingPoint,
@@ -115,13 +120,16 @@ class PublicEmergencyDirectory {
             _ => throw const FormatException('Unknown entry type'),
           };
           final number = value['telefono'] == null ? null : _text(value['telefono'], 3, 20);
-          if (number != null && !RegExp(r'^\+?[0-9][0-9 ]{1,18}[0-9]$').hasMatch(number))
+          if (number != null && !RegExp(r'^\+?[0-9][0-9 ]{1,18}[0-9]$').hasMatch(number)) {
             throw const FormatException('Invalid institutional phone');
+          }
           GeoPoint? point;
           if (value['ubicacion'] != null) {
             final location = value['ubicacion'];
-            if (location is! Map || location.keys.any((key) => !const ['lat', 'lng'].contains(key)))
+            if (location is! Map ||
+                location.keys.any((key) => !const ['lat', 'lng'].contains(key))) {
               throw const FormatException('Invalid location');
+            }
             final lat = location['lat'];
             final lng = location['lng'];
             if (lat is! num ||
@@ -131,13 +139,15 @@ class PublicEmergencyDirectory {
                 lat < -90 ||
                 lat > 90 ||
                 lng < -180 ||
-                lng > 180)
+                lng > 180) {
               throw const FormatException('Invalid public point');
+            }
             point = GeoPoint(lat.toDouble(), lng.toDouble()).approximate();
           }
           if (kind == PublicEmergencyKind.phone && number == null ||
-              kind != PublicEmergencyKind.phone && point == null)
+              kind != PublicEmergencyKind.phone && point == null) {
             throw const FormatException('Incomplete entry');
+          }
           return PublicEmergencyEntry(
             id: id,
             kind: kind,
@@ -161,43 +171,45 @@ class PublicEmergencyDirectory {
     );
   }
   static String _text(Object? value, int min, int max) {
-    if (value is! String || value.trim().length < min || value.length > max)
+    if (value is! String || value.trim().length < min || value.length > max) {
       throw const FormatException('Invalid public text');
+    }
     return value.trim();
   }
 }
 
 /// The screen reads the copy verified by Lot A (part 2): downloaded from the CDN with its hash,
 /// or the national backup bundled with the app. It opens without signal and without a session.
-PublicEmergencyDirectory publicDirectoryFrom(EmergencyDirectory directory) => PublicEmergencyDirectory(
-  entries: [
-    for (final entry in directory.entries)
-      PublicEmergencyEntry(
-        id: entry.id,
-        kind: switch (entry.type) {
-          EmergencyEntryType.number => PublicEmergencyKind.phone,
-          EmergencyEntryType.meetingPoint => PublicEmergencyKind.meetingPoint,
-          EmergencyEntryType.healthCenter => PublicEmergencyKind.healthCenter,
-          EmergencyEntryType.shelter => PublicEmergencyKind.shelter,
-        },
-        label: entry.name,
-        sourceName: entry.source.name,
-        sourceUrl: entry.source.url,
-        verifiedAt: entry.verifiedOn,
-        number: entry.phone,
-        location: switch (entry.location) {
-          final location? => GeoPoint(location.lat, location.lng),
-          null => null,
-        },
-        address: entry.address,
-        description: entry.description,
-      ),
-  ],
-  district: directory.district,
-  version: directory.version,
-  generatedAt: directory.generatedAt,
-  bundled: directory.origin == EmergencyDirectoryOrigin.backup,
-);
+PublicEmergencyDirectory publicDirectoryFrom(EmergencyDirectory directory) =>
+    PublicEmergencyDirectory(
+      entries: [
+        for (final entry in directory.entries)
+          PublicEmergencyEntry(
+            id: entry.id,
+            kind: switch (entry.type) {
+              EmergencyEntryType.number => PublicEmergencyKind.phone,
+              EmergencyEntryType.meetingPoint => PublicEmergencyKind.meetingPoint,
+              EmergencyEntryType.healthCenter => PublicEmergencyKind.healthCenter,
+              EmergencyEntryType.shelter => PublicEmergencyKind.shelter,
+            },
+            label: entry.name,
+            sourceName: entry.source.name,
+            sourceUrl: entry.source.url,
+            verifiedAt: entry.verifiedOn,
+            number: entry.phone,
+            location: switch (entry.location) {
+              final location? => GeoPoint(location.lat, location.lng),
+              null => null,
+            },
+            address: entry.address,
+            description: entry.description,
+          ),
+      ],
+      district: directory.district,
+      version: directory.version,
+      generatedAt: directory.generatedAt,
+      bundled: directory.origin == EmergencyDirectoryOrigin.backup,
+    );
 
 final publicEmergencyDirectoryProvider = StreamProvider<PublicEmergencyDirectory>(
   (ref) => ref.watch(emergencyDirectoryRepositoryProvider).watch().map(publicDirectoryFrom),

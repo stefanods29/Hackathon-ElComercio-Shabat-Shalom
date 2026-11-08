@@ -26,6 +26,8 @@ class FakeSource implements SyncTelemetrySource {
 
   @override
   Stream<void> connectionFailures() => failures.stream;
+
+  Future<void> close() => failures.close();
 }
 
 void main() {
@@ -79,7 +81,7 @@ void main() {
     );
   });
   tearDown(() async {
-    await source.failures.close();
+    await source.close();
     api.close(force: true);
   });
 

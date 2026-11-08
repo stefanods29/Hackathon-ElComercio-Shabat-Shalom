@@ -73,7 +73,7 @@ describe('Búsqueda de servicios con PostGIS y texto', () => {
 
   async function insert(owner: Fixture, data: FixtureService = {}): Promise<string> {
     const id = data.id ?? newId();
-    const point = sql`ST_Project(ST_SetSRID(ST_MakePoint(${ORIGIN.lng}, ${ORIGIN.lat}), 4326)::geography, ${data.offsetMeters ?? 0}, pi() / 2)`;
+    const point = sql`ST_Project(ST_SetSRID(ST_MakePoint(${ORIGIN.lng}, ${ORIGIN.lat}), 4326)::geography, ${data.offsetMeters ?? 0}::float8, pi() / 2)`;
     await sql`
       INSERT INTO directorio.servicios (
         id, proveedor_id, zona_id, categoria_id, titulo, descripcion, ubicacion,
@@ -177,9 +177,10 @@ describe('Búsqueda de servicios con PostGIS y texto', () => {
     const collected: string[] = [];
     let cursor: string | null = null;
     for (let page = 0; page < 3; page += 1) {
-      const response = await search(owner, { limite: 2, ...(cursor ? { cursor } : {}) }).expect(
-        200,
-      );
+      const response: request.Response = await search(owner, {
+        limite: 2,
+        ...(cursor ? { cursor } : {}),
+      }).expect(200);
       collected.push(...ids(response));
       cursor = response.body.siguienteCursor;
       if (cursor) {

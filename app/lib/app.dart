@@ -24,42 +24,42 @@ class VecinalApp extends ConsumerWidget {
       routerConfig: ref.watch(routerProvider),
       builder: (context, child) => PhotoRuntime(
         child: PushListener(
-        child: Column(
-          children: [
-            if (practice.value == true)
-              Material(
-                color: Theme.of(context).colorScheme.tertiaryContainer,
-                child: SafeArea(
-                  bottom: false,
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-                    child: Row(
-                      children: [
-                        Expanded(
-                          child: Text(
-                            AppLocalizations.of(context).practiceMode,
-                            style: TextStyle(
-                              color: Theme.of(context).colorScheme.onTertiaryContainer,
-                              fontWeight: FontWeight.bold,
+          child: Column(
+            children: [
+              if (practice.value == true)
+                Material(
+                  color: Theme.of(context).colorScheme.tertiaryContainer,
+                  child: SafeArea(
+                    bottom: false,
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: Text(
+                              AppLocalizations.of(context).practiceMode,
+                              style: TextStyle(
+                                color: Theme.of(context).colorScheme.onTertiaryContainer,
+                                fontWeight: FontWeight.bold,
+                              ),
                             ),
                           ),
-                        ),
-                        TextButton(
-                          onPressed: () async {
-                            await ref.read(practiceModeProvider.notifier).set(false);
-                            ref.read(routerProvider).go(Routes.home);
-                          },
-                          child: Text(AppLocalizations.of(context).exitPractice),
-                        ),
-                      ],
+                          TextButton(
+                            onPressed: () async {
+                              await ref.read(practiceModeProvider.notifier).set(false);
+                              ref.read(routerProvider).go(Routes.home);
+                            },
+                            child: Text(AppLocalizations.of(context).exitPractice),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 ),
-              ),
-            Expanded(child: child!),
-          ],
+              Expanded(child: child!),
+            ],
+          ),
         ),
-      ),
       ),
     );
   }

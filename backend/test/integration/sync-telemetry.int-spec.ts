@@ -76,7 +76,9 @@ describe('Telemetría de sincronización por HTTP y PostgreSQL', () => {
     const body = report();
     const first = await send(body, key).expect(202);
     expect(first.body).toEqual({ recibidoEl: expect.stringMatching(/^\d{4}-\d{2}-\d{2}$/) });
-    const retry = await send(body, key).expect(202);
+    // A replay answers 200 with the stored body, like every idempotent route.
+    const retry = await send(body, key).expect(200);
+    expect(retry.body).toEqual(first.body);
     expect(retry.headers['idempotent-replayed']).toBe('true');
     expect(await storedRows()).toBe(1);
 

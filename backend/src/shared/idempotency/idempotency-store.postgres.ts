@@ -137,7 +137,7 @@ export class PostgresIdempotencyStore implements IdempotencyStore {
     const ids = referencedIds(scope, body);
     const accounts = this.accounts;
     if (!accounts || !ids.length) return persist(this.db);
-    await new KyselyUnitOfWork(this.db).run(async (tx) => {
+    await new KyselyUnitOfWork(this.db as Kysely<unknown>).run(async (tx) => {
       const db = asKysely<SharedTables>(tx);
       const states = await accounts.lockStates(tx, ids);
       // Never recreate a copy after erasure, even if another actor obtained the response earlier.

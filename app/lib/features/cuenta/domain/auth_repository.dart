@@ -51,18 +51,8 @@ abstract interface class AccountLifecycle {
 }
 
 extension AuthAccountLifecycle on AuthRepository {
-  bool get supportsAccountLifecycle => this is AccountLifecycle;
-  Future<void> deleteAccount() {
-    final repository = this;
-    if (repository is AccountLifecycle) return repository.deleteAccount();
-    throw const AccountCapabilityUnavailable();
-  }
-
-  Future<void> changeZone(String zoneId) {
-    final repository = this;
-    if (repository is AccountLifecycle) return repository.changeZone(zoneId);
-    throw const AccountCapabilityUnavailable();
-  }
+  /// Every implementation has the lifecycle since Lot A (part 4) added it to the port.
+  bool get supportsAccountLifecycle => true;
 }
 
 class AccountCapabilityUnavailable implements Exception {
