@@ -33,7 +33,9 @@ tags:
   - name: operacion
     description: Métricas operativas reservadas a administradores.
   - name: notificaciones
-    description: Registro y baja de dispositivos para avisos personales.
+    description: Registro y baja de dispositivos para avisos personales y avisos urgentes.
+  - name: curaduria
+    description: Edición y publicación del directorio de emergencia desde la consola (Fase 2).
 security:
   - tokenDeAcceso: []
 
@@ -614,6 +616,142 @@ paths:
         '409': { $ref: '#/components/responses/Conflicto' }
         '422': { $ref: '#/components/responses/NoProcesable' }
 
+  /v1/avisos-urgentes:
+    get:
+      tags: [notificaciones]
+      operationId: listarAvisosUrgentesPendientes
+      summary: Listar los avisos urgentes propios que todavía no se confirmaron
+      description: |
+        Solo los del vecino autenticado, de las últimas 24 horas y como máximo 20. Nunca incluye
+        teléfonos ni datos del caso, solo su identificador. Responde con `Cache-Control: no-store`.
+      responses:
+        '200':
+          description: Avisos urgentes sin confirmar, del más reciente al más antiguo.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ListaDeAvisosUrgentes' }
+        '401': { $ref: '#/components/responses/NoAutenticado' }
+
+  /v1/avisos-urgentes/{id}/confirmar:
+    post:
+      tags: [notificaciones]
+      operationId: confirmarAvisoUrgente
+      summary: Confirmar que el destinatario vio su aviso urgente
+      description: |
+        Detiene el SMS de respaldo si todavía no se envió. Un aviso de otra persona responde igual
+        que uno inexistente (404). La app lo llama al abrir el aviso y la consola al verlo.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+        - $ref: '#/components/parameters/IdempotencyKey'
+      responses:
+        '200':
+          description: Aviso confirmado. Confirmarlo otra vez devuelve la misma hora.
+          headers:
+            Idempotent-Replayed: { $ref: '#/components/headers/IdempotentReplayed' }
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/AvisoUrgenteConfirmado' }
+        '400': { $ref: '#/components/responses/SolicitudInvalida' }
+        '401': { $ref: '#/components/responses/NoAutenticado' }
+        '404': { $ref: '#/components/responses/NoEncontrado' }
+
+  /v1/operacion/avisos-urgentes/resumen:
+    get:
+      tags: [operacion]
+      operationId: consultarResumenDeAvisosUrgentes
+      summary: Medir la entrega y el costo de los avisos urgentes
+      description: |
+        Exige el rol administrador o coordinador. Por defecto abarca los últimos siete días. No
+        devuelve teléfonos ni contenido. El gasto se expresa en centavos de dólar.
+      parameters:
+        - name: desde
+          in: query
+          schema: { type: string, format: date-time }
+          description: Inicio inclusivo; no puede estar en el futuro.
+      responses:
+        '200':
+          description: Totales por estado, latencia de confirmación, SMS enviados y gasto.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ResumenDeAvisosUrgentes' }
+        '400': { $ref: '#/components/responses/SolicitudInvalida' }
+        '401': { $ref: '#/components/responses/NoAutenticado' }
+        '403': { $ref: '#/components/responses/Prohibido' }
+
+  /v1/operacion/directorio-emergencia:
+    get:
+      tags: [curaduria]
+      operationId: listarDirectoriosDeEmergencia
+      summary: Listar los directorios de emergencia publicados
+      description: |
+        Exige el rol administrador o coordinador; se suma `curador` cuando exista (Fase 2, Lote B,
+        parte 5). Lee el índice publicado en la CDN (`emergencia/indice.json`).
+      responses:
+        '200':
+          description: Un elemento por archivo de distrito del índice.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ListaDeDirectoriosDeEmergencia' }
+        '401': { $ref: '#/components/responses/NoAutenticado' }
+        '403': { $ref: '#/components/responses/Prohibido' }
+        '503': { $ref: '#/components/responses/NoDisponible' }
+
+  /v1/operacion/directorio-emergencia/{archivo}:
+    parameters:
+      - name: archivo
+        in: path
+        required: true
+        schema: { type: string, pattern: '^[a-z0-9-]{2,60}\.json$' }
+        description: Nombre del archivo del distrito tal como figura en el índice.
+    get:
+      tags: [curaduria]
+      operationId: consultarDirectorioDeEmergencia
+      summary: Leer la versión publicada de un directorio de emergencia
+      responses:
+        '200':
+          description: Directorio publicado, con su SHA-256 y su tamaño.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/DirectorioDeEmergenciaPublicado' }
+        '401': { $ref: '#/components/responses/NoAutenticado' }
+        '403': { $ref: '#/components/responses/Prohibido' }
+        '404': { $ref: '#/components/responses/NoEncontrado' }
+        '503': { $ref: '#/components/responses/NoDisponible' }
+    put:
+      tags: [curaduria]
+      operationId: publicarDirectorioDeEmergencia
+      summary: Publicar una versión nueva de un directorio de emergencia
+      description: |
+        Valida contra `directorio-emergencia.schema.json` (Fase 1), publica la versión
+        `versionVista + 1` con `generadoEn` del servidor, guarda quién la publicó y reescribe el
+        archivo del distrito y `emergencia/indice.json`. Solo acepta archivos que ya figuran en el
+        índice; la asignación de zonas no cambia. Una `verificadoEn` en el futuro es inválida.
+      parameters:
+        - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/PublicacionDeDirectorio' }
+      responses:
+        '200':
+          description: Versión publicada.
+          headers:
+            Idempotent-Replayed: { $ref: '#/components/headers/IdempotentReplayed' }
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/DirectorioDeEmergenciaPublicado' }
+        '400': { $ref: '#/components/responses/SolicitudInvalida' }
+        '401': { $ref: '#/components/responses/NoAutenticado' }
+        '403': { $ref: '#/components/responses/Prohibido' }
+        '404': { $ref: '#/components/responses/NoEncontrado' }
+        '409': { $ref: '#/components/responses/Conflicto' }
+        '422': { $ref: '#/components/responses/NoProcesable' }
+        '503': { $ref: '#/components/responses/NoDisponible' }
+
 components:
   securitySchemes:
     tokenDeAcceso:
@@ -689,6 +827,13 @@ components:
           schema: { $ref: '#/components/schemas/Problema' }
     NoProcesable:
       description: Regla de negocio incumplida o Idempotency-Key reutilizada con otro contenido.
+      content:
+        application/problem+json:
+          schema: { $ref: '#/components/schemas/Problema' }
+    NoDisponible:
+      description: |
+        La función no está habilitada en este entorno (`codigo` = publicacion_no_disponible). Se
+        puede reintentar más tarde.
       content:
         application/problem+json:
           schema: { $ref: '#/components/schemas/Problema' }
@@ -988,3 +1133,115 @@ components:
         venceEn: { type: [string, 'null'], format: date-time }
         creadoEn: { type: string, format: date-time }
         actualizadoEn: { type: string, format: date-time }
+
+    AvisoUrgentePendiente:
+      type: object
+      required: [id, plantilla, casoId, creadoEn]
+      properties:
+        id: { type: string, format: uuid }
+        plantilla: { type: string, enum: [caso_asignado, pedido_por_escalar, pedido_escalado] }
+        casoId: { type: [string, 'null'], format: uuid }
+        creadoEn: { type: string, format: date-time }
+
+    ListaDeAvisosUrgentes:
+      type: object
+      required: [datos]
+      properties:
+        datos:
+          type: array
+          maxItems: 20
+          items: { $ref: '#/components/schemas/AvisoUrgentePendiente' }
+
+    AvisoUrgenteConfirmado:
+      type: object
+      required: [id, confirmadoEn]
+      properties:
+        id: { type: string, format: uuid }
+        confirmadoEn: { type: string, format: date-time }
+
+    ResumenDeAvisosUrgentes:
+      type: object
+      required:
+        [desde, hasta, proveedorSms, total, confirmados, sinConfirmar, smsEnviados, sinRespaldo,
+         confirmacionSegundos, gasto]
+      properties:
+        desde: { type: string, format: date-time }
+        hasta: { type: string, format: date-time }
+        proveedorSms:
+          type: string
+          enum: [none, fake]
+          description: '`none` deja el respaldo apagado; el proveedor real es la decisión 13.3.4.'
+        total: { type: integer, minimum: 0 }
+        confirmados: { type: integer, minimum: 0 }
+        sinConfirmar: { type: integer, minimum: 0 }
+        smsEnviados: { type: integer, minimum: 0 }
+        sinRespaldo:
+          type: object
+          required: [tope_de_gasto, sin_proveedor, sin_telefono, sms_fallido]
+          properties:
+            tope_de_gasto: { type: integer, minimum: 0 }
+            sin_proveedor: { type: integer, minimum: 0 }
+            sin_telefono: { type: integer, minimum: 0 }
+            sms_fallido: { type: integer, minimum: 0 }
+        confirmacionSegundos:
+          type: object
+          required: [p50, p95]
+          properties:
+            p50: { type: [integer, 'null'], minimum: 0 }
+            p95: { type: [integer, 'null'], minimum: 0 }
+        gasto:
+          type: object
+          required: [moneda, hoyCentavos, mesCentavos, topeDiarioCentavos, topeMensualCentavos]
+          properties:
+            moneda: { type: string, enum: [USD] }
+            hoyCentavos: { type: integer, minimum: 0 }
+            mesCentavos: { type: integer, minimum: 0 }
+            topeDiarioCentavos: { type: integer, minimum: 0 }
+            topeMensualCentavos: { type: integer, minimum: 0 }
+
+    ResumenDeDirectorio:
+      type: object
+      required: [id, archivo, version, sha256, bytes, zonas]
+      properties:
+        id: { type: string, pattern: '^[a-z0-9-]{2,60}$' }
+        archivo: { type: string, pattern: '^[a-z0-9-]{2,60}\.json$' }
+        version: { type: integer, minimum: 1 }
+        sha256: { type: string, pattern: '^[0-9a-f]{64}$' }
+        bytes: { type: integer, minimum: 1, maximum: 1048576 }
+        zonas:
+          type: array
+          minItems: 1
+          items: { type: string, format: uuid }
+
+    ListaDeDirectoriosDeEmergencia:
+      type: object
+      required: [datos]
+      properties:
+        datos:
+          type: array
+          items: { $ref: '#/components/schemas/ResumenDeDirectorio' }
+
+    DirectorioDeEmergenciaPublicado:
+      type: object
+      required: [archivo, sha256, bytes, directorio]
+      properties:
+        archivo: { type: string, pattern: '^[a-z0-9-]{2,60}\.json$' }
+        sha256: { type: string, pattern: '^[0-9a-f]{64}$' }
+        bytes: { type: integer, minimum: 1, maximum: 1048576 }
+        directorio: { $ref: './directorio-emergencia.schema.json' }
+
+    PublicacionDeDirectorio:
+      type: object
+      additionalProperties: false
+      required: [versionVista, distrito, entradas]
+      properties:
+        versionVista:
+          type: integer
+          minimum: 1
+          description: Versión que el curador editó; la API publica la siguiente o responde 409.
+        distrito: { type: string, minLength: 2, maxLength: 80 }
+        entradas:
+          type: array
+          minItems: 1
+          maxItems: 500
+          items: { $ref: './directorio-emergencia.schema.json#/$defs/entrada' }
