@@ -111,7 +111,7 @@ class PostDetailScreen extends StatelessWidget {
                     ],
                   ),
                 ),
-                const Spacer(),
+                const SizedBox(height: 24),
                 ProtoButton(
                   text: 'Volver al muro',
                   icon: Icons.arrow_back,
