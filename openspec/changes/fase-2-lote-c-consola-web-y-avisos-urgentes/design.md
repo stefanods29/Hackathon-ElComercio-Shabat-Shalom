@@ -168,7 +168,7 @@ sequenceDiagram
   participant CDN as Contenido público (CDN)
   C->>API: PUT /v1/operacion/directorio-emergencia/{archivo}<br/>versionVista + entradas + Idempotency-Key
   API->>API: Valida contra el esquema de la Fase 1
-  API->>PG: Bloqueo por archivo y versión actual
+  API->>PG: Bloqueo del índice compartido y lectura de la versión actual
   alt versionVista no es la actual
     API-->>C: 409 conflicto_de_version
   else
@@ -181,10 +181,11 @@ sequenceDiagram
 **Adaptadores:**
 - sistema de archivos (`CURATION_PUBLISH_DRIVER=filesystem`), que en local escribe en
   `infra/cdn/publico`;
+- `s3`, que escribe bajo `emergencia/` en un bucket dedicado al directorio y se verifica
+  localmente con MinIO. El índice se cachea por 60 segundos y los distritos se revalidan;
 - `disabled`, que responde 503 `servicio_no_disponible`.
 
-El adaptador de almacenamiento en la nube se conecta al de la Fase 1, Lote C, cuando esté en
-`main`.
+La conexión del bucket a la CDN requiere confirmar el entorno y verificar la ruta pública en staging.
 
 **Roles:** `administrador` y `coordinador`. El rol `curador` lo agrega el Lote B (parte 5); entonces
 se suma a la ruta.

@@ -6,8 +6,8 @@ import type { DirectoryVersionRecord, DirectoryVersionStore } from '../applicati
 
 @Injectable()
 export class DirectoryVersionRepository implements DirectoryVersionStore {
-  async lock(transaction: TransactionContext, archivo: string): Promise<void> {
-    await sql`SELECT pg_advisory_xact_lock(hashtext(${'curaduria:' + archivo}))`.execute(
+  async lockIndex(transaction: TransactionContext): Promise<void> {
+    await sql`SELECT pg_advisory_xact_lock(hashtext('curaduria:indice'))`.execute(
       asKysely<unknown>(transaction),
     );
   }

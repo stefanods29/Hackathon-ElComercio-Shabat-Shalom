@@ -88,12 +88,11 @@ export class EmergencyDirectories {
         })),
       );
     }
-    const now = this.clock.now();
-    const problems = findDirectoryProblems(parsed.data.entradas, limaDate(now));
-    if (problems.length > 0) throw invalidDirectory(problems);
-
     return this.unitOfWork.run(async (transaction) => {
-      await this.versions.lock(transaction, archivo);
+      await this.versions.lockIndex(transaction);
+      const now = this.clock.now();
+      const problems = findDirectoryProblems(parsed.data.entradas, limaDate(now));
+      if (problems.length > 0) throw invalidDirectory(problems);
       const index = await this.readIndex();
       const district = index.distritos.find((entry) => entry.archivo === archivo);
       if (!district) throw new ResourceNotFound('directorio de emergencia', archivo);
