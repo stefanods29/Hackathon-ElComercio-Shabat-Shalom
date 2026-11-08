@@ -29,3 +29,5 @@ app en verde). Las de verificación quedan abiertas hasta tener su evidencia.
 - [ ] 4.3 Registrar la prueba con vecinos en `docs/fase-2/evidencias/simulacro.md`.
 - [x] 4.4 Verificar CI en verde con la versión integrada. Evidencia: [CI de la versión integrada](../../../docs/fase-2/evidencias/ci-integracion.md).
 - [ ] 4.5 Recorrer el modo emergencia con TalkBack y VoiceOver en teléfonos y con el alto contraste del sistema; registrar el resultado en `docs/fase-2/evidencias/accesibilidad-modo-emergencia.md`.
+
+  Preparación Android: [guía y pasos esperados](../../../docs/fase-2/evidencias/telefonos-android.md) y [registro de teléfonos reales](../../../docs/fase-2/evidencias/accesibilidad-modo-emergencia.md#teléfonos-reales). Sigue abierta: faltan el recorrido físico con TalkBack, el 200 % y el contraste del sistema; iPhone/VoiceOver no se ejecutó por no disponer de Mac, Xcode ni herramientas de firma. No se sustituyen por las pruebas automáticas de 4.2.

@@ -55,3 +55,44 @@ La captura operativa debe quedar oculta. En iOS, cambiar de aplicación desde la
 datos y confirmar que el selector solo muestra la cubierta. Volver antes y después del
 límite de inactividad, y repetir con el caso vencido y el teléfono en modo avión. Registrar
 dispositivo, versión, condiciones y resultado. El CI de esta rama queda pendiente.
+
+## Teléfonos reales
+
+Preparación del 8 de noviembre de 2026, America/Lima, en
+`f2-lote-a/parte-3-y-d-4-telefonos`, desde `origin/main` en `4fb7761`.
+Responsable de ejecutar y comunicar las observaciones: `JDiazD33`.
+El código de la app permanece en esa base; no se modificó el código nativo.
+
+**Alcance acordado: Android por ahora. iPhone no se ejecutó por no disponer de una Mac con Xcode
+ni de las herramientas de firma de iOS.** La tarea A 3.2 permanece abierta, pues exige ambos sistemas.
+
+La [guía de instalación y ejecución](telefonos-android.md) contiene las condiciones del entorno,
+el acceso al caso ficticio y los pasos completos. El resultado de la preparación local está en
+el [reporte de la entrega](reporte-telefonos-android.md).
+
+| Registro | Android | iPhone |
+|---|---|---|
+| Modelo y versión del sistema | POCO X6 Pro informado por el usuario; ADB confirma Xiaomi `2311DRK48G`, Android 16, API 36 | No ejecutado: faltan Mac, Xcode y firma |
+| Fecha de ejecución en el teléfono | No ejecutado | No ejecutado |
+| Commit de la app instalada | APK normal del código base `4fb7761`, instalado por USB; no se probó el caso operativo | No instalado |
+| Observación física recibida | El usuario informa que el ingreso no envía el código; la API local no está disponible. Sin observaciones del contenido protegido | Ninguna |
+
+Esta tabla registra el estado real de la evidencia, no una ejecución simulada:
+
+| Paso | Esperado | Observado en Android | Resultado |
+|---|---|---|---|
+| A-01 · Captura normal | El sistema permite la captura del muro/directorio | No ejecutado; pendiente de observación por JDiazD33 | Pendiente |
+| A-02 · Cancelar desbloqueo | El caso no aparece y se permite reintentar | No ejecutado; falta preparar API local, cuenta operativa ficticia y caso autorizado | Bloqueado por entorno |
+| A-03 · Captura protegida | Rechazo del sistema o imagen vacía/negra, sin el contenido | No ejecutado | Pendiente |
+| A-04 · Grabación | No se ve el caso al entrar a la protegida ni al iniciar allí la grabación | No ejecutado | Pendiente |
+| A-05 · Selector | La miniatura no muestra el caso | No ejecutado | Pendiente |
+| A-06 · Primer plano | Vista segura antes de revelar; sin destello de contenido previo | No ejecutado | Pendiente |
+| A-07 · Salir a normal | La captura normal funciona otra vez | No ejecutado | Pendiente |
+| A-08 · Reabrir protegida | Se vuelve a impedir capturar el contenido | No ejecutado | Pendiente |
+| A-09 · Inactividad | Tras más de cinco minutos se exige credencial, sin revelar el caso anterior | No ejecutado | Pendiente |
+
+En Android una superficie vacía/negra en el selector puede cumplir la ausencia de contenido;
+el difuminado nativo descrito arriba corresponde a iOS. No se infiere ese resultado del código.
+Las capturas de evidencia no incluirán descripciones, ubicaciones, teléfonos ni nombres, ni siquiera
+ficticios. Un fallo que muestre datos se describirá en texto. No hay hallazgos observados en
+teléfono ni una corrección nativa que declarar todavía.
