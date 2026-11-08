@@ -458,7 +458,7 @@ describe('Reseñas, Visto Bueno y ranking con PostgreSQL', () => {
     );
     const reviewIds: string[] = [];
     for (let index = 0; index < 5; index += 1) {
-      const author = await neighbor({ device });
+      const author = await neighbor({ device, trustLevel: 2 });
       const data = body();
       await write(author.token, data).expect(201);
       reviewIds.push(data.id);
