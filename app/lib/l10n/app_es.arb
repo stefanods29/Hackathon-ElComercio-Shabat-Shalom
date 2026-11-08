@@ -597,5 +597,189 @@
   "commentTooLong": "El comentario no puede pasar de 2000 caracteres.",
   "reportClose": "Cerrar",
   "levelThree": "Nivel 3: colaboras con la moderación según el rol asignado en tu zona.",
-  "editServiceAlternative": "Ver servicios actualizados"
+  "editServiceAlternative": "Ver servicios actualizados",
+  "activateLocalEmergency": "Estoy en emergencia",
+  "emergencyExitLocalMode": "Volver al inicio normal",
+  "emergencyDashboard": "Tablero de emergencia",
+  "emergencyLocalModeHelp": "Este modo abre información de emergencia en tu celular, incluso sin internet. No activa un evento ni avisa a un coordinador.",
+  "emergencyNoCoverage": "Todavía no hay coordinación vecinal disponible y confirmada en esta zona. Los pedidos y las ofertas están deshabilitados. Usa el directorio y los números oficiales.",
+  "emergencyCoordinationUnavailable": "No se pudo consultar la coordinación. Usa las alternativas oficiales.",
+  "emergencyOfflineWarning": "Sin conexión confirmada: estás viendo información guardada que puede haber cambiado. El estado de un pedido también puede haber cambiado.",
+  "emergencyNeedHelp": "Necesito ayuda",
+  "emergencyCanHelp": "Puedo ayudar",
+  "emergencyResources": "Recursos",
+  "emergencyUsefulServices": "Servicios útiles en emergencia",
+  "emergencyContacts": "Mis contactos de emergencia",
+  "emergencyMyRequest": "Mi pedido",
+  "emergencyImages": "Cargar imágenes",
+  "emergencyImagesHelp": "Apagadas por defecto en emergencia para ahorrar datos y batería. Encenderlas puede usar datos móviles.",
+  "emergencyImagesHidden": "Imágenes apagadas para ahorrar datos. Puedes activarlas en el directorio o en el tablero de emergencia.",
+  "emergencyPracticeHelp": "Solo práctica: datos ficticios guardados en memoria. Nada se envía, nadie recibe el pedido y se descartan al cambiar de perfil o salir de práctica.",
+  "emergencyPracticeExternal": "En práctica no se abren llamadas, mensajes ni el micrófono del teléfono. Este ejemplo no contacta a nadie.",
+  "emergencySessionRequired": "Para ver información personal necesitas una cuenta activa. El directorio de emergencia está disponible sin iniciar sesión.",
+  "emergencySessionChanged": "Cambió la cuenta o el modo. Este formulario ya no está disponible.",
+  "emergencyNeedWater": "Agua",
+  "emergencyNeedFood": "Alimentos",
+  "emergencyNeedMedicine": "Medicamentos",
+  "emergencyNeedTransport": "Traslado",
+  "emergencyNeedShelter": "Albergue",
+  "emergencyNeedOther": "Otra necesidad",
+  "emergencyMeetingPoint": "Punto de encuentro",
+  "emergencyChooseNeed": "¿Qué necesitas? Si hay riesgo para la vida, usa los números oficiales.",
+  "emergencyMinimalForm": "Revisa el texto y la ubicación sugeridos. Puedes enviar con estos datos o agregar una referencia.",
+  "emergencyDefaultRequest": "Necesito ayuda con: {need}.",
+  "emergencyDescription": "Qué necesitas",
+  "emergencyApproximateLocation": "Ubicación aproximada",
+  "emergencySuggestedLocation": "Zona del mapa guardado · ubicación sugerida",
+  "emergencyLocationHelp": "Sugerimos el centro aproximado de la zona del mapa guardado; no es tu ubicación GPS. Escribe una referencia cercana si no corresponde. Esa referencia acompaña al punto sugerido y no mueve el mapa.",
+  "emergencyRequired": "Completa este dato.",
+  "emergencyDictation": "Dictar detalles",
+  "emergencyStopDictation": "Detener dictado",
+  "emergencyDictationHelp": "Opcional. El teléfono pedirá permiso para usar el micrófono. Revisa el texto antes de guardar.",
+  "emergencyDictationFailed": "No se pudo iniciar el dictado. Puedes escribir el texto.",
+  "emergencySavePractice": "Guardar en práctica",
+  "emergencySend": "Enviar",
+  "emergencySaveFailed": "No pudimos guardar la acción. No hay confirmación de envío. Puedes reintentar sin crear otro pedido.",
+  "emergencyRequestUnavailable": "Este pedido no está disponible en tu cuenta actual.",
+  "emergencyRequestLocalHelp": "Tu pedido todavía no fue enviado. Nadie lo ha recibido. No esperes a la app: usa las alternativas de abajo.",
+  "emergencyRequestSentHelp": "El servidor recibió el pedido. Todavía no consta una revisión humana; esto no garantiza que llegue ayuda.",
+  "emergencyRequestSeen": "Visto por un coordinador",
+  "emergencyRequestSeenHelp": "Un coordinador revisó tu pedido. Aún no hay confirmación de atención.",
+  "emergencyRequestOnTheWay": "En camino",
+  "emergencyRequestOnTheWayHelp": "La coordinación indicó que alguien va en camino. La app no muestra sus datos personales.",
+  "emergencyRequestAttended": "Atendido",
+  "emergencyRequestAttendedHelp": "El pedido figura como atendido. Si se habilita la confirmación, puedes indicar si recibiste la ayuda.",
+  "emergencyRequestReferred": "Derivado",
+  "emergencyRequestClosed": "Cerrado sin atender",
+  "emergencyRequestClosedHelp": "Revisa el motivo y la alternativa indicada. Si sigues necesitando ayuda, usa el directorio y los números oficiales.",
+  "emergencyLastChange": "Último cambio: {date}",
+  "emergencySentAt": "Enviado: {date}",
+  "emergencyUnreviewedMinutes": "{minutes, plural, =0{Sin revisar: menos de un minuto} =1{Sin revisar: 1 minuto} other{Sin revisar: {minutes} minutos}}",
+  "emergencyReason": "Motivo: {reason}",
+  "emergencyNextStep": "Qué hacer ahora: {step}",
+  "emergencyHistory": "Historial de mi pedido",
+  "emergencyConfirmAttendance": "Confirmar que recibí ayuda",
+  "emergencyConfirmAttendanceHelp": "Confirma solo si recibiste la ayuda. El estado cambiará cuando la coordinación confirme la operación.",
+  "emergencyAlternativesHelp": "No esperes a la app si hay riesgo para la vida. Las llamadas usan la red de voz y pueden funcionar sin datos móviles.",
+  "emergencyPrepareSms": "Preparar SMS a mis contactos",
+  "emergencyChooseContact": "Revisa el texto y elige un contacto",
+  "emergencySmsNotSent": "Se prepara un borrador en la app de mensajes. Tú decides si enviarlo; abrirlo no confirma envío ni entrega y tu operador puede cobrar el SMS.",
+  "emergencySmsFailed": "No se pudo abrir el borrador de SMS. No se envió ningún mensaje.",
+  "emergencySmsBody": "Necesito ayuda: {need}. {description}\nReferencia: {location}. Punto sugerido aproximado de la zona (no GPS actual): {lat}, {lng}. Por favor comunícate conmigo.",
+  "emergencyNearestPoint": "Punto de encuentro más cercano al punto aproximado sugerido: {name}",
+  "emergencyMapLimit": "El mapa muestra referencias aproximadas. No calcula una ruta segura ni confirma vías transitables. Para verlo sin internet, necesitas el mapa descargado.",
+  "emergencyOfferHelp": "Describe tus habilidades o los recursos que puedes ofrecer. Evita nombres, teléfonos, domicilios y datos de salud.",
+  "emergencyOfferDescription": "Habilidades o recursos disponibles",
+  "emergencyOfferSaved": "Oferta guardada. Revisa su estado de envío abajo.",
+  "emergencyOfferNoAssignment": "Guardar o enviar una oferta no confirma recepción humana ni una asignación.",
+  "emergencyResourceHelp": "Consulta cuándo se reportó cada recurso. Su disponibilidad puede cambiar. No publiques datos personales ni casos de personas.",
+  "emergencyFreshnessIllustrative": "Los avisos de antigüedad usan plazos orientativos por tipo de recurso; no son compromisos de respuesta ni garantía de disponibilidad.",
+  "emergencyResourcesEmpty": "No hay recursos para mostrar.",
+  "emergencyReportResource": "Reportar un recurso",
+  "emergencyResourceType": "Tipo de recurso",
+  "emergencyResourceDescription": "Recurso, referencia pública y disponibilidad observada",
+  "emergencyUnverifiedReport": "Tu reporte empieza sin verificar. Solo la coordinación o las confirmaciones registradas pueden cambiar su verificación. No puedes marcarlo como oficial.",
+  "emergencyResourceSaved": "Reporte guardado. Consulta su estado en la lista.",
+  "emergencyReportedAgo": "Reportado {ago}",
+  "emergencyResourceStale": "Posiblemente desactualizado. Confirma antes de desplazarte.",
+  "emergencyUnverified": "Sin verificar",
+  "emergencyConfirmedNeighbors": "Confirmado por {count} vecinos",
+  "emergencyVerified": "Verificado",
+  "emergencyOfficialSource": "Fuente oficial",
+  "emergencyContactsPrivacy": "Solo tus contactos: se guardan cifrados en este celular, separados por cuenta. No se publican ni se suben. Se borran al cerrar o revocar tu sesión.",
+  "emergencyPracticeContacts": "Contactos ficticios de práctica: solo en memoria. No copies teléfonos reales; no se guardan en el almacén de tu cuenta.",
+  "emergencyContactsUnavailable": "Los contactos no están disponibles. No se pudo abrir el almacenamiento protegido de la cuenta.",
+  "emergencyContactsEmpty": "Todavía no tienes contactos de emergencia.",
+  "emergencyAddContact": "Agregar contacto",
+  "emergencyEditContact": "Editar contacto",
+  "emergencyRemoveContact": "Quitar contacto",
+  "emergencyRemoveContactHelp": "¿Quieres quitar este contacto de emergencia de este celular?",
+  "emergencyContactName": "Nombre del contacto",
+  "emergencyContactPhone": "Teléfono",
+  "emergencyContactNameInvalid": "Escribe un nombre de hasta 80 caracteres.",
+  "emergencyContactPhoneInvalid": "Usa entre 6 y 15 dígitos, con + al inicio si corresponde. Sin espacios ni guiones.",
+  "emergencySaveContact": "Guardar contacto",
+  "emergencyContactSaved": "Contacto guardado en este celular.",
+  "@emergencyDefaultRequest": {
+    "placeholders": {
+      "need": {
+        "type": "String"
+      }
+    }
+  },
+  "@emergencyLastChange": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "@emergencySentAt": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "@emergencyUnreviewedMinutes": {
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "@emergencyReason": {
+    "placeholders": {
+      "reason": {
+        "type": "String"
+      }
+    }
+  },
+  "@emergencyNextStep": {
+    "placeholders": {
+      "step": {
+        "type": "String"
+      }
+    }
+  },
+  "@emergencySmsBody": {
+    "placeholders": {
+      "need": {
+        "type": "String"
+      },
+      "description": {
+        "type": "String"
+      },
+      "location": {
+        "type": "String"
+      },
+      "lat": {
+        "type": "String"
+      },
+      "lng": {
+        "type": "String"
+      }
+    }
+  },
+  "@emergencyNearestPoint": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "@emergencyReportedAgo": {
+    "placeholders": {
+      "ago": {
+        "type": "String"
+      }
+    }
+  },
+  "@emergencyConfirmedNeighbors": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  }
 }
