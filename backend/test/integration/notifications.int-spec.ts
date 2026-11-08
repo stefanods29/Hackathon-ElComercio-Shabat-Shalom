@@ -64,6 +64,49 @@ describe('avisos con PostgreSQL real', () => {
     await register('a'.repeat(4096)).expect(200);
   });
 
+  it('solo el destinatario ve y confirma un aviso, incluso si otro reutiliza su clave', async () => {
+    const noticeId = uuidv7();
+    const key = uuidv7();
+    await sql`INSERT INTO notificaciones.avisos_urgentes
+      (aviso_id, usuario_id, plantilla, huella, confirmar_antes_de)
+      VALUES (${noticeId}, ${NEIGHBORS.ana.id}, 'caso_asignado', 'prueba', now() + interval '5 min')`.execute(
+      db,
+    );
+    const confirm = (user: string, id: string) =>
+      request(app.getHttpServer())
+        .post(`/v1/avisos-urgentes/${id}/confirmar`)
+        .auth(tokens[user]!, { type: 'bearer' })
+        .set('Idempotency-Key', key);
+    try {
+      const foreign = await request(app.getHttpServer())
+        .get('/v1/avisos-urgentes')
+        .auth(tokens.beto!, { type: 'bearer' })
+        .expect(200);
+      expect(JSON.stringify(foreign.body)).not.toContain(noticeId);
+      const own = await request(app.getHttpServer())
+        .get('/v1/avisos-urgentes')
+        .auth(tokens.ana!, { type: 'bearer' })
+        .expect(200);
+      expect(JSON.stringify(own.body)).toContain(noticeId);
+
+      const accepted = await confirm('ana', noticeId).expect(200);
+      const replay = await confirm('ana', noticeId).expect(200);
+      expect(replay.body).toEqual(accepted.body);
+      expect(replay.headers['idempotent-replayed']).toBe('true');
+      const denied = await confirm('beto', noticeId).expect(404);
+      expect(denied.headers['idempotent-replayed']).toBeUndefined();
+      expect(denied.body.codigo).toBe('recurso_no_encontrado');
+      await request(app.getHttpServer())
+        .get('/v1/operacion/avisos-urgentes/resumen')
+        .auth(tokens.beto!, { type: 'bearer' })
+        .expect(403);
+    } finally {
+      await sql`DELETE FROM notificaciones.avisos_urgentes WHERE aviso_id = ${noticeId}`.execute(
+        db,
+      );
+    }
+  });
+
   it('el registro es idempotente, no expone el token y reasigna su dueño', async () => {
     const key = uuidv7();
     const first = await register('dispositivo', 'ana', key).expect(200);

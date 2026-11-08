@@ -2,7 +2,7 @@ import type { INestApplication } from '@nestjs/common';
 import { type Kysely, sql } from 'kysely';
 import request from 'supertest';
 import { inject } from 'vitest';
-import { NEIGHBORS, PILOT_ZONE } from '../../scripts/seed-data.js';
+import { NEIGHBORS, NEIGHBOR_ZONE, PILOT_ZONE } from '../../scripts/seed-data.js';
 import type { Role } from '../../src/shared/auth/actor.js';
 import { TokenService } from '../../src/shared/auth/token.service.js';
 import { createKysely } from '../../src/shared/db/connection.js';
@@ -25,6 +25,10 @@ describe('Emergencias por HTTP y PostgreSQL', () => {
   const accounts = [admin, coordinatorA, coordinatorB, brigade];
   const eventId = newId();
   const requestId = newId();
+  const groupId = newId();
+  const resourceId = newId();
+  const grantId = newId();
+  const shiftId = newId();
   const location = { lat: -12.085, lng: -77.035 };
 
   let app: INestApplication;
@@ -33,11 +37,15 @@ describe('Emergencias por HTTP y PostgreSQL', () => {
   const sessions = new Map<string, string>();
   const server = () => app.getHttpServer();
 
-  async function tokenFor(id: string, roles: Role[], trustLevel = 3): Promise<string> {
+  async function tokenFor(
+    id: string,
+    roles: Role[],
+    trustLevel = 3,
+    zoneId: string = PILOT_ZONE.id,
+  ): Promise<string> {
     const sessionId = sessions.get(id) ?? newId();
     sessions.set(id, sessionId);
-    return (await tokens.issueAccess({ id, zoneId: PILOT_ZONE.id, trustLevel, roles, sessionId }))
-      .token;
+    return (await tokens.issueAccess({ id, zoneId, trustLevel, roles, sessionId })).token;
   }
   const post = (path: string, token: string, body: object, key = newId()) =>
     request(server())
@@ -55,7 +63,7 @@ describe('Emergencias por HTTP y PostgreSQL', () => {
   async function grant(userId: string, rol: 'coordinador' | 'brigadista') {
     const token = await tokenFor(admin.id, ['administrador']);
     const response = await post('/v1/operacion/habilitaciones', token, {
-      id: newId(),
+      id: userId === coordinatorA.id ? grantId : newId(),
       usuarioId: userId,
       zonaId: PILOT_ZONE.id,
       rol,
@@ -70,7 +78,7 @@ describe('Emergencias por HTTP y PostgreSQL', () => {
 
   async function shift(userId: string, rol: 'coordinador' | 'brigadista') {
     await post(`/v1/operacion/zonas/${PILOT_ZONE.id}/turnos`, await coordinator(), {
-      id: newId(),
+      id: userId === coordinatorA.id ? shiftId : newId(),
       usuarioId: userId,
       rol,
       inicio: minutes(-5),
@@ -170,7 +178,18 @@ describe('Emergencias por HTTP y PostgreSQL', () => {
     expect(created.body).toMatchObject({ id: requestId, estado: 'enviado', version: 1 });
     expect(created.body).not.toHaveProperty('descripcion');
     const replay = await post('/v1/pedidos-ayuda', await neighbor(), body, key).expect(200);
-    expect(replay.body.id).toBe(requestId);
+    expect(replay.headers['idempotent-replayed']).toBe('true');
+    expect(replay.body).toEqual(created.body);
+    const differentBody = await post(
+      '/v1/pedidos-ayuda',
+      await neighbor(),
+      {
+        ...body,
+        id: newId(),
+      },
+      key,
+    ).expect(422);
+    expect(differentBody.body.codigo).toBe('idempotency_key_reutilizada');
     const { rows } = await sql<{ count: number }>`
       SELECT count(*)::int AS count FROM emergencias.pedidos_ayuda WHERE id = ${requestId}`.execute(
       db,
@@ -183,6 +202,117 @@ describe('Emergencias por HTTP y PostgreSQL', () => {
       riesgoVital: true,
     }).expect(409);
     expect(lifeRisk.body.codigo).toBe('riesgo_vital');
+  });
+
+  it('oculta el pedido ajeno, incluso al coordinador sin asignación', async () => {
+    const other = await tokenFor(NEIGHBORS.beto.id, [], 1);
+    const unassigned = await tokenFor(coordinatorB.id, ['coordinador']);
+    const missing = newId();
+    for (const token of [other, unassigned]) {
+      const real = await get(`/v1/pedidos-ayuda/${requestId}`, token).expect(404);
+      const absent = await get(`/v1/pedidos-ayuda/${missing}`, token).expect(404);
+      expect(real.body.codigo).toBe(absent.body.codigo);
+      await post(`/v1/pedidos-ayuda/${requestId}/estado`, token, {
+        versionVista: 1,
+        estado: 'visto',
+      }).expect(404);
+    }
+    await post(`/v1/pedidos-ayuda/${requestId}/prioridad`, unassigned, {
+      versionVista: 1,
+      prioridad: 'baja',
+      motivo: 'Control de prueba',
+    }).expect(404);
+    expect(await currentVersion()).toBe(1);
+  });
+
+  it('las rutas operativas por id rechazan vecinos, roles solo en el token y nivel insuficiente', async () => {
+    await post(
+      `/v1/operacion/zonas/${PILOT_ZONE.id}/grupos`,
+      await tokenFor(admin.id, ['administrador']),
+      {
+        id: groupId,
+        nombre: 'Grupo de prueba',
+        miembros: [],
+      },
+    ).expect(200);
+    const lowTrust = await tokenFor(coordinatorA.id, ['coordinador'], 2);
+    const roleOnlyInToken = await tokenFor(NEIGHBORS.ana.id, ['coordinador'], 3);
+    const write = { versionVista: 1, motivo: 'Control de prueba' };
+
+    for (const token of [await neighbor(), lowTrust, roleOnlyInToken]) {
+      await get(`/v1/eventos/${eventId}/resumen`, token).expect(403);
+      await post(`/v1/eventos/${eventId}/cerrar`, token, write).expect(403);
+      await post(`/v1/operacion/habilitaciones/${grantId}/revocar`, token, write).expect(403);
+      await post(`/v1/operacion/turnos/${shiftId}/finalizar`, token, { versionVista: 1 }).expect(
+        403,
+      );
+      await request(server())
+        .put(`/v1/operacion/grupos/${groupId}/miembros`)
+        .auth(token, { type: 'bearer' })
+        .set('Idempotency-Key', newId())
+        .send({ versionVista: 1, miembros: [brigade.id] })
+        .expect(403);
+      await post(`/v1/pedidos-ayuda/${requestId}/asignaciones`, token, {
+        versionVista: 1,
+        usuarioId: brigade.id,
+      }).expect(403);
+      await post(`/v1/pedidos-ayuda/${requestId}/prioridad`, token, {
+        ...write,
+        prioridad: 'baja',
+      }).expect(403);
+      await post(`/v1/pedidos-ayuda/${requestId}/accesos-sincronizacion`, token, {
+        alcance: 'resumen',
+      }).expect(403);
+    }
+  });
+
+  it('separa permisos de recursos y rechaza lecturas y escrituras desde otra zona', async () => {
+    const outsider = await tokenFor(NEIGHBORS.elena.id, [], 2, NEIGHBOR_ZONE.id);
+    const other = await tokenFor(NEIGHBORS.beto.id, [], 1);
+    const resource = `/v1/recursos-criticos/${resourceId}`;
+    const update = (token: string) =>
+      request(server())
+        .patch(resource)
+        .auth(token, { type: 'bearer' })
+        .set('Idempotency-Key', newId())
+        .send({ versionVista: 1, cantidad: 20 });
+    await post(`/v1/zonas/${PILOT_ZONE.id}/recursos`, await neighbor(), {
+      id: resourceId,
+      tipo: 'agua',
+      cantidad: 10,
+      ubicacion: location,
+    }).expect(200);
+    for (const segment of ['eventos', 'cobertura', 'recursos', 'celdas']) {
+      await get(`/v1/zonas/${PILOT_ZONE.id}/${segment}`, outsider).expect(404);
+    }
+    await update(outsider).expect(404);
+    await update(other).expect(403);
+    await post(`${resource}/confirmaciones`, outsider, { versionVista: 1 }).expect(404);
+    await post(`${resource}/verificacion`, other, {
+      versionVista: 1,
+      etiqueta: 'Recurso de prueba',
+      oficial: false,
+    }).expect(403);
+    const authorized = await post(`${resource}/confirmaciones`, other, { versionVista: 1 }).expect(
+      200,
+    );
+    expect(authorized.body).toMatchObject({ cantidad: 10, confirmaciones: 1 });
+  });
+
+  it('curaduría no permite leer ni editar archivos a una cuenta sin rol autorizado', async () => {
+    const base = '/v1/operacion/directorio-emergencia';
+    const file = `${base}/distrito-prueba.json`;
+    const token = await tokenFor(NEIGHBORS.ana.id, ['curador'], 3);
+    await request(server()).get(file).expect(401);
+    await get(base, token).expect(403);
+    await get(file, token).expect(403);
+    await request(server())
+      .put(file)
+      .auth(token, { type: 'bearer' })
+      .set('Idempotency-Key', newId())
+      .send({ versionVista: 1, distrito: 'Distrito de prueba', entradas: [{}] })
+      .expect(403);
+    await get(`${base}/..%2Fprivado.json`, await coordinator()).expect(400);
   });
 
   it('la cola de la consola muestra el caso sin descripción ni coordenadas', async () => {

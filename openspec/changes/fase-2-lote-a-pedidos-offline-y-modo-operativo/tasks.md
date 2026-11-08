@@ -63,6 +63,10 @@ reconexión. La CI de 4.4 quedó en verde con la versión integrada.
 - [ ] 5.2 Ejecutar la prueba de campo con reconexiones simultáneas, señal débil, batería baja y pedidos ficticios. Registrar en `docs/fase-2/evidencias/modo-operativo.md` los dispositivos, condiciones, versión y conteo de pérdidas o duplicados.
 - [ ] 5.3 Corregir los hallazgos del lote y volver a probarlos. Compilar y depurar con `npm run verify` y `tool/verify.sh` desde `app/` según lo tocado. Verificar CI en verde y enlazar la evidencia de repetición.
 
+La [prueba de seguridad](../../../docs/fase-2/evidencias/penetracion.md) registra la verificación
+local y la corrección por sesión. El [guion de campo](../../../docs/fase-2/evidencias/modo-operativo.md#prueba-de-campo)
+incluye la conciliación de colas. Falta la ejecución en teléfonos y verificar la versión candidata.
+
 ## 6. Parte 6 · Integración y simulacro
 
 Requiere las entregas aprobadas de B, C y D, la evaluación de impacto, cobertura y tiempos acordados con los aliados, y autorización del equipo para integrar.
@@ -71,6 +75,10 @@ Requiere las entregas aprobadas de B, C y D, la evaluación de impacto, cobertur
 - [ ] 6.2 Realizar el simulacro con los aliados y registrar en `docs/fase-2/evidencias/simulacro.md` pedidos de cada prioridad, escalamiento, avisos, cierre y resultado de pérdidas y duplicados. Verificar que los vecinos identifican el estado y las alternativas oficiales.
 - [ ] 6.3 Hacer la revisión sin culpables con el equipo, registrar hallazgos en `docs/fase-2/evidencias/revision-simulacro.md` y actualizar los criterios de salida con sus evidencias y decisiones pendientes.
 - [ ] 6.4 Compilar y depurar la versión integrada. Ejecutar las verificaciones documentadas de app, backend, consola, contrato y OpenSpec, y comprobar CI en verde para la versión del simulacro.
+
+El [libreto](../../../docs/fase-2/evidencias/simulacro.md) y la
+[revisión](../../../docs/fase-2/evidencias/revision-simulacro.md) están preparados. La ejecución
+requiere las condiciones de entrada y una versión aprobada.
 
 ## Workflow follow-up
 

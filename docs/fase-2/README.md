@@ -19,6 +19,10 @@ Fase 1 cumple sus [criterios de salida](../fase-1/criterios-de-salida.md) y term
 El estado de cada parte está en la tabla "Estado del lote" de cada guía. Cómo se unieron los lotes,
 qué se decidió entre ellos y qué falta: [`integracion.md`](integracion.md).
 
+La [preparación del pendiente 13](evidencias/README.md#pendiente-13) registra las pruebas
+locales, el estado de las ramas de entrega y los guiones de campo y del simulacro. La Fase 2
+sigue en curso y los criterios de salida requieren evidencia del ejercicio con el equipo.
+
 ## Antes de abrir la fase
 
 Estas tres cosas no son de código, pero sin ellas la fase no puede salir:

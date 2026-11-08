@@ -55,3 +55,74 @@ La captura operativa debe quedar oculta. En iOS, cambiar de aplicación desde la
 datos y confirmar que el selector solo muestra la cubierta. Volver antes y después del
 límite de inactividad, y repetir con el caso vencido y el teléfono en modo avión. Registrar
 dispositivo, versión, condiciones y resultado. El CI de esta rama queda pendiente.
+
+## Prueba de campo
+
+Preparada el 8 de noviembre de 2026. Responsable: `JDiazD33`.
+A 5.2 queda abierta hasta la ejecución en varios teléfonos. En laboratorio se reprodujo
+CAM-01, una emisión inicial de cobertura sin esperar la lectura local. La [repetición y
+corrección](https://github.com/stefanods29/Hackathon-ElComercio-Shabat-Shalom/blob/aa438ba5c8ab6f6f872280c94ec7b481f25e9302/docs/fase-2/evidencias/cobertura-local-sin-senal.md)
+quedaron en una rama desde `main`.
+
+1. Preparar una zona y un evento de laboratorio dedicados a la corrida, con dos coordinadores
+   ficticios habilitados, un turno y cuentas separadas en al menos dos Android y dos iPhone.
+   Verificar la cobertura en línea antes de cortar los datos. Anotar alias de equipo, modelo,
+   SO, batería y SHA de app, API y consola. Usar solo el entorno local o el autorizado por escrito.
+2. Asignar un código de caso por intento planificado. En la compilación de diagnóstico, registrar
+   `draft.id` antes de entrar a `OperationalEmergencyRepository.saveRequest`. Mantener ese manifiesto
+   separado de las colas, incluso si el guardado falla. No registrar el resto del borrador.
+3. Crear pedidos sin señal, comprobar el mensaje de guardado local, reiniciar la app de un
+   Android y un iPhone y comprobar que conservan el pedido. Mantener al menos un equipo de cada
+   sistema con batería baja y anotar el porcentaje y el modo de ahorro.
+4. Reconectar todos en una cuenta regresiva. Alternar un corte con señal débil en un subconjunto,
+   con un limitador de red del sistema o un punto de acceso de prueba. Registrar la pérdida,
+   latencia y duración configuradas. En un caso cortar el enlace después de persistir el pedido y
+   antes del acuse, si el proxy del laboratorio permite reproducirlo.
+5. Recuperar la red normal. Esperar la ventana pactada de reintentos y registrar su duración.
+   Exportar el estado final de las colas y la base antes de cerrar o anonimizar el evento.
+   Reconciliar también los pedidos que seguían pendientes tras recuperar la red.
+
+### Exportación y recuento
+
+Crear `plan.json` como un arreglo JSON de UUIDv7 de los casos planificados. Desde la sesión
+de diagnóstico de cada teléfono, ejecutar una consulta de solo lectura mediante la conexión
+que la app ya abrió a SQLCipher. Filtrar por la ventana de la corrida, con fechas UTC en el
+formato ISO que guarda la app:
+
+```sql
+SELECT recurso_id, estado
+FROM envios
+WHERE tipo = 'helpRequest' AND creado_en >= ? AND creado_en < ?
+ORDER BY recurso_id;
+```
+
+Exportar las filas como arreglo JSON, conservando un archivo por dispositivo. Un teléfono sin
+filas aporta `[]`. Mantener la conexión y clave dentro del equipo de prueba. En PostgreSQL,
+usar el ID del evento dedicado para detectar pedidos adicionales, incluidos los que tengan
+otro identificador. El comando exporta solo los IDs desde una conexión local con acceso de lectura.
+
+```sh
+psql -XAt -v ON_ERROR_STOP=1 -v evento="$EVENTO_FICTICIO_ID" > servidor.json <<'SQL'
+SELECT COALESCE(json_agg(json_build_object('id', id) ORDER BY id), '[]'::json)
+FROM emergencias.pedidos_ayuda
+WHERE evento_id = :'evento'::uuid;
+SQL
+```
+
+Desde `backend/`, con los archivos en la carpeta de ejecución o indicando sus rutas:
+
+```sh
+npx tsx scripts/reconcile-field-requests.ts plan.json servidor.json android-a.json android-b.json ios-a.json ios-b.json
+```
+
+La salida contiene solo conteos. El código de salida es 0 si todos los casos están en la
+cola y el servidor, con acuse y sin diferencias. Es 1 si hay diferencias y 2 si falta un
+archivo o el formato es inválido. `perdidos` cuenta IDs planificados ausentes del servidor al
+corte. `sinRegistroLocal` detecta los ausentes en todas las colas. Cada fila adicional del mismo
+ID suma un duplicado. Los IDs inesperados se investigan como posibles reenvíos con ID nuevo.
+Reintentos de un mismo registro no cuentan como duplicados. Un rechazo y una falta de acuse
+se registran por separado. Conservar únicamente el resultado agregado en la evidencia.
+
+| Fecha / SHAs | Equipos y condiciones | Pedidos | Perdidos | Duplicados | Sin acuse / rechazados |
+|---|---|---|---|---|---|
+| Pendiente | Pendiente | — | — | — | — |
