@@ -7,6 +7,7 @@ import 'package:vecinal/core/di/providers.dart';
 import 'package:vecinal/features/avisos/data/api_push_registration.dart';
 import 'package:vecinal/features/avisos/data/firebase_push_platform.dart';
 import 'package:vecinal/features/avisos/data/push_service.dart';
+import 'package:vecinal/features/avisos/data/urgent_notice_confirmation.dart';
 import 'package:vecinal/features/avisos/domain/push_platform.dart';
 import 'package:vecinal/features/avisos/domain/push_registration.dart';
 
@@ -74,6 +75,7 @@ class PushController extends Notifier<PushStatus> {
       onForeground: (data) {
         if (ref.mounted) ref.read(foregroundPushProvider.notifier).show(data);
       },
+      confirmUrgent: (credentials, noticeId) => confirmUrgentNotice(dio, credentials, noticeId),
     );
     _service = service;
     ref.listen(pushCredentialsProvider, (_, next) => unawaited(service.updateSession(next)));
