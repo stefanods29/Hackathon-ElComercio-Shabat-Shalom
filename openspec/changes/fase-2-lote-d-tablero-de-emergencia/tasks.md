@@ -31,3 +31,5 @@ app en verde). Las de verificación quedan abiertas hasta tener su evidencia.
 - [ ] 4.3 Registrar la prueba con vecinos. El [libreto del simulacro](../../../docs/fase-2/evidencias/simulacro.md#prueba-con-vecinos) incluye el procedimiento y el registro pendiente.
 - [x] 4.4 Verificar CI en verde con la versión integrada. Evidencia: [CI de la versión integrada](../../../docs/fase-2/evidencias/ci-integracion.md).
 - [ ] 4.5 Recorrer el modo emergencia con TalkBack y VoiceOver en teléfonos y con el alto contraste del sistema; registrar el resultado en `docs/fase-2/evidencias/accesibilidad-modo-emergencia.md`.
+
+  Preparación: [TalkBack](../../../docs/fase-2/evidencias/telefonos-android.md#3-d-45-talkback-texto-grande-y-contraste), [VoiceOver](../../../docs/fase-2/evidencias/telefonos-ios.md#d-45--voiceover-texto-grande-y-contraste) y [registro de teléfonos reales](../../../docs/fase-2/evidencias/accesibilidad-modo-emergencia.md#teléfonos-reales). Faltan las observaciones de ambos recorridos con el lector, el texto grande y el contraste del sistema.

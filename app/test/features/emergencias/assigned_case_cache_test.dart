@@ -18,6 +18,16 @@ class OfflineConnector extends PowerSyncBackendConnector {
   Future<void> uploadData(PowerSyncDatabase database) async {}
 }
 
+class _LoopbackConnector extends OfflineConnector {
+  _LoopbackConnector(this.endpoint);
+
+  final String endpoint;
+
+  @override
+  Future<PowerSyncCredentials?> fetchCredentials() async =>
+      PowerSyncCredentials(endpoint: endpoint, token: 'fixture');
+}
+
 class TestCaseSubscription implements SyncStreamSubscription {
   TestCaseSubscription(this.database, this.name, this.parameters);
 
@@ -129,6 +139,42 @@ void main() {
     openings = [];
     subscriptions = [];
     addTearDown(() => directory.delete(recursive: true));
+  });
+
+  test('la conexión nativa envía la suscripción del caso sin streams por defecto', () async {
+    final server = await HttpServer.bind(InternetAddress.loopbackIPv4, 0);
+    addTearDown(() => server.close(force: true));
+    final requested = Completer<Map<String, Object?>>();
+    server.listen((request) async {
+      final body = jsonDecode(await utf8.decoder.bind(request).join()) as Map<String, Object?>;
+      final streams = body['streams'] as Map<String, Object?>;
+      final subscriptions = streams['subscriptions'] as List<Object?>;
+      if (subscriptions.isNotEmpty && !requested.isCompleted) requested.complete(streams);
+      request.response.statusCode = HttpStatus.serviceUnavailable;
+      await request.response.close();
+    });
+    final cases = AssignedCaseCache(
+      path: casePath,
+      store: store,
+      accountId: account,
+      connector: _LoopbackConnector('http://127.0.0.1:${server.port}'),
+      clock: () => now,
+      authorize: (_, _) async => (authorizationId: 'permiso-ficticio', expiresAt: expires),
+    );
+    addTearDown(cases.close);
+
+    await cases.request(caseId);
+
+    final streams = await requested.future.timeout(const Duration(seconds: 8));
+    expect(streams['include_defaults'], isFalse);
+    final subscriptions = streams['subscriptions'] as List<Object?>;
+    expect(subscriptions, hasLength(1));
+    final subscription = subscriptions.single as Map<String, Object?>;
+    expect(subscription['stream'], 'caso_asignado');
+    expect(subscription['parameters'], {
+      'pedido_id': caseId,
+      'autorizacion_id': 'permiso-ficticio',
+    });
   });
 
   test('autoriza por alcance antes de suscribirse y exige En camino para la ubicación', () async {

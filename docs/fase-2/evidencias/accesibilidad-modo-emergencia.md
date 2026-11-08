@@ -96,3 +96,52 @@ esperada y no contienen marcas de desbordamiento.
 - El alto contraste del sistema operativo: las pruebas comprueban el contraste de los temas de la
   app, no la opción del teléfono.
 - La prueba con vecinos del simulacro (D 4.3).
+
+## Teléfonos reales
+
+Preparación del 8 de noviembre de 2026, America/Lima, en
+`f2-lote-a/parte-3-y-d-4-telefonos`, desde `origin/main` en `4fb7761`.
+Responsable del recorrido y de las observaciones: `JDiazD33`.
+
+D 4.5 sigue abierta hasta registrar el recorrido con el lector y el contraste del sistema en ambos
+teléfonos. La [guía Android](telefonos-android.md#3-d-45-talkback-texto-grande-y-contraste) y la
+[guía de iPhone](telefonos-ios.md#d-45--voiceover-texto-grande-y-contraste) describen los ajustes,
+los pasos y los límites de práctica. Consultar el [reporte inicial de Android](reporte-telefonos-android.md).
+
+| Registro | Android | iPhone |
+|---|---|---|
+| Modelo y versión del sistema | POCO X6 Pro informado por el usuario; ADB confirma Xiaomi `2311DRK48G`, Android 16, API 36 | iPhone XR, iOS 17.7, detectado por Xcode mediante USB |
+| Versión de TalkBack/VoiceOver | `17.1.0.1003738110`, consultada en el dispositivo | No probado |
+| Teclado y dictado del sistema | Pendiente | No probado |
+| Tamaño de fuente y contraste del sistema | Consulta inicial: `font_scale=1.1` (110 %); `high_text_contrast_enabled` sin valor definido. No se atribuye al teléfono el 200 % de los widgets | No configurado |
+| Modo sencillo, tema y sesión usados | Práctica confirmada por el usuario; modo sencillo y tema de la ejecución pendientes | No ejecutado |
+| Fecha y commit instalado | 8 de noviembre de 2026; base `4fb7761` más entrada de práctica de esta rama. APK de práctica instalado y actividad abierta por ADB; integridad en el reporte | 8 de noviembre de 2026, `e658974`. Variante de práctica compilada, firmada e instalada por USB con un identificador de laboratorio |
+| Observación física recibida | El usuario confirma la franja «Modo práctica», el acceso con «Estoy en emergencia» y la identificación de «Volver al inicio normal»; pendiente del recorrido con lector | La Mac confirmó el arranque de la entrada de práctica y el muro. El responsable pospuso el recorrido con VoiceOver |
+
+La confirmación de arranque y navegación corresponde a la variante de práctica del commit
+`5f4ec140097e2cc4093c6eaea3d83578747cbba7`, el 8 de noviembre de 2026. No se confirmó que TalkBack
+estuviera activo ni se comunicaron anuncios del lector; por ello los pasos D-01 a D-11 conservan
+su estado pendiente. Se mantuvo la navegación existente al identificarse el control de salida.
+
+| Paso | Esperado | Observado en Android | Resultado |
+|---|---|---|---|
+| D-01 · Título y orden | El recorrido comienza por el título del tablero | No ejecutado | Pendiente |
+| D-02 · Acciones | Los cuatro botones tienen nombre y función comprensibles | No ejecutado | Pendiente |
+| D-03 · Alternativas | Se lee el recordatorio de riesgo para la vida y los números oficiales | No ejecutado | Pendiente |
+| D-04 · Tres activaciones | Tablero → necesidad → formulario → guardar, con cada paso anunciado | No ejecutado | Pendiente |
+| D-05 · Dictado del teclado | Se puede completar, corregir y regresar al formulario usando TalkBack | No ejecutado | Pendiente |
+| D-06 · Pedido local | Se anuncia que el pedido todavía no fue enviado y nadie lo recibió | No ejecutado | Pendiente |
+| D-07 · Cambio de estado | El cambio sincronizado se anuncia sin buscarlo | No ejecutado; requiere la API local y una sesión ficticia fuera de práctica | Pendiente |
+| D-08 · Recursos | Antigüedad y marca de posiblemente desactualizado se entienden al oírlas | No ejecutado | Pendiente |
+| D-09 · Contactos | Se puede agregar y borrar un contacto ficticio solo con el lector | No ejecutado | Pendiente |
+| D-10 · Modo sencillo | Las mismas pantallas y controles siguen siendo usables | No ejecutado | Pendiente |
+| D-11 · Sistema al 200 % y contraste | Texto, foco y acciones siguen siendo visibles y alcanzables | No ejecutado | Pendiente |
+
+En práctica el botón final dice «Guardar en práctica» y el pedido no pasa a enviado. Su botón
+de dictado integrado evita servicios externos; D-05 usa el dictado del teclado. Para evaluar el
+dictado propio de la app y el anuncio de una actualización real, se requiere el entorno local
+con datos ficticios descrito en la guía. No se alteró el aislamiento para aparentar esos resultados.
+
+No se recibieron todavía fallos observados en el teléfono que justifiquen cambiar etiquetas u
+orden de la app. No se modificó `emergency_accessibility_test.dart` ni se añadieron pruebas que
+presenten una simulación como validación física. Registrar futuras repeticiones con su nuevo commit.
