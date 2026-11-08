@@ -304,11 +304,12 @@ paths:
     put:
       tags: [identidad]
       operationId: elegirZona
-      summary: Elegir la zona del vecino una sola vez
+      summary: Elegir o cambiar la zona del vecino
       description: |
         Devuelve una sesión con un token de acceso que ya incluye la zona elegida.
         Conserva su familia `sid`; una familia revocada o vencida recibe 401 sesion_revocada.
-        Cambiar de zona llega en la Fase 1. No rota el refresh token.
+        Elegir la misma zona conserva el nivel. Cambiar a otra vuelve al nivel 0 y solo se
+        permite cada 30 días. No rota el refresh token.
       parameters:
         - $ref: '#/components/parameters/IdempotencyKey'
       requestBody:
@@ -327,7 +328,204 @@ paths:
         '400': { $ref: '#/components/responses/SolicitudInvalida' }
         '401': { $ref: '#/components/responses/NoAutenticado' }
         '404': { $ref: '#/components/responses/NoEncontrado' }
+        '409':
+          description: '`cambio_de_zona_muy_pronto` con `disponibleDesde`, o conflicto de idempotencia.'
+          content:
+            application/problem+json:
+              schema: { $ref: '#/components/schemas/Problema' }
+        '422': { $ref: '#/components/responses/NoProcesable' }
+
+  /v1/yo/residencia/presencia:
+    post:
+      tags: [identidad]
+      operationId: informarPresencia
+      summary: Informar si el vecino estuvo dentro de su zona en un día
+      description: Registra una respuesta por fecha local con consentimiento vigente; no recibe coordenadas.
+      parameters:
+        - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/PresenciaDeResidencia' }
+      responses:
+        '200':
+          description: Nivel de confianza después de procesar el informe.
+          headers:
+            Idempotent-Replayed: { $ref: '#/components/headers/IdempotentReplayed' }
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/NivelDeResidencia' }
+        '400': { $ref: '#/components/responses/SolicitudInvalida' }
+        '401': { $ref: '#/components/responses/NoAutenticado' }
+        '403':
+          description: '`consentimiento_requerido` o `zona_requerida`.'
+          content:
+            application/problem+json:
+              schema: { $ref: '#/components/schemas/Problema' }
         '409': { $ref: '#/components/responses/Conflicto' }
+        '422':
+          description: '`fecha_de_presencia_invalida` o clave de idempotencia reutilizada con otro contenido.'
+          content:
+            application/problem+json:
+              schema: { $ref: '#/components/schemas/Problema' }
+
+  /v1/vecinos/{id}/residencia:
+    post:
+      tags: [identidad]
+      operationId: confirmarResidencia
+      summary: Confirmar la residencia de un vecino como moderador
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+        - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/ConfirmacionDeResidencia' }
+      responses:
+        '200':
+          description: Nivel de confianza después de la confirmación.
+          headers:
+            Idempotent-Replayed: { $ref: '#/components/headers/IdempotentReplayed' }
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/NivelDeResidencia' }
+        '400': { $ref: '#/components/responses/SolicitudInvalida' }
+        '401': { $ref: '#/components/responses/NoAutenticado' }
+        '403': { $ref: '#/components/responses/Prohibido' }
+        '404': { $ref: '#/components/responses/NoEncontrado' }
+        '409': { $ref: '#/components/responses/Conflicto' }
+        '422': { $ref: '#/components/responses/NoProcesable' }
+
+  /v1/vecinos/{id}/aval:
+    post:
+      tags: [identidad]
+      operationId: avalarResidencia
+      summary: Avalar a otro vecino de la misma zona desde el nivel 2
+      description: Cada vecino cuenta una vez por residencia; dos avales distintos elevan al vecino confirmado al nivel 2.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+        - $ref: '#/components/parameters/IdempotencyKey'
+      responses:
+        '200':
+          description: Nivel de confianza del vecino avalado.
+          headers:
+            Idempotent-Replayed: { $ref: '#/components/headers/IdempotentReplayed' }
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/NivelDeResidencia' }
+        '400': { $ref: '#/components/responses/SolicitudInvalida' }
+        '401': { $ref: '#/components/responses/NoAutenticado' }
+        '403':
+          description: '`no_puedes_avalarte`, `fuera_de_tu_zona` o `nivel_de_confianza_insuficiente`.'
+          content:
+            application/problem+json:
+              schema: { $ref: '#/components/schemas/Problema' }
+        '404': { $ref: '#/components/responses/NoEncontrado' }
+        '409': { $ref: '#/components/responses/Conflicto' }
+        '422': { $ref: '#/components/responses/NoProcesable' }
+
+  /v1/yo/consentimientos:
+    get:
+      tags: [identidad]
+      operationId: listarConsentimientos
+      summary: Consultar las finalidades, las versiones vigentes y las últimas decisiones
+      responses:
+        '200':
+          description: Finalidades y decisiones del vecino.
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/EstadoDeConsentimiento' }
+        '401': { $ref: '#/components/responses/NoAutenticado' }
+    post:
+      tags: [identidad]
+      operationId: registrarConsentimiento
+      summary: Aceptar o rechazar una finalidad con su versión vigente
+      description: Rechazar la presencia impide nuevos informes y conserva el nivel ya confirmado.
+      parameters:
+        - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/DecisionDeConsentimiento' }
+      responses:
+        '200':
+          description: Decisión registrada.
+          headers:
+            Idempotent-Replayed: { $ref: '#/components/headers/IdempotentReplayed' }
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/EstadoDeConsentimiento' }
+        '400': { $ref: '#/components/responses/SolicitudInvalida' }
+        '401': { $ref: '#/components/responses/NoAutenticado' }
+        '409':
+          description: '`version_de_consentimiento_desactualizada` o conflicto de idempotencia.'
+          content:
+            application/problem+json:
+              schema: { $ref: '#/components/schemas/Problema' }
+        '422': { $ref: '#/components/responses/NoProcesable' }
+
+  /v1/yo/datos:
+    get:
+      tags: [identidad]
+      operationId: exportarDatosPersonales
+      summary: Exportar los datos del vecino que hizo la solicitud
+      responses:
+        '200':
+          description: Datos personales agrupados por módulo. No se almacena en caché.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ExportacionDeDatosPersonales' }
+        '401': { $ref: '#/components/responses/NoAutenticado' }
+
+  /v1/yo:
+    patch:
+      tags: [identidad]
+      operationId: rectificarMiPerfil
+      summary: Rectificar el nombre visible del vecino
+      parameters:
+        - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/RectificacionDePerfil' }
+      responses:
+        '200':
+          description: Nombre visible actualizado.
+          headers:
+            Idempotent-Replayed: { $ref: '#/components/headers/IdempotentReplayed' }
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/RectificacionDePerfil' }
+        '400': { $ref: '#/components/responses/SolicitudInvalida' }
+        '401': { $ref: '#/components/responses/NoAutenticado' }
+        '409': { $ref: '#/components/responses/Conflicto' }
+        '422': { $ref: '#/components/responses/NoProcesable' }
+    delete:
+      tags: [identidad]
+      operationId: cancelarMiCuenta
+      summary: Revocar todas las sesiones y programar la eliminación de la cuenta
+      description: Tras aceptar la solicitud, las credenciales de la cuenta dejan de servir en la API. Las siguientes solicitudes con esas credenciales reciben 401.
+      parameters:
+        - $ref: '#/components/parameters/IdempotencyKey'
+      responses:
+        '202':
+          description: Cancelación aceptada; la eliminación de los datos se completa en segundo plano.
+        '400': { $ref: '#/components/responses/SolicitudInvalida' }
+        '401': { $ref: '#/components/responses/NoAutenticado' }
+        '409': { $ref: '#/components/responses/Conflicto' }
+        '422': { $ref: '#/components/responses/NoProcesable' }
 
   /v1/operacion/metricas:
     get:
@@ -978,7 +1176,7 @@ components:
         application/problem+json:
           schema: { $ref: '#/components/schemas/ProblemaDeValidacion' }
     NoAutenticado:
-      description: Falta el token o venció (`codigo` = no_autenticado).
+      description: Falta el token, venció (`no_autenticado`) o la sesión fue revocada (`sesion_revocada`).
       content:
         application/problem+json:
           schema: { $ref: '#/components/schemas/Problema' }
@@ -1093,6 +1291,14 @@ components:
           minimum: 0
           maximum: 3
           description: Nivel mínimo exigido cuando el código es `nivel_de_confianza_insuficiente`.
+        disponibleDesde:
+          type: string
+          format: date-time
+          description: Próxima fecha de cambio para `cambio_de_zona_muy_pronto`.
+        versionVigente:
+          type: integer
+          minimum: 1
+          description: Versión del texto para `version_de_consentimiento_desactualizada`.
         rolesRequeridos:
           type: array
           items:
@@ -1198,6 +1404,74 @@ components:
       required: [zonaId]
       properties:
         zonaId: { type: string, format: uuid }
+
+    PresenciaDeResidencia:
+      type: object
+      additionalProperties: false
+      required: [fecha, dentroDeLaZona]
+      properties:
+        fecha: { type: string, format: date, description: Día calendario en America/Lima. }
+        dentroDeLaZona: { type: boolean }
+
+    ConfirmacionDeResidencia:
+      type: object
+      additionalProperties: false
+      required: [motivo]
+      properties:
+        motivo: { type: string, minLength: 1, maxLength: 500 }
+        nivel: { type: integer, enum: [1, 2], default: 1 }
+
+    NivelDeResidencia:
+      type: object
+      required: [nivel]
+      properties:
+        nivel: { type: integer, minimum: 0, maximum: 3 }
+
+    FinalidadDeConsentimiento:
+      type: string
+      enum: [uso_del_servicio, confirmacion_por_presencia]
+
+    DecisionDeConsentimiento:
+      type: object
+      additionalProperties: false
+      required: [finalidad, version, aceptado]
+      properties:
+        finalidad: { $ref: '#/components/schemas/FinalidadDeConsentimiento' }
+        version: { type: integer, minimum: 1, maximum: 2147483647 }
+        aceptado: { type: boolean }
+
+    EstadoDeConsentimiento:
+      type: object
+      required: [finalidad, versionVigente, obligatoria, decision]
+      properties:
+        finalidad: { $ref: '#/components/schemas/FinalidadDeConsentimiento' }
+        versionVigente: { type: integer, minimum: 1 }
+        obligatoria: { type: boolean }
+        decision:
+          type: [object, 'null']
+          required: [version, aceptado, decididoEn]
+          properties:
+            version: { type: integer, minimum: 1 }
+            aceptado: { type: boolean }
+            decididoEn: { type: string, format: date-time }
+
+    RectificacionDePerfil:
+      type: object
+      additionalProperties: false
+      required: [nombreVisible]
+      properties:
+        nombreVisible: { type: string, minLength: 2, maxLength: 60 }
+
+    ExportacionDeDatosPersonales:
+      type: object
+      required: [generadoEn, modulos]
+      properties:
+        generadoEn: { type: string, format: date-time }
+        modulos:
+          type: object
+          description: Cada módulo aporta sus propios registros del vecino, sin credenciales ni datos de terceros.
+          additionalProperties:
+            type: object
 
     Sesion:
       type: object
