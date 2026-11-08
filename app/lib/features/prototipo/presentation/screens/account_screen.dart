@@ -3,7 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:vecinal/features/prototipo/presentation/theme/app_theme.dart';
 import 'package:vecinal/features/prototipo/presentation/widgets/proto_button.dart';
 
-/// Pantalla de cuenta (Mi cuenta) del prototipo.
+/// Pantalla de cuenta (Mi cuenta) del prototipo Winki.
 class AccountScreen extends StatelessWidget {
   const AccountScreen({super.key});
 
@@ -14,7 +14,10 @@ class AccountScreen extends StatelessWidget {
       appBar: AppBar(
         backgroundColor: kSurfaceColor,
         elevation: 0,
-        title: const Text('Mi cuenta', style: TextStyle(color: kTextColor, fontWeight: FontWeight.bold)),
+        title: const Text(
+          'Mi cuenta',
+          style: TextStyle(color: kTextColor, fontWeight: FontWeight.bold),
+        ),
         centerTitle: true,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: kTextColor),
@@ -35,19 +38,19 @@ class AccountScreen extends StatelessWidget {
                     child: Icon(Icons.person, size: 48, color: kPrimaryColor),
                   ),
                 ),
-                const SizedBox(height: 20),
+                const SizedBox(height: 12),
                 const Text(
                   'Beto',
-                  style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: kTextColor),
+                  style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: kTextColor),
                   textAlign: TextAlign.center,
                 ),
-                const SizedBox(height: 8),
+                const SizedBox(height: 4),
                 Text(
                   'Zona: La Victoria · Lima',
-                  style: TextStyle(fontSize: 15, color: Colors.grey.shade600),
+                  style: TextStyle(fontSize: 12, color: kTextSecondaryColor),
                   textAlign: TextAlign.center,
                 ),
-                const SizedBox(height: 32),
+                const SizedBox(height: 48),
                 ProtoButton(
                   text: 'Modo sencillo',
                   icon: Icons.accessibility,
@@ -63,13 +66,21 @@ class AccountScreen extends StatelessWidget {
                 ),
                 const SizedBox(height: 12),
                 ProtoButton(
-                  text: 'Cerrar sesión',
-                  icon: Icons.logout,
-                  onPressed: () => context.go('/ingresar'),
+                  text: 'Emergencia',
+                  icon: Icons.warning,
+                  onPressed: () => context.go('/emergencia'),
                   fullWidth: true,
                   secondary: true,
                 ),
-                const SizedBox(height: 32),
+                const SizedBox(height: 12),
+                ProtoButton(
+                  text: 'Avisos',
+                  icon: Icons.notifications,
+                  onPressed: () => context.go('/avisos'),
+                  fullWidth: true,
+                  secondary: true,
+                ),
+                const SizedBox(height: 48),
                 const Divider(color: Color(0xFFE5E7EB)),
                 const SizedBox(height: 16),
                 ProtoButton(
@@ -79,7 +90,7 @@ class AccountScreen extends StatelessWidget {
                   fullWidth: true,
                   secondary: true,
                 ),
-                const SizedBox(height: 24),
+                const SizedBox(height: 48),
               ],
             ),
           ),

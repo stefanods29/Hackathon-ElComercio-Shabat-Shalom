@@ -9,9 +9,9 @@ class PrototypeApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp.router(
-      title: 'Vecinal · Prototipo',
+      title: 'Winki',
       debugShowCheckedModeBanner: false,
-      theme: prototypeTheme(),
+      theme: winkiTheme(),
       routerConfig: prototypeRouter,
     );
   }
