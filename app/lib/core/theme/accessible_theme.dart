@@ -102,8 +102,10 @@ abstract final class AccessibleTheme {
         bodyLarge: base.textTheme.bodyLarge?.copyWith(height: 1.55),
         bodyMedium: base.textTheme.bodyMedium?.copyWith(height: 1.55),
       ),
+      // White bar with a hairline: it stands apart from the slate background.
       appBarTheme: AppBarTheme(
-        backgroundColor: light ? background : scheme.surface,
+        backgroundColor: light ? Colors.white : scheme.surfaceContainer,
+        shape: Border(bottom: BorderSide(color: light ? border : scheme.outlineVariant)),
         foregroundColor: scheme.onSurface,
         elevation: 0,
         scrolledUnderElevation: 0,
@@ -209,18 +211,23 @@ abstract final class AccessibleTheme {
         shadowColor: shadowTint.withValues(alpha: 0.3),
       ),
       navigationBarTheme: NavigationBarThemeData(
-        backgroundColor: scheme.surface,
-        indicatorColor: scheme.primaryContainer,
+        backgroundColor: light ? Colors.white : scheme.surfaceContainer,
+        indicatorColor: scheme.primary,
         surfaceTintColor: Colors.transparent,
-        elevation: 8,
-        shadowColor: shadowTint.withValues(alpha: 0.4),
-        height: 76,
+        elevation: 0,
+        height: 64,
         indicatorShape: const StadiumBorder(),
-        labelTextStyle: WidgetStatePropertyAll(
-          base.textTheme.labelMedium!.copyWith(
-            fontSize: 13,
-            fontWeight: FontWeight.w600,
-            color: scheme.onSurface,
+        iconTheme: WidgetStateProperty.resolveWith(
+          (states) => IconThemeData(
+            size: 24,
+            color: states.contains(WidgetState.selected) ? scheme.onPrimary : scheme.onSurface,
+          ),
+        ),
+        labelTextStyle: WidgetStateProperty.resolveWith(
+          (states) => base.textTheme.labelMedium!.copyWith(
+            fontSize: 12.5,
+            fontWeight: states.contains(WidgetState.selected) ? FontWeight.w800 : FontWeight.w600,
+            color: states.contains(WidgetState.selected) ? scheme.primary : scheme.onSurface,
           ),
         ),
       ),

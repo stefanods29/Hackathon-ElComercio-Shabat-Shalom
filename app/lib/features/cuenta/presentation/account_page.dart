@@ -8,6 +8,8 @@ import 'package:vecinal/core/ui/simple_mode.dart';
 import 'package:vecinal/features/avisos/data/providers.dart';
 import 'package:vecinal/features/cuenta/data/providers.dart';
 import 'package:vecinal/features/cuenta/domain/auth_state.dart';
+import 'package:vecinal/features/cuenta/presentation/profile_page.dart';
+import 'package:vecinal/features/onboarding/demo_profiles.dart';
 import 'package:vecinal/features/onboarding/practice_mode.dart';
 import 'package:vecinal/l10n/app_localizations.dart';
 
@@ -36,11 +38,16 @@ class AccountPage extends ConsumerWidget {
           body: ListView(
             padding: const EdgeInsets.fromLTRB(20, 8, 20, 32),
             children: [
-              _ProfileHeader(
-                name: user?.displayName ?? texts.unknownUser,
+              _ProfileCard(
+                name: ref.watch(practiceModeProvider).value == true
+                    ? ref.watch(effectiveSessionProvider).displayName
+                    : user?.displayName ?? texts.unknownUser,
                 subtitle: texts.accountSignedIn,
+                action: texts.profileOpen,
+                onTap: () => context.push(Routes.profile),
               ),
-              const SizedBox(height: 20),
+              const SizedBox(height: 12),
+              _SectionTitle(texts.sectionEmergency),
               _Section(
                 children: [
                   _Item(
@@ -56,6 +63,7 @@ class AccountPage extends ConsumerWidget {
                   ),
                 ],
               ),
+              _SectionTitle(texts.sectionAccount),
               _Section(
                 children: [
                   _Item(
@@ -151,6 +159,7 @@ class AccountPage extends ConsumerWidget {
                   ),
                 ],
               ),
+              _SectionTitle(texts.sectionSession),
               _Section(
                 children: [
                   _Item(
@@ -269,52 +278,61 @@ class AccountPage extends ConsumerWidget {
   }
 }
 
-class _ProfileHeader extends StatelessWidget {
-  const _ProfileHeader({required this.name, required this.subtitle});
+class _ProfileCard extends StatelessWidget {
+  const _ProfileCard({
+    required this.name,
+    required this.subtitle,
+    required this.action,
+    required this.onTap,
+  });
   final String name;
   final String subtitle;
+  final String action;
+  final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final initial = name.trim().isEmpty ? '?' : name.trim().characters.first.toUpperCase();
-    return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        gradient: const LinearGradient(
-          colors: [Color(0xFF0F766E), Color(0xFF1E3A5F)],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
+    return Card(
+      margin: EdgeInsets.zero,
+      clipBehavior: Clip.antiAlias,
+      child: InkWell(
+        onTap: onTap,
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(20, 18, 12, 18),
+          child: Row(
+            children: [
+              ProfileAvatar(name: name),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  spacing: 2,
+                  children: [
+                    Text(
+                      name,
+                      style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700),
+                    ),
+                    Text(
+                      subtitle,
+                      style: theme.textTheme.bodyMedium?.copyWith(
+                        color: theme.colorScheme.onSurfaceVariant,
+                      ),
+                    ),
+                    Text(
+                      action,
+                      style: theme.textTheme.labelLarge?.copyWith(
+                        color: theme.colorScheme.primary,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Icon(Icons.chevron_right, color: theme.colorScheme.onSurfaceVariant),
+            ],
+          ),
         ),
-        borderRadius: BorderRadius.circular(24),
-        boxShadow: [
-          BoxShadow(
-            color: const Color(0xFF0F766E).withValues(alpha: 0.3),
-            blurRadius: 24,
-            offset: const Offset(0, 10),
-          ),
-        ],
-      ),
-      child: Row(
-        children: [
-          CircleAvatar(
-            radius: 30,
-            backgroundColor: Colors.white.withValues(alpha: 0.2),
-            foregroundColor: Colors.white,
-            child: Text(initial, style: const TextStyle(fontSize: 26, fontWeight: FontWeight.w800)),
-          ),
-          const SizedBox(width: 16),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(name, style: theme.textTheme.titleLarge?.copyWith(color: Colors.white)),
-                const SizedBox(height: 4),
-                Text(subtitle, style: theme.textTheme.bodyMedium?.copyWith(color: Colors.white)),
-              ],
-            ),
-          ),
-        ],
       ),
     );
   }

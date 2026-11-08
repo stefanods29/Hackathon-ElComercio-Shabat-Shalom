@@ -141,7 +141,7 @@ class WallPage extends ConsumerWidget {
           Expanded(
             child: wall.when(
               data: (posts) => ListView(
-                padding: const EdgeInsets.fromLTRB(20, 4, 20, 112),
+                padding: const EdgeInsets.fromLTRB(20, 16, 20, 112),
                 children: [
                   Text(
                     texts.wallSubtitle,

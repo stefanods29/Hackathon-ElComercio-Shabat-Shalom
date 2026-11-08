@@ -11,6 +11,7 @@ import 'package:vecinal/features/cuenta/presentation/choose_zone_page.dart';
 import 'package:vecinal/features/cuenta/presentation/code_page.dart';
 import 'package:vecinal/features/cuenta/presentation/phone_page.dart';
 import 'package:vecinal/features/cuenta/presentation/privacy_pages.dart';
+import 'package:vecinal/features/cuenta/presentation/profile_page.dart';
 import 'package:vecinal/features/directorio/presentation/directory_page.dart';
 import 'package:vecinal/features/directorio/presentation/service_detail_page.dart';
 import 'package:vecinal/features/directorio/presentation/service_form_page.dart';
@@ -124,6 +125,7 @@ final routerProvider = Provider<GoRouter>((ref) {
             ConsentPage(registration: state.uri.queryParameters['registro'] == '1'),
       ),
       GoRoute(path: Routes.myData, builder: (context, state) => const MyDataPage()),
+      GoRoute(path: Routes.profile, builder: (context, state) => const ProfilePage()),
       GoRoute(path: Routes.levels, builder: (context, state) => const LevelsPage()),
       GoRoute(path: Routes.changeZone, builder: (context, state) => const ChangeZonePage()),
       GoRoute(path: Routes.publish, builder: (context, state) => const ChooseTypePage()),
