@@ -1,2 +1,3 @@
-/** Public interface of the Directory module. Other modules may only import from here. */
+/** Public interface of the Directory module. */
 export { DirectoryModule } from './directory.module.js';
+export { SERVICE_PUBLISHED_EVENT, publicLocation } from './domain/service.js';

@@ -6,6 +6,7 @@ import {
   type OnModuleDestroy,
   type OnModuleInit,
 } from '@nestjs/common';
+import { DirectoryModule } from '../modules/directorio/index.js';
 import { NotificationsModule } from '../modules/notificaciones/index.js';
 import { AppConfigModule } from '../shared/config/app-config.module.js';
 import { DatabaseModule } from '../shared/db/database.module.js';
@@ -51,7 +52,13 @@ export class WorkerRuntime implements OnModuleInit, OnApplicationBootstrap, OnMo
 }
 
 @Module({
-  imports: [AppConfigModule, DatabaseModule, SharedModule.forWorkers(), NotificationsModule],
+  imports: [
+    AppConfigModule,
+    DatabaseModule,
+    SharedModule.forWorkers(),
+    NotificationsModule,
+    DirectoryModule,
+  ],
   providers: [OutboxRelay, DailyCleanup, WorkerRuntime],
 })
 export class WorkersModule {}
