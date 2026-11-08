@@ -4,6 +4,10 @@ import {
   up as createSessions,
   down as dropSessions,
 } from '../../src/modules/identidad/infrastructure/migrations/202611070200_identidad_sesiones.js';
+import {
+  up as createResidence,
+  down as dropResidence,
+} from '../../src/modules/identidad/infrastructure/migrations/202611080300_identidad_residencia_y_privacidad.js';
 import { createKysely } from '../../src/shared/db/connection.js';
 
 describe('Migraciones de todos los módulos', () => {
@@ -60,6 +64,48 @@ describe('Migraciones de todos los módulos', () => {
         }>`SELECT to_regclass('identidad.sesiones')::text AS name`.execute(transaction);
         expect(present.rows).toEqual([{ name: 'identidad.sesiones' }]);
         throw rollback; // Keep the suite's data: this entire round trip is rolled back.
+      }),
+    ).rejects.toBe(rollback);
+  });
+
+  it('revierte y reaplica las tablas privadas de residencia sin recuperar un teléfono borrado', async () => {
+    expect(inject('appliedMigrations')).toContain('202611080300_identidad_residencia_y_privacidad');
+    const rollback = new Error('revertir prueba de migración');
+    await expect(
+      db.transaction().execute(async (transaction) => {
+        const id = (
+          await sql<{ id: string }>`
+          INSERT INTO identidad.usuarios (telefono, nombre_visible, eliminado_en)
+          VALUES (NULL, 'Cuenta eliminada', now()) RETURNING id
+        `.execute(transaction)
+        ).rows[0]!.id;
+
+        await dropResidence(transaction);
+        const removed = await sql<{ table_name: string }>`
+          SELECT table_name FROM information_schema.tables WHERE table_schema = 'identidad'
+          AND table_name IN ('consentimientos', 'presencias', 'avales', 'confirmaciones')
+        `.execute(transaction);
+        expect(removed.rows).toEqual([]);
+        const tombstone = await sql<{ telefono: string; eliminado_en: Date }>`
+          SELECT telefono, eliminado_en FROM identidad.usuarios WHERE id = ${id}
+        `.execute(transaction);
+        expect(tombstone.rows[0]).toMatchObject({
+          telefono: expect.stringMatching(/^\+999[0-9]{12}$/),
+          eliminado_en: expect.any(Date),
+        });
+
+        await createResidence(transaction);
+        const restored = await sql<{ table_name: string }>`
+          SELECT table_name FROM information_schema.tables WHERE table_schema = 'identidad'
+          AND table_name IN ('consentimientos', 'presencias', 'avales', 'confirmaciones') ORDER BY 1
+        `.execute(transaction);
+        expect(restored.rows.map((row) => row.table_name)).toEqual([
+          'avales',
+          'confirmaciones',
+          'consentimientos',
+          'presencias',
+        ]);
+        throw rollback;
       }),
     ).rejects.toBe(rollback);
   });
