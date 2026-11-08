@@ -98,7 +98,21 @@ en la rama de referencias visuales. Incluye todas las pruebas de `AssignedCaseCa
 es idéntico en ambas ramas (objeto `89ff0097db86cbfd2eb265dda9e4e4212e4c9b29`).
 Comprueba purga al retirar ubicación, reasignar, cerrar, vencer y salir: memoria, archivos y claves.
 
-Pendiente registrar la verificación completa de Flutter y la CI de esta rama.
+En esta rama, `bash tool/verify.sh` pasó con Flutter 3.47.9 en Ubuntu 24.04: análisis sin
+avisos, `278` pruebas aprobadas y siete omitidas, 223 archivos con formato correcto y
+`✓ App verificada`. Seis omisiones son las referencias visuales que la base integrada solo
+comparaba en macOS; la séptima ya existía. La rama visual comprueba las seis en Linux.
+La primera ejecución simultánea agotó 30 segundos en dos pruebas de caché; la repetición con
+`docker run --cpuset-cpus=0` y los mismos límites pasó la suite completa. No se cambiaron
+tiempos, expectativas ni código de producción.
+
+La [CI Backend de la rama](https://github.com/stefanods29/Hackathon-ElComercio-Shabat-Shalom/actions/runs/42500597352)
+terminó en verde sobre `da9ac0084865be96409abb11cbf4ce09223599c8`: tipos, lint, formato,
+fronteras, streams, pruebas unitarias, build, integración con PostgreSQL y humo de carga.
+El cierre posterior modifica únicamente documentación y las casillas de seguimiento.
+
+Se cierran 2.1–2.4 con estas evidencias. El responsable del lote sigue siendo `JDiazD33`;
+la entrega está en una rama y aún requiere integración por el equipo.
 
 ## Límites
 

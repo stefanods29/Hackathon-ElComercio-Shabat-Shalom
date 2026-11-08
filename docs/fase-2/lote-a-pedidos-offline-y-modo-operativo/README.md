@@ -13,7 +13,7 @@
 | Parte | Qué entrega | Estado | Responsable | PR |
 |---|---|---|---|---|
 | 1 | Pedidos de ayuda sin conexión | En curso: integrada en `main` y conectada a B y D; faltan la prueba en modo avión (1.5) y la CI | `JDiazD33` | — |
-| 2 | Streams bajo demanda por asignación | En curso: permisos y revocación verificados con PowerSync real y dos cuentas; purga local comprobada; falta la CI de esta rama | `JDiazD33` | — |
+| 2 | Streams bajo demanda por asignación | En curso: 2.1–2.4 verificadas en rama con PowerSync real, dos cuentas, purga local y CI; pendiente integrar | `JDiazD33` | — |
 | 3 | Modo operativo protegido | En curso: integrada; faltan los celulares reales (3.2) y la CI | `JDiazD33` | — |
 | 4 | Tablero sin conexión: agregados y recursos | En curso: integrada y conectada al tablero de D; faltan reloj y modo avión (4.2) y la CI | `JDiazD33` | — |
 | 5 | Seguridad y pruebas de campo | Pendiente | `JDiazD33` | — |
@@ -60,6 +60,8 @@ pendientes de verificación con B, D y CI.
 El [informe de la Parte 2](../evidencias/streams-por-asignacion.md) documenta las pruebas con
 filas ficticias, la ruta auditada propuesta y las verificaciones pendientes con el backend de B y
 PowerSync en vivo.
+
+La [verificación en vivo](../evidencias/powersync-en-vivo.md) completa las tareas 2.1–2.4 con PowerSync 1.28.1, dos cuentas, aislamiento por sesión, revocación, purga local y CI. La reasignación durante en camino se comprueba con una mutación SQL aislada: la API no permite esa transición.
 
 ### Pedidos para B y D
 
