@@ -129,11 +129,15 @@ void main() {
     fake.offline = true;
     now = now.add(const Duration(hours: 2));
     await repository.refreshCoverage();
-    expect((await snapshotWhere((_) => true)).coverageVerified, isTrue);
+    final recent = await snapshotWhere((_) => true);
+    expect(recent.updatedAt, DateTime.utc(2026, 11, 8, 12));
+    expect(recent.coverageVerified, isTrue);
     await repository.saveRequest(draft());
 
     now = now.add(const Duration(hours: 11));
-    expect((await snapshotWhere((_) => true)).coverageVerified, isFalse);
+    final expired = await snapshotWhere((_) => true);
+    expect(expired.updatedAt, recent.updatedAt);
+    expect(expired.coverageVerified, isFalse);
     await expectLater(repository.saveRequest(draft()), throwsStateError);
   });
 
