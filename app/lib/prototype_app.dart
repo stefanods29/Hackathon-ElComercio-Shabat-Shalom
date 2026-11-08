@@ -17,10 +17,10 @@ import 'package:vecinal/features/prototipo/presentation/theme/app_theme.dart';
 
 abstract final class ProtoRoutes {
   static const welcome = '/';
+  static const muro = '/muro';
   static const login = '/ingresar';
   static const code = '/ingresar/codigo';
   static const zone = '/elegir-zona';
-  static const wall = '/';
   static const publish = '/publicar';
   static const publishForm = '/publicar/:tipo';
   static const toReview = '/por-revisar';
@@ -36,10 +36,10 @@ final prototypeRouter = GoRouter(
   initialLocation: ProtoRoutes.welcome,
   routes: [
     GoRoute(path: ProtoRoutes.welcome, builder: (context, _) => const WelcomeScreen()),
+    GoRoute(path: ProtoRoutes.muro, builder: (context, _) => const WallScreen()),
     GoRoute(path: ProtoRoutes.login, builder: (context, _) => const LoginScreen()),
     GoRoute(path: ProtoRoutes.code, builder: (context, _) => const CodeScreen()),
     GoRoute(path: ProtoRoutes.zone, builder: (context, _) => const ZoneScreen()),
-    GoRoute(path: ProtoRoutes.wall, builder: (context, _) => const WallScreen()),
     GoRoute(path: ProtoRoutes.publish, builder: (context, _) => const PublishScreen()),
     GoRoute(path: ProtoRoutes.publishForm, builder: (context, _) => const PublishScreen()),
     GoRoute(path: ProtoRoutes.toReview, builder: (context, _) => const ActionsToReviewScreen()),

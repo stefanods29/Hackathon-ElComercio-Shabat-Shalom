@@ -50,7 +50,7 @@ class TutorialScreen extends StatelessWidget {
               ProtoButton(
                 text: 'Empezar a usar la app',
                 icon: Icons.check_circle,
-                onPressed: () => context.go('/'),
+                onPressed: () => context.go('/muro'),
                 fullWidth: true,
               ),
               const SizedBox(height: 20),

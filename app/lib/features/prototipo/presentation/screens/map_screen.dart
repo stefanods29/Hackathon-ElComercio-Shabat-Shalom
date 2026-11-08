@@ -50,7 +50,7 @@ class MapScreen extends StatelessWidget {
               ProtoButton(
                 text: 'Volver al muro',
                 icon: Icons.arrow_back,
-                onPressed: () => context.go('/'),
+                onPressed: () => context.go('/muro'),
                 fullWidth: true,
               ),
               const SizedBox(height: 20),

@@ -25,7 +25,7 @@ class PostDetailScreen extends StatelessWidget {
         centerTitle: true,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: kTextColor),
-          onPressed: () => context.go('/'),
+          onPressed: () => context.go('/muro'),
         ),
       ),
       body: SafeArea(
@@ -114,7 +114,7 @@ class PostDetailScreen extends StatelessWidget {
               ProtoButton(
                 text: 'Volver al muro',
                 icon: Icons.arrow_back,
-                onPressed: () => context.go('/'),
+                onPressed: () => context.go('/muro'),
                 fullWidth: true,
               ),
               const SizedBox(height: 20),

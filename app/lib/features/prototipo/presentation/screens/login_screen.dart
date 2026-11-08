@@ -99,7 +99,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 ProtoButton(
                   text: 'Volver',
                   icon: Icons.arrow_back,
-                  onPressed: () => context.go('/'),
+                  onPressed: () => context.go('/muro'),
                   fullWidth: true,
                   secondary: true,
                 ),

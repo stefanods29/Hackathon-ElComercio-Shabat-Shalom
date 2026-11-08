@@ -18,7 +18,7 @@ class AccountScreen extends StatelessWidget {
         centerTitle: true,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: kTextColor),
-          onPressed: () => context.go('/'),
+          onPressed: () => context.go('/muro'),
         ),
       ),
       body: SafeArea(

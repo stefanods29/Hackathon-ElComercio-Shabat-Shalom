@@ -44,7 +44,7 @@ class _PublishScreenState extends State<PublishScreen> {
         behavior: SnackBarBehavior.floating,
       ),
     );
-    context.go('/');
+    context.go('/muro');
   }
 
   @override
@@ -133,7 +133,7 @@ class _PublishScreenState extends State<PublishScreen> {
               ProtoButton(
                 text: 'Cancelar',
                 icon: Icons.close,
-                onPressed: () => context.go('/'),
+                onPressed: () => context.go('/muro'),
                 fullWidth: true,
                 secondary: true,
               ),
