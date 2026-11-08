@@ -126,6 +126,7 @@ se registran por separado. Conservar únicamente el resultado agregado en la evi
 | Fecha / SHAs | Equipos y condiciones | Pedidos | Perdidos | Duplicados | Sin acuse / rechazados |
 |---|---|---|---|---|---|
 | Pendiente | Pendiente | — | — | — | — |
+
 ## Teléfonos reales
 
 Preparación del 8 de noviembre de 2026, America/Lima, en

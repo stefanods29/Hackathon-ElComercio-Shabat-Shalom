@@ -11,10 +11,10 @@ Fase 1 cumple sus [criterios de salida](../fase-1/criterios-de-salida.md) y term
 
 | Carpeta | Qué es | Dificultad | Responsable | Estado |
 |---|---|---|---|---|
-| [`lote-a-pedidos-offline-y-modo-operativo/`](lote-a-pedidos-offline-y-modo-operativo/) | Pedidos de ayuda sin conexión, streams por asignación, modo operativo protegido, tablero offline, seguridad e integración | ★★★★ | `JDiazD33` | En curso: partes 1–4 integradas en `main`; faltan celulares, PowerSync en vivo, CI y las partes 5 y 6 |
-| [`lote-b-modulo-emergencias/`](lote-b-modulo-emergencias/) | Eventos, pedidos con estados, asignaciones, escalamiento, recursos críticos, roles y auditoría | ★★★ | `Defartion` | En curso: 5 partes integradas en `main` y probadas por la API; falta la CI |
-| [`lote-c-consola-web-y-avisos-urgentes/`](lote-c-consola-web-y-avisos-urgentes/) | Consola web de operación y avisos urgentes con SMS de respaldo | ★★ | stefanods29 | En curso: 4 partes integradas en `main` y conectadas a B; faltan CI, proveedor de SMS y nube |
-| [`lote-d-tablero-de-emergencia/`](lote-d-tablero-de-emergencia/) | Tablero de emergencia, "Necesito ayuda", "Puedo ayudar", recursos y contactos | ★ | stefanods29 | En curso: 4 partes integradas en `main` con el puerto real; faltan pruebas de widgets y accesibilidad |
+| [`lote-a-pedidos-offline-y-modo-operativo/`](lote-a-pedidos-offline-y-modo-operativo/) | Pedidos de ayuda sin conexión, streams por asignación, modo operativo protegido, tablero offline, seguridad e integración | ★★★★ | `JDiazD33` | En curso: parte 2 hecha; faltan modo avión, capturas en Android, la prueba de campo y el simulacro |
+| [`lote-b-modulo-emergencias/`](lote-b-modulo-emergencias/) | Eventos, pedidos con estados, asignaciones, escalamiento, recursos críticos, roles y auditoría | ★★★ | `Defartion` | En curso: partes 1–4 hechas; falta la revisión conjunta de migraciones (parte 5) |
+| [`lote-c-consola-web-y-avisos-urgentes/`](lote-c-consola-web-y-avisos-urgentes/) | Consola web de operación y avisos urgentes con SMS de respaldo | ★★ | stefanods29 | En curso: partes 1 y 2 hechas; faltan staging para la nube y el proveedor de SMS |
+| [`lote-d-tablero-de-emergencia/`](lote-d-tablero-de-emergencia/) | Tablero de emergencia, "Necesito ayuda", "Puedo ayudar", recursos y contactos | ★ | stefanods29 | En curso: partes 1 y 2 hechas; faltan la ruta de ofertas, TalkBack/VoiceOver y la prueba con vecinos |
 
 El estado de cada parte está en la tabla "Estado del lote" de cada guía. Cómo se unieron los lotes,
 qué se decidió entre ellos y qué falta: [`integracion.md`](integracion.md).

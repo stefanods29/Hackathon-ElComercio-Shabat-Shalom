@@ -12,11 +12,11 @@
 
 | Parte | Qué entrega | Estado | Responsable | PR |
 |---|---|---|---|---|
-| 1 | Eventos y activación del modo emergencia | En curso: integrada en `main` y probada por la API; falta la CI | `Defartion` | — |
-| 2 | Pedidos de ayuda y su máquina de estados | En curso: integrada en `main` y probada por la API; falta la CI | `Defartion` | — |
-| 3 | Asignaciones, escalamiento y turnos | En curso: integrada en `main` y probada por la API; falta la CI | `Defartion` | — |
-| 4 | Recursos críticos y reportes verificables | En curso: integrada en `main` y probada por la API; falta la CI | `Defartion` | — |
-| 5 | Roles operativos, auditoría y cierre del evento | En curso: integrada y probada por la API; faltan la CI y revisar las migraciones | `Defartion` | — |
+| 1 | Eventos y activación del modo emergencia | Hecha: probada por la API con PostgreSQL | `Defartion` | — |
+| 2 | Pedidos de ayuda y su máquina de estados | Hecha: probada por la API con PostgreSQL | `Defartion` | — |
+| 3 | Asignaciones, escalamiento y turnos | Hecha: probada por la API con PostgreSQL, con reloj de prueba para el escalamiento | `Defartion` | — |
+| 4 | Recursos críticos y reportes verificables | Hecha: probada por la API con PostgreSQL, con concurrencia y supresión | `Defartion` | — |
+| 5 | Roles operativos, auditoría y cierre del evento | En curso: revisión preliminar con una corrección de relleno; falta la revisión conjunta de migraciones ([evidencia](../evidencias/revision-migraciones-b.md)) | `Defartion` | — |
 
 Estados posibles: **Pendiente**, **En curso** o **Hecha** (integrada en `main`).
 

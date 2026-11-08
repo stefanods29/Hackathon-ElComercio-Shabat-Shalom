@@ -12,12 +12,12 @@
 
 | Parte | Qué entrega | Estado | Responsable | PR |
 |---|---|---|---|---|
-| 1 | Pedidos de ayuda sin conexión | En curso: integrada en `main` y conectada a B y D; faltan la prueba en modo avión (1.5) y la CI | `JDiazD33` | — |
-| 2 | Streams bajo demanda por asignación | En curso: 2.1–2.4 verificadas en rama con PowerSync real, dos cuentas, purga local y CI; pendiente integrar | `JDiazD33` | — |
-| 3 | Modo operativo protegido | En curso: integrada; faltan los celulares reales (3.2) y la CI | `JDiazD33` | — |
-| 4 | Tablero sin conexión: agregados y recursos | En curso: integrada y conectada al tablero de D; faltan reloj y modo avión (4.2) y la CI | `JDiazD33` | — |
-| 5 | Seguridad y pruebas de campo | Pendiente | `JDiazD33` | — |
-| 6 | Integración de la Fase 2 y simulacro | En curso: lotes unidos en `main` ([integración](../integracion.md)); faltan el simulacro y la revisión | `JDiazD33` | — |
+| 1 | Pedidos de ayuda sin conexión | En curso: conectada a B y D; faltan aprobar el contrato (1.4) y el modo avión en las pantallas (1.5) | `JDiazD33` | — |
+| 2 | Streams bajo demanda por asignación | Hecha: PowerSync real con dos cuentas, purga local y CI ([evidencia](../evidencias/powersync-en-vivo.md)) | `JDiazD33` | — |
+| 3 | Modo operativo protegido | En curso: falta comprobar las capturas bloqueadas en Android (3.2); el iPhone ya ocultó el caso | `JDiazD33` | — |
+| 4 | Tablero sin conexión: agregados y recursos | En curso: frescura con el límite del servidor probada con reloj; falta el modo avión (4.2) | `JDiazD33` | — |
+| 5 | Seguridad y pruebas de campo | En curso: plan, pruebas automáticas y una corrección (PEN-01); faltan el recorrido manual y la prueba de campo en teléfonos ([evidencia](../evidencias/penetracion.md)) | `JDiazD33` | — |
+| 6 | Integración de la Fase 2 y simulacro | En curso: lotes unidos en `main`; libreto del simulacro preparado, falta realizarlo con los aliados ([evidencia](../evidencias/simulacro.md)) | `JDiazD33` | — |
 
 Estados posibles: **Pendiente**, **En curso** o **Hecha** (integrada en `main`).
 

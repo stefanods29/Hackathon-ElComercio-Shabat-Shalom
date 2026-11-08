@@ -12,10 +12,10 @@
 
 | Parte | Qué entrega | Estado | Responsable | PR |
 |---|---|---|---|---|
-| 1 | Inicio en modo emergencia | En curso: integrada en `main` con el puerto real; faltan pruebas de widgets | stefanods29 | — |
-| 2 | "Necesito ayuda" y el estado de mi pedido | En curso: integrada en `main` con el puerto real; faltan pruebas de widgets | stefanods29 | — |
-| 3 | "Puedo ayudar" y recursos | En curso: integrada en `main` con el puerto real; faltan pruebas de widgets | stefanods29 | — |
-| 4 | Contactos de emergencia y accesibilidad | En curso: accesibilidad automática hecha; faltan TalkBack y VoiceOver en teléfonos y la prueba con vecinos | stefanods29 | — |
+| 1 | Inicio en modo emergencia | Hecha: pruebas de pantallas y puerto real ([evidencia](../evidencias/pantallas-d.md)) | stefanods29 | — |
+| 2 | "Necesito ayuda" y el estado de mi pedido | Hecha: tres toques contados, cada estado y sin señal simulado ([evidencia](../evidencias/pantallas-d.md)) | stefanods29 | — |
+| 3 | "Puedo ayudar" y recursos | En curso: frescura con el límite del servidor; falta la ruta de ofertas en B (3.3) | stefanods29 | — |
+| 4 | Contactos de emergencia y accesibilidad | En curso: accesibilidad automática en macOS y Linux; faltan TalkBack y VoiceOver (4.5) y la prueba con vecinos (4.3) | stefanods29 | — |
 
 Estados posibles: **Pendiente**, **En curso** o **Hecha** (integrada en `main`).
 

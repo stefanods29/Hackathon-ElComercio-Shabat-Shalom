@@ -65,18 +65,31 @@ revocación de los permisos y auditoría sin contenido.
 
 ## Lo que sigue pendiente
 
-- ~~CI~~: en verde en `4fc14c1`, con Android e iOS ([evidencia](evidencias/ci-integracion.md)).
-- **PowerSync en vivo.** Los streams se probaron con el evaluador de Sync Streams, no con el
-  servicio real ni con dos celulares.
-- **Celulares reales.** Capturas bloqueadas y vista difuminada (A 3.2), modo avión en las pantallas
-  de D (A 1.5) y la prueba de campo (A 5.2).
-- **Pruebas de D.** Widgets de cada estado y flujo de tres toques contado. La accesibilidad
-  automática y los golden tests al 200 % ya están ([evidencia](evidencias/accesibilidad-modo-emergencia.md));
-  falta recorrerla con TalkBack y VoiceOver en teléfonos (D 4.5).
-- ~~Consola contra la API real~~: 7 de 7 con `npm run test:console-contract` ([evidencia](evidencias/consola-contra-api.md)).
-- **Decisiones externas.** Proveedor real de SMS (13.3.4), adaptador de alertas oficiales, tiempos
-  acordados con los aliados, publicación del directorio en la nube y la evaluación de impacto.
-- **Puntos a mejorar.** Elegir el punto del pedido en el mapa offline (hoy se usa el de referencia
-  de la zona), guardar las ofertas en el servidor cuando B tenga su ruta y que la consola permita a
-  una brigadista ver sus casos (B solo expone la cola a coordinación).
-- **Partes 5 y 6 del Lote A.** Penetración, prueba de campo, simulacro con aliados y revisión.
+Actualizado al unir las entregas del 8 de noviembre de 2026 (pruebas de B y D, consola, PowerSync
+en vivo, referencias en Linux, teléfonos, revisión de migraciones, nube y seguridad).
+
+Ya hecho:
+
+- ~~CI de la versión integrada~~, con Android e iOS ([evidencia](evidencias/ci-integracion.md)).
+- ~~Consola contra la API real~~ ([evidencia](evidencias/consola-contra-api.md)) y sus pruebas de
+  pantallas ([evidencia](evidencias/pantallas-c.md)).
+- ~~PowerSync en vivo con dos cuentas~~ ([evidencia](evidencias/powersync-en-vivo.md)).
+- ~~Pruebas de D~~: pantallas ([evidencia](evidencias/pantallas-d.md)), frescura y accesibilidad
+  automática con referencias en macOS y Linux ([evidencia](evidencias/accesibilidad-modo-emergencia.md)).
+- ~~Escalamiento, concurrencia y supresión de B~~ con reloj de prueba y PostgreSQL.
+
+Falta:
+
+- **Modo avión en las pantallas de D (A 1.5)** en el simulador o un teléfono.
+- **Teléfonos reales:** capturas bloqueadas en Android (A 3.2), TalkBack y VoiceOver (D 4.5) y la
+  prueba de campo (A 5.2). El iPhone ya ocultó el caso en el selector de apps
+  ([registro](evidencias/modo-operativo.md#teléfonos-reales)).
+- **Seguridad:** el recorrido manual de OWASP MASVS en teléfonos y actualizar las dependencias con
+  avisos moderados ([evidencia](evidencias/penetracion.md)).
+- **Decisiones del equipo:** revisión conjunta de migraciones (B 5.3), ruta de ofertas (D 3.3),
+  proveedor de SMS (C 4.5), staging para la nube (C 3.5), tiempos con los aliados y evaluación de
+  impacto.
+- **Simulacro con los aliados y prueba con vecinos** (A 6 y D 4.3), con el libreto ya preparado
+  ([libreto](evidencias/simulacro.md)).
+- **Puntos a mejorar:** elegir el punto del pedido en el mapa offline y que la consola permita a una
+  brigadista ver sus casos.
