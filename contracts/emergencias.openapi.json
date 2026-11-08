@@ -1,0 +1,3473 @@
+{
+  "openapi": "3.1.1",
+  "info": {
+    "title": "Contrato del módulo Emergencias · Fase 2 B",
+    "version": "0.2.0",
+    "description": "Datos sensibles bajo demanda y acceso auditado. No garantiza atención ni sustituye canales oficiales.",
+    "license": {
+      "name": "MIT",
+      "identifier": "MIT"
+    }
+  },
+  "security": [
+    {
+      "tokenDeAcceso": []
+    }
+  ],
+  "tags": [
+    {
+      "name": "emergencias",
+      "description": "Operación de emergencia con cobertura humana."
+    }
+  ],
+  "paths": {
+    "/v1/zonas/{zonaId}/eventos": {
+      "get": {
+        "operationId": "listarEventos",
+        "tags": ["emergencias"],
+        "summary": "Eventos de la zona",
+        "parameters": [
+          {
+            "name": "zonaId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Operación completada.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string"
+                },
+                "description": "no-store"
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "elementos": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Evento"
+                      },
+                      "maxItems": 200
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/SolicitudInvalida"
+          },
+          "401": {
+            "$ref": "#/components/responses/SesionRequerida"
+          },
+          "403": {
+            "$ref": "#/components/responses/AccesoDenegado"
+          },
+          "404": {
+            "$ref": "#/components/responses/RecursoNoVisible"
+          },
+          "409": {
+            "$ref": "#/components/responses/EstadoIncompatible"
+          },
+          "422": {
+            "$ref": "#/components/responses/ReglaInvalida"
+          }
+        }
+      },
+      "post": {
+        "operationId": "activarEvento",
+        "tags": ["emergencias"],
+        "summary": "Activar el modo emergencia; los pedidos requieren cobertura adicional",
+        "parameters": [
+          {
+            "name": "zonaId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 8,
+              "maxLength": 128
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Operación completada.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string"
+                },
+                "description": "no-store"
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Evento"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/SolicitudInvalida"
+          },
+          "401": {
+            "$ref": "#/components/responses/SesionRequerida"
+          },
+          "403": {
+            "$ref": "#/components/responses/AccesoDenegado"
+          },
+          "404": {
+            "$ref": "#/components/responses/RecursoNoVisible"
+          },
+          "409": {
+            "$ref": "#/components/responses/EstadoIncompatible"
+          },
+          "422": {
+            "$ref": "#/components/responses/ReglaInvalida"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/NuevoEvento"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/eventos/{id}/cerrar": {
+      "post": {
+        "operationId": "cerrarEvento",
+        "tags": ["emergencias"],
+        "summary": "Iniciar cierre y anonimización del evento",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 8,
+              "maxLength": 128
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Operación completada.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string"
+                },
+                "description": "no-store"
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Evento"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/SolicitudInvalida"
+          },
+          "401": {
+            "$ref": "#/components/responses/SesionRequerida"
+          },
+          "403": {
+            "$ref": "#/components/responses/AccesoDenegado"
+          },
+          "404": {
+            "$ref": "#/components/responses/RecursoNoVisible"
+          },
+          "409": {
+            "$ref": "#/components/responses/EstadoIncompatible"
+          },
+          "422": {
+            "$ref": "#/components/responses/ReglaInvalida"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CerrarEvento"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/eventos/{id}/resumen": {
+      "get": {
+        "operationId": "resumenEvento",
+        "tags": ["emergencias"],
+        "summary": "Cifras anónimas del evento",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Operación completada.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string"
+                },
+                "description": "no-store"
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Resumen"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/SolicitudInvalida"
+          },
+          "401": {
+            "$ref": "#/components/responses/SesionRequerida"
+          },
+          "403": {
+            "$ref": "#/components/responses/AccesoDenegado"
+          },
+          "404": {
+            "$ref": "#/components/responses/RecursoNoVisible"
+          },
+          "409": {
+            "$ref": "#/components/responses/EstadoIncompatible"
+          },
+          "422": {
+            "$ref": "#/components/responses/ReglaInvalida"
+          }
+        }
+      }
+    },
+    "/v1/zonas/{zonaId}/cobertura": {
+      "get": {
+        "operationId": "consultarCobertura",
+        "tags": ["emergencias"],
+        "summary": "Cobertura operativa vigente",
+        "parameters": [
+          {
+            "name": "zonaId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Operación completada.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string"
+                },
+                "description": "no-store"
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Cobertura"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/SolicitudInvalida"
+          },
+          "401": {
+            "$ref": "#/components/responses/SesionRequerida"
+          },
+          "403": {
+            "$ref": "#/components/responses/AccesoDenegado"
+          },
+          "404": {
+            "$ref": "#/components/responses/RecursoNoVisible"
+          },
+          "409": {
+            "$ref": "#/components/responses/EstadoIncompatible"
+          },
+          "422": {
+            "$ref": "#/components/responses/ReglaInvalida"
+          }
+        }
+      }
+    },
+    "/v1/pedidos-ayuda": {
+      "post": {
+        "operationId": "crearPedidoAyuda",
+        "tags": ["emergencias"],
+        "summary": "Enviar pedido de nivel cero con ID estable",
+        "parameters": [
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 8,
+              "maxLength": 128
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Operación completada.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string"
+                },
+                "description": "no-store"
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Pedido"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/SolicitudInvalida"
+          },
+          "401": {
+            "$ref": "#/components/responses/SesionRequerida"
+          },
+          "403": {
+            "$ref": "#/components/responses/AccesoDenegado"
+          },
+          "404": {
+            "$ref": "#/components/responses/RecursoNoVisible"
+          },
+          "409": {
+            "$ref": "#/components/responses/EstadoIncompatible"
+          },
+          "422": {
+            "$ref": "#/components/responses/ReglaInvalida"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/NuevoPedido"
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "operationId": "misPedidosAyuda",
+        "tags": ["emergencias"],
+        "summary": "Pedidos propios paginados",
+        "parameters": [
+          {
+            "name": "cursor",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "limite",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Operación completada.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string"
+                },
+                "description": "no-store"
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "elementos": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Pedido"
+                      },
+                      "maxItems": 200
+                    },
+                    "siguienteCursor": {
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "format": "uuid"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    }
+                  },
+                  "required": ["elementos", "siguienteCursor"]
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/SolicitudInvalida"
+          },
+          "401": {
+            "$ref": "#/components/responses/SesionRequerida"
+          },
+          "403": {
+            "$ref": "#/components/responses/AccesoDenegado"
+          },
+          "404": {
+            "$ref": "#/components/responses/RecursoNoVisible"
+          },
+          "409": {
+            "$ref": "#/components/responses/EstadoIncompatible"
+          },
+          "422": {
+            "$ref": "#/components/responses/ReglaInvalida"
+          }
+        }
+      }
+    },
+    "/v1/pedidos-ayuda/{id}": {
+      "get": {
+        "operationId": "detallePedidoAyuda",
+        "tags": ["emergencias"],
+        "summary": "Detalle propio o asignado con acceso auditado",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Operación completada.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string"
+                },
+                "description": "no-store"
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DetallePedido"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/SolicitudInvalida"
+          },
+          "401": {
+            "$ref": "#/components/responses/SesionRequerida"
+          },
+          "403": {
+            "$ref": "#/components/responses/AccesoDenegado"
+          },
+          "404": {
+            "$ref": "#/components/responses/RecursoNoVisible"
+          },
+          "409": {
+            "$ref": "#/components/responses/EstadoIncompatible"
+          },
+          "422": {
+            "$ref": "#/components/responses/ReglaInvalida"
+          }
+        }
+      }
+    },
+    "/v1/pedidos-ayuda/{id}/estado": {
+      "post": {
+        "operationId": "cambiarEstadoPedido",
+        "tags": ["emergencias"],
+        "summary": "Transición autorizada con versión",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 8,
+              "maxLength": 128
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Operación completada.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string"
+                },
+                "description": "no-store"
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Pedido"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/SolicitudInvalida"
+          },
+          "401": {
+            "$ref": "#/components/responses/SesionRequerida"
+          },
+          "403": {
+            "$ref": "#/components/responses/AccesoDenegado"
+          },
+          "404": {
+            "$ref": "#/components/responses/RecursoNoVisible"
+          },
+          "409": {
+            "$ref": "#/components/responses/EstadoIncompatible"
+          },
+          "422": {
+            "$ref": "#/components/responses/ReglaInvalida"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CambiarEstado"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/pedidos-ayuda/{id}/asignaciones": {
+      "post": {
+        "operationId": "asignarPedido",
+        "tags": ["emergencias"],
+        "summary": "Asignar un brigadista habilitado de turno",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 8,
+              "maxLength": 128
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Operación completada.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string"
+                },
+                "description": "no-store"
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Pedido"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/SolicitudInvalida"
+          },
+          "401": {
+            "$ref": "#/components/responses/SesionRequerida"
+          },
+          "403": {
+            "$ref": "#/components/responses/AccesoDenegado"
+          },
+          "404": {
+            "$ref": "#/components/responses/RecursoNoVisible"
+          },
+          "409": {
+            "$ref": "#/components/responses/EstadoIncompatible"
+          },
+          "422": {
+            "$ref": "#/components/responses/ReglaInvalida"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AsignarPedido"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/operacion/zonas/{zonaId}/casos": {
+      "get": {
+        "operationId": "colaPedidosAyuda",
+        "tags": ["emergencias"],
+        "summary": "Cola mínima sin descripción ni ubicación exacta",
+        "parameters": [
+          {
+            "name": "zonaId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "cursor",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "limite",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Operación completada.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string"
+                },
+                "description": "no-store"
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "elementos": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Pedido"
+                      },
+                      "maxItems": 200
+                    },
+                    "siguienteCursor": {
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "format": "uuid"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    }
+                  },
+                  "required": ["elementos", "siguienteCursor"]
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/SolicitudInvalida"
+          },
+          "401": {
+            "$ref": "#/components/responses/SesionRequerida"
+          },
+          "403": {
+            "$ref": "#/components/responses/AccesoDenegado"
+          },
+          "404": {
+            "$ref": "#/components/responses/RecursoNoVisible"
+          },
+          "409": {
+            "$ref": "#/components/responses/EstadoIncompatible"
+          },
+          "422": {
+            "$ref": "#/components/responses/ReglaInvalida"
+          }
+        }
+      }
+    },
+    "/v1/operacion/zonas/{zonaId}/personas": {
+      "get": {
+        "operationId": "personasOperativas",
+        "tags": ["emergencias"],
+        "summary": "Personas habilitadas de turno",
+        "parameters": [
+          {
+            "name": "zonaId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Operación completada.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string"
+                },
+                "description": "no-store"
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "elementos": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Persona"
+                      },
+                      "maxItems": 500
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/SolicitudInvalida"
+          },
+          "401": {
+            "$ref": "#/components/responses/SesionRequerida"
+          },
+          "403": {
+            "$ref": "#/components/responses/AccesoDenegado"
+          },
+          "404": {
+            "$ref": "#/components/responses/RecursoNoVisible"
+          },
+          "409": {
+            "$ref": "#/components/responses/EstadoIncompatible"
+          },
+          "422": {
+            "$ref": "#/components/responses/ReglaInvalida"
+          }
+        }
+      }
+    },
+    "/v1/operacion/zonas/{zonaId}/turnos": {
+      "get": {
+        "operationId": "tableroTurnos",
+        "tags": ["emergencias"],
+        "summary": "Tablero de turnos de la zona",
+        "parameters": [
+          {
+            "name": "zonaId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Operación completada.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string"
+                },
+                "description": "no-store"
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TableroTurnos"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/SolicitudInvalida"
+          },
+          "401": {
+            "$ref": "#/components/responses/SesionRequerida"
+          },
+          "403": {
+            "$ref": "#/components/responses/AccesoDenegado"
+          },
+          "404": {
+            "$ref": "#/components/responses/RecursoNoVisible"
+          },
+          "409": {
+            "$ref": "#/components/responses/EstadoIncompatible"
+          },
+          "422": {
+            "$ref": "#/components/responses/ReglaInvalida"
+          }
+        }
+      },
+      "post": {
+        "operationId": "crearTurno",
+        "tags": ["emergencias"],
+        "summary": "Definir un turno operativo",
+        "parameters": [
+          {
+            "name": "zonaId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 8,
+              "maxLength": 128
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Operación completada.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string"
+                },
+                "description": "no-store"
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Turno"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/SolicitudInvalida"
+          },
+          "401": {
+            "$ref": "#/components/responses/SesionRequerida"
+          },
+          "403": {
+            "$ref": "#/components/responses/AccesoDenegado"
+          },
+          "404": {
+            "$ref": "#/components/responses/RecursoNoVisible"
+          },
+          "409": {
+            "$ref": "#/components/responses/EstadoIncompatible"
+          },
+          "422": {
+            "$ref": "#/components/responses/ReglaInvalida"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/NuevoTurno"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/operacion/turnos/{id}/finalizar": {
+      "post": {
+        "operationId": "finalizarTurno",
+        "tags": ["emergencias"],
+        "summary": "Finalizar turno y revocar sus asignaciones",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 8,
+              "maxLength": 128
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Operación completada.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string"
+                },
+                "description": "no-store"
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Turno"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/SolicitudInvalida"
+          },
+          "401": {
+            "$ref": "#/components/responses/SesionRequerida"
+          },
+          "403": {
+            "$ref": "#/components/responses/AccesoDenegado"
+          },
+          "404": {
+            "$ref": "#/components/responses/RecursoNoVisible"
+          },
+          "409": {
+            "$ref": "#/components/responses/EstadoIncompatible"
+          },
+          "422": {
+            "$ref": "#/components/responses/ReglaInvalida"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/VersionVista"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/operacion/habilitaciones": {
+      "post": {
+        "operationId": "habilitarOperador",
+        "tags": ["emergencias"],
+        "summary": "Administrador registra revisión humana sin imágenes DNI",
+        "parameters": [
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 8,
+              "maxLength": 128
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Operación completada.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string"
+                },
+                "description": "no-store"
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Habilitacion"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/SolicitudInvalida"
+          },
+          "401": {
+            "$ref": "#/components/responses/SesionRequerida"
+          },
+          "403": {
+            "$ref": "#/components/responses/AccesoDenegado"
+          },
+          "404": {
+            "$ref": "#/components/responses/RecursoNoVisible"
+          },
+          "409": {
+            "$ref": "#/components/responses/EstadoIncompatible"
+          },
+          "422": {
+            "$ref": "#/components/responses/ReglaInvalida"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/HabilitacionNueva"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/operacion/habilitaciones/{id}/revocar": {
+      "post": {
+        "operationId": "revocarOperador",
+        "tags": ["emergencias"],
+        "summary": "Revocar habilitación y accesos",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 8,
+              "maxLength": 128
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Operación completada.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string"
+                },
+                "description": "no-store"
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Habilitacion"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/SolicitudInvalida"
+          },
+          "401": {
+            "$ref": "#/components/responses/SesionRequerida"
+          },
+          "403": {
+            "$ref": "#/components/responses/AccesoDenegado"
+          },
+          "404": {
+            "$ref": "#/components/responses/RecursoNoVisible"
+          },
+          "409": {
+            "$ref": "#/components/responses/EstadoIncompatible"
+          },
+          "422": {
+            "$ref": "#/components/responses/ReglaInvalida"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Revocar"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/operacion/zonas/{zonaId}/grupos": {
+      "get": {
+        "operationId": "listarGruposApoyo",
+        "tags": ["emergencias"],
+        "summary": "Grupos verificados de la zona",
+        "parameters": [
+          {
+            "name": "zonaId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Operación completada.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string"
+                },
+                "description": "no-store"
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "elementos": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Grupo"
+                      },
+                      "maxItems": 200
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/SolicitudInvalida"
+          },
+          "401": {
+            "$ref": "#/components/responses/SesionRequerida"
+          },
+          "403": {
+            "$ref": "#/components/responses/AccesoDenegado"
+          },
+          "404": {
+            "$ref": "#/components/responses/RecursoNoVisible"
+          },
+          "409": {
+            "$ref": "#/components/responses/EstadoIncompatible"
+          },
+          "422": {
+            "$ref": "#/components/responses/ReglaInvalida"
+          }
+        }
+      },
+      "post": {
+        "operationId": "crearGrupoApoyo",
+        "tags": ["emergencias"],
+        "summary": "Administrador verifica un grupo",
+        "parameters": [
+          {
+            "name": "zonaId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 8,
+              "maxLength": 128
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Operación completada.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string"
+                },
+                "description": "no-store"
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Grupo"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/SolicitudInvalida"
+          },
+          "401": {
+            "$ref": "#/components/responses/SesionRequerida"
+          },
+          "403": {
+            "$ref": "#/components/responses/AccesoDenegado"
+          },
+          "404": {
+            "$ref": "#/components/responses/RecursoNoVisible"
+          },
+          "409": {
+            "$ref": "#/components/responses/EstadoIncompatible"
+          },
+          "422": {
+            "$ref": "#/components/responses/ReglaInvalida"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/NuevoGrupo"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/operacion/grupos/{id}/miembros": {
+      "put": {
+        "operationId": "actualizarGrupoApoyo",
+        "tags": ["emergencias"],
+        "summary": "Actualizar miembros verificados",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 8,
+              "maxLength": 128
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Operación completada.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string"
+                },
+                "description": "no-store"
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Grupo"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/SolicitudInvalida"
+          },
+          "401": {
+            "$ref": "#/components/responses/SesionRequerida"
+          },
+          "403": {
+            "$ref": "#/components/responses/AccesoDenegado"
+          },
+          "404": {
+            "$ref": "#/components/responses/RecursoNoVisible"
+          },
+          "409": {
+            "$ref": "#/components/responses/EstadoIncompatible"
+          },
+          "422": {
+            "$ref": "#/components/responses/ReglaInvalida"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MiembrosGrupo"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/operacion/zonas/{zonaId}/apoyos": {
+      "put": {
+        "operationId": "acordarApoyosZona",
+        "tags": ["emergencias"],
+        "summary": "Administrador configura zonas de apoyo",
+        "parameters": [
+          {
+            "name": "zonaId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 8,
+              "maxLength": 128
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Operación completada.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string"
+                },
+                "description": "no-store"
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "zonas": {
+                      "type": "array",
+                      "items": {
+                        "type": "string",
+                        "format": "uuid"
+                      },
+                      "maxItems": 10
+                    }
+                  },
+                  "required": ["zonas"]
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/SolicitudInvalida"
+          },
+          "401": {
+            "$ref": "#/components/responses/SesionRequerida"
+          },
+          "403": {
+            "$ref": "#/components/responses/AccesoDenegado"
+          },
+          "404": {
+            "$ref": "#/components/responses/RecursoNoVisible"
+          },
+          "409": {
+            "$ref": "#/components/responses/EstadoIncompatible"
+          },
+          "422": {
+            "$ref": "#/components/responses/ReglaInvalida"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ApoyosZona"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/zonas/{zonaId}/recursos": {
+      "get": {
+        "operationId": "listarRecursosCriticos",
+        "tags": ["emergencias"],
+        "summary": "Recursos sin identidad del reportante",
+        "parameters": [
+          {
+            "name": "zonaId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "cursor",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "limite",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Operación completada.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string"
+                },
+                "description": "no-store"
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "elementos": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Recurso"
+                      },
+                      "maxItems": 200
+                    },
+                    "siguienteCursor": {
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "format": "uuid"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    }
+                  },
+                  "required": ["elementos", "siguienteCursor"]
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/SolicitudInvalida"
+          },
+          "401": {
+            "$ref": "#/components/responses/SesionRequerida"
+          },
+          "403": {
+            "$ref": "#/components/responses/AccesoDenegado"
+          },
+          "404": {
+            "$ref": "#/components/responses/RecursoNoVisible"
+          },
+          "409": {
+            "$ref": "#/components/responses/EstadoIncompatible"
+          },
+          "422": {
+            "$ref": "#/components/responses/ReglaInvalida"
+          }
+        }
+      },
+      "post": {
+        "operationId": "reportarRecursoCritico",
+        "tags": ["emergencias"],
+        "summary": "Registrar recurso estructurado",
+        "parameters": [
+          {
+            "name": "zonaId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 8,
+              "maxLength": 128
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Operación completada.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string"
+                },
+                "description": "no-store"
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Recurso"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/SolicitudInvalida"
+          },
+          "401": {
+            "$ref": "#/components/responses/SesionRequerida"
+          },
+          "403": {
+            "$ref": "#/components/responses/AccesoDenegado"
+          },
+          "404": {
+            "$ref": "#/components/responses/RecursoNoVisible"
+          },
+          "409": {
+            "$ref": "#/components/responses/EstadoIncompatible"
+          },
+          "422": {
+            "$ref": "#/components/responses/ReglaInvalida"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/NuevoRecurso"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/recursos-criticos/{id}": {
+      "patch": {
+        "operationId": "actualizarStockRecurso",
+        "tags": ["emergencias"],
+        "summary": "Actualizar cantidad con control de versión",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 8,
+              "maxLength": 128
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Operación completada.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string"
+                },
+                "description": "no-store"
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Recurso"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/SolicitudInvalida"
+          },
+          "401": {
+            "$ref": "#/components/responses/SesionRequerida"
+          },
+          "403": {
+            "$ref": "#/components/responses/AccesoDenegado"
+          },
+          "404": {
+            "$ref": "#/components/responses/RecursoNoVisible"
+          },
+          "409": {
+            "$ref": "#/components/responses/EstadoIncompatible"
+          },
+          "422": {
+            "$ref": "#/components/responses/ReglaInvalida"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EditarRecurso"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/recursos-criticos/{id}/confirmaciones": {
+      "post": {
+        "operationId": "confirmarRecurso",
+        "tags": ["emergencias"],
+        "summary": "Una confirmación por vecino y versión de reporte",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 8,
+              "maxLength": 128
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Operación completada.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string"
+                },
+                "description": "no-store"
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Recurso"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/SolicitudInvalida"
+          },
+          "401": {
+            "$ref": "#/components/responses/SesionRequerida"
+          },
+          "403": {
+            "$ref": "#/components/responses/AccesoDenegado"
+          },
+          "404": {
+            "$ref": "#/components/responses/RecursoNoVisible"
+          },
+          "409": {
+            "$ref": "#/components/responses/EstadoIncompatible"
+          },
+          "422": {
+            "$ref": "#/components/responses/ReglaInvalida"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ConfirmarRecurso"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/recursos-criticos/{id}/verificacion": {
+      "post": {
+        "operationId": "verificarRecurso",
+        "tags": ["emergencias"],
+        "summary": "Coordinador o curador verifica el recurso",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 8,
+              "maxLength": 128
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Operación completada.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string"
+                },
+                "description": "no-store"
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Recurso"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/SolicitudInvalida"
+          },
+          "401": {
+            "$ref": "#/components/responses/SesionRequerida"
+          },
+          "403": {
+            "$ref": "#/components/responses/AccesoDenegado"
+          },
+          "404": {
+            "$ref": "#/components/responses/RecursoNoVisible"
+          },
+          "409": {
+            "$ref": "#/components/responses/EstadoIncompatible"
+          },
+          "422": {
+            "$ref": "#/components/responses/ReglaInvalida"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/VerificarRecurso"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/zonas/{zonaId}/celdas": {
+      "get": {
+        "operationId": "consultarCeldas",
+        "tags": ["emergencias"],
+        "summary": "Conteos anónimos de tres o más sin totales complementarios",
+        "parameters": [
+          {
+            "name": "zonaId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Operación completada.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string"
+                },
+                "description": "no-store"
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "elementos": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Celda"
+                      },
+                      "maxItems": 1000
+                    },
+                    "actualizadoEn": {
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "format": "date-time"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    }
+                  },
+                  "required": ["elementos", "actualizadoEn"]
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/SolicitudInvalida"
+          },
+          "401": {
+            "$ref": "#/components/responses/SesionRequerida"
+          },
+          "403": {
+            "$ref": "#/components/responses/AccesoDenegado"
+          },
+          "404": {
+            "$ref": "#/components/responses/RecursoNoVisible"
+          },
+          "409": {
+            "$ref": "#/components/responses/EstadoIncompatible"
+          },
+          "422": {
+            "$ref": "#/components/responses/ReglaInvalida"
+          }
+        }
+      }
+    },
+    "/v1/operacion/auditoria": {
+      "get": {
+        "operationId": "leerAuditoriaEmergencias",
+        "tags": ["emergencias"],
+        "summary": "Auditoría reservada al administrador",
+        "parameters": [
+          {
+            "name": "cursor",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "pattern": "^[0-9]+$"
+            }
+          },
+          {
+            "name": "limite",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Operación completada.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string"
+                },
+                "description": "no-store"
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "elementos": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Auditoria"
+                      },
+                      "maxItems": 200
+                    },
+                    "siguienteCursor": {
+                      "anyOf": [
+                        {
+                          "type": "string"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    }
+                  },
+                  "required": ["elementos", "siguienteCursor"]
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/SolicitudInvalida"
+          },
+          "401": {
+            "$ref": "#/components/responses/SesionRequerida"
+          },
+          "403": {
+            "$ref": "#/components/responses/AccesoDenegado"
+          },
+          "404": {
+            "$ref": "#/components/responses/RecursoNoVisible"
+          },
+          "409": {
+            "$ref": "#/components/responses/EstadoIncompatible"
+          },
+          "422": {
+            "$ref": "#/components/responses/ReglaInvalida"
+          }
+        }
+      }
+    },
+    "/v1/pedidos-ayuda/{id}/prioridad": {
+      "post": {
+        "operationId": "priorizarPedidoAyuda",
+        "tags": ["emergencias"],
+        "summary": "Coordinador asignado cambia la prioridad y recalcula el plazo",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 8,
+              "maxLength": 128
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Operación completada.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string"
+                },
+                "description": "no-store"
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Pedido"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/SolicitudInvalida"
+          },
+          "401": {
+            "$ref": "#/components/responses/SesionRequerida"
+          },
+          "403": {
+            "$ref": "#/components/responses/AccesoDenegado"
+          },
+          "404": {
+            "$ref": "#/components/responses/RecursoNoVisible"
+          },
+          "409": {
+            "$ref": "#/components/responses/EstadoIncompatible"
+          },
+          "422": {
+            "$ref": "#/components/responses/ReglaInvalida"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PriorizarPedido"
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "tokenDeAcceso": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT ES256"
+      }
+    },
+    "schemas": {
+      "Problema": {
+        "type": "object",
+        "required": ["codigo"],
+        "properties": {
+          "codigo": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 80
+          },
+          "detail": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 500
+          }
+        },
+        "additionalProperties": true
+      },
+      "Coordenadas": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "lat": {
+            "type": "number",
+            "minimum": -90,
+            "maximum": 90
+          },
+          "lng": {
+            "type": "number",
+            "minimum": -180,
+            "maximum": 180
+          }
+        },
+        "required": ["lat", "lng"]
+      },
+      "NuevoEvento": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "nivel": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 3
+          }
+        },
+        "required": ["id", "nivel"]
+      },
+      "CerrarEvento": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "versionVista": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 2147483647
+          },
+          "motivo": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 500
+          }
+        },
+        "required": ["versionVista", "motivo"]
+      },
+      "Evento": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "zonaId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "nivel": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 3
+          },
+          "estado": {
+            "enum": ["emergencia", "recuperacion", "normal"]
+          },
+          "version": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 2147483647
+          },
+          "activadoEn": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "cerradoEn": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "fuente": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 120
+          }
+        },
+        "required": [
+          "id",
+          "zonaId",
+          "nivel",
+          "estado",
+          "version",
+          "activadoEn",
+          "cerradoEn",
+          "fuente"
+        ]
+      },
+      "Cobertura": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "zonaId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "coordinadoresActivos": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 2147483647
+          },
+          "coordinadoresDeTurno": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 2147483647
+          },
+          "habilitada": {
+            "type": "boolean"
+          },
+          "actualizadoEn": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "eventoId": {
+            "type": ["string", "null"],
+            "format": "uuid"
+          },
+          "modo": {
+            "enum": ["normal", "emergencia", "recuperacion"]
+          }
+        },
+        "required": [
+          "zonaId",
+          "coordinadoresActivos",
+          "coordinadoresDeTurno",
+          "habilitada",
+          "actualizadoEn",
+          "eventoId",
+          "modo"
+        ]
+      },
+      "NuevoPedido": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "eventoId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "necesidad": {
+            "enum": [
+              "agua",
+              "alimentos",
+              "medicamentos",
+              "traslado",
+              "albergue",
+              "otro"
+            ]
+          },
+          "prioridad": {
+            "enum": ["alta", "media", "baja"]
+          },
+          "descripcion": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 2000
+          },
+          "ubicacion": {
+            "$ref": "#/components/schemas/Coordenadas"
+          },
+          "riesgoVital": {
+            "type": "boolean"
+          }
+        },
+        "required": ["id", "eventoId", "necesidad", "descripcion", "ubicacion"]
+      },
+      "CambiarEstado": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "versionVista": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 2147483647
+          },
+          "estado": {
+            "enum": [
+              "enviado",
+              "visto",
+              "en_camino",
+              "atendido",
+              "derivado",
+              "cerrado_sin_atender"
+            ]
+          },
+          "motivo": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 500
+          }
+        },
+        "required": ["versionVista", "estado"]
+      },
+      "AsignarPedido": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "versionVista": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 2147483647
+          },
+          "usuarioId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "rol": {
+            "enum": ["coordinador", "brigadista"],
+            "default": "brigadista",
+            "description": "El coordinador puede tomar el caso para sí mismo; el brigadista requiere un pedido visto."
+          }
+        },
+        "required": ["versionVista", "usuarioId"]
+      },
+      "Pedido": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "eventoId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "zonaId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "necesidad": {
+            "enum": [
+              "agua",
+              "alimentos",
+              "medicamentos",
+              "traslado",
+              "albergue",
+              "otro"
+            ]
+          },
+          "prioridad": {
+            "enum": ["alta", "media", "baja"]
+          },
+          "estado": {
+            "enum": [
+              "enviado",
+              "visto",
+              "en_camino",
+              "atendido",
+              "derivado",
+              "cerrado_sin_atender"
+            ]
+          },
+          "version": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 2147483647
+          },
+          "celda": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 40
+          },
+          "creadoEn": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "venceEn": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "vistoEn": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "escalarEn": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "asignaciones": {
+            "type": "array",
+            "maxItems": 2,
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["usuarioId", "rol", "venceEn"],
+              "properties": {
+                "usuarioId": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "rol": {
+                  "enum": ["coordinador", "brigadista"]
+                },
+                "venceEn": {
+                  "type": "string",
+                  "format": "date-time"
+                }
+              }
+            }
+          }
+        },
+        "required": [
+          "id",
+          "eventoId",
+          "zonaId",
+          "necesidad",
+          "prioridad",
+          "estado",
+          "version",
+          "celda",
+          "creadoEn",
+          "venceEn",
+          "vistoEn",
+          "escalarEn"
+        ]
+      },
+      "Historial": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "desde": {
+            "anyOf": [
+              {
+                "enum": [
+                  "enviado",
+                  "visto",
+                  "en_camino",
+                  "atendido",
+                  "derivado",
+                  "cerrado_sin_atender"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "hasta": {
+            "enum": [
+              "enviado",
+              "visto",
+              "en_camino",
+              "atendido",
+              "derivado",
+              "cerrado_sin_atender"
+            ]
+          },
+          "rol": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 30
+          },
+          "ocurridoEn": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "motivo": {
+            "anyOf": [
+              {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 500
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": ["desde", "hasta", "rol", "ocurridoEn", "motivo"]
+      },
+      "DetallePedido": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "eventoId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "zonaId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "necesidad": {
+            "enum": [
+              "agua",
+              "alimentos",
+              "medicamentos",
+              "traslado",
+              "albergue",
+              "otro"
+            ]
+          },
+          "prioridad": {
+            "enum": ["alta", "media", "baja"]
+          },
+          "estado": {
+            "enum": [
+              "enviado",
+              "visto",
+              "en_camino",
+              "atendido",
+              "derivado",
+              "cerrado_sin_atender"
+            ]
+          },
+          "version": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 2147483647
+          },
+          "celda": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 40
+          },
+          "creadoEn": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "venceEn": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "vistoEn": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "escalarEn": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "asignaciones": {
+            "type": "array",
+            "maxItems": 2,
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["usuarioId", "rol", "venceEn"],
+              "properties": {
+                "usuarioId": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "rol": {
+                  "enum": ["coordinador", "brigadista"]
+                },
+                "venceEn": {
+                  "type": "string",
+                  "format": "date-time"
+                }
+              }
+            }
+          },
+          "descripcion": {
+            "type": ["string", "null"],
+            "maxLength": 2000
+          },
+          "ubicacionExacta": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Coordenadas"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "historial": {
+            "type": "array",
+            "maxItems": 200,
+            "items": {
+              "$ref": "#/components/schemas/Historial"
+            }
+          }
+        },
+        "required": [
+          "id",
+          "eventoId",
+          "zonaId",
+          "necesidad",
+          "prioridad",
+          "estado",
+          "version",
+          "celda",
+          "creadoEn",
+          "venceEn",
+          "vistoEn",
+          "escalarEn",
+          "asignaciones",
+          "descripcion",
+          "ubicacionExacta",
+          "historial"
+        ]
+      },
+      "HabilitacionNueva": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "usuarioId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "zonaId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "rol": {
+            "enum": ["coordinador", "brigadista", "curador"]
+          },
+          "dniRevisadoEn": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "capacitacionEn": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "confidencialidadEn": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "referenciaRevision": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 120
+          },
+          "venceEn": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "versionVista": {
+            "type": "integer",
+            "minimum": 1,
+            "description": "Obligatoria para renovar o rehabilitar una habilitación existente."
+          }
+        },
+        "required": [
+          "id",
+          "usuarioId",
+          "zonaId",
+          "rol",
+          "dniRevisadoEn",
+          "capacitacionEn",
+          "confidencialidadEn",
+          "referenciaRevision",
+          "venceEn"
+        ]
+      },
+      "Habilitacion": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "usuarioId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "zonaId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "rol": {
+            "enum": ["coordinador", "brigadista", "curador"]
+          },
+          "version": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 2147483647
+          },
+          "venceEn": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "revocadaEn": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "usuarioId",
+          "zonaId",
+          "rol",
+          "version",
+          "venceEn",
+          "revocadaEn"
+        ]
+      },
+      "Revocar": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "versionVista": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 2147483647
+          },
+          "motivo": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 500
+          }
+        },
+        "required": ["versionVista", "motivo"]
+      },
+      "NuevoTurno": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "usuarioId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "rol": {
+            "enum": ["coordinador", "brigadista", "curador"]
+          },
+          "inicio": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "fin": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": ["id", "usuarioId", "rol", "inicio", "fin"]
+      },
+      "Turno": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "usuarioId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "zonaId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "rol": {
+            "enum": ["coordinador", "brigadista", "curador"]
+          },
+          "inicio": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "fin": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "finalizadoEn": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "version": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 2147483647
+          }
+        },
+        "required": [
+          "id",
+          "usuarioId",
+          "zonaId",
+          "rol",
+          "inicio",
+          "fin",
+          "finalizadoEn",
+          "version"
+        ]
+      },
+      "VersionVista": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "versionVista": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 2147483647
+          }
+        },
+        "required": ["versionVista"]
+      },
+      "NuevoGrupo": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "nombre": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 100
+          },
+          "miembros": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "maxItems": 100
+          }
+        },
+        "required": ["id", "nombre", "miembros"]
+      },
+      "Grupo": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "zonaId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "nombre": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 100
+          },
+          "miembros": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "maxItems": 100
+          },
+          "version": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 2147483647
+          },
+          "verificadoEn": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "zonaId",
+          "nombre",
+          "miembros",
+          "version",
+          "verificadoEn"
+        ]
+      },
+      "MiembrosGrupo": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "versionVista": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 2147483647
+          },
+          "miembros": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "maxItems": 100
+          }
+        },
+        "required": ["versionVista", "miembros"]
+      },
+      "ApoyosZona": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "zonas": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "maxItems": 10
+          }
+        },
+        "required": ["zonas"]
+      },
+      "NuevoRecurso": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "tipo": {
+            "enum": [
+              "agua",
+              "alimentos",
+              "medicamentos",
+              "traslado",
+              "albergue",
+              "punto_encuentro"
+            ]
+          },
+          "cantidad": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 1000000
+          },
+          "ubicacion": {
+            "$ref": "#/components/schemas/Coordenadas"
+          }
+        },
+        "required": ["id", "tipo", "cantidad", "ubicacion"]
+      },
+      "EditarRecurso": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "versionVista": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 2147483647
+          },
+          "cantidad": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 1000000
+          }
+        },
+        "required": ["versionVista", "cantidad"]
+      },
+      "ConfirmarRecurso": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "versionVista": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 2147483647
+          }
+        },
+        "required": ["versionVista"]
+      },
+      "VerificarRecurso": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "versionVista": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 2147483647
+          },
+          "etiqueta": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 160
+          },
+          "fuenteUrl": {
+            "type": "string",
+            "format": "uri",
+            "maxLength": 500
+          },
+          "oficial": {
+            "type": "boolean"
+          }
+        },
+        "required": ["versionVista", "etiqueta"]
+      },
+      "Recurso": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "zonaId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "tipo": {
+            "enum": [
+              "agua",
+              "alimentos",
+              "medicamentos",
+              "traslado",
+              "albergue",
+              "punto_encuentro"
+            ]
+          },
+          "cantidad": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 2147483647
+          },
+          "celda": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 40
+          },
+          "reportadoEn": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "umbralAntiguedadSegundos": {
+            "type": "integer",
+            "minimum": 60,
+            "maximum": 2147483647
+          },
+          "posiblementeDesactualizado": {
+            "type": "boolean"
+          },
+          "verificacion": {
+            "enum": ["sin_verificar", "confirmado", "verificado"]
+          },
+          "confirmaciones": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 2147483647
+          },
+          "descripcion": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 160
+          },
+          "fuenteUrl": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uri"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "oficial": {
+            "type": "boolean"
+          },
+          "version": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 2147483647
+          }
+        },
+        "required": [
+          "id",
+          "zonaId",
+          "tipo",
+          "cantidad",
+          "celda",
+          "reportadoEn",
+          "umbralAntiguedadSegundos",
+          "posiblementeDesactualizado",
+          "verificacion",
+          "confirmaciones",
+          "descripcion",
+          "fuenteUrl",
+          "oficial",
+          "version"
+        ]
+      },
+      "Persona": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "nombre": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 60
+          },
+          "rol": {
+            "enum": ["coordinador", "brigadista", "curador"]
+          },
+          "activo": {
+            "type": "boolean"
+          }
+        },
+        "required": ["id", "nombre", "rol", "activo"]
+      },
+      "TableroTurnos": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "operadores": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Persona"
+            },
+            "maxItems": 500
+          },
+          "turnos": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Turno"
+            },
+            "maxItems": 500
+          },
+          "actualizadoEn": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": ["operadores", "turnos", "actualizadoEn"]
+      },
+      "Celda": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 120
+          },
+          "limites": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "sur": {
+                "type": "number"
+              },
+              "oeste": {
+                "type": "number"
+              },
+              "norte": {
+                "type": "number"
+              },
+              "este": {
+                "type": "number"
+              }
+            },
+            "required": ["sur", "oeste", "norte", "este"]
+          },
+          "necesidad": {
+            "enum": [
+              "agua",
+              "alimentos",
+              "medicamentos",
+              "traslado",
+              "albergue",
+              "otro"
+            ]
+          },
+          "cantidad": {
+            "type": "integer",
+            "minimum": 3,
+            "maximum": 2147483647
+          },
+          "actualizadoEn": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": ["id", "limites", "necesidad", "cantidad", "actualizadoEn"]
+      },
+      "Auditoria": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[0-9]+$"
+          },
+          "usuarioId": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "pedidoId": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "rol": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 30
+          },
+          "accion": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 80
+          },
+          "ocurridoEn": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "usuarioId",
+          "pedidoId",
+          "rol",
+          "accion",
+          "ocurridoEn"
+        ]
+      },
+      "Resumen": {
+        "type": "object",
+        "description": "Cifras del evento sin identidades ni texto libre.",
+        "additionalProperties": true
+      },
+      "PriorizarPedido": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["versionVista", "prioridad", "motivo"],
+        "properties": {
+          "versionVista": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "prioridad": {
+            "enum": ["alta", "media", "baja"]
+          },
+          "motivo": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 500
+          }
+        }
+      }
+    },
+    "responses": {
+      "SolicitudInvalida": {
+        "description": "Solicitud inválida.",
+        "content": {
+          "application/problem+json": {
+            "schema": {
+              "$ref": "#/components/schemas/Problema"
+            }
+          }
+        }
+      },
+      "SesionRequerida": {
+        "description": "Sesión requerida.",
+        "content": {
+          "application/problem+json": {
+            "schema": {
+              "$ref": "#/components/schemas/Problema"
+            }
+          }
+        }
+      },
+      "AccesoDenegado": {
+        "description": "Rol, zona o habilitación insuficientes.",
+        "content": {
+          "application/problem+json": {
+            "schema": {
+              "$ref": "#/components/schemas/Problema"
+            }
+          }
+        }
+      },
+      "RecursoNoVisible": {
+        "description": "No existe un recurso visible.",
+        "content": {
+          "application/problem+json": {
+            "schema": {
+              "$ref": "#/components/schemas/Problema"
+            }
+          }
+        }
+      },
+      "EstadoIncompatible": {
+        "description": "Estado, cobertura o versión incompatibles.",
+        "content": {
+          "application/problem+json": {
+            "schema": {
+              "$ref": "#/components/schemas/Problema"
+            }
+          }
+        }
+      },
+      "ReglaInvalida": {
+        "description": "Regla de negocio inválida.",
+        "content": {
+          "application/problem+json": {
+            "schema": {
+              "$ref": "#/components/schemas/Problema"
+            }
+          }
+        }
+      }
+    }
+  }
+}

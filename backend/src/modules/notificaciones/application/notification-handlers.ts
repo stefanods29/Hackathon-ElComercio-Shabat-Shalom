@@ -10,10 +10,23 @@ import {
   type NotificationDelivery,
 } from './ports.js';
 import { SEND_NOTIFICATION_JOB } from './send-notification.job.js';
-import { favorTakenMessage, zoneNoticeMessage } from '../domain/templates.js';
+import {
+  favorTakenMessage,
+  requestUpdatedMessage,
+  zoneNoticeMessage,
+} from '../domain/templates.js';
 
 const id = z.uuid();
 const sendJobSchema = z.union([
+  z.strictObject({
+    avisoId: id,
+    destino: z.strictObject({ tipo: z.literal('usuario'), usuarioId: id }),
+    plantilla: z.literal('pedido_actualizado'),
+    datos: z.strictObject({
+      pedidoId: id,
+      alternativas: z.literal('directorio_emergencia').optional(),
+    }),
+  }),
   z.strictObject({
     avisoId: id,
     destino: z.strictObject({ tipo: z.literal('usuario'), usuarioId: id }),
@@ -65,7 +78,9 @@ export class NotificationHandlers implements OnModuleInit {
     const message =
       job.plantilla === 'favor_tomado'
         ? favorTakenMessage(job.datos.publicacionId)
-        : zoneNoticeMessage(job.destino.zonaId);
+        : job.plantilla === 'pedido_actualizado'
+          ? requestUpdatedMessage(job.datos.pedidoId, job.datos.alternativas !== undefined)
+          : zoneNoticeMessage(job.destino.zonaId);
     await this.deliveries.deliver(job, message, this.push);
   }
 }

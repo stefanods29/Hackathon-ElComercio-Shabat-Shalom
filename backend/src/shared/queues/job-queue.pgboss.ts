@@ -130,7 +130,12 @@ export class PgBossJobQueue
     );
   }
 
-  async schedule(name: string, cron: string, timezone: string): Promise<void> {
+  async schedule(
+    name: string,
+    cron: string,
+    timezone: string,
+    priority: JobOptions['priority'] = 'low',
+  ): Promise<void> {
     this.requireWorker();
     await this.ensureQueue(name);
     await this.boss.schedule(
@@ -139,7 +144,7 @@ export class PgBossJobQueue
       {},
       {
         tz: timezone,
-        ...this.sendOptions({ priority: 'low', singletonKey: name }),
+        ...this.sendOptions({ priority, singletonKey: name }),
       },
     );
   }

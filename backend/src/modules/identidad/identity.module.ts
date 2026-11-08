@@ -3,6 +3,8 @@ import { KyselyAuthorTrust } from './infrastructure/author-trust.kysely.js';
 import { REVIEWER_READER } from './application/reviewer-reader.js';
 import { KyselyReviewerReader } from './infrastructure/reviewer.reader.kysely.js';
 import { Module } from '@nestjs/common';
+import { OPERATIONAL_IDENTITY } from './application/operational-identity.js';
+import { KyselyOperationalIdentity } from './infrastructure/operational-identity.kysely.js';
 import { APP_CONFIG, type AppConfig } from '../../shared/config/app-config.js';
 import { PrivacyController } from './api/privacy.controller.js';
 import { ACCOUNT_PRIVACY_STORE } from './application/account-privacy-store.js';
@@ -56,6 +58,7 @@ import { KyselyZoneRepository } from './infrastructure/zone.repository.kysely.js
     PrivacyController,
   ],
   providers: [
+    { provide: OPERATIONAL_IDENTITY, useClass: KyselyOperationalIdentity },
     IssueCredentials,
     { provide: AUTHOR_TRUST, useClass: KyselyAuthorTrust },
     { provide: REVIEWER_READER, useClass: KyselyReviewerReader },
@@ -98,6 +101,6 @@ import { KyselyZoneRepository } from './infrastructure/zone.repository.kysely.js
           : new DisabledPhoneTokenVerifier(),
     },
   ],
-  exports: [REVIEWER_READER, AUTHOR_TRUST],
+  exports: [REVIEWER_READER, AUTHOR_TRUST, OPERATIONAL_IDENTITY],
 })
 export class IdentityModule {}

@@ -7,6 +7,12 @@
 node_modules/
 dist/
 coverage/
+backend/*.log
+infra/cloud/*.log
+.terraform/
+*.tfstate
+*.tfstate.*
+*.tfplan
 *.tsbuildinfo
 
 # Credenciales sintéticas de carga y resultados locales de k6.

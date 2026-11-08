@@ -37,7 +37,9 @@ tags:
   - name: solidaridad
     description: Muro de favores.
   - name: operacion
-    description: Métricas operativas reservadas a administradores.
+    description: Métricas, turnos, habilitaciones y auditoría según el rol operativo.
+  - name: emergencias
+    description: Eventos, cobertura, pedidos de ayuda y recursos con acceso minimizado.
   - name: notificaciones
     description: Registro y baja de dispositivos para avisos personales.
 security:
@@ -1263,6 +1265,56 @@ paths:
         '409': { $ref: '#/components/responses/Conflicto' }
         '422': { $ref: '#/components/responses/NoProcesable' }
 
+  /v1/zonas/{zonaId}/eventos:
+    $ref: './emergencias.openapi.json#/paths/~1v1~1zonas~1{zonaId}~1eventos'
+  /v1/eventos/{id}/cerrar:
+    $ref: './emergencias.openapi.json#/paths/~1v1~1eventos~1{id}~1cerrar'
+  /v1/eventos/{id}/resumen:
+    $ref: './emergencias.openapi.json#/paths/~1v1~1eventos~1{id}~1resumen'
+  /v1/zonas/{zonaId}/cobertura:
+    $ref: './emergencias.openapi.json#/paths/~1v1~1zonas~1{zonaId}~1cobertura'
+  /v1/pedidos-ayuda:
+    $ref: './emergencias.openapi.json#/paths/~1v1~1pedidos-ayuda'
+  /v1/pedidos-ayuda/{id}:
+    $ref: './emergencias.openapi.json#/paths/~1v1~1pedidos-ayuda~1{id}'
+  /v1/pedidos-ayuda/{id}/estado:
+    $ref: './emergencias.openapi.json#/paths/~1v1~1pedidos-ayuda~1{id}~1estado'
+  /v1/pedidos-ayuda/{id}/asignaciones:
+    $ref: './emergencias.openapi.json#/paths/~1v1~1pedidos-ayuda~1{id}~1asignaciones'
+  /v1/operacion/zonas/{zonaId}/casos:
+    $ref: './emergencias.openapi.json#/paths/~1v1~1operacion~1zonas~1{zonaId}~1casos'
+  /v1/operacion/zonas/{zonaId}/personas:
+    $ref: './emergencias.openapi.json#/paths/~1v1~1operacion~1zonas~1{zonaId}~1personas'
+  /v1/operacion/zonas/{zonaId}/turnos:
+    $ref: './emergencias.openapi.json#/paths/~1v1~1operacion~1zonas~1{zonaId}~1turnos'
+  /v1/operacion/turnos/{id}/finalizar:
+    $ref: './emergencias.openapi.json#/paths/~1v1~1operacion~1turnos~1{id}~1finalizar'
+  /v1/operacion/habilitaciones:
+    $ref: './emergencias.openapi.json#/paths/~1v1~1operacion~1habilitaciones'
+  /v1/operacion/habilitaciones/{id}/revocar:
+    $ref: './emergencias.openapi.json#/paths/~1v1~1operacion~1habilitaciones~1{id}~1revocar'
+  /v1/operacion/zonas/{zonaId}/grupos:
+    $ref: './emergencias.openapi.json#/paths/~1v1~1operacion~1zonas~1{zonaId}~1grupos'
+  /v1/operacion/grupos/{id}/miembros:
+    $ref: './emergencias.openapi.json#/paths/~1v1~1operacion~1grupos~1{id}~1miembros'
+  /v1/operacion/zonas/{zonaId}/apoyos:
+    $ref: './emergencias.openapi.json#/paths/~1v1~1operacion~1zonas~1{zonaId}~1apoyos'
+  /v1/zonas/{zonaId}/recursos:
+    $ref: './emergencias.openapi.json#/paths/~1v1~1zonas~1{zonaId}~1recursos'
+  /v1/recursos-criticos/{id}:
+    $ref: './emergencias.openapi.json#/paths/~1v1~1recursos-criticos~1{id}'
+  /v1/recursos-criticos/{id}/confirmaciones:
+    $ref: './emergencias.openapi.json#/paths/~1v1~1recursos-criticos~1{id}~1confirmaciones'
+  /v1/recursos-criticos/{id}/verificacion:
+    $ref: './emergencias.openapi.json#/paths/~1v1~1recursos-criticos~1{id}~1verificacion'
+  /v1/zonas/{zonaId}/celdas:
+    $ref: './emergencias.openapi.json#/paths/~1v1~1zonas~1{zonaId}~1celdas'
+  /v1/operacion/auditoria:
+    $ref: './emergencias.openapi.json#/paths/~1v1~1operacion~1auditoria'
+
+  /v1/pedidos-ayuda/{id}/prioridad:
+    $ref: './emergencias.openapi.json#/paths/~1v1~1pedidos-ayuda~1{id}~1prioridad'
+
 components:
   securitySchemes:
     tokenDeAcceso:
@@ -1420,7 +1472,7 @@ components:
           type: array
           items:
             type: string
-            enum: [proveedor, moderador, coordinador, brigadista, administrador]
+            enum: [proveedor, moderador, coordinador, brigadista, curador, administrador]
           description: Roles aceptados cuando el código es `rol_requerido`; basta tener uno.
       additionalProperties: true
 
@@ -1608,7 +1660,7 @@ components:
             nivel: { type: integer, minimum: 0, maximum: 3 }
             roles:
               type: array
-              items: { type: string, enum: [proveedor, moderador, coordinador, brigadista, administrador] }
+              items: { type: string, enum: [proveedor, moderador, coordinador, brigadista, curador, administrador] }
 
     SesionRenovable:
       allOf:

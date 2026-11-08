@@ -12,13 +12,17 @@
 
 | Parte | Qué entrega | Estado | Responsable | PR |
 |---|---|---|---|---|
-| 1 | Eventos y activación del modo emergencia | Pendiente | Por asignar | — |
-| 2 | Pedidos de ayuda y su máquina de estados | Pendiente | Por asignar | — |
-| 3 | Asignaciones, escalamiento y turnos | Pendiente | Por asignar | — |
-| 4 | Recursos críticos y reportes verificables | Pendiente | Por asignar | — |
-| 5 | Roles operativos, auditoría y cierre del evento | Pendiente | Por asignar | — |
+| 1 | Eventos y activación del modo emergencia | En curso: código sin verificar | Por asignar | — |
+| 2 | Pedidos de ayuda y su máquina de estados | En curso: código sin verificar | Por asignar | — |
+| 3 | Asignaciones, escalamiento y turnos | En curso: código sin verificar | Por asignar | — |
+| 4 | Recursos críticos y reportes verificables | En curso: código sin verificar | Por asignar | — |
+| 5 | Roles operativos, auditoría y cierre del evento | En curso: código sin verificar | Por asignar | — |
 
 Estados posibles: **Pendiente**, **En curso** o **Hecha** (integrada en `main`).
+
+Implementación preparada en `f2-lote-b/modulo-emergencias`, sin compilar ni ejecutar pruebas
+por indicación del usuario. Configuración, alcance y conexiones con A/C/D en
+[entrega.md](entrega.md). No se habilitó una operación real ni se aplicaron migraciones.
 
 ---
 
