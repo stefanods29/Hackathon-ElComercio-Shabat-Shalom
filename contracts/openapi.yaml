@@ -728,7 +728,8 @@ paths:
         Valida contra `directorio-emergencia.schema.json` (Fase 1), publica la versión
         `versionVista + 1` con `generadoEn` del servidor, guarda quién la publicó y reescribe el
         archivo del distrito y `emergencia/indice.json`. Solo acepta archivos que ya figuran en el
-        índice; la asignación de zonas no cambia. Una `verificadoEn` en el futuro es inválida.
+        índice; la asignación de zonas no cambia. Una `verificadoEn` en el futuro es inválida. Los
+        errores de contenido responden 422 `directorio_invalido` con `errores` (`campo` y `mensaje`).
       parameters:
         - $ref: '#/components/parameters/IdempotencyKey'
       requestBody:
@@ -832,7 +833,7 @@ components:
           schema: { $ref: '#/components/schemas/Problema' }
     NoDisponible:
       description: |
-        La función no está habilitada en este entorno (`codigo` = publicacion_no_disponible). Se
+        La función no está habilitada en este entorno (`codigo` = servicio_no_disponible). Se
         puede reintentar más tarde.
       content:
         application/problem+json:

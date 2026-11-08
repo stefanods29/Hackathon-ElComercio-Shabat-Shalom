@@ -12,7 +12,7 @@ edición por PR de la Fase 1.
 `PUT /v1/operacion/directorio-emergencia/{archivo}` SHALL aceptar solo un directorio que cumpla
 `contracts/directorio-emergencia.schema.json`. Cada entrada lleva su fuente y su fecha de
 verificación, y una fecha de verificación MUST NOT estar en el futuro. Los errores SHALL volver
-como `validacion`, con el campo y el motivo.
+como 422 `directorio_invalido`, con el campo y el motivo de cada uno.
 
 #### Scenario: Número sin teléfono
 - **WHEN** un curador publica una entrada de tipo `numero` sin `telefono`

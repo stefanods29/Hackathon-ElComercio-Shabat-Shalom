@@ -181,7 +181,7 @@ sequenceDiagram
 **Adaptadores:**
 - sistema de archivos (`CURATION_PUBLISH_DRIVER=filesystem`), que en local escribe en
   `infra/cdn/publico`;
-- `disabled`, que responde 503 `publicacion_no_disponible`.
+- `disabled`, que responde 503 `servicio_no_disponible`.
 
 El adaptador de almacenamiento en la nube se conecta al de la Fase 1, Lote C, cuando esté en
 `main`.
