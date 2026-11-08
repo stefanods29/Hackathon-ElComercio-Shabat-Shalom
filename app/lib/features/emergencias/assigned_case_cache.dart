@@ -252,15 +252,15 @@ class AssignedCaseCache {
     String stream,
     Map<String, Object?> parameters,
   ) async {
-    final subscription = await db.syncStream(stream, parameters).subscribe(ttl: Duration.zero);
+    // The native PowerSync 2.6.0 isolate only forwards subscription changes after connecting.
+    await db.connect(
+      connector: connector,
+      options: const SyncOptions(includeDefaultStreams: false, enableDiagnostics: false),
+    );
     try {
-      await db.connect(
-        connector: connector,
-        options: const SyncOptions(includeDefaultStreams: false, enableDiagnostics: false),
-      );
-      return subscription;
+      return await db.syncStream(stream, parameters).subscribe(ttl: Duration.zero);
     } catch (_) {
-      subscription.unsubscribe();
+      await db.disconnect();
       rethrow;
     }
   }
