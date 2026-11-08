@@ -9,6 +9,8 @@ import 'package:vecinal/core/config/app_environment.dart';
 import 'package:vecinal/core/di/providers.dart';
 import 'package:vecinal/core/network/api_client.dart';
 import 'package:vecinal/core/network/cdn_client.dart';
+import 'package:vecinal/core/storage/account_data_purge.dart';
+import 'package:vecinal/core/storage/pending_photo_purger.dart';
 import 'package:vecinal/core/storage/secure_store.dart';
 import 'package:vecinal/core/sync/authenticated_sync_session.dart';
 import 'package:vecinal/core/theme/accessible_theme.dart';
@@ -34,10 +36,14 @@ class AuthenticatedApp extends StatefulWidget {
     required this.environment,
     required this.directory,
     required this.store,
+    this.pendingPhotos = const NoPendingPhotos(),
   });
   final AppEnvironment environment;
   final String directory;
   final SecureStore store;
+
+  /// Review photos not uploaded yet; Lot C (part 2) passes its queue.
+  final PendingPhotoPurger pendingPhotos;
 
   @override
   State<AuthenticatedApp> createState() => _AuthenticatedAppState();
@@ -55,6 +61,15 @@ class _AuthenticatedAppState extends State<AuthenticatedApp> {
   @override
   void initState() {
     super.initState();
+    // Public copy outside the account database: it opens without a session and survives sign-out.
+    // Created before the session restore, which may need to purge an interrupted sign-out.
+    _cdn = createCdnClient(widget.environment);
+    _emergency = EmergencyDirectoryRepository(
+      cdn: _cdn,
+      store: FileEmergencyDirectoryStore(path.join(widget.directory, 'emergencia')),
+      loadBackup: loadEmergencyBackup,
+    );
+    _lifecycle = AppLifecycleListener(onResume: _refreshEmergencyDirectory);
     _publicApi = createApiClient(widget.environment, getToken: () async => null);
     _auth = HttpAuthRepository(
       api: _publicApi,
@@ -64,14 +79,6 @@ class _AuthenticatedAppState extends State<AuthenticatedApp> {
       phoneVerifier: widget.environment.phoneAuthWithFirebase ? FirebasePhoneVerifier() : null,
     );
     _ready = _auth.initialize();
-    // Public copy outside the account database: it opens without a session and survives sign-out.
-    _cdn = createCdnClient(widget.environment);
-    _emergency = EmergencyDirectoryRepository(
-      cdn: _cdn,
-      store: FileEmergencyDirectoryStore(path.join(widget.directory, 'emergencia')),
-      loadBackup: loadEmergencyBackup,
-    );
-    _lifecycle = AppLifecycleListener(onResume: _refreshEmergencyDirectory);
   }
 
   Future<void> _activate(LocalUser user) async {
@@ -103,13 +110,24 @@ class _AuthenticatedAppState extends State<AuthenticatedApp> {
     if (zoneId != null) _report(_emergency.refresh(zoneId: zoneId).then((_) {}));
   }
 
+  /// Sign-out, revoked session and account deletion (Lot A, part 4).
   Future<void> _purge(String accountId) async {
-    final session = _session;
-    if (session != null) await session.close(purge: true);
-    await AuthenticatedSyncSession.discard(
-      directory: widget.directory,
-      store: widget.store,
-      accountId: accountId,
+    await purgeAccountData(
+      accountId,
+      pendingPhotos: widget.pendingPhotos,
+      closeSession: () async {
+        final session = _session;
+        if (session != null) await session.close(purge: true);
+      },
+      discardStorage: (id) async {
+        await AuthenticatedSyncSession.discard(
+          directory: widget.directory,
+          store: widget.store,
+          accountId: id,
+        );
+        // The public emergency directory stays; only the zone of its last check goes.
+        await _emergency.forgetLastCheck();
+      },
     );
     if (mounted) setState(() => _session = null);
   }
@@ -140,7 +158,10 @@ class _AuthenticatedAppState extends State<AuthenticatedApp> {
       if (snapshot.connectionState == ConnectionState.done && !snapshot.hasError) {
         final session = _session;
         return ProviderScope(
-          key: ValueKey(session?.user.neighborId ?? 'signed-out'),
+          // A new zone gets a fresh scope: no provider keeps rows of the previous zone.
+          key: ValueKey(
+            session == null ? 'signed-out' : '${session.user.neighborId}:${session.user.zoneId}',
+          ),
           overrides: [
             authRepositoryProvider.overrideWithValue(_auth),
             emergencyDirectoryRepositoryProvider.overrideWithValue(_emergency),

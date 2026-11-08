@@ -15,7 +15,7 @@
 | 1 | Datos públicos del piloto en el celular | En curso: implementada y verificada en local; falta aprobar el ADR 0010 y la CI | JDiazD33 | Rama `f1-lote-a/parte-1-datos-publicos` |
 | 2 | Directorio de emergencia sin conexión | En curso: implementada; pruebas de la app escritas sin ejecutar; falta la prueba en un celular en modo avión y la CI | JDiazD33 | Rama `f1-lote-a/parte-2-directorio-emergencia` |
 | 3 | Métricas de sincronización | En curso: implementada; pruebas escritas sin ejecutar; falta `npm run verify`, `npm run test:integration`, `tool/verify.sh`, Redocly y la CI | JDiazD33 | Rama `f1-lote-a/parte-3-metricas` |
-| 4 | Zona, cuenta y fotos pendientes | Pendiente | JDiazD33 | — |
+| 4 | Zona, cuenta y fotos pendientes | En curso: implementada; pruebas escritas sin ejecutar; falta la prueba en celulares reales (4.5) y la CI | JDiazD33 | Rama `f1-lote-a/parte-4-zona-y-cuenta` |
 | 5 | Piloto en campo | Pendiente | JDiazD33 | — |
 | 6 | Integración de la Fase 1 | Pendiente | JDiazD33 | — |
 
