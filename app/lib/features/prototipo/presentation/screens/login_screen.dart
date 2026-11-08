@@ -46,64 +46,67 @@ class _LoginScreenState extends State<LoginScreen> {
         child: Center(
           child: Padding(
             padding: const EdgeInsets.all(24),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                const Text(
-                  'Ingresa tu número',
-                  style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: kTextColor),
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  'Te enviaremos un código de 6 dígitos para entrar a la app.',
-                  style: TextStyle(fontSize: 15, color: Colors.grey.shade600),
-                ),
-                const SizedBox(height: 32),
-                Row(
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 16),
-                      decoration: BoxDecoration(
-                        color: Colors.grey.shade100,
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: Colors.grey.shade300),
+            child: SingleChildScrollView(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  const Text(
+                    'Ingresa tu número',
+                    style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: kTextColor),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    'Te enviaremos un código de 6 dígitos para entrar a la app.',
+                    style: TextStyle(fontSize: 15, color: Colors.grey.shade600),
+                  ),
+                  const SizedBox(height: 32),
+                  Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 16),
+                        decoration: BoxDecoration(
+                          color: Colors.grey.shade100,
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(color: Colors.grey.shade300),
+                        ),
+                        child: const Text('+51', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: kTextColor)),
                       ),
-                      child: const Text('+51', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: kTextColor)),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: ProtoTextField(
-                        label: 'Teléfono',
-                        hint: '987 654 321',
-                        controller: phoneController,
-                        keyboardType: TextInputType.phone,
-                        errorText: error,
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: ProtoTextField(
+                          label: 'Teléfono',
+                          hint: '987 654 321',
+                          controller: phoneController,
+                          keyboardType: TextInputType.phone,
+                          errorText: error,
+                        ),
                       ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 16),
-                Text(
-                  'Usaremos tu número solo para que entres a la app.',
-                  style: TextStyle(fontSize: 12, color: Colors.grey.shade500),
-                ),
-                const SizedBox(height: 24),
-                ProtoButton(
-                  text: 'Enviar código',
-                  icon: Icons.send,
-                  onPressed: _sendCode,
-                  fullWidth: true,
-                ),
-                const SizedBox(height: 16),
-                ProtoButton(
-                  text: 'Volver',
-                  icon: Icons.arrow_back,
-                  onPressed: () => context.go('/muro'),
-                  fullWidth: true,
-                  secondary: true,
-                ),
-              ],
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+                  Text(
+                    'Usaremos tu número solo para que entres a la app.',
+                    style: TextStyle(fontSize: 12, color: Colors.grey.shade500),
+                  ),
+                  const SizedBox(height: 24),
+                  ProtoButton(
+                    text: 'Enviar código',
+                    icon: Icons.send,
+                    onPressed: _sendCode,
+                    fullWidth: true,
+                  ),
+                  const SizedBox(height: 16),
+                  ProtoButton(
+                    text: 'Volver',
+                    icon: Icons.arrow_back,
+                    onPressed: () => context.go('/muro'),
+                    fullWidth: true,
+                    secondary: true,
+                  ),
+                  const SizedBox(height: 24),
+                ],
+              ),
             ),
           ),
         ),
