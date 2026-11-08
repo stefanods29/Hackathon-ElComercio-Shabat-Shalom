@@ -341,6 +341,7 @@ class OperationalEmergencyRepository implements EmergencyRepository {
       kind: kind,
       description: resource.label ?? 'Cantidad reportada: ${resource.quantity}',
       reportedAt: resource.reportedAt,
+      staleAfter: resource.staleAfter,
       verification: verification,
       confirmations: resource.confirmations,
       // Only B's human verification makes a source; a neighbor's report never does.

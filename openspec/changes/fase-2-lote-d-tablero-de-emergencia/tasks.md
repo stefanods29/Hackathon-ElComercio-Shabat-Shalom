@@ -20,7 +20,9 @@ app en verde). Las de verificación quedan abiertas hasta tener su evidencia.
 - [x] 3.1 Ofertas guardadas en el celular y lista de recursos con antigüedad, verificación y fuente.
 - [x] 3.2 Reporte real con tipo, cantidad y punto aproximado, sin texto libre.
 - [ ] 3.3 Definir con el Lote B la ruta de las ofertas; verificar que la oferta llega a coordinación.
-- [ ] 3.4 Verificar con reloj de prueba la marca de posiblemente desactualizado por tipo.
+- [x] 3.4 Verificar con reloj de prueba la marca de posiblemente desactualizado por tipo.
+  Evidencia en [la entrega de frescura](../../../docs/fase-2/lote-d-tablero-de-emergencia/integracion.md#estado-de-validación).
+  `tool/verify.sh` desde `app/` pasó con 263 pruebas y 1 omitida.
 
 ## 4. Parte 4 · Contactos de emergencia y accesibilidad
 
