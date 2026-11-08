@@ -1,15 +1,29 @@
-import { Body, Controller, Delete, Get, HttpCode, Param, Post, Put, Res } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  HttpCode,
+  Param,
+  Post,
+  Put,
+  Query,
+  Res,
+} from '@nestjs/common';
 import type { Response } from 'express';
 import { V1 } from '../../../shared/api/routes.js';
 import type { Actor } from '../../../shared/auth/actor.js';
 import { CurrentActor, RequireTrustLevel } from '../../../shared/auth/decorators.js';
 import { Idempotent } from '../../../shared/idempotency/idempotent.decorator.js';
+import { FindServices } from '../application/find-services.js';
 import { EditService } from '../application/edit-service.js';
 import { PublishService } from '../application/publish-service.js';
 import { ReadDirectory } from '../application/read-directory.js';
 import { SaveProvider } from '../application/save-provider.js';
 import { WithdrawService } from '../application/withdraw-service.js';
 import {
+  serviceSearchSchema,
+  type ServiceSearchDto,
   directoryIdSchema,
   editServiceSchema,
   newServiceSchema,
@@ -27,11 +41,38 @@ import {
 export class DirectoryController {
   constructor(
     private readonly readDirectory: ReadDirectory,
+    private readonly findServices: FindServices,
     private readonly saveProvider: SaveProvider,
     private readonly publishService: PublishService,
     private readonly editService: EditService,
     private readonly withdrawService: WithdrawService,
   ) {}
+
+  @Get('servicios')
+  async search(
+    @Query({ schema: serviceSearchSchema }) query: ServiceSearchDto,
+    @CurrentActor() actor: Actor,
+  ) {
+    const page = await this.findServices.execute(
+      {
+        location: { lat: query.lat, lng: query.lng },
+        radiusMeters: query.radioM,
+        categoryId: query.categoriaId,
+        text: query.q,
+        emergencyOnly: query.soloEmergencia,
+        cursor: query.cursor,
+        limit: query.limite,
+      },
+      actor,
+    );
+    return {
+      datos: page.data.map((hit) => ({
+        ...toServiceDto(hit.service),
+        distanciaMetros: hit.distanceMeters,
+      })),
+      siguienteCursor: page.nextCursor,
+    };
+  }
 
   @Get('categorias')
   async categories() {

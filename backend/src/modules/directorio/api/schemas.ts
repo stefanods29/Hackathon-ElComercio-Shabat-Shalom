@@ -1,7 +1,8 @@
 import { z } from 'zod';
 import type { Category } from '../application/ports.js';
 import type { ProviderProps } from '../domain/provider-profile.js';
-import { attributesFit, type ServiceProps } from '../domain/service.js';
+import type { PublicService } from '../application/search-ports.js';
+import { attributesFit } from '../domain/service.js';
 
 export const directoryIdSchema = z.uuid();
 export const providerSchema = z.strictObject({
@@ -69,7 +70,7 @@ export function toProviderDto(provider: ProviderProps) {
   };
 }
 
-export function toServiceDto(service: ServiceProps) {
+export function toServiceDto(service: PublicService) {
   return {
     id: service.id,
     proveedorId: service.providerId,
@@ -91,3 +92,26 @@ export function toServiceDto(service: ServiceProps) {
     eliminadoEn: service.deletedAt?.toISOString() ?? null,
   };
 }
+
+const queryNumber = z
+  .string()
+  .trim()
+  .regex(/^[+-]?(?:\d+(?:\.\d*)?|\.\d+)(?:[eE][+-]?\d+)?$/)
+  .pipe(z.coerce.number());
+export const serviceSearchSchema = z.strictObject({
+  lat: queryNumber.pipe(z.number().min(-90).max(90)),
+  lng: queryNumber.pipe(z.number().min(-180).max(180)),
+  radioM: queryNumber.pipe(z.number().int().min(100).max(20000)).default(2000),
+  categoriaId: z
+    .string()
+    .regex(/^[a-z0-9-]{2,40}$/)
+    .optional(),
+  q: z.string().trim().min(1).max(120).optional(),
+  soloEmergencia: z
+    .enum(['true', 'false'])
+    .transform((value) => value === 'true')
+    .default(false),
+  cursor: z.string().min(1).max(512).optional(),
+  limite: queryNumber.pipe(z.number().int().min(1).max(50)).default(20),
+});
+export type ServiceSearchDto = z.infer<typeof serviceSearchSchema>;

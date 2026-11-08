@@ -1,5 +1,8 @@
 import { Module } from '@nestjs/common';
 import { DirectoryController } from './api/directory.controller.js';
+import { FindServices } from './application/find-services.js';
+import { SERVICE_SEARCH_READER } from './application/search-ports.js';
+import { KyselyServiceSearchReader } from './infrastructure/service-search.reader.kysely.js';
 import { EditService } from './application/edit-service.js';
 import { DIRECTORY_REPOSITORY } from './application/ports.js';
 import { PublishService } from './application/publish-service.js';
@@ -17,6 +20,8 @@ import { KyselyDirectoryRepository } from './infrastructure/directory.repository
     EditService,
     WithdrawService,
     ReadDirectory,
+    FindServices,
+    { provide: SERVICE_SEARCH_READER, useClass: KyselyServiceSearchReader },
     ZoneChangedHandler,
     { provide: DIRECTORY_REPOSITORY, useClass: KyselyDirectoryRepository },
   ],
