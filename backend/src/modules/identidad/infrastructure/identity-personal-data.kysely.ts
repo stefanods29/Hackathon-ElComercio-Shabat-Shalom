@@ -37,14 +37,18 @@ export class KyselyIdentityPersonalData
     if (!isUuid(actor.id)) return null;
     const user = await this.db
       .selectFrom('identidad.usuarios')
-      .select(['zona_id', 'nivel_confianza'])
+      .select(['zona_id', 'nivel_confianza', 'roles'])
       .where('id', '=', actor.id)
       .where('eliminado_en', 'is', null)
       .executeTakeFirst();
     if (!user) return null;
     // Old JWTs may not retain old-zone privileges; promotions appear in the next issued token.
     if (user.zona_id !== actor.zoneId) return { ...actor, zoneId: null, trustLevel: 0 };
-    return { ...actor, trustLevel: Math.min(actor.trustLevel, user.nivel_confianza) };
+    return {
+      ...actor,
+      trustLevel: Math.min(actor.trustLevel, user.nivel_confianza),
+      roles: actor.roles.filter((role) => user.roles.includes(role)),
+    };
   }
 
   private async lockActive(tx: TransactionContext, id: string): Promise<boolean> {

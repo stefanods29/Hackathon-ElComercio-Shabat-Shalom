@@ -3,6 +3,11 @@
  * here (checked by `npm run boundaries`). Phase 0 owner: Lot B.
  */
 export { IdentityModule } from './identity.module.js';
+export {
+  OPERATIONAL_IDENTITY,
+  type OperationalIdentity,
+  type OperationalAccount,
+} from './application/operational-identity.js';
 export type { RegisteredUser } from './application/ports.js';
 export {
   REVIEWER_READER,

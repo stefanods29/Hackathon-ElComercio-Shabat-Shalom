@@ -8,7 +8,12 @@ import {
 } from '@nestjs/common';
 import { IdentityModule, PRESENCE_CLEANUP_JOB } from '../modules/identidad/index.js';
 import { SolidarityModule } from '../modules/solidaridad/index.js';
-import { EmergenciesModule } from '../modules/emergencias/index.js';
+import {
+  EmergenciesModule,
+  EMERGENCY_MAINTENANCE_JOB,
+  EMERGENCY_AGGREGATES_JOB,
+  EMERGENCY_ALERTS_JOB,
+} from '../modules/emergencias/index.js';
 import { MediaModule } from '../modules/media/index.js';
 import { DirectoryModule } from '../modules/directorio/index.js';
 import { ModerationModule } from '../modules/moderacion/index.js';
@@ -50,6 +55,9 @@ export class WorkerRuntime implements OnModuleInit, OnApplicationBootstrap, OnMo
     await this.registry.startAll(this.queue);
     await this.queue.schedule(DAILY_CLEANUP_JOB, '0 4 * * *', 'America/Lima');
     await this.queue.schedule(PRESENCE_CLEANUP_JOB, '0 4 * * *', 'America/Lima');
+    await this.queue.schedule(EMERGENCY_MAINTENANCE_JOB, '* * * * *', 'America/Lima', 'critical');
+    await this.queue.schedule(EMERGENCY_AGGREGATES_JOB, '*/5 * * * *', 'America/Lima');
+    await this.queue.schedule(EMERGENCY_ALERTS_JOB, '*/2 * * * *', 'America/Lima', 'critical');
     this.loop.start();
   }
 

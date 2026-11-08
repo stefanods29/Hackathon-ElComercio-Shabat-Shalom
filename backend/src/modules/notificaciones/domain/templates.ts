@@ -14,3 +14,9 @@ export function zoneNoticeMessage(zonaId: string) {
     data: { tipo: 'aviso_de_zona', zonaId },
   } as const;
 }
+
+export function requestUpdatedMessage(pedidoId: string, alternatives = false) {
+  const data: Record<string, string> = { tipo: 'pedido_actualizado', pedidoId };
+  if (alternatives) data.alternativas = 'directorio_emergencia';
+  return { title: 'Vecinal', body: 'Tienes una actualización', data } as const;
+}

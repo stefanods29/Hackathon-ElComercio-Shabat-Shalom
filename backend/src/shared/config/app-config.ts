@@ -48,6 +48,36 @@ export const configSchema = z
     MIN_ACCOUNT_AGE_HOURS_TO_REVIEW: z.coerce.number().int().min(0).default(72),
     MAX_REVIEWS_PER_DAY: z.coerce.number().int().min(1).default(5),
     MAX_POSTS_PER_DAY: z.coerce.number().int().min(1).default(10),
+    EMERGENCIES_ENABLED: z.stringbool().default(false),
+    EMERGENCY_URGENT_NOTICES_ENABLED: z.stringbool().default(false),
+    EMERGENCY_REQUEST_TTL_SECONDS: z.coerce.number().int().min(300).max(86400).default(86400),
+    EMERGENCY_REVIEW_HIGH_SECONDS: z.coerce.number().int().min(60).max(86400).default(900),
+    EMERGENCY_REVIEW_MEDIUM_SECONDS: z.coerce.number().int().min(60).max(86400).default(7200),
+    EMERGENCY_REVIEW_LOW_SECONDS: z.coerce.number().int().min(60).max(86400).default(21600),
+    EMERGENCY_WATER_STALE_SECONDS: z.coerce.number().int().min(60).default(7200),
+    EMERGENCY_FOOD_STALE_SECONDS: z.coerce.number().int().min(60).default(7200),
+    EMERGENCY_MEDICINE_STALE_SECONDS: z.coerce.number().int().min(60).default(3600),
+    EMERGENCY_TRANSPORT_STALE_SECONDS: z.coerce.number().int().min(60).default(3600),
+    EMERGENCY_SHELTER_STALE_SECONDS: z.coerce.number().int().min(60).default(3600),
+    EMERGENCY_MEETING_POINT_STALE_SECONDS: z.coerce.number().int().min(60).default(2592000),
+    EMERGENCY_ALERT_URL: z.preprocess(
+      (value) => (value === '' ? undefined : value),
+      z
+        .url()
+        .refine((value) => {
+          try {
+            const url = new URL(value);
+            return url.protocol === 'https:' && !url.username && !url.password && !url.hash;
+          } catch {
+            return false;
+          }
+        }, 'Usa un origen HTTPS de confianza.')
+        .optional(),
+    ),
+    EMERGENCY_ALERT_SOURCE: z
+      .string()
+      .regex(/^[a-z0-9_-]{1,60}$/)
+      .default('sin_configurar'),
     TRUST_PROXY_HOPS: z.coerce.number().int().min(0).default(0),
     OTP_PROVIDER: z.enum(['fake', 'twilio', 'firebase']).default('fake'),
     FIREBASE_PROJECT_ID: z
@@ -101,6 +131,24 @@ export const configSchema = z
         code: 'custom',
         path: ['MEDIA_ENDPOINT'],
         message: 'se requiere HTTPS en producción',
+      });
+    }
+    if (!(
+      config.EMERGENCY_REVIEW_HIGH_SECONDS <= config.EMERGENCY_REVIEW_MEDIUM_SECONDS &&
+      config.EMERGENCY_REVIEW_MEDIUM_SECONDS <= config.EMERGENCY_REVIEW_LOW_SECONDS &&
+      config.EMERGENCY_REVIEW_LOW_SECONDS < config.EMERGENCY_REQUEST_TTL_SECONDS
+    )) {
+      ctx.addIssue({
+        code: 'custom',
+        path: ['EMERGENCY_REVIEW_HIGH_SECONDS'],
+        message: 'Los tiempos alta ≤ media ≤ baja deben ser menores a la caducidad del pedido.',
+      });
+    }
+    if (config.EMERGENCY_ALERT_URL && config.EMERGENCY_ALERT_SOURCE === 'sin_configurar') {
+      ctx.addIssue({
+        code: 'custom',
+        path: ['EMERGENCY_ALERT_SOURCE'],
+        message: 'Identifica la fuente revisada antes de consultar sus alertas.',
       });
     }
     if (config.JOB_QUEUE_DRIVER === 'memory' && config.NODE_ENV !== 'test') {
