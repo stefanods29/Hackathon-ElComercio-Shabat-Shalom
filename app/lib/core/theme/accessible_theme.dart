@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 /// Accessible theme (WCAG 2.2 AA target, section 6 of the architecture) with the visual identity
@@ -162,6 +163,13 @@ abstract final class AccessibleTheme {
       ),
       dividerTheme: DividerThemeData(color: light ? border : scheme.outlineVariant),
       listTileTheme: const ListTileThemeData(minVerticalPadding: 12),
+      // Smooth screen changes: fade forward on Android, the native slide on iOS.
+      pageTransitionsTheme: const PageTransitionsTheme(
+        builders: {
+          TargetPlatform.android: FadeForwardsPageTransitionsBuilder(),
+          TargetPlatform.iOS: CupertinoPageTransitionsBuilder(),
+        },
+      ),
     );
   }
 }

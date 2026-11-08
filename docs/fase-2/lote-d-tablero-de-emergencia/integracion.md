@@ -31,7 +31,11 @@ personales de brigadistas. La autorización debe aplicarse también en el servid
 
 La fábrica real es nula por defecto. Sin ella, el tablero mantiene las alternativas
 oficiales y explica que no existe coordinación disponible. La práctica usa memoria
-aislada y conserva los pedidos como locales; no simula un acuse del servidor.
+aislada y conserva los pedidos como locales; por sí sola no simula un acuse del servidor.
+Para demostraciones, el tablero de práctica ofrece una **simulación de emergencia** explícita:
+activar un evento en la zona, reportar un recurso y hacer avanzar el propio pedido (enviado,
+visto, en camino) hasta confirmar la atención. Cada paso queda marcado como simulado y la pantalla
+aclara que ningún coordinador real recibió el pedido.
 
 **Integrado en `main` (8 de noviembre de 2026).** `AuthenticatedApp` inyecta
 `OperationalEmergencyRepository` para la cuenta y la zona de la sesión: el pedido va por la cola

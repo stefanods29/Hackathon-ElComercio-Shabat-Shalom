@@ -95,8 +95,10 @@ class PracticeEmergencyRepository implements EmergencyRepository {
   final _offers = <HelpOffer>[];
   final _resources = <CriticalResource>[];
   bool _closed = false;
+  bool _eventActive = false;
   EmergencySnapshot get _snapshot => EmergencySnapshot(
     coverageVerified: true,
+    activeEvent: _eventActive,
     updatedAt: now(),
     requests: List.unmodifiable(_requests),
     offers: List.unmodifiable(_offers),
@@ -142,9 +144,87 @@ class PracticeEmergencyRepository implements EmergencyRepository {
     return request;
   }
 
+  /// Demo simulation, practice only: the neighbor confirms a request that the simulated
+  /// coordination put on the way. Nothing reaches a real coordinator.
   @override
-  Future<void> confirmAttendance(String requestId) async =>
+  Future<void> confirmAttendance(String requestId) async {
+    _ensureOpen();
+    final index = _requests.indexWhere((r) => r.id == requestId);
+    if (index < 0 || !_requests[index].canConfirmAttendance) {
       throw StateError('No server capability in practice');
+    }
+    _requests[index] = _withStatus(_requests[index], HelpRequestStatus.attended, role: null);
+    _emit();
+  }
+
+  /// Practice only: a simulated emergency event in the zone.
+  bool get simulatedEvent => _eventActive;
+
+  void simulateEvent({required bool active}) {
+    _ensureOpen();
+    _eventActive = active;
+    _emit();
+  }
+
+  /// Practice only: the next step a coordinator would take (sent, seen, on the way). It is shown
+  /// as simulated and never claims that a real person received the request.
+  void simulateNextStep(String requestId) {
+    _ensureOpen();
+    final index = _requests.indexWhere((r) => r.id == requestId);
+    if (index < 0) return;
+    final next = switch (_requests[index].status) {
+      HelpRequestStatus.local => HelpRequestStatus.sent,
+      HelpRequestStatus.sent => HelpRequestStatus.seen,
+      HelpRequestStatus.seen => HelpRequestStatus.onTheWay,
+      _ => null,
+    };
+    if (next == null) return;
+    _requests[index] = _withStatus(
+      _requests[index],
+      next,
+      role: next == HelpRequestStatus.sent ? null : simulatedRole,
+    );
+    _emit();
+  }
+
+  /// Practice only: a fictitious resource reported now, unverified.
+  void simulateResource() {
+    _ensureOpen();
+    _resources.insert(
+      0,
+      CriticalResource(
+        id: 'practice-simulated-${now().microsecondsSinceEpoch}',
+        kind: ResourceKind.water,
+        description: 'Simulado: punto de agua reportado ahora.',
+        reportedAt: now(),
+      ),
+    );
+    _emit();
+  }
+
+  static const simulatedRole = 'coordinación simulada';
+
+  OwnHelpRequest _withStatus(OwnHelpRequest r, HelpRequestStatus status, {required String? role}) {
+    final at = now();
+    return OwnHelpRequest(
+      id: r.id,
+      idempotencyKey: r.idempotencyKey,
+      need: r.need,
+      description: r.description,
+      locationLabel: r.locationLabel,
+      approximateLocation: r.approximateLocation,
+      createdAt: r.createdAt,
+      sentAt: status == HelpRequestStatus.sent ? at : r.sentAt,
+      history: [
+        ...r.history,
+        RequestHistoryEntry(status: status, at: at, role: role),
+      ],
+      reason: r.reason,
+      nextStep: r.nextStep,
+      canConfirmAttendance: status == HelpRequestStatus.onTheWay,
+    );
+  }
+
   @override
   Future<void> saveOffer(HelpOffer offer) async {
     _ensureOpen();

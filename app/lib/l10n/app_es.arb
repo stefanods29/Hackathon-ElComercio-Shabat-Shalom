@@ -979,5 +979,16 @@
     }
   },
   "emergencyResourceQuantity": "Cantidad aproximada",
-  "emergencyResourceQuantityInvalid": "Escribe un número entre 0 y 1000000."
+  "emergencyResourceQuantityInvalid": "Escribe un número entre 0 y 1000000.",
+  "navHome": "Inicio",
+  "navServices": "Servicios",
+  "navEmergency": "Emergencia",
+  "navAccount": "Cuenta",
+  "simulationTitle": "Simulación de emergencia",
+  "simulationHelp": "Solo en modo práctica. Nada de esto llega a coordinadores, brigadistas ni vecinos reales.",
+  "simulationEventOn": "Simular una emergencia en la zona",
+  "simulationEventOff": "Terminar la emergencia simulada",
+  "simulationResource": "Simular un recurso reportado",
+  "simulationNextStep": "Simular el siguiente paso del pedido",
+  "simulationRequestHelp": "Simulación: muestra cómo cambiaría el estado. Ningún coordinador real recibió este pedido."
 }

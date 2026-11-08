@@ -306,6 +306,17 @@ class _OwnHelpRequestState extends ConsumerState<_OwnHelpRequest> {
         Text('${t.emergencyApproximateLocation}: ${request.locationLabel}'),
         if (request.reason != null) Text(t.emergencyReason(request.reason!)),
         if (request.nextStep != null) Text(t.emergencyNextStep(request.nextStep!)),
+        if (ref.watch(emergencyRepositoryProvider) case final PracticeEmergencyRepository practice
+            when request.status == HelpRequestStatus.local ||
+                request.status == HelpRequestStatus.sent ||
+                request.status == HelpRequestStatus.seen) ...[
+          Text(t.simulationRequestHelp),
+          OutlinedButton.icon(
+            icon: const Icon(Icons.science_outlined),
+            label: Text(t.simulationNextStep),
+            onPressed: () => practice.simulateNextStep(request.id),
+          ),
+        ],
         if (request.canConfirmAttendance)
           LargeButton(
             icon: Icons.check_circle_outline,

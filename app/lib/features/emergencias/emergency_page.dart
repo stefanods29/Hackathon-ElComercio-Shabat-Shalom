@@ -37,7 +37,7 @@ class EmergencyPage extends ConsumerWidget {
               label: t.activateLocalEmergency,
               onPressed: () {
                 ref.read(appModeProvider.notifier).activateEmergency();
-                context.push(Routes.emergencyDashboard);
+                context.go(Routes.emergencyDashboard);
               },
             ),
             const SizedBox(height: 12),

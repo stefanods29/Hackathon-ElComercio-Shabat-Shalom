@@ -114,11 +114,6 @@ class WallPage extends ConsumerWidget {
                 }
               },
             ),
-          IconButton(
-            tooltip: texts.accountTitle,
-            icon: const Icon(Icons.person_outline),
-            onPressed: () => context.push(Routes.account),
-          ),
           const TutorialButton(),
         ],
       ),
@@ -137,7 +132,7 @@ class WallPage extends ConsumerWidget {
                   label: Text(texts.activateLocalEmergency),
                 ),
                 OutlinedButton.icon(
-                  onPressed: () => context.push(Routes.directory),
+                  onPressed: () => context.go(Routes.directory),
                   icon: const Icon(Icons.handyman_outlined),
                   label: Text(texts.directoryTitle),
                 ),

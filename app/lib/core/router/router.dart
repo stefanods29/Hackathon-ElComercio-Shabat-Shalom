@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:vecinal/core/router/main_shell.dart';
 import 'package:vecinal/core/router/routes.dart';
 import 'package:vecinal/features/avisos/presentation/push_settings_page.dart';
 import 'package:vecinal/features/cuenta/data/providers.dart';
@@ -74,7 +75,37 @@ final routerProvider = Provider<GoRouter>((ref) {
     },
     routes: [
       GoRoute(path: '/cuenta/mis-resenas', builder: (context, state) => const MyReviewsPage()),
-      GoRoute(path: Routes.home, builder: (context, state) => const WallPage()),
+      // Main sections with the bottom navigation; the rest of the screens open over it.
+      StatefulShellRoute.indexedStack(
+        builder: (context, state, shell) => MainShell(shell: shell),
+        branches: [
+          StatefulShellBranch(
+            routes: [GoRoute(path: Routes.home, builder: (context, state) => const WallPage())],
+          ),
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: Routes.directory,
+                builder: (context, state) =>
+                    DirectoryPage(emergencyOnly: state.uri.queryParameters['emergencia'] == '1'),
+              ),
+            ],
+          ),
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: Routes.emergencyDashboard,
+                builder: (context, state) => const EmergencyDashboardPage(),
+              ),
+            ],
+          ),
+          StatefulShellBranch(
+            routes: [
+              GoRoute(path: Routes.account, builder: (context, state) => const AccountPage()),
+            ],
+          ),
+        ],
+      ),
       GoRoute(path: Routes.signIn, builder: (context, state) => const PhonePage()),
       GoRoute(
         path: Routes.signInCode,
@@ -87,7 +118,6 @@ final routerProvider = Provider<GoRouter>((ref) {
         },
       ),
       GoRoute(path: Routes.chooseZone, builder: (context, state) => const ChooseZonePage()),
-      GoRoute(path: Routes.account, builder: (context, state) => const AccountPage()),
       GoRoute(
         path: Routes.consent,
         builder: (context, state) =>
@@ -112,11 +142,6 @@ final routerProvider = Provider<GoRouter>((ref) {
         builder: (context, state) => MapPage(focus: state.extra as MapFocus?),
       ),
       GoRoute(
-        path: Routes.directory,
-        builder: (context, state) =>
-            DirectoryPage(emergencyOnly: state.uri.queryParameters['emergencia'] == '1'),
-      ),
-      GoRoute(
         path: Routes.serviceReview,
         builder: (context, state) => ReviewPage(serviceId: state.pathParameters['id']!),
       ),
@@ -139,10 +164,6 @@ final routerProvider = Provider<GoRouter>((ref) {
         builder: (context, state) => PostDetailPage(postId: state.pathParameters['id']!),
       ),
       GoRoute(path: Routes.emergency, builder: (context, state) => const EmergencyPage()),
-      GoRoute(
-        path: Routes.emergencyDashboard,
-        builder: (context, state) => const EmergencyDashboardPage(),
-      ),
       GoRoute(path: Routes.emergencyNeeds, builder: (context, state) => const EmergencyNeedsPage()),
       GoRoute(
         path: Routes.emergencyRequestForm,

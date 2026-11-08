@@ -27,6 +27,8 @@ class EmergencyDashboardPage extends ConsumerWidget {
       children: [
         Text(t.connectsNeighbors),
         if (scope?.practice == true) Text(t.emergencyPracticeHelp),
+        if (ref.watch(emergencyRepositoryProvider) case final PracticeEmergencyRepository practice)
+          _SimulationPanel(practice: practice, eventActive: data?.activeEvent == true),
         if (!ref.watch(emergencyHomeProvider))
           LargeButton(
             icon: Icons.emergency_outlined,
@@ -75,7 +77,7 @@ class EmergencyDashboardPage extends ConsumerWidget {
           label: t.emergencyUsefulServices,
           onPressed: () {
             ref.read(imagesEnabledProvider.notifier).set(false);
-            context.push('${Routes.directory}?emergencia=1');
+            context.go('${Routes.directory}?emergencia=1');
           },
         ),
         if (scope != null) ...[
@@ -102,9 +104,60 @@ class EmergencyDashboardPage extends ConsumerWidget {
         OutlinedButton.icon(
           icon: const Icon(Icons.person_outline),
           label: Text(t.accountTitle),
-          onPressed: () => context.push(Routes.account),
+          onPressed: () => context.go(Routes.account),
         ),
       ],
+    );
+  }
+}
+
+/// Practice only: simulate an emergency to show the whole flow without a server or allies.
+class _SimulationPanel extends StatelessWidget {
+  const _SimulationPanel({required this.practice, required this.eventActive});
+  final PracticeEmergencyRepository practice;
+  final bool eventActive;
+  @override
+  Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context);
+    final scheme = Theme.of(context).colorScheme;
+    return Card(
+      color: scheme.tertiaryContainer,
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Row(
+              children: [
+                Icon(Icons.science_outlined, color: scheme.onTertiaryContainer),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    t.simulationTitle,
+                    style: Theme.of(
+                      context,
+                    ).textTheme.titleMedium?.copyWith(color: scheme.onTertiaryContainer),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 8),
+            Text(t.simulationHelp, style: TextStyle(color: scheme.onTertiaryContainer)),
+            const SizedBox(height: 12),
+            FilledButton.tonalIcon(
+              icon: Icon(eventActive ? Icons.stop_circle_outlined : Icons.warning_amber_rounded),
+              label: Text(eventActive ? t.simulationEventOff : t.simulationEventOn),
+              onPressed: () => practice.simulateEvent(active: !eventActive),
+            ),
+            const SizedBox(height: 8),
+            OutlinedButton.icon(
+              icon: const Icon(Icons.water_drop_outlined),
+              label: Text(t.simulationResource),
+              onPressed: practice.simulateResource,
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

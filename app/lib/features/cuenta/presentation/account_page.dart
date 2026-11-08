@@ -47,7 +47,7 @@ class AccountPage extends ConsumerWidget {
               ListTile(
                 leading: const Icon(Icons.emergency_outlined),
                 title: Text(texts.emergencyDashboard),
-                onTap: () => context.push(Routes.emergencyDashboard),
+                onTap: () => context.go(Routes.emergencyDashboard),
               ),
               ListTile(
                 leading: const Icon(Icons.privacy_tip_outlined),
