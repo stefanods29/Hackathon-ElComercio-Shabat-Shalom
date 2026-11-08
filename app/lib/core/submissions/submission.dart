@@ -1,7 +1,7 @@
 import 'package:vecinal/core/submissions/submission_status.dart';
 
 /// Kind of queued action; it defines which API endpoint receives it.
-enum SubmissionKind { publish, takeFavor }
+enum SubmissionKind { publish, takeFavor, helpRequest }
 
 /// A neighbor's action in the local upload queue (the phone's outbox).
 class Submission {

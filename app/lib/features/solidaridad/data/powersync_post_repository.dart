@@ -30,6 +30,7 @@ class PowerSyncPostRepository implements PostRepository {
         PARTITION BY recurso_id ORDER BY creado_en DESC, id DESC
       ) AS rn
       FROM envios
+      WHERE tipo IN ('publish', 'takeFavor')
     )
     SELECT p.id, p.autor_id, p.zona_id, p.tipo, p.categoria, p.titulo, p.descripcion,
            p.estado, p.tomada_por_id, p.version, p.creado_en, p.actualizado_en,
@@ -67,7 +68,11 @@ class PowerSyncPostRepository implements PostRepository {
   @override
   Stream<List<Submission>> watchActionsToReview() => _database
       .watch(
-        "SELECT * FROM envios WHERE estado = 'couldNotComplete' ORDER BY creado_en DESC, id DESC",
+        '''
+        SELECT * FROM envios
+        WHERE tipo IN ('publish', 'takeFavor') AND estado = 'couldNotComplete'
+        ORDER BY creado_en DESC, id DESC
+        ''',
         triggerOnTables: ['envios'],
       )
       .map((rows) => rows.map(submissionFromRow).toList(growable: false));
@@ -140,7 +145,7 @@ class PowerSyncPostRepository implements PostRepository {
     DateTime now,
     Map<String, Object?> body,
     Map<String, Object?> optimistic,
-  ) async {
+  ) {
     final submission = Submission(
       id: newLocalId(),
       kind: kind,
@@ -148,27 +153,7 @@ class PowerSyncPostRepository implements PostRepository {
       idempotencyKey: newLocalId(),
       createdAt: now,
     );
-    await tx.execute(
-      'INSERT INTO comandos (id, tipo, recurso_id, cuerpo, clave_idempotencia) VALUES (?, ?, ?, ?, ?)',
-      [submission.id, kind.name, resourceId, jsonEncode(body), submission.idempotencyKey],
-    );
-    await tx.execute(
-      '''
-      INSERT INTO envios
-        (id, tipo, recurso_id, clave_idempotencia, estado, intentos, creado_en, publicacion_optimista)
-      VALUES (?, ?, ?, ?, ?, 0, ?, ?)
-      ''',
-      [
-        submission.id,
-        kind.name,
-        resourceId,
-        submission.idempotencyKey,
-        submission.status.name,
-        now.toUtc().toIso8601String(),
-        jsonEncode(optimistic),
-      ],
-    );
-    return submission;
+    return enqueueSubmission(tx, submission, body, optimisticPost: optimistic);
   }
 
   Post _post(Map<String, Object?> row, SubmissionStatus status) => Post(

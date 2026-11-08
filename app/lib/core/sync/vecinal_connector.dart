@@ -4,6 +4,7 @@ import 'dart:math';
 import 'package:dio/dio.dart';
 import 'package:powersync/powersync.dart';
 import 'package:vecinal/core/network/classify_response.dart';
+import 'package:vecinal/core/network/idempotency.dart';
 import 'package:vecinal/core/network/problem_details.dart';
 import 'package:vecinal/core/submissions/retry_policy.dart';
 import 'package:vecinal/core/submissions/submission.dart';
@@ -27,12 +28,14 @@ class VecinalConnector extends PowerSyncBackendConnector {
     this._api, {
     this.endpointOverride,
     this.onSessionRevoked,
+    this.helpRequestPath,
     DateTime Function()? clock,
   }) : _clock = clock ?? DateTime.now;
 
   final Dio _api;
   final String? endpointOverride;
   final void Function()? onSessionRevoked;
+  final String? helpRequestPath;
   final DateTime Function() _clock;
   final _random = Random();
   Timer? _refresh;
@@ -117,24 +120,45 @@ class VecinalConnector extends PowerSyncBackendConnector {
     final endpoint = switch (submission.kind) {
       SubmissionKind.publish => '/v1/publicaciones',
       SubmissionKind.takeFavor => '/v1/publicaciones/${submission.resourceId}/tomar',
+      SubmissionKind.helpRequest => helpRequestPath,
     };
-    final AttemptResult result;
+    if (endpoint == null) throw StateError('El envío de pedidos de ayuda no está configurado.');
+    AttemptResult result;
     try {
       final response = await _api.post<Object?>(
         endpoint,
         data: payload['cuerpo'] as String,
-        options: Options(headers: {'Idempotency-Key': submission.idempotencyKey}),
+        options: Options(headers: {idempotencyKeyHeader: submission.idempotencyKey}),
       );
-      // An expired access token can be renewed. Keep the command and its key.
-      result = response.statusCode == 401
-          ? const TransientFailure('Se necesita una sesión vigente para enviar el comando.')
-          : classifyResponse(response.statusCode, response.data);
+      result = _classifyCommandResponse(submission, response.statusCode, response.data);
     } on DioException catch (error) {
-      await _recordResult(database, submission, classifyError(error));
-      rethrow;
+      if (submission.kind != SubmissionKind.helpRequest) {
+        await _recordResult(database, submission, classifyError(error));
+        rethrow;
+      }
+      // Avoid propagating a transport exception that carries the sensitive request body.
+      result = _classifyCommandResponse(
+        submission,
+        error.response?.statusCode,
+        error.response?.data,
+      );
     }
     await _recordResult(database, submission, result);
     if (result is TransientFailure) throw StateError(result.description);
+  }
+
+  AttemptResult _classifyCommandResponse(Submission submission, int? status, Object? body) {
+    // An expired access token can be renewed. Keep the command and its key.
+    if (status == 401) {
+      return const TransientFailure('Se necesita una sesión vigente para enviar el comando.');
+    }
+    final result = classifyResponse(status, body);
+    if (submission.kind == SubmissionKind.helpRequest &&
+        result is Accepted &&
+        (body is! Map<String, Object?> || body['id'] != submission.resourceId)) {
+      return const TransientFailure('La respuesta no confirmó el identificador del pedido.');
+    }
+    return result;
   }
 
   Future<void> _recordResult(
