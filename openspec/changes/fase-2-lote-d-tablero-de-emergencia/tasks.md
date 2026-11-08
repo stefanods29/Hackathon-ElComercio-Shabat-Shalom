@@ -7,13 +7,13 @@ app en verde). Las de verificación quedan abiertas hasta tener su evidencia.
 
 - [x] 1.1 Tablero de inicio con evento activo o modo emergencia, alternativas oficiales y ahorro de datos.
 - [x] 1.2 Integrar el puerto real con la cobertura y el evento del Lote B.
-- [ ] 1.3 Verificar con pruebas de widgets: zona sin cobertura, evento activo y modo manual.
+- [x] 1.3 Verificar con pruebas de widgets: zona sin cobertura, evento activo y modo manual. Evidencia: [pruebas de pantallas](../../../docs/fase-2/evidencias/pantallas-d.md) (`flutter test`, 293 pasan, 7 omitidas).
 
 ## 2. Parte 2 · "Necesito ayuda" y el estado de mi pedido
 
 - [x] 2.1 Pedido en tres toques, dictado opcional y estado local sin acuse.
 - [x] 2.2 Conectar la cola y el stream del autor del Lote A (cuenta real).
-- [ ] 2.3 Verificar con pruebas de widgets de cada estado y mensaje, el flujo de tres toques contado y una prueba en modo avión.
+- [x] 2.3 Verificar con pruebas de widgets de cada estado y mensaje, el flujo de tres toques contado y una prueba en modo avión. Evidencia: [pruebas de pantallas](../../../docs/fase-2/evidencias/pantallas-d.md) (`flutter test`, 293 pasan, 7 omitidas). Modo avión simulado a nivel de widget; A 1.5 en un dispositivo sigue abierta.
 
 ## 3. Parte 3 · "Puedo ayudar" y recursos
 
