@@ -65,10 +65,17 @@ ranking entre páginas.
 
 `202611080110_directorio_busqueda` añade `sin_tildes` inmutable, el `tsvector` generado
 `busqueda`, dos índices GIN de texto y un índice de zona/orden. Reutiliza el GiST existente y no
-añade tablas a `powersync`. Los agregados siguen en cero hasta el recálculo de la Parte 3.
+añade tablas a `powersync`.
 La consulta de `EXPLAIN` para el supervisor está en
 [`docs/fase-1/evidencias/busqueda.md`](../../../../docs/fase-1/evidencias/busqueda.md), sin salidas inventadas.
 
+El consumidor de `reputacion.agregados_recalculados` sustituye los contadores del servicio y
+recalcula el puntaje de su categoría con peso 7 y media ponderada por reseñas publicadas de sus
+servicios vigentes. Usa el id y la fecha del evento para omitir reintentos o entregas más viejas;
+la marca es privada y se confirma junto con los agregados. El recálculo no cambia la versión de
+edición de un servicio.
+
 Las entregas y su cobertura están en
 [Parte 1](../../../../docs/fase-1/lote-b-directorio-reputacion-y-moderacion/parte-1.md) y
-[Parte 2](../../../../docs/fase-1/lote-b-directorio-reputacion-y-moderacion/parte-2.md).
+[Parte 2](../../../../docs/fase-1/lote-b-directorio-reputacion-y-moderacion/parte-2.md) y
+[Parte 3](../../../../docs/fase-1/lote-b-directorio-reputacion-y-moderacion/parte-3.md).

@@ -20,3 +20,15 @@ moderacion/
 
 Reglas: el módulo es dueño de su esquema de Postgres (`moderacion.*`); nadie más lee ni escribe sus
 tablas. Las migraciones van en `infrastructure/migrations/AAAAMMDDHHmm_moderacion_<descripcion>.ts`.
+
+## Antifraude de reseñas (Parte 3)
+
+`ReviewPatternHandler` consume `reputacion.resena_creada` y usa el puerto público de Reputación
+para recibir un conteo, sin consultar sus tablas ni recibir la señal de dispositivo. Si la reseña
+sigue en revisión y hay cinco o más reseñas de la misma señal en la ventana de 24 horas, abre un
+caso `pendiente` con motivo `patron_de_resenas`. La clave única por tipo e id de contenido evita
+casos duplicados si el trabajo se reenvía.
+
+`202611080220_moderacion_casos.ts` crea la cola privada que necesita este flujo. La Parte 5 añade
+las denuncias, la cadena completa, las decisiones, las sanciones y sus rutas. No hay aprobación
+automática ni publicación de reseñas en la Parte 3.

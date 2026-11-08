@@ -14,7 +14,7 @@
 |---|---|---|---|---|
 | 1 | Directorio: categorías, proveedores y servicios | Lista para revisión | JDiazD33 | — |
 | 2 | Búsqueda por cercanía y texto | Lista para revisión | JDiazD33 | — |
-| 3 | Reseñas, Visto Bueno y ranking | Pendiente | Por asignar | — |
+| 3 | Reseñas, Visto Bueno y ranking | Lista para revisión | JDiazD33 | — |
 | 4 | Identidad del piloto: niveles, zona y privacidad | Pendiente | Por asignar | — |
 | 5 | Moderación | Pendiente | Por asignar | — |
 
@@ -25,6 +25,8 @@ La Parte 1 se entrega en `f1-lote-b/parte-1-directorio`, sin PR ni integración.
 cobertura escrita y comandos pendientes están en [el informe de la parte](parte-1.md).
 La Parte 2 se entrega en `f1-lote-b/parte-2-busqueda`, desde la punta de la Parte 1;
 ver [su informe](parte-2.md) y la [consulta de EXPLAIN](../evidencias/busqueda.md).
+La Parte 3 se entrega en `f1-lote-b/parte-3-resenas`, desde la punta de la Parte 2;
+ver [su informe](parte-3.md).
 
 ---
 
