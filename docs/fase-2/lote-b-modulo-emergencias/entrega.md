@@ -128,3 +128,26 @@ Antes de integrar, revisar contrato, tipos, fronteras y las dos migraciones; des
 transiciones, idempotencia y permisos con PostgreSQL, jobs repetidos, revocación y anonimización.
 También hace falta el simulacro, configuración privada, el enlace con A/C/D y la aceptación del
 equipo. Nada de eso se presenta como ejecutado en esta entrega.
+
+## Verificación de escalamiento y supresión
+
+Rama `f2-lote-b/parte-3-4-pruebas`, desde `1fb5e12`.
+
+- [Escalamiento](../../../backend/test/integration/emergency-escalation.int-spec.ts).
+  El reloj controlado prueba el plazo de las tres prioridades, el aviso previo, los reintentos
+  concurrentes y posteriores, el límite de tres etapas y el aviso genérico al autor con el
+  directorio de emergencia.
+- [Recursos y celdas](../../../backend/test/integration/emergency-resources.int-spec.ts).
+  Dos escrituras con la misma versión producen un éxito y un conflicto. La confirmación repetida
+  cuenta una vez. La prueba consulta la instantánea en PostgreSQL y en la API antes y después del
+  umbral de tres pedidos, de un cierre y del vencimiento. Comprueba también que la respuesta
+  omite los totales por celda y que la copia pública de recursos omite el reportante y la huella.
+- [Datos de prueba compartidos](../../../backend/test/support/emergency-fixture.ts).
+  Las dos suites usan cuentas ficticias con rangos de teléfono separados, habilitan coordinación
+  por la API y retiran sus datos de la operación de prueba al terminar.
+
+Desde `backend/`, `npm run verify` pasó con 246 pruebas y compilación. Con
+`DATABASE_URL_ADMIN` apuntando al PostgreSQL local con PostGIS, `npm run test:integration` pasó
+con 207 pruebas, incluidas las ocho nuevas. Los casos pasaron con la implementación existente.
+La comprobación de CI del commit de entrega y la revisión de migraciones de B 5.3 quedan
+pendientes para la revisión del equipo.
