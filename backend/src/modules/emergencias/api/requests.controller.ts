@@ -130,7 +130,7 @@ export class HelpRequestsController {
   }
   /** Lot A, part 2: permission for the assigned phone's streams, tied to this session. */
   @Post('pedidos-ayuda/:id/accesos-sincronizacion')
-  @Idempotent()
+  @Idempotent('session-bound')
   @HttpCode(200)
   @RequireTrustLevel(3)
   @RequireRole('coordinador', 'brigadista')
