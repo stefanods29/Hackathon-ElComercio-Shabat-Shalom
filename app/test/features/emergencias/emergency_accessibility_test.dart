@@ -13,6 +13,7 @@ import 'package:vecinal/features/emergencias/data/emergency_providers.dart';
 import 'package:vecinal/features/emergencias/domain/emergency.dart';
 import 'package:vecinal/features/emergencias/presentation/emergency_contacts_page.dart';
 import 'package:vecinal/features/emergencias/presentation/emergency_dashboard_page.dart';
+import 'package:vecinal/features/emergencias/presentation/emergency_detail_pages.dart';
 import 'package:vecinal/features/emergencias/presentation/emergency_resource_pages.dart';
 import 'package:vecinal/features/emergencias/presentation/help_request_pages.dart';
 import 'package:vecinal/l10n/app_localizations.dart';
@@ -125,7 +126,10 @@ final _screens = <String, Widget Function()>{
   'formulario': () => const HelpRequestFormPage(need: EmergencyNeed.water),
   'pedido': () => const OwnHelpRequestPage(requestId: _requestId),
   'recursos': () => const EmergencyResourcesPage(),
+  'reportar': () => const EmergencyReportResourcePage(),
   'contactos': () => const EmergencyContactsPage(),
+  'recurso': () => const EmergencyResourceDetailPage(resourceId: 'recurso-agua'),
+  'sector': () => const EmergencyZoneDemandPage(cell: 'A3', need: 'agua'),
 };
 
 Future<void> _show(
@@ -155,9 +159,10 @@ Future<void> _show(
         locale: const Locale('es'),
         localizationsDelegates: AppLocalizations.localizationsDelegates,
         supportedLocales: AppLocalizations.supportedLocales,
+        // The phone's text size, then the simple mode scope at the root, as in the app.
         builder: (context, child) => MediaQuery(
           data: MediaQuery.of(context).copyWith(textScaler: TextScaler.linear(textScale)),
-          child: child!,
+          child: SimpleModeScope(child: child!),
         ),
         home: screen,
       ),
@@ -223,7 +228,7 @@ void main() {
     });
   }
 
-  testWidgets('el lector de pantalla recorre el tablero en orden: título, ayuda y alternativas', (
+  testWidgets('el lector de pantalla recorre el tablero en orden: título, llamadas y ayuda', (
     tester,
   ) async {
     final semantics = tester.ensureSemantics();
@@ -231,8 +236,9 @@ void main() {
     final order = _readingOrder(tester);
     int at(String text) => order.indexWhere((label) => label.contains(text));
     expect(at(t.emergencyDashboard), 0);
-    expect(at(t.emergencyNeedHelp), greaterThan(at(t.emergencyDashboard)));
-    expect(at(t.emergencyLifeRisk), greaterThan(-1));
+    // Calling is the first gesture available, before asking the neighbors for help.
+    expect(at(t.emergencyCallNow), greaterThan(at(t.emergencyDashboard)));
+    expect(at(t.emergencyNeedHelp), greaterThan(at(t.emergencyCallNow)));
     semantics.dispose();
   });
 
@@ -242,7 +248,7 @@ void main() {
     final order = _readingOrder(tester);
     int at(String text) => order.indexWhere((label) => label.contains(text));
     expect(at(t.emergencyRequestOnTheWay), greaterThan(-1));
-    expect(at(t.emergencyLifeRisk), greaterThan(at(t.emergencyRequestOnTheWay)));
+    expect(at(t.emergencyCallIfWorse), greaterThan(at(t.emergencyRequestOnTheWay)));
     semantics.dispose();
   });
 

@@ -22,6 +22,9 @@ void main() {
     await tester.tap(emergency);
     await tester.pumpAndSettle();
     expect(find.byType(EmergencyDashboardPage), findsOneWidget);
+    // Practice is a chip in the title bar; tapping it explains that nothing is sent.
+    await tester.tap(find.text(t.practiceChip));
+    await tester.pumpAndSettle();
     expect(find.text(t.emergencyPracticeHelp), findsOneWidget);
     await tester.pumpWidget(const SizedBox.shrink());
     await tester.pumpAndSettle();

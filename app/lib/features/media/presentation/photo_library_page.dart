@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:vecinal/core/di/providers.dart';
 import 'package:vecinal/core/ui/spaced.dart';
+import 'package:vecinal/features/cuenta/presentation/account_ui.dart';
 import 'package:vecinal/features/media/data/providers.dart';
 import 'package:vecinal/features/media/domain/local_photo.dart';
 import 'package:vecinal/features/media/presentation/local_photo_preview.dart';
@@ -42,7 +43,6 @@ class _PhotoLibraryPageState extends ConsumerState<PhotoLibraryPage> with Widget
     final enabled = ref.watch(environmentProvider).enablePhotos;
     return Scaffold(
       appBar: AppBar(title: Text(texts.photosTitle)),
-      backgroundColor: Theme.of(context).colorScheme.surfaceContainerLow,
       body: SafeArea(
         child: Center(
           child: ConstrainedBox(
@@ -58,25 +58,28 @@ class _PhotoLibraryPageState extends ConsumerState<PhotoLibraryPage> with Widget
                           child: Text(texts.photosStorageFailed),
                         ),
                         data: (photos) => ListView(
-                          padding: const EdgeInsets.fromLTRB(20, 8, 20, 32),
+                          padding: const EdgeInsets.fromLTRB(20, 16, 20, 32),
                           children: spaced([
                             Card(
+                              margin: EdgeInsets.zero,
                               child: Padding(
                                 padding: const EdgeInsets.all(20),
                                 child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  crossAxisAlignment: CrossAxisAlignment.stretch,
                                   children: [
-                                    Icon(
-                                      Icons.photo_library_outlined,
-                                      size: 36,
-                                      color: Theme.of(context).colorScheme.primary,
+                                    Row(
+                                      children: [
+                                        const AccountIcon(icon: Icons.photo_library_outlined),
+                                        const SizedBox(width: 14),
+                                        Expanded(
+                                          child: Text(
+                                            texts.photosHeading,
+                                            style: Theme.of(context).textTheme.titleLarge,
+                                          ),
+                                        ),
+                                      ],
                                     ),
                                     const SizedBox(height: 12),
-                                    Text(
-                                      texts.photosHeading,
-                                      style: Theme.of(context).textTheme.headlineSmall,
-                                    ),
-                                    const SizedBox(height: 8),
                                     Text(texts.photosPrivacy),
                                     if (ref.watch(mediaCredentialsProvider) == null) ...[
                                       const SizedBox(height: 12),
@@ -97,7 +100,19 @@ class _PhotoLibraryPageState extends ConsumerState<PhotoLibraryPage> with Widget
                             if (photos.isEmpty)
                               Padding(
                                 padding: const EdgeInsets.all(24),
-                                child: Text(texts.photosEmpty, textAlign: TextAlign.center),
+                                child: Column(
+                                  spacing: 12,
+                                  children: [
+                                    ExcludeSemantics(
+                                      child: Icon(
+                                        Icons.add_photo_alternate_outlined,
+                                        size: 48,
+                                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                      ),
+                                    ),
+                                    Text(texts.photosEmpty, textAlign: TextAlign.center),
+                                  ],
+                                ),
                               ),
                             for (final photo in photos)
                               _PhotoCard(

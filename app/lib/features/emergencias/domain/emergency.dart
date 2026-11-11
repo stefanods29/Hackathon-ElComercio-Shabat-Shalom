@@ -161,10 +161,13 @@ class ResourceFreshnessPolicy {
     },
   });
   final Map<ResourceKind, Duration> thresholds;
-  bool isStale(CriticalResource resource, DateTime now) {
-    final threshold = resource.staleAfter ?? thresholds[resource.kind] ?? const Duration(hours: 2);
-    return now.difference(resource.reportedAt) >= threshold;
-  }
+
+  /// How long a report of this resource counts as current.
+  Duration freshFor(CriticalResource resource) =>
+      resource.staleAfter ?? thresholds[resource.kind] ?? const Duration(hours: 2);
+
+  bool isStale(CriticalResource resource, DateTime now) =>
+      now.difference(resource.reportedAt) >= freshFor(resource);
 }
 
 class EmergencySnapshot {

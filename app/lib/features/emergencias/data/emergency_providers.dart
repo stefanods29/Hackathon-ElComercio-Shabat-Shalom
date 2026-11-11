@@ -58,19 +58,20 @@ final resourceFreshnessPolicyProvider = Provider<ResourceFreshnessPolicy>(
 );
 
 /// In-memory practice only. No timer, upload, retry or server acknowledgment is simulated.
+/// The sample places read like a real neighborhood; the "Práctica" chip marks them as examples.
 class PracticeEmergencyRepository implements EmergencyRepository {
   PracticeEmergencyRepository(this.now) {
     _resources.addAll([
       CriticalResource(
         id: 'practice-water',
         kind: ResourceKind.water,
-        description: 'Ejemplo ficticio: agua en el local de práctica.',
+        description: 'Local comunal',
         reportedAt: now().subtract(const Duration(hours: 3)),
       ),
       CriticalResource(
         id: 'practice-food',
         kind: ResourceKind.food,
-        description: 'Ejemplo ficticio: alimentos en el local de práctica.',
+        description: 'Parroquia del barrio',
         reportedAt: now().subtract(const Duration(minutes: 20)),
         verification: ResourceVerification.neighbors,
         confirmations: 2,
@@ -78,11 +79,11 @@ class PracticeEmergencyRepository implements EmergencyRepository {
       CriticalResource(
         id: 'practice-shelter',
         kind: ResourceKind.shelter,
-        description: 'Ejemplo ficticio: capacidad de un albergue.',
+        description: 'Colegio de la zona',
         reportedAt: now(),
         verification: ResourceVerification.verified,
         source: ResourceSource(
-          name: 'Fuente oficial ficticia · solo práctica',
+          name: 'Municipalidad (datos de ejemplo)',
           verifiedAt: now(),
           official: true,
         ),
@@ -195,7 +196,7 @@ class PracticeEmergencyRepository implements EmergencyRepository {
       CriticalResource(
         id: 'practice-simulated-${now().microsecondsSinceEpoch}',
         kind: ResourceKind.water,
-        description: 'Simulado: punto de agua reportado ahora.',
+        description: 'Pileta del parque (simulado)',
         reportedAt: now(),
       ),
     );

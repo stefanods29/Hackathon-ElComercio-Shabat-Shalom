@@ -91,7 +91,12 @@ class PostCard extends ConsumerWidget {
                     child: FilledButton.icon(
                       icon: const Icon(Icons.volunteer_activism_outlined),
                       onPressed: () => _take(context, ref),
-                      label: Text(texts.takeFavorAction),
+                      // "Tomar favor" read oddly on a request: the label says what taking it means.
+                      label: Text(
+                        post.type == PostType.need
+                            ? texts.takeFavorHelp
+                            : texts.takeFavorInterested,
+                      ),
                     ),
                   ),
                 ],

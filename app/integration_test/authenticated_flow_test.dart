@@ -102,7 +102,7 @@ void main() {
     await tester.pumpAndSettle();
     await tester.tap(find.text('Cerrar sesión').first);
     await tester.pumpAndSettle();
-    await tester.tap(find.widgetWithText(TextButton, 'Confirmar'));
+    await tester.tap(find.widgetWithText(FilledButton, 'Cerrar sesión'));
     await _wait(tester, find.byType(PhonePage));
     // The redirect can precede the end of deleting the databases.
     final purgeDeadline = DateTime.now().add(const Duration(seconds: 30));

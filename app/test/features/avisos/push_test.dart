@@ -5,6 +5,8 @@ import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:vecinal/core/platform/device_services.dart';
 import 'package:vecinal/core/storage/secure_store.dart';
 import 'package:vecinal/features/avisos/data/api_push_registration.dart';
 import 'package:vecinal/features/avisos/data/providers.dart';
@@ -94,6 +96,22 @@ class _Registration implements PushRegistration {
 class _FixedStatus extends PushController {
   @override
   PushStatus build() => PushStatus.denied;
+}
+
+/// The phone's notifications: records what would be shown and answers as told.
+class _Notifier implements LocalNotifier {
+  _Notifier(this.result);
+  final LocalNotificationResult result;
+  final shown = <(String, String, Duration)>[];
+  @override
+  Future<LocalNotificationResult> show({
+    required String title,
+    required String body,
+    Duration delay = Duration.zero,
+  }) async {
+    shown.add((title, body, delay));
+    return result;
+  }
 }
 
 void main() {
@@ -298,4 +316,61 @@ void main() {
       expect(tester.takeException(), isNull);
     });
   }
+
+  for (final (result, message) in [
+    (LocalNotificationResult.scheduled, 'La notificación llegará en 5 segundos'),
+    (LocalNotificationResult.denied, 'Actívalas en los Ajustes del teléfono'),
+    (LocalNotificationResult.failed, 'El aviso igual se ve dentro de Winki'),
+  ]) {
+    testWidgets('en práctica, simular un aviso urgente lo muestra en la app y como notificación '
+        'del celular: ${result.name}', (tester) async {
+      SharedPreferences.setMockInitialValues({'practiceMode': true});
+      final notifier = _Notifier(result);
+      final container = ProviderContainer(
+        overrides: [
+          pushControllerProvider.overrideWith(_FixedStatus.new),
+          localNotifierProvider.overrideWithValue(notifier),
+        ],
+      );
+      addTearDown(container.dispose);
+      await tester.pumpWidget(
+        UncontrolledProviderScope(
+          container: container,
+          child: MaterialApp(
+            locale: const Locale('es'),
+            localizationsDelegates: AppLocalizations.localizationsDelegates,
+            supportedLocales: AppLocalizations.supportedLocales,
+            home: const PushSettingsPage(),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Simular un aviso urgente'));
+      await tester.pumpAndSettle();
+      expect(container.read(foregroundPushProvider), {'tipo': 'modo_emergencia_activado'});
+      // A generic text: the notification of the phone never carries private details.
+      expect(notifier.shown, [
+        ('Aviso urgente en tu zona', 'Abre Winki para ver qué hacer.', const Duration(seconds: 5)),
+      ]);
+      expect(find.textContaining(message), findsOneWidget);
+      expect(tester.takeException(), isNull);
+    });
+  }
+
+  testWidgets('fuera de práctica no se puede simular un aviso', (tester) async {
+    SharedPreferences.setMockInitialValues({});
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [pushControllerProvider.overrideWith(_FixedStatus.new)],
+        child: MaterialApp(
+          locale: const Locale('es'),
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          home: const PushSettingsPage(),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+    expect(find.text('Simular un aviso urgente'), findsNothing);
+  });
 }

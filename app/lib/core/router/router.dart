@@ -19,6 +19,7 @@ import 'package:vecinal/features/emergencias/domain/emergency.dart';
 import 'package:vecinal/features/emergencias/emergency_page.dart';
 import 'package:vecinal/features/emergencias/presentation/emergency_contacts_page.dart';
 import 'package:vecinal/features/emergencias/presentation/emergency_dashboard_page.dart';
+import 'package:vecinal/features/emergencias/presentation/emergency_detail_pages.dart';
 import 'package:vecinal/features/emergencias/presentation/emergency_resource_pages.dart';
 import 'package:vecinal/features/emergencias/presentation/help_request_pages.dart';
 import 'package:vecinal/features/emergencias/presentation/operational_case_page.dart';
@@ -126,6 +127,7 @@ final routerProvider = Provider<GoRouter>((ref) {
       ),
       GoRoute(path: Routes.myData, builder: (context, state) => const MyDataPage()),
       GoRoute(path: Routes.profile, builder: (context, state) => const ProfilePage()),
+      GoRoute(path: Routes.editProfile, builder: (context, state) => const EditProfilePage()),
       GoRoute(path: Routes.levels, builder: (context, state) => const LevelsPage()),
       GoRoute(path: Routes.changeZone, builder: (context, state) => const ChangeZonePage()),
       GoRoute(path: Routes.publish, builder: (context, state) => const ChooseTypePage()),
@@ -184,6 +186,26 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: Routes.emergencyResources,
         builder: (context, state) => const EmergencyResourcesPage(),
+      ),
+      GoRoute(
+        path: Routes.emergencyReportResource,
+        builder: (context, state) => EmergencyReportResourcePage(
+          initialKind: ResourceKind.values
+              .where((kind) => kind.name == state.uri.queryParameters['tipo'])
+              .firstOrNull,
+        ),
+      ),
+      GoRoute(
+        path: Routes.emergencyResourceDetail,
+        builder: (context, state) =>
+            EmergencyResourceDetailPage(resourceId: state.pathParameters['id']!),
+      ),
+      GoRoute(
+        path: Routes.emergencyZoneDemand,
+        builder: (context, state) => EmergencyZoneDemandPage(
+          cell: state.pathParameters['cell']!,
+          need: state.pathParameters['need']!,
+        ),
       ),
       GoRoute(
         path: Routes.emergencyContacts,

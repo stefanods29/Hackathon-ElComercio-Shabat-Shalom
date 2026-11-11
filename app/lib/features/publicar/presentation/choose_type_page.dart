@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:vecinal/core/router/routes.dart';
 import 'package:vecinal/core/theme/accessible_theme.dart';
-import 'package:vecinal/core/ui/simple_mode.dart';
 import 'package:vecinal/features/publicar/domain/suggestions.dart';
 import 'package:vecinal/features/solidaridad/domain/post.dart';
 import 'package:vecinal/l10n/app_localizations.dart';
@@ -12,15 +10,13 @@ const _tilePadding = 18.0;
 const _tileLabelSize = 17.0;
 
 /// Pantalla de elección de tipo de publicación (toque 2 del flujo).
-class ChooseTypePage extends ConsumerWidget {
+class ChooseTypePage extends StatelessWidget {
   const ChooseTypePage({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     final texts = AppLocalizations.of(context);
-    final simpleModeAsync = ref.watch(simpleModeProvider);
-    final scale = simpleModeAsync.value == true ? simpleModeTextScale : 1.0;
-    final labelSize = _tileLabelSize * scale;
+    const labelSize = _tileLabelSize;
 
     return Scaffold(
       appBar: AppBar(
@@ -32,7 +28,7 @@ class ChooseTypePage extends ConsumerWidget {
         children: [
           Text(
             texts.chooseTypeTitle,
-            style: Theme.of(context).textTheme.headlineSmall?.copyWith(fontSize: 24 * scale),
+            style: Theme.of(context).textTheme.headlineSmall?.copyWith(fontSize: 24),
           ),
           const SizedBox(height: 20),
           _TypeTile(

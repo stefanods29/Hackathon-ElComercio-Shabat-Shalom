@@ -13,6 +13,9 @@ abstract final class Routes {
   static const emergencyRequest = '/emergencia/pedidos/:id';
   static const emergencyOffer = '/emergencia/ofrecer';
   static const emergencyResources = '/emergencia/recursos';
+  static const emergencyReportResource = '/emergencia/recursos/reportar';
+  static const emergencyResourceDetail = '/emergencia/recursos/detalle/:id';
+  static const emergencyZoneDemand = '/emergencia/recursos/sector/:cell/:need';
   static const emergencyContacts = '/cuenta/contactos-emergencia';
   static const emergencyBoardData = '/emergencia/datos-de-mi-zona';
   static const operationalCase = '/emergencia/operacion/:id';
@@ -26,6 +29,7 @@ abstract final class Routes {
   static const chooseZone = '/elegir-zona';
   static const account = '/cuenta';
   static const profile = '/cuenta/perfil';
+  static const editProfile = '/cuenta/perfil/editar';
   static const pushSettings = '/avisos';
   static const postDetail = '/publicaciones/:id';
   static const directory = '/servicios';

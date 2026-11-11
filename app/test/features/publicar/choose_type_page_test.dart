@@ -4,6 +4,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:vecinal/app.dart';
 import 'package:vecinal/core/theme/accessible_theme.dart';
+import 'package:vecinal/core/ui/simple_mode.dart';
 import 'package:vecinal/features/publicar/domain/suggestions.dart';
 import 'package:vecinal/features/publicar/presentation/choose_type_page.dart';
 import 'package:vecinal/features/publicar/presentation/publish_form_page.dart';
@@ -37,7 +38,7 @@ void main() {
             supportedLocales: AppLocalizations.supportedLocales,
             builder: (context, child) => MediaQuery(
               data: MediaQuery.of(context).copyWith(textScaler: TextScaler.linear(textScale)),
-              child: child!,
+              child: SimpleModeScope(child: child!),
             ),
             home: const ChooseTypePage(),
           ),

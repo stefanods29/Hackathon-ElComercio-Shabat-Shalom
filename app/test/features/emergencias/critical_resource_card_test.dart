@@ -51,18 +51,25 @@ void main() {
   testWidgets('actualiza la antigüedad y marca el recurso al llegar al umbral del servidor', (
     tester,
   ) async {
+    final semantics = tester.ensureSemantics();
     var now = reportedAt.add(const Duration(minutes: 4));
     await show(tester, clock: () => now);
-    final stale = find.textContaining('Posiblemente desactualizado');
-    expect(find.text('Reportado hace 4 minutos'), findsOneWidget);
+    final stale = find.textContaining('confirma antes de ir');
+    final warned = find.bySemanticsLabel(RegExp('Posiblemente desactualizado'));
+    expect(find.text('Hace 4 minutos'), findsOneWidget);
     expect(stale, findsNothing);
+    expect(warned, findsNothing);
 
     now = now.add(const Duration(minutes: 1));
     await tester.pump(const Duration(minutes: 1));
     await tester.pumpAndSettle();
-    expect(find.text('Reportado hace 5 minutos'), findsOneWidget);
+    // The age turns into a warning in the same pill; the screen reader hears it in full.
+    expect(find.text('Hace 5 minutos · confirma antes de ir'), findsOneWidget);
     expect(stale, findsOneWidget);
+    expect(find.bySemanticsLabel(RegExp('Reportado hace 5 minutos')), findsOneWidget);
+    expect(warned, findsOneWidget);
     await tester.pumpWidget(const SizedBox.shrink());
+    semantics.dispose();
   });
 
   testWidgets('oculta la fuente y la insignia de un recurso sin verificación', (tester) async {

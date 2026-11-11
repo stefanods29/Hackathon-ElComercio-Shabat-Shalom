@@ -8,7 +8,7 @@ import 'package:vecinal/core/di/providers.dart';
 import 'package:vecinal/core/platform/pilot_platforms.dart';
 import 'package:vecinal/core/router/routes.dart';
 import 'package:vecinal/core/ui/large_button.dart';
-import 'package:vecinal/core/ui/simple_mode.dart';
+import 'package:vecinal/core/ui/spaced.dart';
 import 'package:vecinal/core/ui/wrapping_app_bar.dart';
 import 'package:vecinal/features/directorio/domain/directory.dart';
 import 'package:vecinal/features/directorio/domain/search.dart';
@@ -16,6 +16,7 @@ import 'package:vecinal/features/directorio/presentation/directory_page.dart';
 import 'package:vecinal/features/emergencias/data/emergency_contacts.dart';
 import 'package:vecinal/features/emergencias/data/emergency_providers.dart';
 import 'package:vecinal/features/emergencias/domain/emergency.dart';
+import 'package:vecinal/features/emergencias/presentation/emergency_ui.dart';
 import 'package:vecinal/features/emergencias/public_emergency_directory.dart';
 import 'package:vecinal/features/mapa/presentation/map_view.dart';
 import 'package:vecinal/features/onboarding/practice_mode.dart';
@@ -47,36 +48,183 @@ String requestStatusLabel(AppLocalizations t, HelpRequestStatus status) => switc
   HelpRequestStatus.closedUnattended => t.emergencyRequestClosed,
 };
 
+/// An action of the practice sheet (simulations for a demo, never real).
+class PracticeAction {
+  const PracticeAction({required this.icon, required this.label, required this.onSelected});
+  final IconData icon;
+  final String label;
+  final VoidCallback onSelected;
+}
+
+/// Frame of every emergency screen: the title bar with the "Práctica" chip while practicing, and
+/// a list with even gaps. [body] replaces the list (tabs); [bottom] goes under the title.
 class EmergencyLayout extends ConsumerWidget {
-  const EmergencyLayout({super.key, required this.title, required this.children});
+  const EmergencyLayout({
+    super.key,
+    required this.title,
+    this.children = const [],
+    this.practiceActions = const [],
+    this.body,
+    this.bottom,
+    this.floatingActionButton,
+    this.gap = 16,
+  });
   final String title;
   final List<Widget> children;
+  final List<PracticeAction> practiceActions;
+  final Widget? body;
+  final PreferredSizeWidget? bottom;
+  final Widget? floatingActionButton;
+  final double gap;
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final content = Builder(
-      builder: (context) => Scaffold(
-        appBar: wrappingAppBar(context, title),
-        body: SafeArea(
-          child: ListView(
-            padding: const EdgeInsets.fromLTRB(20, 8, 20, 32),
+    final practice = ref.watch(emergencyScopeProvider)?.practice == true;
+    // A long title keeps its room: the chip shrinks to its icon instead of covering it.
+    final compact = emergencyLargeText(context) || _crowdedTitle(context, title);
+    return Scaffold(
+      appBar: wrappingAppBar(
+        context,
+        title,
+        actions: [if (practice) PracticeChip(actions: practiceActions, compact: compact)],
+        actionsWidth: practice
+            ? (compact ? 64 : _fullChipWidth * MediaQuery.textScalerOf(context).scale(1))
+            : 0,
+        bottom: bottom,
+      ),
+      floatingActionButton: floatingActionButton,
+      body: SafeArea(
+        child:
+            body ??
+            ListView(
+              padding: EdgeInsets.fromLTRB(20, 16, 20, floatingActionButton == null ? 32 : 112),
+              children: spaced(children, gap: gap),
+            ),
+      ),
+    );
+  }
+}
+
+/// Room the full "Práctica" chip takes at normal text size, margin included.
+const _fullChipWidth = 150.0;
+
+/// True when the title would not fit on one line next to the full chip.
+bool _crowdedTitle(BuildContext context, String title) {
+  final theme = Theme.of(context);
+  final scaler = MediaQuery.textScalerOf(context);
+  final painter = TextPainter(
+    text: TextSpan(
+      text: title,
+      style: theme.appBarTheme.titleTextStyle ?? theme.textTheme.titleLarge,
+    ),
+    textDirection: Directionality.of(context),
+    textScaler: scaler,
+    maxLines: 1,
+  )..layout();
+  final leading = ModalRoute.of(context)?.impliesAppBarDismissal == true ? 56.0 : 0.0;
+  final spacing = theme.appBarTheme.titleSpacing ?? NavigationToolbar.kMiddleSpacing;
+  final available = MediaQuery.sizeOf(context).width - leading - 2 * spacing;
+  final crowded = painter.width + _fullChipWidth * scaler.scale(1) > available;
+  painter.dispose();
+  return crowded;
+}
+
+/// "Práctica" in the title bar: the honest notice in one word. Tapping it explains practice and
+/// offers the simulations of the screen.
+class PracticeChip extends StatelessWidget {
+  const PracticeChip({super.key, this.actions = const [], this.compact = false});
+  final List<PracticeAction> actions;
+
+  /// With large text only the icon stays, so the title keeps its room.
+  final bool compact;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context);
+    final colors = pillColors(Theme.of(context).colorScheme, NoticeTone.warning);
+    if (compact) {
+      // The same amber mark in a circle; its name is read by the screen reader and on long press.
+      return Padding(
+        padding: const EdgeInsets.only(right: 8),
+        child: IconButton(
+          tooltip: t.practiceChip,
+          style: IconButton.styleFrom(backgroundColor: colors.background),
+          icon: Icon(Icons.science_outlined, color: colors.foreground),
+          onPressed: () => _open(context),
+        ),
+      );
+    }
+    return Padding(
+      padding: const EdgeInsets.only(right: 12),
+      child: ActionChip(
+        avatar: Icon(Icons.science_outlined, color: colors.foreground, size: 20),
+        label: Text(
+          t.practiceChip,
+          style: TextStyle(color: colors.foreground, fontWeight: FontWeight.w700),
+        ),
+        backgroundColor: colors.background,
+        side: BorderSide.none,
+        shape: const StadiumBorder(),
+        elevation: 0,
+        onPressed: () => _open(context),
+      ),
+    );
+  }
+
+  Future<void> _open(BuildContext context) => showModalBottomSheet<void>(
+    context: context,
+    isScrollControlled: true,
+    showDragHandle: true,
+    builder: (sheet) {
+      final t = AppLocalizations.of(sheet);
+      final theme = Theme.of(sheet);
+      return SafeArea(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.fromLTRB(24, 0, 24, 24),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            spacing: 12,
             children: [
-              for (final child in children)
-                Padding(padding: const EdgeInsets.only(bottom: 16), child: child),
+              Row(
+                children: [
+                  const Icon(Icons.science_outlined),
+                  const SizedBox(width: 10),
+                  Expanded(child: Text(t.practiceMode, style: theme.textTheme.titleLarge)),
+                ],
+              ),
+              Text(
+                t.emergencyPracticeShort,
+                style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700),
+              ),
+              Text(
+                t.emergencyPracticeHelp,
+                style: theme.textTheme.bodyMedium?.copyWith(
+                  color: theme.colorScheme.onSurfaceVariant,
+                ),
+              ),
+              if (actions.isNotEmpty) ...[
+                const SizedBox(height: 4),
+                Semantics(
+                  header: true,
+                  child: Text(t.simulationTitle, style: theme.textTheme.titleMedium),
+                ),
+                for (final action in actions)
+                  OutlinedButton.icon(
+                    icon: Icon(action.icon),
+                    label: Text(action.label),
+                    onPressed: () {
+                      Navigator.pop(sheet);
+                      action.onSelected();
+                    },
+                  ),
+              ],
+              FilledButton(onPressed: () => Navigator.pop(sheet), child: Text(t.closeAction)),
             ],
           ),
         ),
-      ),
-    );
-    if (ref.watch(simpleModeProvider).value != true) return content;
-    return MediaQuery(
-      data: MediaQuery.of(context).copyWith(
-        textScaler: TextScaler.linear(
-          MediaQuery.textScalerOf(context).scale(1) * simpleModeTextScale,
-        ),
-      ),
-      child: content,
-    );
-  }
+      );
+    },
+  );
 }
 
 /// Replaces all private form state whenever the account/profile/mode changes.
@@ -92,7 +240,12 @@ class EmergencyScopeGate extends ConsumerWidget {
       return EmergencyLayout(
         title: title,
         children: [
-          Text(t.emergencySessionRequired),
+          const EmergencyAlternatives(),
+          EmergencyNotice(
+            icon: Icons.lock_outline,
+            text: t.emergencySessionRequired,
+            tone: NoticeTone.info,
+          ),
           LargeButton(
             icon: Icons.local_phone_outlined,
             label: t.emergencyTitle,
@@ -105,17 +258,23 @@ class EmergencyScopeGate extends ConsumerWidget {
   }
 }
 
+/// The red strip with the official numbers: always one tap away. On "Mi pedido" it also prepares
+/// an SMS for the neighbor's contacts and shows the nearest meeting point.
 class EmergencyAlternatives extends ConsumerWidget {
   const EmergencyAlternatives({super.key, this.request});
   final OwnHelpRequest? request;
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final t = AppLocalizations.of(context);
+    final theme = Theme.of(context);
+    final colors = callColors(theme.colorScheme);
     final directory = ref.watch(publicEmergencyDirectoryProvider).value;
     final scope = ref.watch(emergencyScopeProvider);
+    final entries = directory?.entries ?? <PublicEmergencyEntry>[];
+    final numbers = entries.where((e) => e.number != null).toList();
     final origin = request?.approximateLocation ?? ref.watch<GeoPoint>(directoryOriginProvider);
     final points =
-        (directory?.entries ?? <PublicEmergencyEntry>[])
+        entries
             .where((e) => e.kind == PublicEmergencyKind.meetingPoint && e.location != null)
             .toList()
           ..sort(
@@ -125,41 +284,50 @@ class EmergencyAlternatives extends ConsumerWidget {
             ).compareTo(approximateDistanceMeters(origin, b.location!)),
           );
     final nearest = points.firstOrNull;
-    return Card(
+    final buttons = [
+      for (final entry in numbers)
+        (
+          entry.number!,
+          emergencyShortName(t, label: entry.label, number: entry.number!),
+          t.emergencyCallSemantics(entry.label, entry.number!),
+          () => _call(context, ref, entry.number!),
+        ),
+    ];
+    final onStrip = TextStyle(color: colors.onStrip);
+    return DecoratedBox(
+      decoration: BoxDecoration(color: colors.strip, borderRadius: BorderRadius.circular(24)),
       child: Padding(
-        padding: const EdgeInsets.all(20),
+        padding: const EdgeInsets.fromLTRB(16, 16, 16, 16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           spacing: 14,
           children: [
             Semantics(
               header: true,
-              child: Text(t.emergencyLifeRisk, style: Theme.of(context).textTheme.titleMedium),
-            ),
-            Text(t.emergencyAlternativesHelp),
-            for (final entry in (directory?.entries ?? <PublicEmergencyEntry>[]).where(
-              (e) => e.number != null,
-            ))
-              LargeButton(
-                icon: Icons.phone_outlined,
-                label: '${t.callAction} ${entry.label} · ${entry.number}',
-                onPressed: () async {
-                  if (ref.read(practiceModeProvider).value != false) {
-                    emergencyMessage(context, t.emergencyPracticeExternal);
-                    return;
-                  }
-                  var opened = false;
-                  try {
-                    opened = await ref.read(phoneDialerProvider).dial(entry.number!);
-                  } catch (_) {}
-                  if (!opened && context.mounted) emergencyMessage(context, t.callFailed);
-                },
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  ExcludeSemantics(
+                    child: Icon(Icons.warning_amber_rounded, color: colors.onStrip, size: 26),
+                  ),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: Text(
+                      request == null ? t.emergencyCallNow : t.emergencyCallIfWorse,
+                      style: theme.textTheme.titleMedium?.copyWith(
+                        color: colors.onStrip,
+                        fontWeight: FontWeight.w800,
+                      ),
+                    ),
+                  ),
+                ],
               ),
-            TextButton.icon(
-              icon: const Icon(Icons.source_outlined),
-              label: Text(t.emergencyTitle),
-              onPressed: () => context.push(Routes.emergency),
             ),
+            // While the directory opens, the sentence itself keeps the three numbers.
+            if (buttons.isEmpty)
+              Text(t.emergencyLifeRisk, style: onStrip)
+            else
+              EmergencyCallButtons(buttons: buttons),
             if (request != null && scope != null)
               OutlinedButton.icon(
                 icon: const Icon(Icons.sms_outlined),
@@ -167,15 +335,20 @@ class EmergencyAlternatives extends ConsumerWidget {
                 onPressed: () => _prepareSms(context, ref, scope, request!),
               ),
             if (nearest != null) ...[
-              Text(t.emergencyNearestPoint(nearest.label)),
+              Text(
+                t.emergencyNearestPoint(nearest.label),
+                style: onStrip.copyWith(fontWeight: FontWeight.w700),
+              ),
               Text(
                 t.sourceAndDate(
-                  nearest.sourceCitation,
+                  nearest.sourceName,
                   DateFormat.yMd(t.localeName).format(nearest.verifiedAt),
                 ),
+                style: onStrip,
               ),
-              if (nearest.staleAt(ref.watch(clockProvider)())) Text(t.emergencyStale),
-              Text(t.emergencyMapLimit),
+              if (nearest.staleAt(ref.watch(clockProvider)()))
+                Text(t.emergencyStale, style: onStrip),
+              Text(t.emergencyMapLimit, style: onStrip.copyWith(fontSize: 13)),
               OutlinedButton.icon(
                 icon: const Icon(Icons.map_outlined),
                 label: Text(t.openOnMap),
@@ -191,12 +364,24 @@ class EmergencyAlternatives extends ConsumerWidget {
                   ]),
                 ),
               ),
-            ] else
-              Text(t.emergencyNoLocations),
+            ],
           ],
         ),
       ),
     );
+  }
+
+  Future<void> _call(BuildContext context, WidgetRef ref, String number) async {
+    final t = AppLocalizations.of(context);
+    if (ref.read(practiceModeProvider).value != false) {
+      emergencyMessage(context, t.emergencyPracticeExternal);
+      return;
+    }
+    var opened = false;
+    try {
+      opened = await ref.read(phoneDialerProvider).dial(number);
+    } catch (_) {}
+    if (!opened && context.mounted) emergencyMessage(context, t.callFailed);
   }
 
   Future<void> _prepareSms(
@@ -324,5 +509,7 @@ class _EmergencyScopedDialogState extends ConsumerState<EmergencyScopedDialog> {
   }
 }
 
-void emergencyMessage(BuildContext context, String text) =>
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(text)));
+/// Shows a message at once: an older one in the queue would arrive late in an emergency.
+void emergencyMessage(BuildContext context, String text) => ScaffoldMessenger.of(context)
+  ..hideCurrentSnackBar()
+  ..showSnackBar(SnackBar(content: Text(text)));

@@ -90,12 +90,12 @@ class _PublishFormPageState extends ConsumerState<PublishFormPage> {
       if (!mounted) return;
       setState(() => _isSubmitting = false);
       _applyFieldError(error);
-    } catch (error) {
+    } catch (_) {
       if (!mounted) return;
       setState(() => _isSubmitting = false);
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(SnackBar(content: Text('Error al guardar: $error')));
+      ).showSnackBar(SnackBar(content: Text(AppLocalizations.of(context).actionFailed)));
     }
   }
 

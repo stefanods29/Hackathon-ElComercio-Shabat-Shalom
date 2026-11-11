@@ -6,168 +6,245 @@ import 'package:vecinal/core/mode/app_mode.dart';
 import 'package:vecinal/core/router/routes.dart';
 import 'package:vecinal/core/time/time_ago.dart';
 import 'package:vecinal/core/ui/image_policy.dart';
-import 'package:vecinal/core/ui/large_button.dart';
 import 'package:vecinal/features/emergencias/data/emergency_providers.dart';
 import 'package:vecinal/features/emergencias/domain/emergency.dart';
+import 'package:vecinal/features/emergencias/presentation/emergency_ui.dart';
 import 'package:vecinal/features/emergencias/presentation/emergency_widgets.dart';
 import 'package:vecinal/l10n/app_localizations.dart';
 
+/// Emergency home (review of 9 November 2026, section 5.2): the calls on top, one primary action,
+/// four secondary accesses and the rest in one line each, so it fits in one screen.
 class EmergencyDashboardPage extends ConsumerWidget {
   const EmergencyDashboardPage({super.key});
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final t = AppLocalizations.of(context);
+    final theme = Theme.of(context);
     final scope = ref.watch(emergencyScopeProvider);
     final snapshot = ref.watch(emergencySnapshotProvider);
     final data = snapshot.value;
     final available = scope != null && data?.coverageVerified == true;
-    final sync = ref.watch(syncStatusProvider).value;
+    final online = ref.watch(syncStatusProvider).value?.connected == true;
+    final repository = ref.watch(emergencyRepositoryProvider);
+    final practice = repository is PracticeEmergencyRepository ? repository : null;
+    final eventActive = data?.activeEvent == true;
+    final now = ref.watch(clockProvider)();
+    final policy = ref.watch(resourceFreshnessPolicyProvider);
+    final fresh = (data?.resources ?? const <CriticalResource>[])
+        .where((resource) => !policy.isStale(resource, now))
+        .length;
+    final mode = ref.watch(appModeProvider);
+    final canExit = mode != AppMode.normal || (eventActive && practice != null);
     return EmergencyLayout(
       title: t.emergencyDashboard,
+      gap: 14,
+      practiceActions: [
+        if (practice != null) ...[
+          PracticeAction(
+            icon: eventActive ? Icons.stop_circle_outlined : Icons.warning_amber_rounded,
+            label: eventActive ? t.simulationEventOff : t.simulationEventOn,
+            onSelected: () => practice.simulateEvent(active: !eventActive),
+          ),
+          PracticeAction(
+            icon: Icons.water_drop_outlined,
+            label: t.simulationResource,
+            onSelected: practice.simulateResource,
+          ),
+        ],
+      ],
       children: [
-        // Always a visible way back: local mode, or the practice event the neighbor simulated.
-        if (ref.watch(appModeProvider) == AppMode.emergency ||
-            (data?.activeEvent == true &&
-                ref.watch(emergencyRepositoryProvider) is PracticeEmergencyRepository))
-          FilledButton.tonalIcon(
+        const EmergencyAlternatives(),
+        if (snapshot.isLoading) const LinearProgressIndicator(),
+        if (scope?.practice != true && !online)
+          EmergencyNotice(icon: Icons.cloud_off_outlined, text: t.emergencyOfflineWarning)
+        else if (data?.updatedAt != null)
+          _StatusLine(online: online, ago: timeAgo(data!.updatedAt!, now, t)),
+        if (!available)
+          EmergencyNotice(icon: Icons.info_outline, text: t.emergencyNoCoverage, liveRegion: true),
+        if (snapshot.hasError)
+          EmergencyNotice(
+            icon: Icons.sync_problem_outlined,
+            text: t.emergencyCoordinationUnavailable,
+          ),
+        if (scope != null)
+          for (final request in data?.requests ?? const <OwnHelpRequest>[])
+            EmergencyRequestCard(request: request, now: now),
+        EmergencyPrimaryButton(
+          icon: Icons.sos,
+          label: t.emergencyNeedHelp,
+          subtitle: t.emergencyNeedHelpSubtitle,
+          onPressed: available ? () => context.push(Routes.emergencyNeeds) : null,
+        ),
+        EmergencyTileGrid(
+          children: [
+            EmergencyActionTile(
+              icon: Icons.volunteer_activism_outlined,
+              label: t.emergencyCanHelp,
+              onPressed: available ? () => context.push(Routes.emergencyOffer) : null,
+            ),
+            EmergencyActionTile(
+              icon: Icons.water_drop_outlined,
+              label: t.emergencyResources,
+              badge: available && fresh > 0 ? t.emergencyResourcesFresh(fresh) : null,
+              onPressed: available ? () => context.push(Routes.emergencyResources) : null,
+            ),
+            EmergencyActionTile(
+              icon: Icons.local_phone_outlined,
+              label: t.emergencyTitle,
+              onPressed: () => context.push(Routes.emergency),
+            ),
+            if (scope != null)
+              EmergencyActionTile(
+                icon: Icons.contact_phone_outlined,
+                label: t.emergencyContacts,
+                onPressed: () => context.push(Routes.emergencyContacts),
+              ),
+          ],
+        ),
+        const _DataSaverRow(),
+        if (canExit)
+          OutlinedButton.icon(
             icon: const Icon(Icons.home_outlined),
             label: Text(t.emergencyExitLocalMode),
             onPressed: () {
-              if (ref.read(emergencyRepositoryProvider) case final PracticeEmergencyRepository p) {
-                p.simulateEvent(active: false);
+              practice?.simulateEvent(active: false);
+              final controller = ref.read(appModeProvider.notifier);
+              switch (ref.read(appModeProvider)) {
+                case AppMode.emergency:
+                  controller.endEvent();
+                  controller.closeRecovery();
+                case AppMode.recovery:
+                  controller.closeRecovery();
+                case AppMode.normal:
+                  break;
               }
-              final mode = ref.read(appModeProvider.notifier);
-              mode.endEvent();
-              mode.closeRecovery();
             },
           ),
-        Text(t.connectsNeighbors),
-        if (scope?.practice == true) Text(t.emergencyPracticeHelp),
-        if (ref.watch(emergencyRepositoryProvider) case final PracticeEmergencyRepository practice)
-          _SimulationPanel(practice: practice, eventActive: data?.activeEvent == true),
-        if (!ref.watch(emergencyHomeProvider))
-          LargeButton(
-            icon: Icons.emergency_outlined,
-            label: t.activateLocalEmergency,
-            onPressed: () => ref.read(appModeProvider.notifier).activateEmergency(),
-          ),
-        Text(t.emergencyLocalModeHelp),
-        if (!available) Semantics(liveRegion: true, child: Text(t.emergencyNoCoverage)),
-        if (snapshot.isLoading) const LinearProgressIndicator(),
-        if (snapshot.hasError) Text(t.emergencyCoordinationUnavailable),
-        if (data?.updatedAt != null)
-          Text(t.updatedAgo(timeAgo(data!.updatedAt!, ref.watch(clockProvider)(), t))),
-        if (scope?.practice != true && sync?.connected != true) Text(t.emergencyOfflineWarning),
-        LargeButton(
-          icon: Icons.sos_outlined,
-          label: t.emergencyNeedHelp,
-          onPressed: available ? () => context.push(Routes.emergencyNeeds) : null,
-        ),
-        LargeButton(
-          icon: Icons.volunteer_activism_outlined,
-          label: t.emergencyCanHelp,
-          onPressed: available ? () => context.push(Routes.emergencyOffer) : null,
-        ),
-        LargeButton(
-          icon: Icons.water_drop_outlined,
-          label: t.emergencyResources,
-          onPressed: available ? () => context.push(Routes.emergencyResources) : null,
-        ),
-        LargeButton(
-          icon: Icons.local_phone_outlined,
-          label: t.emergencyTitle,
-          onPressed: () => context.push(Routes.emergency),
-        ),
-        LargeButton(
-          icon: Icons.handyman_outlined,
-          label: t.emergencyUsefulServices,
-          onPressed: () {
-            ref.read(imagesEnabledProvider.notifier).set(false);
-            context.go('${Routes.directory}?emergencia=1');
-          },
-        ),
-        if (scope != null) ...[
-          LargeButton(
-            icon: Icons.contact_phone_outlined,
-            label: t.emergencyContacts,
-            onPressed: () => context.push(Routes.emergencyContacts),
-          ),
-          for (final request in data?.requests ?? const <OwnHelpRequest>[])
-            OutlinedButton.icon(
-              icon: const Icon(Icons.assignment_outlined),
-              label: Text('${t.emergencyMyRequest} · ${requestStatusLabel(t, request.status)}'),
-              onPressed: () => context.push('/emergencia/pedidos/${request.id}'),
-            ),
-        ],
-        SwitchListTile.adaptive(
-          contentPadding: EdgeInsets.zero,
-          title: Text(t.emergencyImages),
-          subtitle: Text(t.emergencyImagesHelp),
-          value: ref.watch(imagesEnabledProvider),
-          onChanged: (value) => ref.read(imagesEnabledProvider.notifier).set(value),
-        ),
-        const EmergencyAlternatives(),
-        OutlinedButton.icon(
-          icon: const Icon(Icons.person_outline),
-          label: Text(t.accountTitle),
-          onPressed: () => context.go(Routes.account),
+        Text(
+          t.connectsNeighbors,
+          textAlign: TextAlign.center,
+          style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.onSurfaceVariant),
         ),
       ],
     );
   }
 }
 
-/// Practice only: simulate an emergency to show the whole flow without a server or allies.
-class _SimulationPanel extends StatelessWidget {
-  const _SimulationPanel({required this.practice, required this.eventActive});
-  final PracticeEmergencyRepository practice;
-  final bool eventActive;
+/// "Con conexión · actualizado hace un momento": the freshness of what is on screen in one line.
+class _StatusLine extends StatelessWidget {
+  const _StatusLine({required this.online, required this.ago});
+  final bool online;
+  final String ago;
   @override
   Widget build(BuildContext context) {
     final t = AppLocalizations.of(context);
     final scheme = Theme.of(context).colorScheme;
-    final dark = scheme.brightness == Brightness.dark;
-    // Light: an amber note. Dark: a regular surface where only the icon keeps the amber.
-    final background = dark ? scheme.surfaceContainerHigh : scheme.tertiaryContainer;
-    final foreground = dark ? scheme.onSurface : scheme.onTertiaryContainer;
-    return Card(
-      color: background,
-      child: Padding(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Row(
+    final updated = t.updatedAgo(ago);
+    final text = online
+        ? '${t.emergencyConnected} · ${updated[0].toLowerCase()}${updated.substring(1)}'
+        : updated;
+    return Row(
+      children: [
+        ExcludeSemantics(
+          child: Icon(
+            online ? Icons.cloud_done_outlined : Icons.history,
+            color: scheme.primary,
+            size: 22,
+          ),
+        ),
+        const SizedBox(width: 10),
+        Expanded(
+          child: Text(text, style: TextStyle(color: scheme.onSurfaceVariant)),
+        ),
+      ],
+    );
+  }
+}
+
+/// One own request on the dashboard: its need and its real state, one tap from "Mi pedido".
+class EmergencyRequestCard extends StatelessWidget {
+  const EmergencyRequestCard({super.key, required this.request, required this.now});
+  final OwnHelpRequest request;
+  final DateTime now;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context);
+    final scheme = Theme.of(context).colorScheme;
+    return FilledButton(
+      onPressed: () => context.push('/emergencia/pedidos/${request.id}'),
+      style: emergencyCardStyle(
+        scheme,
+        minimumSize: const Size(48, 76),
+        padding: const EdgeInsets.fromLTRB(16, 14, 12, 14),
+        alignment: Alignment.centerLeft,
+      ),
+      child: Row(
+        children: [
+          EmergencyIconBadge(icon: needIcon(request.need)),
+          const SizedBox(width: 14),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Icon(Icons.science_outlined, color: dark ? scheme.tertiary : foreground),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: Text(
-                    t.simulationTitle,
-                    style: Theme.of(context).textTheme.titleMedium?.copyWith(color: foreground),
+                Text(
+                  t.emergencyMyRequestOf(needLabel(t, request.need).toLowerCase()),
+                  style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  t.emergencyRequestSince(
+                    requestStatusLabel(t, request.status),
+                    timeAgo(request.updatedAt, now, t),
+                  ),
+                  style: TextStyle(
+                    color: requestStatusColor(scheme, request.status),
+                    fontWeight: FontWeight.w700,
                   ),
                 ),
               ],
             ),
-            const SizedBox(height: 8),
-            Text(
-              t.simulationHelp,
-              style: TextStyle(color: dark ? scheme.onSurfaceVariant : foreground),
-            ),
-            const SizedBox(height: 16),
-            FilledButton.tonalIcon(
-              icon: Icon(eventActive ? Icons.stop_circle_outlined : Icons.warning_amber_rounded),
-              label: Text(eventActive ? t.simulationEventOff : t.simulationEventOn),
-              onPressed: () => practice.simulateEvent(active: !eventActive),
-            ),
-            const SizedBox(height: 12),
-            OutlinedButton.icon(
-              icon: const Icon(Icons.water_drop_outlined),
-              label: Text(t.simulationResource),
-              onPressed: practice.simulateResource,
-            ),
-          ],
-        ),
+          ),
+          const Icon(Icons.chevron_right),
+        ],
+      ),
+    );
+  }
+}
+
+/// Text color of a request state on a card: amber while it was not sent, navy while it waits,
+/// teal once someone acts, neutral when it closed.
+Color requestStatusColor(ColorScheme scheme, HelpRequestStatus status) {
+  final light = scheme.brightness == Brightness.light;
+  return switch (status) {
+    HelpRequestStatus.local => light ? scheme.onTertiaryContainer : scheme.tertiary,
+    HelpRequestStatus.sent || HelpRequestStatus.seen => scheme.secondary,
+    HelpRequestStatus.onTheWay || HelpRequestStatus.attended => scheme.primary,
+    HelpRequestStatus.referred || HelpRequestStatus.closedUnattended => scheme.onSurfaceVariant,
+  };
+}
+
+/// "Ahorro de datos" in one row. In emergency mode images stay off, and the switch says why.
+class _DataSaverRow extends ConsumerWidget {
+  const _DataSaverRow();
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final t = AppLocalizations.of(context);
+    final saving = !ref.watch(imagesEnabledProvider);
+    return Card(
+      margin: EdgeInsets.zero,
+      clipBehavior: Clip.antiAlias,
+      child: SwitchListTile.adaptive(
+        secondary: const Icon(Icons.data_saver_on_outlined),
+        title: Text(t.emergencyDataSaver, style: const TextStyle(fontWeight: FontWeight.w600)),
+        subtitle: Text(saving ? t.emergencyDataSaverOn : t.emergencyDataSaverOff),
+        value: saving,
+        onChanged: (save) {
+          ref.read(imagesEnabledProvider.notifier).set(!save);
+          if (!save && ref.read(emergencyHomeProvider)) {
+            emergencyMessage(context, t.emergencyImagesLocked);
+          }
+        },
       ),
     );
   }

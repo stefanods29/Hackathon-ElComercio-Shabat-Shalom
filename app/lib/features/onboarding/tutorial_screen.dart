@@ -36,42 +36,109 @@ class _TutorialScreenState extends ConsumerState<TutorialScreen> {
         bottom: steps == null,
         child: !_started
             ? ListView(
-                padding: const EdgeInsets.all(24),
+                padding: const EdgeInsets.fromLTRB(20, 16, 20, 32),
                 children: spaced([
-                  Text(t.tutorialSubtitle, style: theme.textTheme.headlineSmall),
-                  Text(t.tutorialFallback),
-                  SwitchListTile.adaptive(
-                    contentPadding: EdgeInsets.zero,
-                    title: Text(t.practiceMode),
-                    subtitle: Text(practice.value == true ? t.practiceHelp : t.practiceOffHelp),
-                    value: practice.value == true,
-                    onChanged: !practice.hasValue
-                        ? null
-                        : (value) => ref.read(practiceModeProvider.notifier).set(value),
-                  ),
-                  if (practice.value == true) ...[
-                    Text(t.syntheticProfilesHelp),
-                    DropdownButtonFormField<int>(
-                      initialValue: ref.watch(demoProfileIndexProvider),
-                      isExpanded: true,
-                      decoration: InputDecoration(labelText: t.syntheticProfile),
-                      items: [
-                        for (var i = 0; i < demoProfiles.length; i++)
-                          DropdownMenuItem(value: i, child: Text(demoProfiles[i].name)),
-                      ],
-                      onChanged: (value) {
-                        if (value != null) {
-                          ref.read(demoProfileIndexProvider.notifier).select(value);
-                        }
-                      },
+                  Card(
+                    margin: EdgeInsets.zero,
+                    child: Padding(
+                      padding: const EdgeInsets.all(20),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        spacing: 10,
+                        children: [
+                          CircleAvatar(
+                            radius: 28,
+                            backgroundColor: scheme.primaryContainer,
+                            foregroundColor: scheme.onPrimaryContainer,
+                            child: const Icon(Icons.school_outlined, size: 30),
+                          ),
+                          Text(t.tutorialSubtitle, style: theme.textTheme.headlineSmall),
+                          Text(
+                            t.tutorialFallback,
+                            style: TextStyle(color: scheme.onSurfaceVariant),
+                          ),
+                        ],
+                      ),
                     ),
-                  ],
+                  ),
                   FilledButton.icon(
                     icon: const Icon(Icons.play_arrow),
                     label: Text(t.startTutorial),
                     onPressed: () => setState(() => _started = true),
                   ),
                   TextButton(onPressed: _finish, child: Text(t.finishTutorial)),
+                  Card(
+                    margin: EdgeInsets.zero,
+                    clipBehavior: Clip.antiAlias,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        SwitchListTile.adaptive(
+                          title: Text(
+                            t.practiceMode,
+                            style: const TextStyle(fontWeight: FontWeight.w600),
+                          ),
+                          subtitle: Text(
+                            practice.value == true ? t.practiceHelp : t.practiceOffHelp,
+                          ),
+                          value: practice.value == true,
+                          // The demo build has no account to go back to.
+                          onChanged: !practice.hasValue || ref.watch(practiceLockedProvider)
+                              ? null
+                              : (value) => ref.read(practiceModeProvider.notifier).set(value),
+                        ),
+                        if (practice.value == true)
+                          Padding(
+                            padding: const EdgeInsets.fromLTRB(20, 4, 20, 18),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              spacing: 10,
+                              children: [
+                                Text(
+                                  t.practiceChooseProfile,
+                                  style: const TextStyle(fontWeight: FontWeight.w600),
+                                ),
+                                Wrap(
+                                  spacing: 8,
+                                  runSpacing: 8,
+                                  children: [
+                                    for (var i = 0; i < demoProfiles.length; i++)
+                                      ChoiceChip(
+                                        tooltip: demoProfiles[i].name,
+                                        label: Text(
+                                          '${i + 1}',
+                                          style: TextStyle(
+                                            fontWeight: FontWeight.w700,
+                                            color: ref.watch(demoProfileIndexProvider) == i
+                                                ? scheme.onSecondary
+                                                : scheme.onSurface,
+                                          ),
+                                        ),
+                                        showCheckmark: false,
+                                        selectedColor: scheme.secondary,
+                                        selected: ref.watch(demoProfileIndexProvider) == i,
+                                        onSelected: (_) =>
+                                            ref.read(demoProfileIndexProvider.notifier).select(i),
+                                      ),
+                                  ],
+                                ),
+                                Text(
+                                  '${demoProfiles[ref.watch(demoProfileIndexProvider)].name} · '
+                                  '${t.profileTrustLevel(demoProfiles[ref.watch(demoProfileIndexProvider)].trustLevel)}',
+                                  style: const TextStyle(fontWeight: FontWeight.w600),
+                                ),
+                                Text(
+                                  t.syntheticProfilesHelp,
+                                  style: theme.textTheme.bodySmall?.copyWith(
+                                    color: scheme.onSurfaceVariant,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                      ],
+                    ),
+                  ),
                 ], gap: 16),
               )
             : content.when(
@@ -185,7 +252,7 @@ class _TutorialScreenState extends ConsumerState<TutorialScreen> {
     TutorialDestination.publish => t.offerService,
     TutorialDestination.review => t.writeReview,
     TutorialDestination.actions => t.actionsToReview,
-    TutorialDestination.emergency => t.emergencyTitle,
+    TutorialDestination.emergency => t.activateLocalEmergency,
     TutorialDestination.privacy => t.privacyTitle,
   };
   String _body(AppLocalizations t, TutorialDestination d) => switch (d) {

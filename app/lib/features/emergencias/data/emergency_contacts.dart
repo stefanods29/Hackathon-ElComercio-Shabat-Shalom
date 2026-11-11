@@ -5,14 +5,72 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:vecinal/core/storage/secure_store.dart';
 import 'package:vecinal/features/emergencias/data/emergency_providers.dart';
 
+/// Who the contact is to the neighbor: chosen with one tap, never typed.
+enum ContactRelationship {
+  father,
+  mother,
+  guardian,
+  spouse,
+  brother,
+  sister,
+  child,
+  friend,
+  grandparent,
+  uncleAunt,
+  cousin,
+  other,
+}
+
 class EmergencyContact {
-  const EmergencyContact({required this.id, required this.name, required this.phone});
+  const EmergencyContact({
+    required this.id,
+    required this.name,
+    required this.phone,
+    this.relationship,
+    this.alternatePhone,
+  });
   final String id;
   final String name;
   final String phone;
+  final ContactRelationship? relationship;
+
+  /// A second number to try; optional.
+  final String? alternatePhone;
+
   static bool validName(String value) => value.trim().isNotEmpty && value.trim().length <= 80;
   static bool validPhone(String value) => RegExp(r'^\+?[0-9]{6,15}$').hasMatch(value);
-  Map<String, String> toJson() => {'id': id, 'name': name, 'phone': phone};
+
+  /// Leaves only the digits and a leading +, as the agenda and people write numbers in many ways:
+  /// "+51 987-654 321" becomes "+51987654321".
+  static String normalizePhone(String value) {
+    final trimmed = value.trim();
+    final digits = trimmed.replaceAll(RegExp('[^0-9]'), '');
+    return trimmed.startsWith('+') ? '+$digits' : digits;
+  }
+
+  bool get valid =>
+      validName(name) &&
+      validPhone(phone) &&
+      (alternatePhone == null || validPhone(alternatePhone!));
+
+  Map<String, String> toJson() => {
+    'id': id,
+    'name': name,
+    'phone': phone,
+    'relationship': ?relationship?.name,
+    'alternatePhone': ?alternatePhone,
+  };
+
+  /// Contacts saved before the relationship and the second number existed still read.
+  factory EmergencyContact.fromJson(Map<String, Object?> map) => EmergencyContact(
+    id: map['id'] as String,
+    name: map['name'] as String,
+    phone: map['phone'] as String,
+    relationship: ContactRelationship.values
+        .where((relationship) => relationship.name == map['relationship'])
+        .firstOrNull,
+    alternatePhone: map['alternatePhone'] as String?,
+  );
 }
 
 abstract interface class EmergencyContactsRepository {
@@ -93,16 +151,8 @@ class SecureEmergencyContactsRepository implements EmergencyContactsRepository {
       final rows = jsonDecode(raw) as List<Object?>;
       final loaded = rows
           .map((row) {
-            final map = row as Map<String, Object?>;
-            final contact = EmergencyContact(
-              id: map['id'] as String,
-              name: map['name'] as String,
-              phone: map['phone'] as String,
-            );
-            if (!EmergencyContact.validName(contact.name) ||
-                !EmergencyContact.validPhone(contact.phone)) {
-              throw const FormatException('Invalid contact');
-            }
+            final contact = EmergencyContact.fromJson(row as Map<String, Object?>);
+            if (!contact.valid) throw const FormatException('Invalid contact');
             return contact;
           })
           .toList(growable: false);
@@ -139,9 +189,7 @@ class SecureEmergencyContactsRepository implements EmergencyContactsRepository {
   @override
   Future<void> save(EmergencyContact contact) {
     _ensureOpen();
-    if (!EmergencyContact.validName(contact.name) || !EmergencyContact.validPhone(contact.phone)) {
-      throw ArgumentError('Invalid contact');
-    }
+    if (!contact.valid) throw ArgumentError('Invalid contact');
     return _queue(() async {
       await _load();
       _ensureOpen();
@@ -203,9 +251,7 @@ class PracticeEmergencyContactsRepository implements EmergencyContactsRepository
   @override
   Future<void> save(EmergencyContact contact) async {
     _ensureOpen();
-    if (!EmergencyContact.validName(contact.name) || !EmergencyContact.validPhone(contact.phone)) {
-      throw ArgumentError('Invalid contact');
-    }
+    if (!contact.valid) throw ArgumentError('Invalid contact');
     _contacts.removeWhere((c) => c.id == contact.id);
     _contacts.add(contact);
     _changes.add(null);

@@ -19,6 +19,7 @@ import 'package:vecinal/features/emergencias/data/emergency_providers.dart';
 import 'package:vecinal/features/emergencias/domain/emergency.dart';
 import 'package:vecinal/features/emergencias/emergency_page.dart';
 import 'package:vecinal/features/emergencias/presentation/emergency_dashboard_page.dart';
+import 'package:vecinal/features/emergencias/presentation/emergency_ui.dart';
 import 'package:vecinal/features/emergencias/presentation/emergency_widgets.dart';
 import 'package:vecinal/features/emergencias/presentation/help_request_pages.dart';
 import 'package:vecinal/features/emergencias/public_emergency_directory.dart';
@@ -183,10 +184,13 @@ Future<ProviderContainer> _show(
   return container;
 }
 
+/// The red strip with a call button for each official number stays on screen in every state.
 void _expectAlternatives(AppLocalizations t) {
-  expect(find.text(t.emergencyLifeRisk), findsOneWidget);
+  expect(find.byType(EmergencyAlternatives), findsOneWidget);
+  expect(find.textContaining('Si hay riesgo para la vida'), findsOneWidget);
+  expect(find.byType(EmergencyCallButton), findsNWidgets(3));
   for (final number in ['116', '105', '106']) {
-    expect(find.textContaining('· $number'), findsOneWidget);
+    expect(find.text(number), findsOneWidget);
   }
 }
 
@@ -210,35 +214,98 @@ void main() {
     }
   });
 
-  testWidgets('un evento activo cambia el inicio al tablero y desactiva imágenes', (tester) async {
+  testWidgets('un evento activo deja el muro en Inicio con un aviso y desactiva imágenes', (
+    tester,
+  ) async {
     final repository = _Repository(
       const EmergencySnapshot(coverageVerified: true, activeEvent: true),
     );
     addTearDown(repository.close);
     final container = await _show(tester, repository: repository, page: const WallPage());
     expect(container.read(emergencyHomeProvider), isTrue);
-    expect(find.byType(EmergencyDashboardPage), findsOneWidget);
+    // Inicio and Emergencia are different screens: the wall stays and leads to the dashboard.
+    expect(find.byType(EmergencyDashboardPage), findsNothing);
+    expect(find.text(t.emergencyModeOnTitle), findsOneWidget);
     expect(container.read(imagesEnabledProvider), isFalse);
+    await tester.tap(find.text(t.emergencyGoToDashboard));
+    await tester.pumpAndSettle();
+    expect(find.byType(EmergencyDashboardPage), findsOneWidget);
+  });
+
+  testWidgets('los botones de llamada se apilan cuando el nombre no cabe al lado', (tester) async {
+    Future<bool> stackedAt(double width, double textScale) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          home: MediaQuery(
+            data: MediaQueryData(textScaler: TextScaler.linear(textScale)),
+            child: Scaffold(
+              body: Center(
+                child: SizedBox(
+                  width: width,
+                  child: EmergencyCallButtons(
+                    buttons: [
+                      for (final (number, name) in [
+                        ('116', 'Bomberos'),
+                        ('105', 'Policía'),
+                        ('106', 'SAMU'),
+                      ])
+                        (number, name, 'Llamar a $name, $number', () {}),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+      );
+      expect(tester.takeException(), isNull);
+      return tester
+          .widgetList<EmergencyCallButton>(find.byType(EmergencyCallButton))
+          .every((button) => button.horizontal);
+    }
+
+    // The width of the strip on a 414 dp phone, then on a 360 dp one and with larger text.
+    expect(await stackedAt(342, 1), isFalse);
+    expect(await stackedAt(288, 1), isTrue);
+    expect(await stackedAt(342, 1.3), isTrue);
   });
 
   testWidgets(
-    'activar manualmente desde el directorio abre el tablero e impide encender imágenes',
+    'activar desde el inicio abre el tablero, avisa que no notifica a nadie e impide encender '
+    'imágenes',
     (tester) async {
       final repository = _Repository(const EmergencySnapshot(coverageVerified: true));
       addTearDown(repository.close);
-      final container = await _show(tester, repository: repository, page: const EmergencyPage());
+      final container = await _show(tester, repository: repository, page: const WallPage());
       expect(container.read(imagesEnabledProvider), isTrue);
       await tester.tap(find.widgetWithText(FilledButton, t.activateLocalEmergency));
       await tester.pumpAndSettle();
       expect(container.read(appModeProvider), AppMode.emergency);
       expect(find.byType(EmergencyDashboardPage), findsOneWidget);
+      expect(find.text(t.emergencyModeActivated), findsOneWidget);
       expect(container.read(imagesEnabledProvider), isFalse);
-      await tester.tap(find.widgetWithText(SwitchListTile, t.emergencyImages));
+      final saver = find.widgetWithText(SwitchListTile, t.emergencyDataSaver);
+      expect(tester.widget<SwitchListTile>(saver).value, isTrue);
+      await tester.tap(saver);
       await tester.pumpAndSettle();
       expect(container.read(imagesEnabledProvider), isFalse);
-      expect(tester.widget<SwitchListTile>(find.byType(SwitchListTile)).value, isFalse);
+      expect(tester.widget<SwitchListTile>(saver).value, isTrue);
+      expect(find.text(t.emergencyImagesLocked), findsOneWidget);
     },
   );
+
+  testWidgets('el directorio abre con los números y no repite botones para activar el modo', (
+    tester,
+  ) async {
+    final repository = _Repository(const EmergencySnapshot(coverageVerified: true));
+    addTearDown(repository.close);
+    await _show(tester, repository: repository, page: const EmergencyPage());
+    expect(find.text(t.emergencyLifeRisk), findsOneWidget);
+    expect(find.text(t.connectsNeighbors), findsOneWidget);
+    expect(find.widgetWithText(FilledButton, t.callAction), findsNWidgets(3));
+    expect(find.text(t.activateLocalEmergency), findsNothing);
+    expect(find.text(t.emergencyBoardActivateMode), findsNothing);
+  });
 
   testWidgets('tres toques guardan una sola vez y el toque repetido durante el envío no duplica', (
     tester,
@@ -257,7 +324,7 @@ void main() {
     await tap(t.emergencyNeedHelp); // 1: dashboard.
     await tap(t.emergencyNeedWater); // 2: need.
     await tester.enterText(find.byType(TextFormField).first, 'Necesidad ficticia de agua');
-    await tap(t.emergencySend); // 3: submit; typing does not add a tap.
+    await tap(t.emergencySendRequest); // 3: submit; typing does not add a tap.
     expect(taps, 3);
     expect(repository.drafts, hasLength(1));
     final draft = repository.drafts.single;
@@ -267,7 +334,7 @@ void main() {
     expect(draft.need, EmergencyNeed.water);
     expect(draft.description, 'Necesidad ficticia de agua');
     await tester.tap(
-      find.text(t.emergencySend),
+      find.text(t.emergencySendRequest),
     ); // Repeated submission, outside the three-tap flow.
     await tester.pump();
     expect(repository.drafts, hasLength(1));
@@ -289,10 +356,10 @@ void main() {
       repository: repository,
       page: const HelpRequestFormPage(need: EmergencyNeed.water),
     );
-    await tester.tap(find.text(t.emergencySend));
+    await tester.tap(find.text(t.emergencySendRequest));
     await tester.pumpAndSettle();
     expect(find.text(t.emergencySaveFailed), findsOneWidget);
-    await tester.tap(find.text(t.emergencySend));
+    await tester.tap(find.text(t.emergencySendRequest));
     await tester.pumpAndSettle();
     expect(repository.drafts, hasLength(2));
     expect(repository.drafts.last.id, repository.drafts.first.id);
@@ -335,8 +402,7 @@ void main() {
         }
         if (status == HelpRequestStatus.onTheWay) {
           // An allowlist catches any extra identity/contact text, not just a known name.
-          String date(DateTime value) =>
-              DateFormat.yMd(t.localeName).add_Hm().format(value.toLocal());
+          String hour(DateTime value) => DateFormat.Hm(t.localeName).format(value.toLocal());
           final publicText = tester
               .widgetList<Text>(
                 find.descendant(
@@ -353,15 +419,21 @@ void main() {
             privateText,
             unorderedEquals([
               t.emergencyMyRequest,
+              // The state band.
               t.emergencyRequestOnTheWay,
               message,
-              t.emergencyLastChange(date(request.updatedAt)),
-              t.emergencySentAt(date(request.sentAt!)),
+              // What was asked and where.
               t.emergencyNeedWater,
               request.description,
-              '${t.emergencyApproximateLocation}: ${request.locationLabel}',
-              t.emergencyHistory,
-              '${t.emergencyRequestOnTheWay} · ${date(request.updatedAt)}',
+              request.locationLabel,
+              // The timeline: creation and receipt keep their hour; only the next step is ahead.
+              t.statusSavedOnPhone,
+              hour(request.createdAt),
+              t.statusSent,
+              hour(request.sentAt!),
+              t.emergencyRequestOnTheWay,
+              hour(request.updatedAt),
+              t.emergencyRequestAttended,
             ]),
           );
         }

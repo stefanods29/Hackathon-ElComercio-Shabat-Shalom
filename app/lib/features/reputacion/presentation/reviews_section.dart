@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:vecinal/core/di/providers.dart';
+import 'package:vecinal/core/router/routes.dart';
 import 'package:vecinal/core/theme/accessible_theme.dart';
 import 'package:vecinal/core/ui/image_policy.dart';
 import 'package:vecinal/core/ui/spaced.dart';
@@ -179,16 +180,49 @@ class MyReviewsPage extends ConsumerWidget {
       body: ref
           .watch(myReviewsProvider)
           .when(
-            data: (items) => ListView(
-              padding: const EdgeInsets.fromLTRB(20, 8, 20, 32),
-              children: spaced([
-                if (items.isEmpty) Text(t.noReviews),
-                for (final review in items) ReviewCard(review: review),
-              ]),
-            ),
+            data: (items) => items.isEmpty
+                ? const _NoReviews()
+                : ListView(
+                    padding: const EdgeInsets.fromLTRB(20, 16, 20, 32),
+                    children: spaced([for (final review in items) ReviewCard(review: review)]),
+                  ),
             loading: () => const Center(child: CircularProgressIndicator()),
             error: (_, _) => Center(child: Text(t.actionFailed)),
           ),
+    );
+  }
+}
+
+/// Nothing reviewed yet: what will appear here and where to start.
+class _NoReviews extends StatelessWidget {
+  const _NoReviews();
+  @override
+  Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context);
+    final theme = Theme.of(context);
+    return ListView(
+      padding: const EdgeInsets.fromLTRB(32, 72, 32, 32),
+      children: [
+        ExcludeSemantics(
+          child: Icon(Icons.rate_review_outlined, size: 64, color: theme.colorScheme.primary),
+        ),
+        const SizedBox(height: 16),
+        Text(t.noReviews, textAlign: TextAlign.center, style: theme.textTheme.titleLarge),
+        const SizedBox(height: 8),
+        Text(
+          t.noReviewsHint,
+          textAlign: TextAlign.center,
+          style: TextStyle(color: theme.colorScheme.onSurfaceVariant),
+        ),
+        const SizedBox(height: 24),
+        Center(
+          child: OutlinedButton.icon(
+            icon: const Icon(Icons.storefront_outlined),
+            label: Text(t.noReviewsAction),
+            onPressed: () => context.go(Routes.directory),
+          ),
+        ),
+      ],
     );
   }
 }

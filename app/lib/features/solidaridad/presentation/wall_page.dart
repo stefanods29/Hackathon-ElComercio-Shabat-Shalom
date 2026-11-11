@@ -9,7 +9,6 @@ import 'package:vecinal/core/theme/accessible_theme.dart';
 import 'package:vecinal/core/time/time_ago.dart';
 import 'package:vecinal/core/ui/connection_banner.dart';
 import 'package:vecinal/features/emergencias/data/emergency_providers.dart';
-import 'package:vecinal/features/emergencias/presentation/emergency_dashboard_page.dart';
 import 'package:vecinal/features/onboarding/practice_mode.dart';
 import 'package:vecinal/features/solidaridad/data/providers.dart';
 import 'package:vecinal/features/solidaridad/presentation/widgets/post_card.dart';
@@ -22,7 +21,8 @@ class WallPage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    if (ref.watch(emergencyHomeProvider)) return const EmergencyDashboardPage();
+    // In emergency mode Inicio stays the wall: the emergency screen has its own tab.
+    final emergency = ref.watch(emergencyHomeProvider);
     final texts = AppLocalizations.of(context);
     final wall = ref.watch(wallProvider);
     final signOut = ref.watch(demoSignOutProvider);
@@ -139,6 +139,7 @@ class WallPage extends ConsumerWidget {
       body: Column(
         children: [
           const ConnectionBanner(),
+          if (emergency) const _EmergencyModeBanner(),
           Expanded(
             child: wall.when(
               data: (posts) => ListView(
@@ -171,7 +172,14 @@ class WallPage extends ConsumerWidget {
                                 borderRadius: BorderRadius.circular(20),
                               ),
                             ),
-                            onPressed: () => ref.read(appModeProvider.notifier).activateEmergency(),
+                            onPressed: () {
+                              ref.read(appModeProvider.notifier).activateEmergency();
+                              // The name could suggest an alert: say once that nobody is notified.
+                              ScaffoldMessenger.of(
+                                context,
+                              ).showSnackBar(SnackBar(content: Text(texts.emergencyModeActivated)));
+                              context.go(Routes.emergencyDashboard);
+                            },
                             child: _QuickAction(
                               icon: Icons.emergency_outlined,
                               label: texts.activateLocalEmergency,
@@ -230,7 +238,12 @@ class WallPage extends ConsumerWidget {
                 ],
               ),
               loading: () => const Center(child: CircularProgressIndicator()),
-              error: (error, stackTrace) => Center(child: Text('$error')),
+              error: (error, stackTrace) => Center(
+                child: Padding(
+                  padding: const EdgeInsets.all(24),
+                  child: Text(texts.wallLoadFailed, textAlign: TextAlign.center),
+                ),
+              ),
             ),
           ),
         ],
@@ -239,6 +252,77 @@ class WallPage extends ConsumerWidget {
         onPressed: () => context.push(Routes.publish),
         icon: const Icon(Icons.add),
         label: Text(texts.publishAction),
+      ),
+    );
+  }
+}
+
+/// While the emergency mode is on, Inicio says so in one band and leads to the Emergencia tab.
+class _EmergencyModeBanner extends StatelessWidget {
+  const _EmergencyModeBanner();
+
+  @override
+  Widget build(BuildContext context) {
+    final texts = AppLocalizations.of(context);
+    final scheme = Theme.of(context).colorScheme;
+    return Semantics(
+      liveRegion: true,
+      container: true,
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(20, 8, 20, 0),
+        child: DecoratedBox(
+          decoration: BoxDecoration(
+            color: scheme.errorContainer,
+            borderRadius: BorderRadius.circular(20),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(16, 14, 16, 14),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              spacing: 12,
+              children: [
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    ExcludeSemantics(
+                      child: Icon(Icons.emergency_outlined, color: scheme.onErrorContainer),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        spacing: 2,
+                        children: [
+                          Text(
+                            texts.emergencyModeOnTitle,
+                            style: TextStyle(
+                              color: scheme.onErrorContainer,
+                              fontWeight: FontWeight.w800,
+                              fontSize: 16,
+                            ),
+                          ),
+                          Text(
+                            texts.emergencyModeOnDetail,
+                            style: TextStyle(color: scheme.onErrorContainer),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+                FilledButton.icon(
+                  icon: const Icon(Icons.sos),
+                  label: Text(texts.emergencyGoToDashboard),
+                  style: FilledButton.styleFrom(
+                    backgroundColor: scheme.error,
+                    foregroundColor: scheme.onError,
+                  ),
+                  onPressed: () => context.go(Routes.emergencyDashboard),
+                ),
+              ],
+            ),
+          ),
+        ),
       ),
     );
   }
